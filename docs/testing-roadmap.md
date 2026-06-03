@@ -22,7 +22,7 @@ How we close the gap between strong **domain unit tests** and **no automated UI 
 | History stats, curriculum | Unit tests | `tests/history-stats.test.ts`, `tests/curriculum-*.test.ts` |
 | UI mount / orchestration | **None** | `src/ui/*.ts` import audio + history directly |
 | Browser / Vitest projects | **Not configured** | Single `npm test` → Node only (`vite.config.ts`) |
-| **CI (GitHub Actions)** | **None** | No `.github/workflows/`; tests and build are local-only today |
+| **CI (GitHub Actions)** | **Done** | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — `npm test` + `npm run build` on PRs and `main`; no browser job yet |
 
 **Risk:** Each new exercise and curriculum feature increases manual regression surface (home cards, locked pages, round flow, `saveAttempt` fields) while domain logic stays well tested.
 
@@ -77,45 +77,18 @@ interface ExerciseUiDeps {
 
 ## Continuous integration (GitHub Actions)
 
-**Today:** No workflow runs on push or PR. Contributors must run `npm test` and `npm run build` locally ([`docs/agents/pull-requests.md`](agents/pull-requests.md)).
+**Today:** [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on every PR and `push` to `main`: Node 22, `npm ci`, `npm test`, `npm run build`. Confirm green **CI** on the PR ([`docs/agents/pull-requests.md`](agents/pull-requests.md)). Browser / Playwright steps join the workflow with [T0](#phase-t0---foundation-tooling--first-ports).
 
-**Goal:** Every PR and `main` get a fast, deterministic check before merge; browser tests join the same workflow once T0 lands.
-
-### Phase T-CI - GitHub Actions (baseline)
+### Phase T-CI - GitHub Actions (baseline) — **Done**
 
 **Goal:** Automated gate for domain tests and production build — no Playwright yet.
 
 | Task | Status | Notes |
 |------|--------|--------|
-| Add `.github/workflows/ci.yml` | Todo | Triggers: `push` to `main`, all `pull_request` |
-| Job: `test` — `npm ci`, `npm test` | Todo | Node 22 (or repo LTS); cache `npm` via `actions/setup-node` |
-| Job: `build` — `npm ci`, `npm run build` | Todo | Same checkout; can be one job with both steps or parallel jobs |
-| Document CI in `AGENTS.md` | Todo | PRs must pass CI; link to workflow file |
-| Branch protection on `main` (repo settings) | Todo | Require `test` / `build` (or single `ci` job) status checks |
-
-**Example workflow shape (implementation PR):**
-
-```yaml
-name: CI
-on:
-  push:
-    branches: [main]
-  pull_request:
-jobs:
-  ci:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: npm
-      - run: npm ci
-      - run: npm test
-      - run: npm run build
-```
-
-**Exit criteria:** Green check on PRs without manual “trust me, tests pass.”
+| Add `.github/workflows/ci.yml` | **Done** | Triggers: `push` to `main`, all `pull_request` |
+| Job: `ci` — `npm ci`, `npm test`, `npm run build` | **Done** | Single job; Node 22; npm cache via `actions/setup-node` |
+| Document CI in `AGENTS.md` | **Done** | PRs must pass CI; link to workflow file |
+| Branch protection on `main` (repo settings) | Todo | Optional manual step: require status check **`ci`** |
 
 ### CI after browser tests (extends T0+)
 
@@ -218,14 +191,14 @@ npm run test:browser  # Vitest browser — UI orchestration (T0)
 npm run build         # unchanged; run when routes/assets change
 ```
 
-**GitHub Actions (after [T-CI](#phase-t-ci---github-actions-baseline)):** same commands in `.github/workflows/ci.yml` on every PR and `main`.
+**GitHub Actions:** [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs `npm test` and `npm run build` on every PR and `main`. `npm run test:browser` joins the workflow when [T0](#phase-t0---foundation-tooling--first-ports) lands.
 
 ## Suggested implementation order
 
 Align with product work; testing phases can run **in parallel** with feature PRs once CI exists.
 
-0. [T-CI](#phase-t-ci---github-actions-baseline) — GitHub Actions: `npm test` + `npm run build` on every PR *(do this first; no app code changes)*  
-1. [T0](#phase-t0---foundation-tooling--first-ports) — browser project + `HistoryPort` + home / locked-page tests + Playwright in CI  
+0. ~~[T-CI](#phase-t-ci---github-actions-baseline)~~ — **Done** — GitHub Actions: `npm test` + `npm run build` on every PR and `main`  
+1. **[T0](#phase-t0---foundation-tooling--first-ports) — next** — browser project + `HistoryPort` + home / locked-page tests + Playwright in CI  
 2. [T1](#phase-t1---identify-exercise-orchestration) — identify orchestration (interval ID today; template for future MC exercises)  
 3. [T2](#phase-t2---sing-exercise-orchestration) — sing orchestration with fake recording  
 4. [T3](#phase-t3---scale-with-product-features) — helpers + per-exercise smoke as registry grows  
@@ -234,7 +207,7 @@ Align with product work; testing phases can run **in parallel** with feature PRs
 
 | Product item | Testing track |
 |--------------|---------------|
-| PR merge confidence | [T-CI](#phase-t-ci---github-actions-baseline) |
+| PR merge confidence | **Done** ([T-CI](#phase-t-ci---github-actions-baseline)); extend with browser job in [T0](#phase-t0---foundation-tooling--first-ports) |
 | Curriculum guards, home UI | [T0](#phase-t0---foundation-tooling--first-ports) |
 | Interval + future identify exercises | [T1](#phase-t1---identify-exercise-orchestration) |
 | Sing / phrase / reproduction | [T2](#phase-t2---sing-exercise-orchestration) |
