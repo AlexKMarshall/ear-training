@@ -4,6 +4,7 @@ import {
   computeExerciseProgress,
   computeExerciseStats,
 } from "../src/history/stats.ts";
+import { computeTagStats } from "../src/history/tag-stats.ts";
 import type { AttemptRecord } from "../src/history/types.ts";
 
 function attempt(
@@ -94,6 +95,7 @@ describe("computeDashboardStats", () => {
         passed: true,
         attemptNumber: 1,
         centsOff: 8,
+        intervalId: "perfect-fifth",
       }),
     ]);
     const intervalStats = stats.byExercise.find(
@@ -101,6 +103,132 @@ describe("computeDashboardStats", () => {
     );
     expect(intervalStats?.attemptCount).toBe(1);
     expect(intervalStats?.label).toBe("Sing melodic intervals");
+    expect(intervalStats?.byTag?.[0]?.label).toBe("Perfect 5th");
+  });
+
+  it("overall median uses sing attempts only", () => {
+    const stats = computeDashboardStats([
+      attempt({
+        exerciseId: "interval-melodic-id",
+        passed: true,
+        attemptNumber: 1,
+        centsOff: 0,
+        intervalId: "perfect-fifth",
+      }),
+      attempt({
+        exerciseId: "interval-melodic-sing",
+        passed: true,
+        attemptNumber: 1,
+        centsOff: 20,
+        intervalId: "perfect-fifth",
+      }),
+    ]);
+    expect(stats.medianAbsCents).toBe(20);
+  });
+});
+
+describe("tag breakdown", () => {
+  it("sorts intervals weakest first and includes median cents for sing", () => {
+    const stats = computeExerciseStats("interval-melodic-sing", [
+      attempt({
+        exerciseId: "interval-melodic-sing",
+        passed: true,
+        attemptNumber: 1,
+        centsOff: 5,
+        intervalId: "perfect-fifth",
+        questionIndex: 0,
+      }),
+      attempt({
+        exerciseId: "interval-melodic-sing",
+        passed: false,
+        attemptNumber: 1,
+        centsOff: 50,
+        intervalId: "perfect-fourth",
+        questionIndex: 1,
+        roundId: "round-1",
+      }),
+      attempt({
+        exerciseId: "interval-melodic-sing",
+        passed: true,
+        attemptNumber: 2,
+        centsOff: 10,
+        intervalId: "perfect-fourth",
+        questionIndex: 1,
+        roundId: "round-1",
+      }),
+    ]);
+    expect(stats.byTag).toHaveLength(2);
+    expect(stats.byTag![0]!.tagId).toBe("perfect-fourth");
+    expect(stats.byTag![0]!.questionPassRatePercent).toBe(100);
+    expect(stats.byTag![1]!.tagId).toBe("perfect-fifth");
+    expect(stats.byTag![0]!.medianAbsCents).toBe(30);
+  });
+
+  it("identify exercise has null median on exercise and tags", () => {
+    const stats = computeExerciseStats("interval-melodic-id", [
+      attempt({
+        exerciseId: "interval-melodic-id",
+        passed: true,
+        attemptNumber: 1,
+        centsOff: 0,
+        intervalId: "perfect-octave",
+      }),
+    ]);
+    expect(stats.medianAbsCents).toBeNull();
+    expect(stats.byTag![0]!.medianAbsCents).toBeNull();
+  });
+
+  it("single-note has no byTag", () => {
+    const stats = computeExerciseStats("single-note", [
+      attempt({ passed: true, attemptNumber: 1, centsOff: 0 }),
+    ]);
+    expect(stats.byTag).toBeUndefined();
+  });
+
+  it("groups chord-middle by chord type", () => {
+    const stats = computeExerciseStats("chord-middle", [
+      attempt({
+        exerciseId: "chord-middle",
+        passed: true,
+        attemptNumber: 1,
+        centsOff: 0,
+        chordTypeId: "major-triad-sing-middle",
+      }),
+    ]);
+    expect(stats.byTag![0]!.label).toBe("Major triad");
+  });
+
+  it("groups scale-degree-sing by degree", () => {
+    const stats = computeExerciseStats("scale-degree-sing", [
+      attempt({
+        exerciseId: "scale-degree-sing",
+        passed: true,
+        attemptNumber: 1,
+        centsOff: 0,
+        degreeId: "fifth",
+      }),
+    ]);
+    expect(stats.byTag![0]!.label).toBe("5th");
+  });
+
+  it("computeTagStats omits records without tag id", () => {
+    const rows = computeTagStats(
+      [
+        attempt({
+          passed: true,
+          attemptNumber: 1,
+          centsOff: 0,
+          intervalId: "perfect-fifth",
+        }),
+        attempt({ passed: true, attemptNumber: 1, centsOff: 0 }),
+      ],
+      {
+        kind: "interval",
+        getTagId: (r) => r.intervalId,
+        includeMedianCents: true,
+      },
+    );
+    expect(rows).toHaveLength(1);
   });
 });
 

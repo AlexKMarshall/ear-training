@@ -171,7 +171,7 @@ interface ExerciseUiDeps {
 
 | Task | Status | Notes |
 |------|--------|--------|
-| Stats page browser test (table rows per exercise) | Todo | After weakness-by-tag UI stabilizes |
+| Stats page browser test (table rows per exercise) | **Partial** | Empty history + weakness breakdown + identify median copy ([`stats.browser.test.ts`](../tests/browser/stats.browser.test.ts)) |
 | `localStorage` preference round-trip | Todo | Node or browser; isolate key prefix for tests |
 | Preview deploy smoke (GitHub Action + Playwright) | Optional | Only if browser suite is stable and fast |
 
