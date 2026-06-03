@@ -21,16 +21,16 @@ Browser-based ear training for singers: harmony, pitch recognition, and vocal re
 
 | Area | Status |
 |------|--------|
-| **Exercises** | **Sing:** single note; chord middle (major / minor / diminished); melodic & harmonic intervals (sing upper note). **Identify:** melodic & harmonic intervals (multiple choice, degree-style interval names). Routes on home + [`README.md`](../README.md). |
+| **Exercises** | **Sing:** single note; chord middle (major / minor / diminished); melodic & harmonic intervals (sing upper note). **Identify:** melodic & harmonic intervals (multiple choice, degree-style interval names). Six routes; metadata in [`src/exercises/registry.ts`](../src/exercises/registry.ts). |
 | **Scoring** | **Sing:** mic → median pitch → cents vs target (40¢ tolerance), harmonic correction, octave hints. **Identify:** pass/fail on selected interval label (no mic); `centsOff` stored as 0. |
 | **Session shape** | 10-question rounds, up to 3 attempts per question, in-round summary (`firstTry` / `retry` / `wrong`) — sing and identify flows |
 | **Personalization** | Voice type range; chord type & inversion filters; **interval set** filter (P4 / P5 / octave in v1 registry) — all `localStorage` |
 | **Persistence** | Preferences in `localStorage`; **attempt history** in IndexedDB (`src/history/`) — per attempt: `exerciseId`, target, `centsOff`, pass/fail, chord meta, **`intervalId`** / presentation / selected answer for ID exercises, `roundId` + `questionIndex` |
-| **Stats / dashboard** | [`/stats/`](stats/index.html) — overall + per-exercise for all six `exerciseId`s. Median ¢ is meaningful for sing exercises only (ID attempts always record 0¢). **No** breakdown by `intervalId`, chord type, or time trends yet. |
+| **Stats / dashboard** | [`/stats/`](stats/index.html) — overall + per-exercise for all six `exerciseId`s (IDs from registry). Median ¢ is meaningful for sing exercises only (ID attempts always record 0¢). **No** breakdown by `intervalId`, chord type, or time trends yet. |
 | **Recognition / naming** | **Partial** — interval identification only (perfect 4th / 5th / octave labels); not scale-degree-in-key, triad quality, or note names |
-| **Curriculum** | Manual test choice from home — no unlock progression |
+| **Curriculum (v1 shell)** | **Done** — home at `/` shows **Continue**, **Level 1** (single note) → **Level 2** (intervals in path order), and **Free practice** (`chord-middle`). Unlock from IndexedDB via [`src/curriculum/unlock.ts`](../src/curriculum/unlock.ts) (≥10 questions, ≥70% question pass rate on predecessor). Locked path exercises are non-links on home; direct URLs show a locked page via [`src/ui/exercise-page.ts`](../src/ui/exercise-page.ts). Thresholds are constants, not user-configurable. |
 
-Relevant code seams: `SingTestConfig`, `IdentifyTestConfig`, `RoundSummary`, `SingTestQuestion`, `AttemptRecord`, chord/voice/**interval** preferences in `localStorage`; interval domain in `src/interval-config.ts`, `src/interval-questions.ts`, `src/ui/interval-tests.ts`.
+Relevant code seams: exercise registry + `mountExercisePage` guard; `CURRICULUM_LEVELS` / `CURRICULUM_PATH` in [`src/curriculum/levels.ts`](../src/curriculum/levels.ts); `computeExerciseProgress` in [`src/history/stats.ts`](../src/history/stats.ts); `SingTestConfig`, `IdentifyTestConfig`, `RoundSummary`, chord/voice/**interval** preferences; interval domain in `src/interval-config.ts`, `src/interval-questions.ts`, `src/ui/interval-tests.ts`.
 
 ## Product pillars
 
@@ -99,10 +99,13 @@ flowchart LR
 |---------|------------|
 | `/interval-melodic-sing/`, `/interval-harmonic-sing/` — hear interval, sing **upper** note | Sing lower note or both directions; “reproduce the interval” beyond upper-target scoring |
 | `/interval-melodic-id/`, `/interval-harmonic-id/` — MC with degree-style labels (no solfege) | Broader interval registry (2nds, 3rds, 6ths, 7ths, chromatic); confusion-pair drills |
-| v1 pool: perfect 4th, 5th, octave (`src/interval-config.ts`) | Curriculum-enforced “melodic before harmonic” (both exist as separate cards) |
-| User interval picker + voice range (`interval-preference`) | Unlock rules; level wrapper |
+| v1 pool: perfect 4th, 5th, octave (`src/interval-config.ts`) | **Session-enforced** interval pool per level (unlock only gates *which exercise*, not which intervals appear in a round) |
+| User interval picker + voice range (`interval-preference`) | — |
+| Guided path order: melodic sing → harmonic sing → melodic ID → harmonic ID | Merging sing/identify UIs; mixed-level rounds |
+| Unlock from history (10 questions, 70% question pass rate on predecessor) | Configurable thresholds in UI; dev `?unlock=all` for QA |
+| Home curriculum UI + page guard on locked routes | `chord-middle` on main path (stays **free practice** until triad level) |
 
-**Technical:** `ExerciseDefinition` registry; unlock rules from rolling accuracy + minimum reps — still TODO (today: parallel `SingTestConfig` / `IdentifyTestConfig` per page).
+**Technical:** [`src/exercises/registry.ts`](../src/exercises/registry.ts) wraps all six exercises; unlock + levels in `src/curriculum/`. Unified `ExerciseDefinition` with shared `prepareQuestion` / `score` — still TODO (parallel `SingTestConfig` / `IdentifyTestConfig` per page).
 
 **Note-name variant (later within Phase 1+):** same exercises with answers *C*, *F♯*, etc., unlocked as harder mode after degree mode is stable.
 
@@ -159,7 +162,7 @@ flowchart LR
 |------|-----------|---------|
 | Regular practice | Goals, streaks, reminders | Short daily mixed drill |
 | Measurable improvement | History + `/stats/` MVP for all exercises; **weakness map by `intervalId` / chord type still TODO**; ID exercises don’t use cents meaningfully in dashboard | Per-skill benchmarks *(lite: per exercise id)* |
-| Progressive difficulty | Curriculum engine, unlock rules | Level 2 content partial (P4/P5/8ve only); levels 3+ not started |
+| Progressive difficulty | **Curriculum v1 done** — levels 1–2 path, history unlock, home + guards; levels 3+ not started | Level 2 content partial (P4/P5/8ve only); per-level interval enforcement still TODO |
 | Naming / recognition | Select UI + interval ID exercises **done (partial)**; scale-degree & chord ID **TODO** | Degrees-first interval labels **done (partial)**; note names **TODO** |
 | Not only reproduction | Interval ID **done (partial)**; phrase scoring, multi-target rounds **TODO** | Dictation, functional hearing **TODO** |
 | Singer-specific | Range by voice; phrase intonation | Register-aware sets; no rhythm track |
@@ -169,9 +172,9 @@ flowchart LR
 ## Suggested build order
 
 1. ~~**Persist results + dashboard** (Phase 0)~~ **Done**
-2. ~~**Interval sing + interval recognition (degree labels)** (Phase 1–2)~~ **Done (partial)** — P4/P5/octave, four routes, history + stats. **Remaining:** expand intervals, per-tag stats/drills, curriculum shell, richer reproduction tasks.
-3. **Curriculum / levels** wrapping existing + new exercises ← *next*
-4. **Scale-degree sing + degree ID** (primary naming track in key)
+2. ~~**Interval sing + interval recognition (degree labels)** (Phase 1–2)~~ **Done (partial)** — P4/P5/octave, four routes, history + stats. **Remaining:** expand intervals, per-tag stats/drills, richer reproduction tasks.
+3. ~~**Curriculum / levels (v1 shell)**~~ **Done** — registry, levels 1–2 path, history unlock, curriculum home, page guards, free practice for `chord-middle`.
+4. **Scale-degree sing + degree ID** (primary naming track in key) ← *next*
 5. **Expand chord exercises** (sing other chord tones; quality/inversion ID)
 6. **Melodic dictation & clusters** (degrees → note-name hard mode)
 7. **Adaptive / spaced drills** once item taxonomy is rich enough
@@ -182,9 +185,25 @@ flowchart LR
 
 - Generalize `SingTestConfig` / `IdentifyTestConfig` → `ExerciseDefinition` with pluggable `prepareQuestion`, `playReference`, `score(response)` and `responseMode`.
 - ~~Persist scored attempts + question snapshots to history store.~~ **Done** — `saveAttempt` on each score (sing and identify); round outcomes still ephemeral in UI only.
+- ~~**Curriculum spine (v1).**~~ **Done** — `EXERCISES` registry, `CURRICULUM_PATH` / unlock from `computeExerciseProgress`, async home + `mountExercisePage` guard.
 - Extend dashboard with weakness tags (e.g. by `intervalId`) and trends; optional round-level aggregates in history; ID-appropriate metrics (not median ¢).
-- Reuse preference patterns (`voice-ranges`, `chord-type-preference`, `interval-preference`) for **curriculum level** and **enabled skills**.
-- ~~Implement **recognition** as sibling modes sharing playback and question generation.~~ **Partial** — `identify-test.ts` shares rounds/history with sing tests; interval playback/questions shared via `interval-questions.ts`; not yet one registry abstraction.
+- Reuse preference patterns (`voice-ranges`, `chord-type-preference`, `interval-preference`) for **per-level interval pools** and **enabled skills** (v1 unlock does not override session interval picker).
+- ~~Implement **recognition** as sibling modes sharing playback and question generation.~~ **Partial** — `identify-test.ts` shares rounds/history with sing tests; interval playback/questions shared via `interval-questions.ts`; registry lists `responseMode` but sing/identify mount paths remain separate.
+
+### Curriculum v1 — intentional gaps (post–levels shell)
+
+| Gap | Why deferred |
+|-----|----------------|
+| Unified `ExerciseDefinition` with `prepareQuestion` / `score` on one type | Registry wrapper is enough; sing/identify UI merge is high churn |
+| Enforced interval pool per level | Would need session-scoped override of `interval-preference.ts`; v1 only gates which exercise |
+| Melodic-before-harmonic beyond unlock order | Path order only; user can still pick intervals freely inside an unlocked exercise |
+| `chord-middle` in main path | Free practice until level 4 triads |
+| Level 3+ placeholders | No exercises yet |
+| Mixed-level rounds | Per-exercise rounds unchanged |
+| Goals, streaks, adaptive drills | Phase 0 |
+| Weakness stats by `intervalId` | Exercise-level unlock only |
+| Configurable unlock thresholds in UI | Constants in `unlock.ts` |
+| Dev `?unlock=all` | Add when QA needs it |
 
 ---
 
