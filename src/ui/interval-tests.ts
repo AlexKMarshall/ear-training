@@ -21,7 +21,8 @@ export const intervalMelodicSingConfig: SingTestConfig = {
     playing: "Listen to both notes…",
     ready:
       "Sing the top note of the interval, then tap Start singing when ready.",
-    recording: "Singing… tap Done when finished.",
+    recording:
+      "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
     pass: "Correct — tap Next question when you are ready.",
     fail: "Try again on this question (up to 3 tries).",
     failExhausted: "Out of tries — tap Next question to continue the round.",
@@ -54,7 +55,8 @@ export const intervalHarmonicSingConfig: SingTestConfig = {
     playing: "Listen to both notes…",
     ready:
       "Sing the top note of the interval, then tap Start singing when ready.",
-    recording: "Singing… tap Done when finished.",
+    recording:
+      "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
     pass: "Correct — tap Next question when you are ready.",
     fail: "Try again on this question (up to 3 tries).",
     failExhausted: "Out of tries — tap Next question to continue the round.",
