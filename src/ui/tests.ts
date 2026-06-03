@@ -32,6 +32,7 @@ export const chordMiddleTestConfig: SingTestConfig = {
   showChordTypePicker: true,
   status: {
     idle: "Press Play to hear the chord.",
+    noChordTypes: "Select at least one chord type to begin.",
     playing: "Listen to the chord…",
     ready: "Sing the middle note of the chord, then tap Start singing when ready.",
     recording: "Singing… tap Done when finished.",

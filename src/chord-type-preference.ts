@@ -39,35 +39,31 @@ export function getSelectableChordTypes(): readonly ChordTypeEntry[] {
   return CHORD_TYPES.filter((t) => t.enabled);
 }
 
-/** Selected chord type ids; defaults to all selectable types. */
+/** Selected chord type ids; defaults to all selectable types when unset. */
 export function getSelectedChordTypeIds(): string[] {
   const allowed = selectableIds();
   const stored = readStoredIds();
   if (stored === null) return allowed;
 
-  const valid = stored.filter((id) => allowed.includes(id));
-  return valid.length > 0 ? valid : allowed;
+  return stored.filter((id) => allowed.includes(id));
 }
 
 export function isChordTypeSelected(id: string): boolean {
   return getSelectedChordTypeIds().includes(id);
 }
 
-/** Toggle a chord type on/off. At least one type must stay selected. */
-export function setChordTypeSelected(id: string, selected: boolean): boolean {
-  if (!selectableIds().includes(id)) return false;
+/** Toggle a chord type on/off. */
+export function setChordTypeSelected(id: string, selected: boolean): void {
+  if (!selectableIds().includes(id)) return;
 
   const current = getSelectedChordTypeIds();
   if (selected) {
-    if (current.includes(id)) return true;
+    if (current.includes(id)) return;
     writeStoredIds([...current, id]);
-    return true;
+    return;
   }
 
-  if (current.length <= 1) return false;
-
   writeStoredIds(current.filter((entryId) => entryId !== id));
-  return true;
 }
 
 /** Clears persisted and in-memory preference (for tests). */

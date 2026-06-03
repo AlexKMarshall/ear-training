@@ -13,6 +13,7 @@ import {
 } from "../voice-ranges.ts";
 import {
   getSelectableChordTypes,
+  getActiveChordTypes,
   isChordTypeSelected,
   setChordTypeSelected,
 } from "../chord-type-preference.ts";
@@ -42,6 +43,8 @@ export interface SingTestConfig {
     recording: string;
     pass: string;
     fail: string;
+    /** Shown in idle state when chord type picker is on but nothing is selected. */
+    noChordTypes?: string;
   };
   prepareQuestion: () => SingTestQuestion;
   playReference: (question: SingTestQuestion) => Promise<void>;
@@ -198,15 +201,16 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
 
   function setChordTypePreference(id: string, selected: boolean): void {
     if (!config.showChordTypePicker) return;
-    const applied = setChordTypeSelected(id, selected);
+    setChordTypeSelected(id, selected);
     syncChordTypePicker();
-    if (applied) {
-      resetQuestionForPreferenceChange();
-    }
+    resetQuestionForPreferenceChange();
+    updateUi();
   }
 
   function updateUi(): void {
     const settingsLocked = state === "playing" || state === "recording";
+    const noChordTypesSelected =
+      config.showChordTypePicker && getActiveChordTypes().length === 0;
     if (voicePickerEl) {
       voicePickerEl.disabled = settingsLocked;
       for (const input of voiceInputs) {
@@ -220,7 +224,8 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
       }
     }
 
-    btnPlay.disabled = state === "playing" || state === "recording";
+    btnPlay.disabled =
+      state === "playing" || state === "recording" || noChordTypesSelected;
     btnRecord.disabled = state !== "ready" && state !== "recording";
     btnDone.hidden = state !== "recording";
     btnDone.disabled = state !== "recording";
@@ -230,7 +235,10 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
 
     switch (state) {
       case "idle":
-        statusEl.textContent = config.status.idle;
+        statusEl.textContent =
+          noChordTypesSelected && config.status.noChordTypes
+            ? config.status.noChordTypes
+            : config.status.idle;
         livePitchEl.hidden = true;
         resultEl.hidden = true;
         break;

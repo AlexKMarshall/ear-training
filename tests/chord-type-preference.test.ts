@@ -34,13 +34,12 @@ describe("chord type preference", () => {
     expect(isChordTypeSelected("diminished-triad-sing-middle")).toBe(false);
   });
 
-  it("keeps at least one chord type selected", () => {
+  it("allows deselecting all chord types", () => {
     setChordTypeSelected("major-triad-sing-middle", false);
     setChordTypeSelected("minor-triad-sing-middle", false);
+    setChordTypeSelected("diminished-triad-sing-middle", false);
 
-    expect(setChordTypeSelected("diminished-triad-sing-middle", false)).toBe(
-      false,
-    );
-    expect(getSelectedChordTypeIds()).toEqual(["diminished-triad-sing-middle"]);
+    expect(getSelectedChordTypeIds()).toEqual([]);
+    expect(getActiveChordTypes()).toEqual([]);
   });
 });
