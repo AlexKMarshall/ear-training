@@ -1,6 +1,7 @@
 import { computeExerciseProgress } from "../history/stats.ts";
 import type { AttemptRecord, ExerciseId } from "../history/types.ts";
 import { EXERCISE_LABELS } from "../history/types.ts";
+import { isUnlockAllEnabled } from "./dev-unlock.ts";
 import {
   CURRICULUM_LEVELS,
   CURRICULUM_PATH,
@@ -39,6 +40,9 @@ export function isExerciseUnlocked(
   exerciseId: ExerciseId,
   records: readonly AttemptRecord[],
 ): boolean {
+  if (isUnlockAllEnabled()) {
+    return true;
+  }
   if ((FREE_PRACTICE_IDS as readonly ExerciseId[]).includes(exerciseId)) {
     return true;
   }

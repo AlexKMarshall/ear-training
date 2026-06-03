@@ -109,7 +109,7 @@ export const intervalMelodicIdConfig: IdentifyTestConfig = {
   },
 };
 
-const intervalHarmonicIdConfig: IdentifyTestConfig = {
+export const intervalHarmonicIdConfig: IdentifyTestConfig = {
   exerciseId: "interval-harmonic-id",
   title: "Identify harmonic intervals",
   subtitle: "Hear two notes together, then choose the interval",

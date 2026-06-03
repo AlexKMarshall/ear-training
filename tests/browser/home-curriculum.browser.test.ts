@@ -1,7 +1,7 @@
 import { page } from "vitest/browser";
-import { expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { passingLevel2History, passingSingleNoteHistory } from "../fixtures/attempts.ts";
-import { mountHomeWithHistory } from "./helpers/mount.ts";
+import { mountHomeWithHistory, setUnlockAllSearch } from "./helpers/mount.ts";
 
 test("fresh profile: first exercise is a link, next path exercise is not", async () => {
   await mountHomeWithHistory([]);
@@ -37,4 +37,36 @@ test("after level 2 complete: scale-degree sing appears as link", async () => {
         .getByRole("link", { name: /Sing scale degrees/i }),
     )
     .toBeVisible();
+});
+
+describe("?unlock=all", () => {
+  beforeEach(() => {
+    setUnlockAllSearch(true);
+  });
+
+  afterEach(() => {
+    setUnlockAllSearch(false);
+  });
+
+  test("fresh profile: scale-degree sing is a link", async () => {
+    await mountHomeWithHistory([]);
+    await expect
+      .element(
+        page
+          .getByRole("region", { name: /Level 3/i })
+          .getByRole("link", { name: /Sing scale degrees/i }),
+      )
+      .toBeVisible();
+  });
+
+  test("fresh profile: Continue still points at single-note", async () => {
+    await mountHomeWithHistory([]);
+    await expect
+      .element(
+        page
+          .getByRole("region", { name: /Continue guided path/i })
+          .getByRole("link", { name: /Sing a single note/i }),
+      )
+      .toBeVisible();
+  });
 });
