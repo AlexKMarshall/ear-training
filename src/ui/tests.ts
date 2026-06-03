@@ -1,5 +1,5 @@
 import { randomEnabledChordQuestion } from "../chord-config.ts";
-import { chordFrequenciesHz, chordTarget } from "../chords.ts";
+import { chordMidis, chordTarget } from "../chords.ts";
 import { playChord, playTargetNote } from "../audio/playback.ts";
 import { randomNoteInRange } from "../notes.ts";
 import { getActiveNoteRange } from "../voice-ranges.ts";
@@ -21,7 +21,7 @@ export const singleNoteTestConfig: SingTestConfig = {
   prepareQuestion: () => ({
     target: randomNoteInRange(getActiveNoteRange()),
   }),
-  playReference: (question) => playTargetNote(question.target.hz),
+  playReference: (question) => playTargetNote(question.target.midi),
 };
 
 export const chordMiddleTestConfig: SingTestConfig = {
@@ -45,7 +45,7 @@ export const chordMiddleTestConfig: SingTestConfig = {
     if (!question.chord) {
       throw new Error("Missing chord for playback");
     }
-    return playChord(chordFrequenciesHz(question.chord));
+    return playChord(chordMidis(question.chord));
   },
 };
 

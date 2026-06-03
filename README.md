@@ -19,7 +19,7 @@ npm test          # unit tests for scoring math
 
 ## How it works
 
-1. **Play note** — Web Audio synthesizes a random note from C3–C4.
+1. **Play note** — a sampled piano ([smplr](https://github.com/danigb/smplr) Soundfont, CDN-hosted) plays a random note in your voice range.
 2. **Start singing** / **Done** — mic capture with [pitchy](https://www.npmjs.com/package/pitchy) autocorrelation.
 3. **Result** — median pitch vs target; pass if within **40 cents**.
 
@@ -38,9 +38,9 @@ Static hosting (Vercel, Netlify, GitHub Pages). Ensure HTTPS so `getUserMedia` w
 | [`src/pitch/score.ts`](src/pitch/score.ts) | Same `scorePitch(detected, question.targetHz)` |
 | [`src/ui/sing-test.ts`](src/ui/sing-test.ts) | Loop `questions[]`, summary screen with per-question ✓/✗ |
 
-**3-note cluster:** playback = three oscillators (or mixed sample buffer). Scoring stays monophonic — user sings one pitch, compared to the middle note frequency.
+**3-note cluster:** playback = three piano notes via `playChord`. Scoring stays monophonic — user sings one pitch, compared to the middle note frequency.
 
-**Piano samples:** replace oscillator in `playTargetNote` / `playChord` with `AudioBufferSourceNode` without changing capture or scoring.
+**Piano samples:** loaded from smplr's CDN in [`src/audio/piano.ts`](src/audio/piano.ts) on first Play (after user tap unlocks audio).
 
 ## Browser notes
 

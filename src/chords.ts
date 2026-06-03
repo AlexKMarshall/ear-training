@@ -16,3 +16,7 @@ export function chordFrequenciesHz(
 ): [number, number, number] {
   return question.notes.map((n) => n.hz) as [number, number, number];
 }
+
+export function chordMidis(question: ChordQuestion): [number, number, number] {
+  return question.notes.map((n) => n.midi) as [number, number, number];
+}

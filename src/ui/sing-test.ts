@@ -1,5 +1,5 @@
 import { startRecording, stopMediaStream } from "../audio/capture.ts";
-import { ensureAudioReady } from "../audio/context.ts";
+import { ensureAudioReady, unlockAudio } from "../audio/context.ts";
 import { isPlaying } from "../audio/playback.ts";
 import { MIN_VALID_SAMPLES } from "../config.ts";
 import type { TargetNote } from "../notes.ts";
@@ -290,8 +290,14 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     setState("idle");
   }
 
-  btnPlay.addEventListener("click", () => void handlePlay());
-  btnRecord.addEventListener("click", () => void handleRecordStart());
+  btnPlay.addEventListener("click", () => {
+    unlockAudio();
+    void handlePlay();
+  });
+  btnRecord.addEventListener("click", () => {
+    unlockAudio();
+    void handleRecordStart();
+  });
   btnDone.addEventListener("click", handleDone);
   btnRetry.addEventListener("click", handleRetry);
 
