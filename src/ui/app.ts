@@ -3,7 +3,15 @@ import { ensureAudioReady } from "../audio/context.ts";
 import { isPlaying, playTargetNote } from "../audio/playback.ts";
 import { MIN_VALID_SAMPLES } from "../config.ts";
 import { randomNoteInRange, type TargetNote } from "../notes.ts";
-import { getActiveNoteRange } from "../voice-ranges.ts";
+import {
+  getActiveNoteRange,
+  getVoiceType,
+  setVoiceType,
+  VOICE_RANGES,
+  VOICE_TYPE_LABELS,
+  VOICE_TYPES,
+  type VoiceType,
+} from "../voice-ranges.ts";
 import { scoreFromSamples } from "../pitch/score.ts";
 import type { ScoreResult } from "../pitch/score.ts";
 import "./styles.css";
@@ -17,6 +25,26 @@ export function mountApp(root: HTMLElement): void {
         <h1>Ear Training</h1>
         <p class="subtitle">Sing back the note you hear</p>
       </header>
+
+      <fieldset class="voice-picker" id="voice-picker">
+        <legend class="voice-picker-legend">Voice type</legend>
+        <div class="voice-options">
+          ${VOICE_TYPES.map(
+            (voice) => `
+            <label class="voice-option">
+              <input
+                type="radio"
+                name="voice"
+                value="${voice}"
+                class="voice-option-input"
+              />
+              <span class="voice-option-label">${VOICE_TYPE_LABELS[voice]}</span>
+            </label>
+          `,
+          ).join("")}
+        </div>
+        <p id="voice-range-hint" class="voice-range-hint"></p>
+      </fieldset>
 
       <section class="card" aria-live="polite">
         <p id="status" class="status">Press Play to hear the reference note.</p>
@@ -45,6 +73,11 @@ export function mountApp(root: HTMLElement): void {
   const btnRecord = root.querySelector<HTMLButtonElement>("#btn-record")!;
   const btnDone = root.querySelector<HTMLButtonElement>("#btn-done")!;
   const btnRetry = root.querySelector<HTMLButtonElement>("#btn-retry")!;
+  const voicePickerEl = root.querySelector<HTMLFieldSetElement>("#voice-picker")!;
+  const voiceRangeHintEl = root.querySelector<HTMLElement>("#voice-range-hint")!;
+  const voiceInputs = root.querySelectorAll<HTMLInputElement>(
+    ".voice-option-input",
+  );
 
   let state: AppState = "idle";
   let recordingSession: { stop: () => void } | null = null;
@@ -55,7 +88,34 @@ export function mountApp(root: HTMLElement): void {
     updateUi();
   }
 
+  function syncVoicePicker(): void {
+    const voice = getVoiceType();
+    for (const input of voiceInputs) {
+      input.checked = input.value === voice;
+    }
+    voiceRangeHintEl.textContent = `Notes drawn from ${VOICE_RANGES[voice].label}`;
+  }
+
+  function setVoicePreference(voice: VoiceType): void {
+    if (voice === getVoiceType()) return;
+    setVoiceType(voice);
+    syncVoicePicker();
+    currentTarget = null;
+    if (state === "result") {
+      resultEl.hidden = true;
+      setState("idle");
+    } else if (state === "ready") {
+      setState("idle");
+    }
+  }
+
   function updateUi(): void {
+    const voiceLocked = state === "playing" || state === "recording";
+    voicePickerEl.disabled = voiceLocked;
+    for (const input of voiceInputs) {
+      input.disabled = voiceLocked;
+    }
+
     btnPlay.disabled = state === "playing" || state === "recording";
     btnRecord.disabled = state !== "ready" && state !== "recording";
     btnDone.hidden = state !== "recording";
@@ -200,5 +260,13 @@ export function mountApp(root: HTMLElement): void {
   btnDone.addEventListener("click", handleDone);
   btnRetry.addEventListener("click", handleRetry);
 
+  for (const input of voiceInputs) {
+    input.addEventListener("change", () => {
+      if (!input.checked) return;
+      setVoicePreference(input.value as VoiceType);
+    });
+  }
+
+  syncVoicePicker();
   updateUi();
 }

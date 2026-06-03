@@ -1,13 +1,16 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { midiToNoteName } from "../src/notes.ts";
 import {
-  ACTIVE_VOICE_TYPE,
+  DEFAULT_VOICE_TYPE,
   getActiveNoteRange,
+  getNoteRangeForVoice,
+  getVoiceType,
+  resetVoiceTypePreference,
+  setVoiceType,
   VOICE_RANGES,
+  VOICE_TYPES,
   type VoiceType,
 } from "../src/voice-ranges.ts";
-
-const VOICE_TYPES: VoiceType[] = ["bass", "tenor", "alto", "soprano"];
 
 describe("VOICE_RANGES", () => {
   it.each(VOICE_TYPES)("defines a valid span for %s", (voice) => {
@@ -24,20 +27,36 @@ describe("VOICE_RANGES", () => {
   });
 });
 
-describe("getActiveNoteRange", () => {
-  it("returns the active voice range without the label", () => {
-    const active = VOICE_RANGES[ACTIVE_VOICE_TYPE];
+describe("voice type preference", () => {
+  beforeEach(() => {
+    resetVoiceTypePreference();
+  });
+
+  afterEach(() => {
+    resetVoiceTypePreference();
+  });
+
+  it("defaults to tenor when nothing is stored", () => {
+    expect(getVoiceType()).toBe(DEFAULT_VOICE_TYPE);
+    expect(getActiveNoteRange()).toEqual(getNoteRangeForVoice("tenor"));
+  });
+
+  it("persists the selected voice type", () => {
+    setVoiceType("alto");
+    expect(getVoiceType()).toBe("alto");
     expect(getActiveNoteRange()).toEqual({
-      lowMidi: active.lowMidi,
-      highMidi: active.highMidi,
+      lowMidi: VOICE_RANGES.alto.lowMidi,
+      highMidi: VOICE_RANGES.alto.highMidi,
     });
   });
 
-  it("defaults to tenor", () => {
-    expect(ACTIVE_VOICE_TYPE).toBe("tenor");
-    expect(getActiveNoteRange()).toEqual({
-      lowMidi: 48,
-      highMidi: 67,
-    });
-  });
+  it.each(VOICE_TYPES as VoiceType[])(
+    "getNoteRangeForVoice returns midi bounds without label for %s",
+    (voice) => {
+      expect(getNoteRangeForVoice(voice)).toEqual({
+        lowMidi: VOICE_RANGES[voice].lowMidi,
+        highMidi: VOICE_RANGES[voice].highMidi,
+      });
+    },
+  );
 });

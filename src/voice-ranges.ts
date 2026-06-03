@@ -1,10 +1,17 @@
 import type { NoteRange } from "./notes.ts";
 
-/** Classical voice categories; user-selectable in a future release. */
+/** Classical voice categories. */
 export type VoiceType = "bass" | "tenor" | "alto" | "soprano";
 
+export const VOICE_TYPES: readonly VoiceType[] = [
+  "bass",
+  "tenor",
+  "alto",
+  "soprano",
+] as const;
+
 export interface VoiceRange extends NoteRange {
-  /** e.g. "C3–G4" for display in settings UI (future). */
+  /** e.g. "C3–G4" for display in settings UI. */
   label: string;
 }
 
@@ -23,10 +30,58 @@ export const VOICE_RANGES: Record<VoiceType, VoiceRange> = {
   soprano: { lowMidi: 60, highMidi: 79, label: "C4–G5" },
 };
 
-/** Fixed until voice-type preference is wired up in the UI. */
-export const ACTIVE_VOICE_TYPE: VoiceType = "tenor";
+export const VOICE_TYPE_LABELS: Record<VoiceType, string> = {
+  bass: "Bass",
+  tenor: "Tenor",
+  alto: "Alto",
+  soprano: "Soprano",
+};
+
+export const DEFAULT_VOICE_TYPE: VoiceType = "tenor";
+
+const STORAGE_KEY = "ear-training-voice-type";
+
+/** Used when localStorage is unavailable (e.g. unit tests). */
+let memoryVoiceType: VoiceType | null = null;
+
+function isVoiceType(value: string): value is VoiceType {
+  return (VOICE_TYPES as readonly string[]).includes(value);
+}
+
+export function getVoiceType(): VoiceType {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored && isVoiceType(stored)) return stored;
+  } catch {
+    if (memoryVoiceType) return memoryVoiceType;
+  }
+  return memoryVoiceType ?? DEFAULT_VOICE_TYPE;
+}
+
+export function setVoiceType(voice: VoiceType): void {
+  memoryVoiceType = voice;
+  try {
+    localStorage.setItem(STORAGE_KEY, voice);
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Clears persisted and in-memory preference (for tests). */
+export function resetVoiceTypePreference(): void {
+  memoryVoiceType = null;
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function getNoteRangeForVoice(voice: VoiceType): NoteRange {
+  const { label: _label, ...range } = VOICE_RANGES[voice];
+  return range;
+}
 
 export function getActiveNoteRange(): NoteRange {
-  const { label: _label, ...range } = VOICE_RANGES[ACTIVE_VOICE_TYPE];
-  return range;
+  return getNoteRangeForVoice(getVoiceType());
 }
