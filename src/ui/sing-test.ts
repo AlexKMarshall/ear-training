@@ -33,6 +33,12 @@ import {
   isChordTypeSelected,
   setChordTypeSelected,
 } from "../chord-type-preference.ts";
+import {
+  getActiveIntervals,
+  getSelectableIntervals,
+  isIntervalSelected,
+  setIntervalSelected,
+} from "../interval-preference.ts";
 import { buildAttemptRecord } from "../history/serialize.ts";
 import { saveAttempt } from "../history/store.ts";
 import type { ExerciseId } from "../history/types.ts";
@@ -57,6 +63,7 @@ export interface SingTestConfig {
   showVoicePicker: boolean;
   showChordTypePicker?: boolean;
   showInversionPicker?: boolean;
+  showIntervalPicker?: boolean;
   status: {
     idle: string;
     playing: string;
@@ -70,6 +77,8 @@ export interface SingTestConfig {
     noChordTypes?: string;
     /** Shown in idle state when inversion picker is on but nothing is selected. */
     noInversions?: string;
+    /** Shown in idle state when interval picker is on but nothing is selected. */
+    noIntervals?: string;
   };
   prepareQuestion: () => SingTestQuestion;
   playReference: (question: SingTestQuestion) => Promise<void>;
@@ -148,6 +157,30 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     `
     : "";
 
+  const intervalPickerHtml = config.showIntervalPicker
+    ? `
+      <fieldset class="interval-picker chord-type-picker" id="interval-picker">
+        <legend class="chord-type-picker-legend">Intervals</legend>
+        <div class="chord-type-options">
+          ${getSelectableIntervals()
+            .map(
+              (entry) => `
+            <label class="chord-type-option">
+              <input
+                type="checkbox"
+                value="${entry.id}"
+                class="interval-option-input chord-type-option-input"
+              />
+              <span class="chord-type-option-label">${entry.label}</span>
+            </label>
+          `,
+            )
+            .join("")}
+        </div>
+      </fieldset>
+    `
+    : "";
+
   root.innerHTML = `
     <main class="app">
       <nav class="nav">
@@ -163,6 +196,7 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
       ${voicePickerHtml}
       ${chordTypePickerHtml}
       ${inversionPickerHtml}
+      ${intervalPickerHtml}
 
       <section class="card" aria-live="polite">
         <p id="status" class="status">${config.status.idle}</p>
@@ -211,6 +245,11 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   );
   const inversionInputs = root.querySelectorAll<HTMLInputElement>(
     ".chord-inversion-option-input",
+  );
+  const intervalPickerEl =
+    root.querySelector<HTMLFieldSetElement>("#interval-picker");
+  const intervalInputs = root.querySelectorAll<HTMLInputElement>(
+    ".interval-option-input",
   );
 
   let state: TestState = "idle";
@@ -328,6 +367,21 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     updateUi();
   }
 
+  function syncIntervalPicker(): void {
+    if (!config.showIntervalPicker) return;
+    for (const input of intervalInputs) {
+      input.checked = isIntervalSelected(input.value);
+    }
+  }
+
+  function setIntervalPreference(id: string, selected: boolean): void {
+    if (!config.showIntervalPicker) return;
+    setIntervalSelected(id, selected);
+    syncIntervalPicker();
+    resetQuestionForPreferenceChange();
+    updateUi();
+  }
+
   function updateUi(): void {
     const inRoundSummary = state === "roundSummary";
     const settingsLocked =
@@ -336,8 +390,10 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
       config.showChordTypePicker && getActiveChordTypes().length === 0;
     const noInversionsSelected =
       config.showInversionPicker && getActiveInversions().length === 0;
+    const noIntervalsSelected =
+      config.showIntervalPicker && getActiveIntervals().length === 0;
     const settingsIncomplete = Boolean(
-      noChordTypesSelected || noInversionsSelected,
+      noChordTypesSelected || noInversionsSelected || noIntervalsSelected,
     );
     if (voicePickerEl) {
       voicePickerEl.disabled = settingsLocked;
@@ -354,6 +410,12 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     if (inversionPickerEl) {
       inversionPickerEl.disabled = settingsLocked;
       for (const input of inversionInputs) {
+        input.disabled = settingsLocked;
+      }
+    }
+    if (intervalPickerEl) {
+      intervalPickerEl.disabled = settingsLocked;
+      for (const input of intervalInputs) {
         input.disabled = settingsLocked;
       }
     }
@@ -393,7 +455,9 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
             ? config.status.noChordTypes
             : noInversionsSelected && config.status.noInversions
               ? config.status.noInversions
-              : config.status.idle;
+              : noIntervalsSelected && config.status.noIntervals
+                ? config.status.noIntervals
+                : config.status.idle;
         livePitchEl.hidden = true;
         resultEl.hidden = true;
         break;
@@ -429,6 +493,7 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
         showChordFilters: Boolean(
           config.showChordTypePicker || config.showInversionPicker,
         ),
+        showIntervalFilters: Boolean(config.showIntervalPicker),
       },
       currentQuestion,
       score.centsOff,
@@ -655,9 +720,16 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     });
   }
 
+  for (const input of intervalInputs) {
+    input.addEventListener("change", () => {
+      setIntervalPreference(input.value, input.checked);
+    });
+  }
+
   syncVoicePicker();
   syncChordTypePicker();
   syncInversionPicker();
+  syncIntervalPicker();
   syncRoundProgress();
   updateUi();
 }

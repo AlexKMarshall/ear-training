@@ -1,5 +1,6 @@
 import { getActiveInversions } from "../chord-inversion-preference.ts";
 import { getSelectedChordTypeIds } from "../chord-type-preference.ts";
+import { getSelectedIntervalIds } from "../interval-preference.ts";
 import type { SingTestQuestion } from "../sing-test-question.ts";
 import { getVoiceType } from "../voice-ranges.ts";
 import type { AttemptInput, ExerciseId } from "./types.ts";
@@ -10,6 +11,7 @@ export interface AttemptContext {
   questionIndex: number;
   showVoicePicker: boolean;
   showChordFilters: boolean;
+  showIntervalFilters: boolean;
 }
 
 export function buildAttemptRecord(
@@ -42,6 +44,13 @@ export function buildAttemptRecord(
       : undefined,
     activeInversionIds: context.showChordFilters
       ? getActiveInversions().map((inv) => inv.id)
+      : undefined,
+    intervalId: question.intervalId,
+    intervalSemitones: question.interval?.semitones,
+    presentation: question.interval?.presentation,
+    referenceMidi: question.interval?.lower.midi,
+    activeIntervalIds: context.showIntervalFilters
+      ? getSelectedIntervalIds()
       : undefined,
     roundId: context.roundId,
     questionIndex: context.questionIndex,

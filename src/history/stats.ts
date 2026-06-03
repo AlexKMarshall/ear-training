@@ -114,7 +114,11 @@ export function computeDashboardStats(
   records: readonly AttemptRecord[],
 ): DashboardStats {
   const questionStats = computeQuestionStats(records);
-  const exerciseIds = ["single-note", "chord-middle"] as const;
+  const exerciseIds = [
+    "single-note",
+    "chord-middle",
+    "interval-melodic-sing",
+  ] as const;
 
   return {
     totalAttempts: records.length,

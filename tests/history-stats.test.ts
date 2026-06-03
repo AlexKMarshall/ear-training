@@ -82,4 +82,20 @@ describe("computeDashboardStats", () => {
     expect(stats.byExercise[1]!.attemptCount).toBe(1);
     expect(stats.byExercise[1]!.attemptPassRatePercent).toBe(0);
   });
+
+  it("includes interval melodic sing in byExercise", () => {
+    const stats = computeDashboardStats([
+      attempt({
+        exerciseId: "interval-melodic-sing",
+        passed: true,
+        attemptNumber: 1,
+        centsOff: 8,
+      }),
+    ]);
+    const intervalStats = stats.byExercise.find(
+      (s) => s.exerciseId === "interval-melodic-sing",
+    );
+    expect(intervalStats?.attemptCount).toBe(1);
+    expect(intervalStats?.label).toBe("Sing melodic intervals");
+  });
 });
