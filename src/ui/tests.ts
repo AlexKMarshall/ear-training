@@ -15,8 +15,9 @@ export const singleNoteTestConfig: SingTestConfig = {
     playing: "Listen…",
     ready: "Sing the note you heard, then tap Start singing when ready.",
     recording: "Singing… tap Done when finished.",
-    pass: "Nice work!",
-    fail: "Keep practicing — try again.",
+    pass: "Correct — tap Next question when you are ready.",
+    fail: "Try again to sing the same note (up to 3 tries).",
+    failExhausted: "Out of tries on this note — tap Next question to continue.",
   },
   prepareQuestion: () => ({
     target: randomNoteInRange(getActiveNoteRange()),
@@ -38,8 +39,9 @@ export const chordMiddleTestConfig: SingTestConfig = {
     playing: "Listen to the chord…",
     ready: "Sing the middle note of the chord, then tap Start singing when ready.",
     recording: "Singing… tap Done when finished.",
-    pass: "Nice work!",
-    fail: "Keep practicing — try again.",
+    pass: "Correct — tap Next question when you are ready.",
+    fail: "Try again to sing the same chord (up to 3 tries).",
+    failExhausted: "Out of tries on this chord — tap Next question to continue.",
   },
   prepareQuestion: () => {
     const chord = randomEnabledChordQuestion(getActiveNoteRange());

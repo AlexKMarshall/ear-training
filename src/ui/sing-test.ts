@@ -1,7 +1,7 @@
 import { startRecording, stopMediaStream } from "../audio/capture.ts";
 import { ensureAudioReady, unlockAudio } from "../audio/context.ts";
 import { isPlaying } from "../audio/playback.ts";
-import { MIN_VALID_SAMPLES } from "../config.ts";
+import { MAX_ATTEMPTS_PER_QUESTION, MIN_VALID_SAMPLES } from "../config.ts";
 import type { TargetNote } from "../notes.ts";
 import {
   getVoiceType,
@@ -50,6 +50,8 @@ export interface SingTestConfig {
     recording: string;
     pass: string;
     fail: string;
+    /** When the user has used all attempts on the current question without passing. */
+    failExhausted?: string;
     /** Shown in idle state when chord type picker is on but nothing is selected. */
     noChordTypes?: string;
     /** Shown in idle state when inversion picker is on but nothing is selected. */
@@ -158,6 +160,7 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
         <button type="button" id="btn-record" class="btn" disabled>Start singing</button>
         <button type="button" id="btn-done" class="btn" disabled hidden>Done</button>
         <button type="button" id="btn-retry" class="btn" hidden>Try again</button>
+        <button type="button" id="btn-next" class="btn btn-primary" hidden>Next question</button>
       </div>
 
       <p class="hint">
@@ -174,6 +177,7 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   const btnRecord = root.querySelector<HTMLButtonElement>("#btn-record")!;
   const btnDone = root.querySelector<HTMLButtonElement>("#btn-done")!;
   const btnRetry = root.querySelector<HTMLButtonElement>("#btn-retry")!;
+  const btnNext = root.querySelector<HTMLButtonElement>("#btn-next")!;
   const voicePickerEl = root.querySelector<HTMLFieldSetElement>("#voice-picker");
   const voiceRangeHintEl = root.querySelector<HTMLElement>("#voice-range-hint");
   const voiceInputs = root.querySelectorAll<HTMLInputElement>(
@@ -194,6 +198,8 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   let state: TestState = "idle";
   let recordingSession: { stop: () => void } | null = null;
   let currentQuestion: SingTestQuestion | null = null;
+  let scoredAttempts = 0;
+  let lastPassed = false;
 
   function setState(next: TestState): void {
     state = next;
@@ -214,6 +220,8 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     setVoiceType(voice);
     syncVoicePicker();
     currentQuestion = null;
+    scoredAttempts = 0;
+    lastPassed = false;
     if (state === "result") {
       resultEl.hidden = true;
       setState("idle");
@@ -231,6 +239,8 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
 
   function resetQuestionForPreferenceChange(): void {
     currentQuestion = null;
+    scoredAttempts = 0;
+    lastPassed = false;
     if (state === "result") {
       resultEl.hidden = true;
       setState("idle");
@@ -298,9 +308,19 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     btnRecord.disabled = state !== "ready" && state !== "recording";
     btnDone.hidden = state !== "recording";
     btnDone.disabled = state !== "recording";
-    btnRetry.hidden = state !== "result";
-    btnPlay.hidden = state === "result";
-    btnRecord.hidden = state === "result";
+    const showResultActions = state === "result";
+    const canRetrySameQuestion =
+      showResultActions &&
+      !lastPassed &&
+      scoredAttempts < MAX_ATTEMPTS_PER_QUESTION;
+    const canGoToNextQuestion =
+      showResultActions &&
+      (lastPassed || scoredAttempts >= MAX_ATTEMPTS_PER_QUESTION);
+
+    btnRetry.hidden = !canRetrySameQuestion;
+    btnNext.hidden = !canGoToNextQuestion;
+    btnPlay.hidden = showResultActions;
+    btnRecord.hidden = showResultActions;
 
     switch (state) {
       case "idle":
@@ -335,16 +355,33 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   }
 
   function showResult(score: ScoreResult): void {
+    scoredAttempts += 1;
+    lastPassed = score.passed;
+
+    const triesLeft = MAX_ATTEMPTS_PER_QUESTION - scoredAttempts;
+    let attemptNote = "";
+    if (!score.passed) {
+      if (triesLeft > 0) {
+        attemptNote = `<p class="result-attempts">${triesLeft} ${triesLeft === 1 ? "try" : "tries"} left on this question.</p>`;
+      } else {
+        attemptNote =
+          '<p class="result-attempts">No tries left — use Next question when you are ready.</p>';
+      }
+    }
+
     resultEl.hidden = false;
     resultEl.className = `result ${score.passed ? "result-pass" : "result-fail"}`;
     resultEl.innerHTML = `
       <p class="result-verdict">${score.passed ? "Correct" : "Not quite"}</p>
       <p class="result-detail">${score.message}</p>
       <p class="result-meta">Detected ${score.detectedHz.toFixed(1)} Hz (target ${score.targetHz.toFixed(1)} Hz — ${currentQuestion?.target.name ?? "?"})</p>
+      ${attemptNote}
     `;
     statusEl.textContent = score.passed
       ? config.status.pass
-      : config.status.fail;
+      : triesLeft > 0
+        ? config.status.fail
+        : (config.status.failExhausted ?? config.status.fail);
   }
 
   function showError(message: string): void {
@@ -365,6 +402,8 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
       await ensureAudioReady();
       if (state === "idle" || !currentQuestion) {
         currentQuestion = config.prepareQuestion();
+        scoredAttempts = 0;
+        lastPassed = false;
       }
       setState("playing");
       await config.playReference(currentQuestion);
@@ -432,7 +471,15 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
 
   function handleRetry(): void {
     stopMediaStream();
+    resultEl.hidden = true;
+    setState("ready");
+  }
+
+  function handleNextQuestion(): void {
+    stopMediaStream();
     currentQuestion = null;
+    scoredAttempts = 0;
+    lastPassed = false;
     resultEl.hidden = true;
     setState("idle");
   }
@@ -447,6 +494,7 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   });
   btnDone.addEventListener("click", handleDone);
   btnRetry.addEventListener("click", handleRetry);
+  btnNext.addEventListener("click", handleNextQuestion);
 
   for (const input of voiceInputs) {
     input.addEventListener("change", () => {

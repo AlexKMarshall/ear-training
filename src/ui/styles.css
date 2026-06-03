@@ -315,6 +315,12 @@ body {
   color: var(--muted);
 }
 
+.result-attempts {
+  margin: 0.65rem 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
 .actions {
   display: flex;
   flex-direction: column;
