@@ -1,3 +1,4 @@
+import { EXERCISES } from "../exercises/registry.ts";
 import { percentOf } from "../round.ts";
 import {
   EXERCISE_LABELS,
@@ -140,14 +141,7 @@ export function computeDashboardStats(
   records: readonly AttemptRecord[],
 ): DashboardStats {
   const questionStats = computeQuestionStats(records);
-  const exerciseIds = [
-    "single-note",
-    "chord-middle",
-    "interval-melodic-sing",
-    "interval-harmonic-sing",
-    "interval-melodic-id",
-    "interval-harmonic-id",
-  ] as const;
+  const exerciseIds = EXERCISES.map((e) => e.id);
 
   return {
     totalAttempts: records.length,
