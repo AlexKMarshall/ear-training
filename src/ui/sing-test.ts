@@ -1,10 +1,9 @@
 import { startRecording, stopMediaStream } from "../audio/capture.ts";
 import { ensureAudioReady } from "../audio/context.ts";
-import { isPlaying, playTargetNote } from "../audio/playback.ts";
+import { isPlaying } from "../audio/playback.ts";
 import { MIN_VALID_SAMPLES } from "../config.ts";
-import { randomNoteInRange, type TargetNote } from "../notes.ts";
+import type { TargetNote } from "../notes.ts";
 import {
-  getActiveNoteRange,
   getVoiceType,
   setVoiceType,
   VOICE_RANGES,
@@ -14,18 +13,37 @@ import {
 } from "../voice-ranges.ts";
 import { scoreFromSamples } from "../pitch/score.ts";
 import type { ScoreResult } from "../pitch/score.ts";
-import "./styles.css";
 
-type AppState = "idle" | "playing" | "ready" | "recording" | "result";
+type TestState = "idle" | "playing" | "ready" | "recording" | "result";
 
-export function mountApp(root: HTMLElement): void {
-  root.innerHTML = `
-    <main class="app">
-      <header class="header">
-        <h1>Ear Training</h1>
-        <p class="subtitle">Sing back the note you hear</p>
-      </header>
+import type { ChordQuestion } from "../chords.ts";
 
+export interface SingTestQuestion {
+  target: TargetNote;
+  /** Present when the reference is a chord rather than a single tone. */
+  chord?: ChordQuestion;
+}
+
+export interface SingTestConfig {
+  title: string;
+  subtitle: string;
+  playButtonLabel: string;
+  showVoicePicker: boolean;
+  status: {
+    idle: string;
+    playing: string;
+    ready: string;
+    recording: string;
+    pass: string;
+    fail: string;
+  };
+  prepareQuestion: () => SingTestQuestion;
+  playReference: (question: SingTestQuestion) => Promise<void>;
+}
+
+export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
+  const voicePickerHtml = config.showVoicePicker
+    ? `
       <fieldset class="voice-picker" id="voice-picker">
         <legend class="voice-picker-legend">Voice type</legend>
         <div class="voice-options">
@@ -45,15 +63,30 @@ export function mountApp(root: HTMLElement): void {
         </div>
         <p id="voice-range-hint" class="voice-range-hint"></p>
       </fieldset>
+    `
+    : "";
+
+  root.innerHTML = `
+    <main class="app">
+      <nav class="nav">
+        <a href="/" class="nav-back">← All tests</a>
+      </nav>
+
+      <header class="header">
+        <h1>${config.title}</h1>
+        <p class="subtitle">${config.subtitle}</p>
+      </header>
+
+      ${voicePickerHtml}
 
       <section class="card" aria-live="polite">
-        <p id="status" class="status">Press Play to hear the reference note.</p>
+        <p id="status" class="status">${config.status.idle}</p>
         <p id="live-pitch" class="live-pitch" hidden></p>
         <div id="result" class="result" hidden></div>
       </section>
 
       <div class="actions">
-        <button type="button" id="btn-play" class="btn btn-primary">Play note</button>
+        <button type="button" id="btn-play" class="btn btn-primary">${config.playButtonLabel}</button>
         <button type="button" id="btn-record" class="btn" disabled>Start singing</button>
         <button type="button" id="btn-done" class="btn" disabled hidden>Done</button>
         <button type="button" id="btn-retry" class="btn" hidden>Try again</button>
@@ -73,34 +106,35 @@ export function mountApp(root: HTMLElement): void {
   const btnRecord = root.querySelector<HTMLButtonElement>("#btn-record")!;
   const btnDone = root.querySelector<HTMLButtonElement>("#btn-done")!;
   const btnRetry = root.querySelector<HTMLButtonElement>("#btn-retry")!;
-  const voicePickerEl = root.querySelector<HTMLFieldSetElement>("#voice-picker")!;
-  const voiceRangeHintEl = root.querySelector<HTMLElement>("#voice-range-hint")!;
+  const voicePickerEl = root.querySelector<HTMLFieldSetElement>("#voice-picker");
+  const voiceRangeHintEl = root.querySelector<HTMLElement>("#voice-range-hint");
   const voiceInputs = root.querySelectorAll<HTMLInputElement>(
     ".voice-option-input",
   );
 
-  let state: AppState = "idle";
+  let state: TestState = "idle";
   let recordingSession: { stop: () => void } | null = null;
-  let currentTarget: TargetNote | null = null;
+  let currentQuestion: SingTestQuestion | null = null;
 
-  function setState(next: AppState): void {
+  function setState(next: TestState): void {
     state = next;
     updateUi();
   }
 
   function syncVoicePicker(): void {
+    if (!config.showVoicePicker) return;
     const voice = getVoiceType();
     for (const input of voiceInputs) {
       input.checked = input.value === voice;
     }
-    voiceRangeHintEl.textContent = `Notes drawn from ${VOICE_RANGES[voice].label}`;
+    voiceRangeHintEl!.textContent = `Notes drawn from ${VOICE_RANGES[voice].label}`;
   }
 
   function setVoicePreference(voice: VoiceType): void {
-    if (voice === getVoiceType()) return;
+    if (!config.showVoicePicker || voice === getVoiceType()) return;
     setVoiceType(voice);
     syncVoicePicker();
-    currentTarget = null;
+    currentQuestion = null;
     if (state === "result") {
       resultEl.hidden = true;
       setState("idle");
@@ -111,9 +145,11 @@ export function mountApp(root: HTMLElement): void {
 
   function updateUi(): void {
     const voiceLocked = state === "playing" || state === "recording";
-    voicePickerEl.disabled = voiceLocked;
-    for (const input of voiceInputs) {
-      input.disabled = voiceLocked;
+    if (voicePickerEl) {
+      voicePickerEl.disabled = voiceLocked;
+      for (const input of voiceInputs) {
+        input.disabled = voiceLocked;
+      }
     }
 
     btnPlay.disabled = state === "playing" || state === "recording";
@@ -126,23 +162,22 @@ export function mountApp(root: HTMLElement): void {
 
     switch (state) {
       case "idle":
-        statusEl.textContent = "Press Play to hear the reference note.";
+        statusEl.textContent = config.status.idle;
         livePitchEl.hidden = true;
         resultEl.hidden = true;
         break;
       case "playing":
-        statusEl.textContent = "Listen…";
+        statusEl.textContent = config.status.playing;
         livePitchEl.hidden = true;
         resultEl.hidden = true;
         break;
       case "ready":
-        statusEl.textContent =
-          "Sing the note you heard, then tap Start singing when ready.";
+        statusEl.textContent = config.status.ready;
         livePitchEl.hidden = true;
         resultEl.hidden = true;
         break;
       case "recording":
-        statusEl.textContent = "Singing… tap Done when finished.";
+        statusEl.textContent = config.status.recording;
         livePitchEl.hidden = false;
         resultEl.hidden = true;
         break;
@@ -158,11 +193,11 @@ export function mountApp(root: HTMLElement): void {
     resultEl.innerHTML = `
       <p class="result-verdict">${score.passed ? "Correct" : "Not quite"}</p>
       <p class="result-detail">${score.message}</p>
-      <p class="result-meta">Detected ${score.detectedHz.toFixed(1)} Hz (target ${score.targetHz.toFixed(1)} Hz — ${currentTarget?.name ?? "?"})</p>
+      <p class="result-meta">Detected ${score.detectedHz.toFixed(1)} Hz (target ${score.targetHz.toFixed(1)} Hz — ${currentQuestion?.target.name ?? "?"})</p>
     `;
     statusEl.textContent = score.passed
-      ? "Nice work!"
-      : "Keep practicing — try again.";
+      ? config.status.pass
+      : config.status.fail;
   }
 
   function showError(message: string): void {
@@ -181,11 +216,11 @@ export function mountApp(root: HTMLElement): void {
 
     try {
       await ensureAudioReady();
-      if (state === "idle" || !currentTarget) {
-        currentTarget = randomNoteInRange(getActiveNoteRange());
+      if (state === "idle" || !currentQuestion) {
+        currentQuestion = config.prepareQuestion();
       }
       setState("playing");
-      await playTargetNote(currentTarget.hz);
+      await config.playReference(currentQuestion);
       setState("ready");
     } catch {
       showError("Could not play audio. Tap Play again after interacting with the page.");
@@ -202,7 +237,7 @@ export function mountApp(root: HTMLElement): void {
       livePitchEl.textContent = "Listening…";
 
       recordingSession = await startRecording({
-        targetHz: currentTarget?.hz,
+        targetHz: currentQuestion?.target.hz,
         onPitch: (hz, clarity) => {
           livePitchEl.textContent = `~${hz.toFixed(0)} Hz (clarity ${(clarity * 100).toFixed(0)}%)`;
         },
@@ -228,12 +263,12 @@ export function mountApp(root: HTMLElement): void {
       return;
     }
 
-    if (!currentTarget) {
-      showError("No reference note — press Play first.");
+    if (!currentQuestion) {
+      showError("No reference — press Play first.");
       return;
     }
 
-    const outcome = scoreFromSamples(samplesHz, currentTarget.hz);
+    const outcome = scoreFromSamples(samplesHz, currentQuestion.target.hz);
     if ("error" in outcome) {
       showError(outcome.error);
       return;
@@ -250,7 +285,7 @@ export function mountApp(root: HTMLElement): void {
 
   function handleRetry(): void {
     stopMediaStream();
-    currentTarget = null;
+    currentQuestion = null;
     resultEl.hidden = true;
     setState("idle");
   }

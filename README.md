@@ -36,7 +36,7 @@ Static hosting (Vercel, Netlify, GitHub Pages). Ensure HTTPS so `getUserMedia` w
 | [`src/audio/playback.ts`](src/audio/playback.ts) | `playChord([low, mid, high])` — already stubbed; add `playSequence(repeats: 2)` |
 | [`src/config.ts`](src/config.ts) | `Question { id, notes: [hz, hz, hz], targetIndex: 1 }` |
 | [`src/pitch/score.ts`](src/pitch/score.ts) | Same `scorePitch(detected, question.targetHz)` |
-| [`src/ui/app.ts`](src/ui/app.ts) | Loop `questions[]`, summary screen with per-question ✓/✗ |
+| [`src/ui/sing-test.ts`](src/ui/sing-test.ts) | Loop `questions[]`, summary screen with per-question ✓/✗ |
 
 **3-note cluster:** playback = three oscillators (or mixed sample buffer). Scoring stays monophonic — user sings one pitch, compared to the middle note frequency.
 
