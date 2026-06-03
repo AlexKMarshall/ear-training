@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { getIntervalById } from "../src/interval-config.ts";
+import { resetIntervalPreference } from "../src/interval-preference.ts";
 import {
+  buildIntervalChoices,
   buildIntervalQuestion,
   intervalToSingTestQuestion,
   validLowerMidis,
@@ -27,5 +29,16 @@ describe("buildIntervalQuestion", () => {
     expect(sing.target.midi).toBe(67);
     expect(question.lower.midi).toBe(60);
     expect(question.intervalId).toBe("perfect-fifth");
+  });
+});
+
+describe("buildIntervalChoices", () => {
+  it("includes the correct interval and excludes duplicates", () => {
+    resetIntervalPreference();
+    const choices = buildIntervalChoices("perfect-fifth");
+    const ids = choices.map((c) => c.id);
+    expect(ids).toContain("perfect-fifth");
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(choices.length).toBeGreaterThanOrEqual(2);
   });
 });

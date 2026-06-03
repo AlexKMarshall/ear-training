@@ -119,6 +119,8 @@ export function computeDashboardStats(
     "chord-middle",
     "interval-melodic-sing",
     "interval-harmonic-sing",
+    "interval-melodic-id",
+    "interval-harmonic-id",
   ] as const;
 
   return {

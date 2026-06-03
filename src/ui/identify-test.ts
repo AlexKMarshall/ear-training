@@ -1,0 +1,531 @@
+import { ensureAudioReady, unlockAudio } from "../audio/context.ts";
+import { getIntervalById } from "../interval-config.ts";
+import { isPlaying } from "../audio/playback.ts";
+import {
+  MAX_ATTEMPTS_PER_QUESTION,
+  QUESTIONS_PER_ROUND,
+} from "../config.ts";
+import { buildAttemptRecord } from "../history/serialize.ts";
+import { saveAttempt } from "../history/store.ts";
+import type { ExerciseId } from "../history/types.ts";
+import {
+  getActiveIntervals,
+  getSelectableIntervals,
+  isIntervalSelected,
+  setIntervalSelected,
+} from "../interval-preference.ts";
+import {
+  buildIntervalChoices,
+  type IntervalChoice,
+} from "../interval-questions.ts";
+import {
+  classifyQuestionOutcome,
+  percentOf,
+  summarizeRound,
+  type RoundQuestionResult,
+} from "../round.ts";
+import type { SingTestQuestion } from "../sing-test-question.ts";
+import {
+  getVoiceType,
+  setVoiceType,
+  VOICE_RANGES,
+  VOICE_TYPE_LABELS,
+  VOICE_TYPES,
+  type VoiceType,
+} from "../voice-ranges.ts";
+
+type TestState =
+  | "idle"
+  | "playing"
+  | "ready"
+  | "result"
+  | "roundSummary";
+
+export interface IdentifyTestConfig {
+  exerciseId: ExerciseId;
+  title: string;
+  subtitle: string;
+  playButtonLabel: string;
+  showVoicePicker: boolean;
+  showIntervalPicker: boolean;
+  status: {
+    idle: string;
+    noIntervals: string;
+    tooFewIntervals: string;
+    playing: string;
+    ready: string;
+    pass: string;
+    fail: string;
+    failExhausted?: string;
+  };
+  prepareQuestion: () => SingTestQuestion;
+  playReference: (question: SingTestQuestion) => Promise<void>;
+}
+
+export function mountIdentifyTest(
+  root: HTMLElement,
+  config: IdentifyTestConfig,
+): void {
+  const voicePickerHtml = config.showVoicePicker
+    ? `
+      <fieldset class="voice-picker" id="voice-picker">
+        <legend class="voice-picker-legend">Voice type</legend>
+        <div class="voice-options">
+          ${VOICE_TYPES.map(
+            (voice) => `
+            <label class="voice-option">
+              <input type="radio" name="voice" value="${voice}" class="voice-option-input" />
+              <span class="voice-option-label">${VOICE_TYPE_LABELS[voice]}</span>
+            </label>
+          `,
+          ).join("")}
+        </div>
+        <p id="voice-range-hint" class="voice-range-hint"></p>
+      </fieldset>
+    `
+    : "";
+
+  const intervalPickerHtml = config.showIntervalPicker
+    ? `
+      <fieldset class="interval-picker chord-type-picker" id="interval-picker">
+        <legend class="chord-type-picker-legend">Intervals</legend>
+        <div class="chord-type-options">
+          ${getSelectableIntervals()
+            .map(
+              (entry) => `
+            <label class="chord-type-option">
+              <input type="checkbox" value="${entry.id}" class="interval-option-input chord-type-option-input" />
+              <span class="chord-type-option-label">${entry.label}</span>
+            </label>
+          `,
+            )
+            .join("")}
+        </div>
+      </fieldset>
+    `
+    : "";
+
+  root.innerHTML = `
+    <main class="app">
+      <nav class="nav">
+        <a href="/" class="nav-back">← All tests</a>
+      </nav>
+      <header class="header">
+        <h1>${config.title}</h1>
+        <p class="subtitle">${config.subtitle}</p>
+        <p id="round-progress" class="round-progress" hidden></p>
+      </header>
+      ${voicePickerHtml}
+      ${intervalPickerHtml}
+      <section class="card" aria-live="polite">
+        <p id="status" class="status">${config.status.idle}</p>
+        <div id="choices" class="choice-grid" hidden></div>
+        <div id="result" class="result" hidden></div>
+      </section>
+      <div class="actions">
+        <button type="button" id="btn-play" class="btn btn-primary">${config.playButtonLabel}</button>
+        <button type="button" id="btn-retry" class="btn" hidden>Try again</button>
+        <button type="button" id="btn-next" class="btn btn-primary" hidden>Next question</button>
+        <button type="button" id="btn-next-round" class="btn btn-primary" hidden>Start next round</button>
+      </div>
+      <p class="hint">Use headphones if you can. Tap Play to hear the reference (no microphone needed).</p>
+    </main>
+  `;
+
+  const statusEl = root.querySelector<HTMLElement>("#status")!;
+  const choicesEl = root.querySelector<HTMLElement>("#choices")!;
+  const resultEl = root.querySelector<HTMLElement>("#result")!;
+  const btnPlay = root.querySelector<HTMLButtonElement>("#btn-play")!;
+  const btnRetry = root.querySelector<HTMLButtonElement>("#btn-retry")!;
+  const btnNext = root.querySelector<HTMLButtonElement>("#btn-next")!;
+  const btnNextRound = root.querySelector<HTMLButtonElement>("#btn-next-round")!;
+  const roundProgressEl = root.querySelector<HTMLElement>("#round-progress")!;
+  const voicePickerEl = root.querySelector<HTMLFieldSetElement>("#voice-picker");
+  const voiceRangeHintEl = root.querySelector<HTMLElement>("#voice-range-hint");
+  const voiceInputs = root.querySelectorAll<HTMLInputElement>(".voice-option-input");
+  const intervalPickerEl =
+    root.querySelector<HTMLFieldSetElement>("#interval-picker");
+  const intervalInputs = root.querySelectorAll<HTMLInputElement>(
+    ".interval-option-input",
+  );
+
+  let state: TestState = "idle";
+  let currentQuestion: SingTestQuestion | null = null;
+  let currentChoices: IntervalChoice[] = [];
+  let scoredAttempts = 0;
+  let lastPassed = false;
+  let roundResults: RoundQuestionResult[] = [];
+  let roundId = crypto.randomUUID();
+
+  function resetRound(): void {
+    roundId = crypto.randomUUID();
+    roundResults = [];
+    currentQuestion = null;
+    scoredAttempts = 0;
+    lastPassed = false;
+    resultEl.hidden = true;
+    choicesEl.hidden = true;
+    choicesEl.innerHTML = "";
+  }
+
+  function activeIntervalCount(): number {
+    return getActiveIntervals().length;
+  }
+
+  function settingsIncomplete(): boolean {
+    if (config.showIntervalPicker && activeIntervalCount() === 0) return true;
+    if (config.showIntervalPicker && activeIntervalCount() < 2) return true;
+    return false;
+  }
+
+  function settingsIdleMessage(): string {
+    if (config.showIntervalPicker && activeIntervalCount() === 0) {
+      return config.status.noIntervals;
+    }
+    if (config.showIntervalPicker && activeIntervalCount() < 2) {
+      return config.status.tooFewIntervals;
+    }
+    return config.status.idle;
+  }
+
+  function currentQuestionNumber(): number {
+    return roundResults.length + 1;
+  }
+
+  function isLastQuestionInRound(): boolean {
+    return roundResults.length >= QUESTIONS_PER_ROUND - 1;
+  }
+
+  function nextStepButtonLabel(): string {
+    return isLastQuestionInRound() ? "Finish round" : "Next question";
+  }
+
+  function syncRoundProgress(): void {
+    if (state === "roundSummary") {
+      roundProgressEl.hidden = true;
+      return;
+    }
+    roundProgressEl.hidden = false;
+    roundProgressEl.textContent = `Round — question ${currentQuestionNumber()} of ${QUESTIONS_PER_ROUND}`;
+  }
+
+  function setState(next: TestState): void {
+    state = next;
+    syncRoundProgress();
+    updateUi();
+  }
+
+  function syncVoicePicker(): void {
+    if (!config.showVoicePicker) return;
+    const voice = getVoiceType();
+    for (const input of voiceInputs) {
+      input.checked = input.value === voice;
+    }
+    voiceRangeHintEl!.textContent = `Notes drawn from ${VOICE_RANGES[voice].label}`;
+  }
+
+  function setVoicePreference(voice: VoiceType): void {
+    if (!config.showVoicePicker || voice === getVoiceType()) return;
+    setVoiceType(voice);
+    syncVoicePicker();
+    resetRound();
+    setState("idle");
+  }
+
+  function syncIntervalPicker(): void {
+    if (!config.showIntervalPicker) return;
+    for (const input of intervalInputs) {
+      input.checked = isIntervalSelected(input.value);
+    }
+  }
+
+  function setIntervalPreference(id: string, selected: boolean): void {
+    if (!config.showIntervalPicker) return;
+    setIntervalSelected(id, selected);
+    syncIntervalPicker();
+    resetRound();
+    setState("idle");
+  }
+
+  function renderChoices(): void {
+    if (!currentQuestion?.intervalId) return;
+    currentChoices = buildIntervalChoices(currentQuestion.intervalId);
+    choicesEl.innerHTML = currentChoices
+      .map(
+        (choice) => `
+        <button type="button" class="btn choice-btn" data-choice-id="${choice.id}">
+          ${choice.label}
+        </button>
+      `,
+      )
+      .join("");
+    for (const btn of choicesEl.querySelectorAll<HTMLButtonElement>(
+      ".choice-btn",
+    )) {
+      btn.addEventListener("click", () => {
+        void handleChoice(btn.dataset.choiceId!);
+      });
+    }
+  }
+
+  function updateUi(): void {
+    const inRoundSummary = state === "roundSummary";
+    const settingsLocked =
+      state === "playing" || state === "result" || inRoundSummary;
+    const incomplete = settingsIncomplete();
+
+    if (voicePickerEl) {
+      voicePickerEl.disabled = settingsLocked;
+      for (const input of voiceInputs) input.disabled = settingsLocked;
+    }
+    if (intervalPickerEl) {
+      intervalPickerEl.disabled = settingsLocked;
+      for (const input of intervalInputs) input.disabled = settingsLocked;
+    }
+
+    btnPlay.disabled =
+      inRoundSummary || state === "playing" || incomplete;
+    btnPlay.hidden = state === "result" || inRoundSummary;
+
+    const showResultActions = state === "result";
+    const canRetry =
+      showResultActions &&
+      !lastPassed &&
+      scoredAttempts < MAX_ATTEMPTS_PER_QUESTION;
+    const canNext =
+      showResultActions &&
+      (lastPassed || scoredAttempts >= MAX_ATTEMPTS_PER_QUESTION);
+
+    btnRetry.hidden = !canRetry || inRoundSummary;
+    btnNext.hidden = !canNext || inRoundSummary;
+    if (canNext && !inRoundSummary) {
+      btnNext.textContent = nextStepButtonLabel();
+    }
+    btnNextRound.hidden = !inRoundSummary;
+
+    choicesEl.hidden = state !== "ready";
+    if (state === "ready") {
+      for (const btn of choicesEl.querySelectorAll<HTMLButtonElement>(
+        ".choice-btn",
+      )) {
+        btn.disabled = false;
+      }
+    }
+
+    switch (state) {
+      case "roundSummary":
+        break;
+      case "idle":
+        statusEl.textContent = settingsIdleMessage();
+        resultEl.hidden = true;
+        choicesEl.hidden = true;
+        break;
+      case "playing":
+        statusEl.textContent = config.status.playing;
+        resultEl.hidden = true;
+        choicesEl.hidden = true;
+        break;
+      case "ready":
+        statusEl.textContent = config.status.ready;
+        resultEl.hidden = true;
+        break;
+      case "result":
+        choicesEl.hidden = true;
+        break;
+    }
+  }
+
+  function persistAttempt(
+    passed: boolean,
+    selectedIntervalId: string,
+  ): void {
+    if (!currentQuestion) return;
+    const record = buildAttemptRecord(
+      {
+        exerciseId: config.exerciseId,
+        roundId,
+        questionIndex: roundResults.length,
+        showVoicePicker: config.showVoicePicker,
+        showChordFilters: false,
+        showIntervalFilters: config.showIntervalPicker,
+      },
+      currentQuestion,
+      0,
+      passed,
+      scoredAttempts + 1,
+      selectedIntervalId,
+    );
+    void saveAttempt(record);
+  }
+
+  function showResult(passed: boolean, selectedLabel: string): void {
+    scoredAttempts += 1;
+    lastPassed = passed;
+
+    const triesLeft = MAX_ATTEMPTS_PER_QUESTION - scoredAttempts;
+    const nextLabel = nextStepButtonLabel();
+    let attemptNote = "";
+    if (!passed) {
+      if (triesLeft > 0) {
+        attemptNote = `<p class="result-attempts">${triesLeft} ${triesLeft === 1 ? "try" : "tries"} left on this question.</p>`;
+      } else {
+        attemptNote = `<p class="result-attempts">No tries left — tap ${nextLabel} when you are ready.</p>`;
+      }
+    }
+
+    const correctLabel =
+      getIntervalById(currentQuestion!.intervalId!)?.label ?? "Unknown";
+
+    resultEl.hidden = false;
+    resultEl.className = `result ${passed ? "result-pass" : "result-fail"}`;
+    resultEl.innerHTML = passed
+      ? `
+      <p class="result-verdict">Correct</p>
+      <p class="result-detail">You chose ${selectedLabel}.</p>
+      ${attemptNote}
+    `
+      : `
+      <p class="result-verdict">Not quite</p>
+      <p class="result-detail">You chose ${selectedLabel}. The answer was ${correctLabel}.</p>
+      ${attemptNote}
+    `;
+
+    const onLastQuestion = isLastQuestionInRound();
+    statusEl.textContent = passed
+      ? onLastQuestion
+        ? `Correct — tap ${nextLabel} when you are ready.`
+        : config.status.pass
+      : triesLeft > 0
+        ? config.status.fail
+        : onLastQuestion
+          ? `Out of tries — tap ${nextLabel} to see your round score.`
+          : (config.status.failExhausted ?? config.status.fail);
+    setState("result");
+  }
+
+  async function handleChoice(selectedId: string): Promise<void> {
+    if (state !== "ready" || !currentQuestion?.intervalId) return;
+
+    for (const btn of choicesEl.querySelectorAll<HTMLButtonElement>(
+      ".choice-btn",
+    )) {
+      btn.disabled = true;
+    }
+
+    const passed = selectedId === currentQuestion.intervalId;
+    const label =
+      currentChoices.find((c) => c.id === selectedId)?.label ?? selectedId;
+    persistAttempt(passed, selectedId);
+    showResult(passed, label);
+  }
+
+  async function handlePlay(): Promise<void> {
+    if (isPlaying() || settingsIncomplete()) return;
+
+    try {
+      await ensureAudioReady();
+      if (state === "idle" || !currentQuestion) {
+        currentQuestion = config.prepareQuestion();
+        scoredAttempts = 0;
+        lastPassed = false;
+      }
+      setState("playing");
+      await config.playReference(currentQuestion);
+      renderChoices();
+      setState("ready");
+    } catch {
+      resultEl.hidden = false;
+      resultEl.className = "result result-fail";
+      resultEl.innerHTML = `
+        <p class="result-verdict">Could not play audio</p>
+        <p class="result-detail">Tap Play again after interacting with the page.</p>
+      `;
+      setState("idle");
+    }
+  }
+
+  function handleRetry(): void {
+    resultEl.hidden = true;
+    renderChoices();
+    setState("ready");
+  }
+
+  function showRoundSummary(): void {
+    const summary = summarizeRound(roundResults);
+    const correctPct = percentOf(summary.correctCount, summary.total);
+    const firstTryPct = percentOf(summary.firstTryCount, summary.total);
+    const retryPct = percentOf(summary.retryCount, summary.total);
+    const wrongPct = percentOf(summary.wrongCount, summary.total);
+
+    resultEl.hidden = false;
+    resultEl.className = "result round-summary";
+    resultEl.innerHTML = `
+      <p class="result-verdict">Round complete</p>
+      <p class="round-summary-score">
+        <span class="round-summary-score-value">${summary.correctCount}/${summary.total}</span>
+        correct (${correctPct}%)
+      </p>
+      <ul class="round-summary-breakdown">
+        <li><span class="round-summary-label">First try</span> ${summary.firstTryCount} (${firstTryPct}%)</li>
+        <li><span class="round-summary-label">After retry</span> ${summary.retryCount} (${retryPct}%)</li>
+        <li><span class="round-summary-label">Wrong</span> ${summary.wrongCount} (${wrongPct}%)</li>
+      </ul>
+    `;
+    statusEl.textContent =
+      "Round finished — review your score, then start the next round.";
+    setState("roundSummary");
+  }
+
+  function recordQuestionOutcome(): void {
+    roundResults.push({
+      questionIndex: roundResults.length,
+      outcome: classifyQuestionOutcome(lastPassed, scoredAttempts),
+      question: currentQuestion ?? undefined,
+    });
+  }
+
+  function handleNextQuestion(): void {
+    recordQuestionOutcome();
+    if (roundResults.length >= QUESTIONS_PER_ROUND) {
+      showRoundSummary();
+      return;
+    }
+    currentQuestion = null;
+    scoredAttempts = 0;
+    lastPassed = false;
+    resultEl.hidden = true;
+    choicesEl.innerHTML = "";
+    setState("idle");
+  }
+
+  function handleNextRound(): void {
+    resetRound();
+    setState("idle");
+  }
+
+  btnPlay.addEventListener("click", () => {
+    unlockAudio();
+    void handlePlay();
+  });
+  btnRetry.addEventListener("click", handleRetry);
+  btnNext.addEventListener("click", handleNextQuestion);
+  btnNextRound.addEventListener("click", handleNextRound);
+
+  for (const input of voiceInputs) {
+    input.addEventListener("change", () => {
+      if (!input.checked) return;
+      setVoicePreference(input.value as VoiceType);
+    });
+  }
+
+  for (const input of intervalInputs) {
+    input.addEventListener("change", () => {
+      setIntervalPreference(input.value, input.checked);
+    });
+  }
+
+  syncVoicePicker();
+  syncIntervalPicker();
+  syncRoundProgress();
+  updateUi();
+}
