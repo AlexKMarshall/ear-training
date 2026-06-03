@@ -33,6 +33,9 @@ import {
   isChordTypeSelected,
   setChordTypeSelected,
 } from "../chord-type-preference.ts";
+import { buildAttemptRecord } from "../history/serialize.ts";
+import { saveAttempt } from "../history/store.ts";
+import type { ExerciseId } from "../history/types.ts";
 import { scoreFromSamples } from "../pitch/score.ts";
 import type { ScoreResult } from "../pitch/score.ts";
 
@@ -47,6 +50,7 @@ type TestState =
 export type { SingTestQuestion } from "../sing-test-question.ts";
 
 export interface SingTestConfig {
+  exerciseId: ExerciseId;
   title: string;
   subtitle: string;
   playButtonLabel: string;
@@ -215,8 +219,10 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   let scoredAttempts = 0;
   let lastPassed = false;
   let roundResults: RoundQuestionResult[] = [];
+  let roundId = crypto.randomUUID();
 
   function resetRound(): void {
+    roundId = crypto.randomUUID();
     roundResults = [];
     currentQuestion = null;
     scoredAttempts = 0;
@@ -412,9 +418,30 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     }
   }
 
+  function persistAttempt(score: ScoreResult): void {
+    if (!currentQuestion) return;
+    const record = buildAttemptRecord(
+      {
+        exerciseId: config.exerciseId,
+        roundId,
+        questionIndex: roundResults.length,
+        showVoicePicker: config.showVoicePicker,
+        showChordFilters: Boolean(
+          config.showChordTypePicker || config.showInversionPicker,
+        ),
+      },
+      currentQuestion,
+      score.centsOff,
+      score.passed,
+      scoredAttempts + 1,
+    );
+    void saveAttempt(record);
+  }
+
   function showResult(score: ScoreResult): void {
     scoredAttempts += 1;
     lastPassed = score.passed;
+    persistAttempt(score);
 
     const triesLeft = MAX_ATTEMPTS_PER_QUESTION - scoredAttempts;
     const nextLabel = nextStepButtonLabel();

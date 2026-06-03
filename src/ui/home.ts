@@ -7,6 +7,10 @@ export function mountHome(root: HTMLElement): void {
       </header>
 
       <nav class="test-list" aria-label="Available tests">
+        <a href="/stats/" class="test-card test-card-stats">
+          <span class="test-card-title">Your progress</span>
+          <span class="test-card-desc">Accuracy, pitch error, and first-try rate</span>
+        </a>
         <a href="/single-note/" class="test-card">
           <span class="test-card-title">Sing a single note</span>
           <span class="test-card-desc">Hear a note and sing it back</span>
