@@ -24,9 +24,11 @@ If effective tests would require mocking a global, vendor, or private module imp
 2. Production default wires the real implementation once (entrypoint or `createDefault*()`).
 3. Tests pass a fake via `vi.fn()` or a small in-memory implementation.
 
-**T0 example (PR 2):** `HistoryPort` + `deps.history` on `mountHome` / `mountExercisePage` / `mountStats` — the canonical pattern; **not** `vi.mock("../history/store")`.
+**T0 example:** `HistoryPort` + `deps.history` on `mountHome` / `mountExercisePage` / `mountStats` — the canonical pattern; **not** `vi.mock("../history/store")`.
 
-**Later (T1/T2):** `AudioPort`, `RecordingPort` on sing/identify mounts — same rules; no mocking `pitchy` / `smplr`.
+**T1 example:** `IdentifyMountDeps` on `mountIdentifyTest` — `history` from `createMemoryHistoryPort()`, `audio` from `createTestAudioPort()`; override `prepareQuestion` / `playReference` in test config (noop playback, fixed interval question). **Not** `vi.mock` on `smplr` or `context.ts`.
+
+**T2 (next):** `RecordingPort` + `AudioPort` on `mountSingTest` — same rules; no mocking `pitchy` / `smplr`.
 
 ## Node vs browser
 

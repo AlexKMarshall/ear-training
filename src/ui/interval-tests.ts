@@ -84,7 +84,7 @@ function intervalIdentifyQuestion(
   );
 }
 
-const intervalMelodicIdConfig: IdentifyTestConfig = {
+export const intervalMelodicIdConfig: IdentifyTestConfig = {
   exerciseId: "interval-melodic-id",
   title: "Identify melodic intervals",
   subtitle: "Hear two notes in sequence, then choose the interval",
