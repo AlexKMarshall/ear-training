@@ -53,6 +53,13 @@ body {
   font-size: 0.95rem;
 }
 
+.round-progress {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--accent);
+}
+
 .nav {
   margin: -0.25rem 0 -0.5rem;
 }
@@ -318,6 +325,36 @@ body {
 .result-attempts {
   margin: 0.65rem 0 0;
   font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.round-summary .result-verdict {
+  color: var(--text);
+}
+
+.round-summary-score {
+  margin: 0.75rem 0 0;
+  font-size: 1.1rem;
+}
+
+.round-summary-score-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.round-summary-breakdown {
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.round-summary-label {
+  display: inline-block;
+  min-width: 6.5rem;
   color: var(--muted);
 }
 

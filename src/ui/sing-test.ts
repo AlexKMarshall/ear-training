@@ -1,8 +1,18 @@
 import { startRecording, stopMediaStream } from "../audio/capture.ts";
 import { ensureAudioReady, unlockAudio } from "../audio/context.ts";
 import { isPlaying } from "../audio/playback.ts";
-import { MAX_ATTEMPTS_PER_QUESTION, MIN_VALID_SAMPLES } from "../config.ts";
-import type { TargetNote } from "../notes.ts";
+import {
+  MAX_ATTEMPTS_PER_QUESTION,
+  MIN_VALID_SAMPLES,
+  QUESTIONS_PER_ROUND,
+} from "../config.ts";
+import {
+  classifyQuestionOutcome,
+  percentOf,
+  summarizeRound,
+  type RoundQuestionResult,
+} from "../round.ts";
+import type { SingTestQuestion } from "../sing-test-question.ts";
 import {
   getVoiceType,
   setVoiceType,
@@ -26,15 +36,15 @@ import {
 import { scoreFromSamples } from "../pitch/score.ts";
 import type { ScoreResult } from "../pitch/score.ts";
 
-type TestState = "idle" | "playing" | "ready" | "recording" | "result";
+type TestState =
+  | "idle"
+  | "playing"
+  | "ready"
+  | "recording"
+  | "result"
+  | "roundSummary";
 
-import type { ChordQuestion } from "../chords.ts";
-
-export interface SingTestQuestion {
-  target: TargetNote;
-  /** Present when the reference is a chord rather than a single tone. */
-  chord?: ChordQuestion;
-}
+export type { SingTestQuestion } from "../sing-test-question.ts";
 
 export interface SingTestConfig {
   title: string;
@@ -143,6 +153,7 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
       <header class="header">
         <h1>${config.title}</h1>
         <p class="subtitle">${config.subtitle}</p>
+        <p id="round-progress" class="round-progress" hidden></p>
       </header>
 
       ${voicePickerHtml}
@@ -161,6 +172,7 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
         <button type="button" id="btn-done" class="btn" disabled hidden>Done</button>
         <button type="button" id="btn-retry" class="btn" hidden>Try again</button>
         <button type="button" id="btn-next" class="btn btn-primary" hidden>Next question</button>
+        <button type="button" id="btn-next-round" class="btn btn-primary" hidden>Start next round</button>
       </div>
 
       <p class="hint">
@@ -178,6 +190,8 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   const btnDone = root.querySelector<HTMLButtonElement>("#btn-done")!;
   const btnRetry = root.querySelector<HTMLButtonElement>("#btn-retry")!;
   const btnNext = root.querySelector<HTMLButtonElement>("#btn-next")!;
+  const btnNextRound = root.querySelector<HTMLButtonElement>("#btn-next-round")!;
+  const roundProgressEl = root.querySelector<HTMLElement>("#round-progress")!;
   const voicePickerEl = root.querySelector<HTMLFieldSetElement>("#voice-picker");
   const voiceRangeHintEl = root.querySelector<HTMLElement>("#voice-range-hint");
   const voiceInputs = root.querySelectorAll<HTMLInputElement>(
@@ -200,9 +214,40 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   let currentQuestion: SingTestQuestion | null = null;
   let scoredAttempts = 0;
   let lastPassed = false;
+  let roundResults: RoundQuestionResult[] = [];
+
+  function resetRound(): void {
+    roundResults = [];
+    currentQuestion = null;
+    scoredAttempts = 0;
+    lastPassed = false;
+    resultEl.hidden = true;
+  }
+
+  function currentQuestionNumber(): number {
+    return roundResults.length + 1;
+  }
+
+  function isLastQuestionInRound(): boolean {
+    return roundResults.length >= QUESTIONS_PER_ROUND - 1;
+  }
+
+  function nextStepButtonLabel(): string {
+    return isLastQuestionInRound() ? "Finish round" : "Next question";
+  }
+
+  function syncRoundProgress(): void {
+    if (state === "roundSummary") {
+      roundProgressEl.hidden = true;
+      return;
+    }
+    roundProgressEl.hidden = false;
+    roundProgressEl.textContent = `Round — question ${currentQuestionNumber()} of ${QUESTIONS_PER_ROUND}`;
+  }
 
   function setState(next: TestState): void {
     state = next;
+    syncRoundProgress();
     updateUi();
   }
 
@@ -219,14 +264,14 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     if (!config.showVoicePicker || voice === getVoiceType()) return;
     setVoiceType(voice);
     syncVoicePicker();
-    currentQuestion = null;
-    scoredAttempts = 0;
-    lastPassed = false;
-    if (state === "result") {
-      resultEl.hidden = true;
+    resetRound();
+    if (state === "result" || state === "roundSummary") {
       setState("idle");
     } else if (state === "ready") {
       setState("idle");
+    } else {
+      syncRoundProgress();
+      updateUi();
     }
   }
 
@@ -238,14 +283,14 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   }
 
   function resetQuestionForPreferenceChange(): void {
-    currentQuestion = null;
-    scoredAttempts = 0;
-    lastPassed = false;
-    if (state === "result") {
-      resultEl.hidden = true;
+    resetRound();
+    if (state === "result" || state === "roundSummary") {
       setState("idle");
     } else if (state === "ready") {
       setState("idle");
+    } else {
+      syncRoundProgress();
+      updateUi();
     }
   }
 
@@ -278,12 +323,16 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   }
 
   function updateUi(): void {
-    const settingsLocked = state === "playing" || state === "recording";
+    const inRoundSummary = state === "roundSummary";
+    const settingsLocked =
+      state === "playing" || state === "recording" || inRoundSummary;
     const noChordTypesSelected =
       config.showChordTypePicker && getActiveChordTypes().length === 0;
     const noInversionsSelected =
       config.showInversionPicker && getActiveInversions().length === 0;
-    const settingsIncomplete = noChordTypesSelected || noInversionsSelected;
+    const settingsIncomplete = Boolean(
+      noChordTypesSelected || noInversionsSelected,
+    );
     if (voicePickerEl) {
       voicePickerEl.disabled = settingsLocked;
       for (const input of voiceInputs) {
@@ -304,7 +353,10 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     }
 
     btnPlay.disabled =
-      state === "playing" || state === "recording" || settingsIncomplete;
+      inRoundSummary ||
+      state === "playing" ||
+      state === "recording" ||
+      settingsIncomplete;
     btnRecord.disabled = state !== "ready" && state !== "recording";
     btnDone.hidden = state !== "recording";
     btnDone.disabled = state !== "recording";
@@ -317,12 +369,18 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
       showResultActions &&
       (lastPassed || scoredAttempts >= MAX_ATTEMPTS_PER_QUESTION);
 
-    btnRetry.hidden = !canRetrySameQuestion;
-    btnNext.hidden = !canGoToNextQuestion;
-    btnPlay.hidden = showResultActions;
-    btnRecord.hidden = showResultActions;
+    btnRetry.hidden = !canRetrySameQuestion || inRoundSummary;
+    btnNext.hidden = !canGoToNextQuestion || inRoundSummary;
+    if (canGoToNextQuestion && !inRoundSummary) {
+      btnNext.textContent = nextStepButtonLabel();
+    }
+    btnNextRound.hidden = !inRoundSummary;
+    btnPlay.hidden = showResultActions || inRoundSummary;
+    btnRecord.hidden = showResultActions || inRoundSummary;
 
     switch (state) {
+      case "roundSummary":
+        break;
       case "idle":
         statusEl.textContent =
           noChordTypesSelected && config.status.noChordTypes
@@ -359,13 +417,13 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     lastPassed = score.passed;
 
     const triesLeft = MAX_ATTEMPTS_PER_QUESTION - scoredAttempts;
+    const nextLabel = nextStepButtonLabel();
     let attemptNote = "";
     if (!score.passed) {
       if (triesLeft > 0) {
         attemptNote = `<p class="result-attempts">${triesLeft} ${triesLeft === 1 ? "try" : "tries"} left on this question.</p>`;
       } else {
-        attemptNote =
-          '<p class="result-attempts">No tries left — use Next question when you are ready.</p>';
+        attemptNote = `<p class="result-attempts">No tries left — tap ${nextLabel} when you are ready.</p>`;
       }
     }
 
@@ -377,11 +435,16 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
       <p class="result-meta">Detected ${score.detectedHz.toFixed(1)} Hz (target ${score.targetHz.toFixed(1)} Hz — ${currentQuestion?.target.name ?? "?"})</p>
       ${attemptNote}
     `;
+    const onLastQuestion = isLastQuestionInRound();
     statusEl.textContent = score.passed
-      ? config.status.pass
+      ? onLastQuestion
+        ? `Correct — tap ${nextLabel} when you are ready.`
+        : config.status.pass
       : triesLeft > 0
         ? config.status.fail
-        : (config.status.failExhausted ?? config.status.fail);
+        : onLastQuestion
+          ? `Out of tries — tap ${nextLabel} to see your round score.`
+          : (config.status.failExhausted ?? config.status.fail);
   }
 
   function showError(message: string): void {
@@ -475,12 +538,58 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     setState("ready");
   }
 
+  function showRoundSummary(): void {
+    const summary = summarizeRound(roundResults);
+    const correctPct = percentOf(summary.correctCount, summary.total);
+    const firstTryPct = percentOf(summary.firstTryCount, summary.total);
+    const retryPct = percentOf(summary.retryCount, summary.total);
+    const wrongPct = percentOf(summary.wrongCount, summary.total);
+
+    resultEl.hidden = false;
+    resultEl.className = "result round-summary";
+    resultEl.innerHTML = `
+      <p class="result-verdict">Round complete</p>
+      <p class="round-summary-score">
+        <span class="round-summary-score-value">${summary.correctCount}/${summary.total}</span>
+        correct (${correctPct}%)
+      </p>
+      <ul class="round-summary-breakdown">
+        <li><span class="round-summary-label">First try</span> ${summary.firstTryCount} (${firstTryPct}%)</li>
+        <li><span class="round-summary-label">After retry</span> ${summary.retryCount} (${retryPct}%)</li>
+        <li><span class="round-summary-label">Wrong</span> ${summary.wrongCount} (${wrongPct}%)</li>
+      </ul>
+    `;
+    statusEl.textContent = "Round finished — review your score, then start the next round.";
+    setState("roundSummary");
+  }
+
+  function recordQuestionOutcome(): void {
+    roundResults.push({
+      questionIndex: roundResults.length,
+      outcome: classifyQuestionOutcome(lastPassed, scoredAttempts),
+      question: currentQuestion ?? undefined,
+    });
+  }
+
   function handleNextQuestion(): void {
     stopMediaStream();
+    recordQuestionOutcome();
+
+    if (roundResults.length >= QUESTIONS_PER_ROUND) {
+      showRoundSummary();
+      return;
+    }
+
     currentQuestion = null;
     scoredAttempts = 0;
     lastPassed = false;
     resultEl.hidden = true;
+    setState("idle");
+  }
+
+  function handleNextRound(): void {
+    stopMediaStream();
+    resetRound();
     setState("idle");
   }
 
@@ -495,6 +604,7 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   btnDone.addEventListener("click", handleDone);
   btnRetry.addEventListener("click", handleRetry);
   btnNext.addEventListener("click", handleNextQuestion);
+  btnNextRound.addEventListener("click", handleNextRound);
 
   for (const input of voiceInputs) {
     input.addEventListener("change", () => {
@@ -521,5 +631,6 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   syncVoicePicker();
   syncChordTypePicker();
   syncInversionPicker();
+  syncRoundProgress();
   updateUi();
 }
