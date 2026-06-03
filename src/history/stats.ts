@@ -110,6 +110,32 @@ function statsForExercise(
   };
 }
 
+export interface ExerciseProgress {
+  questionCount: number;
+  questionPassRatePercent: number;
+}
+
+export function computeExerciseStats(
+  exerciseId: ExerciseId,
+  records: readonly AttemptRecord[],
+): ExerciseStats {
+  return statsForExercise(
+    exerciseId,
+    records.filter((r) => r.exerciseId === exerciseId),
+  );
+}
+
+/** Per-exercise question progress for unlock rules (same grouping as dashboard). */
+export function computeExerciseProgress(
+  exerciseId: ExerciseId,
+  records: readonly AttemptRecord[],
+): ExerciseProgress {
+  const filtered = records.filter((r) => r.exerciseId === exerciseId);
+  const { questionCount, questionPassRatePercent } =
+    computeQuestionStats(filtered);
+  return { questionCount, questionPassRatePercent };
+}
+
 export function computeDashboardStats(
   records: readonly AttemptRecord[],
 ): DashboardStats {
