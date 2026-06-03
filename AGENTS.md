@@ -16,14 +16,17 @@ Read the pull-request guide before creating or updating a PR description, especi
 ## Quick commands
 
 ```bash
-npm test          # unit tests
-npm run dev       # local dev server
-npm run build     # production build
+npm test              # Vitest Node — unit tests
+npm run test:browser  # Vitest browser — UI orchestration (Playwright)
+npm run dev           # local dev server
+npm run build         # production build
 ```
+
+Run `npm run test:browser` when changing `src/ui/`, mount functions, or browser tests — see [`docs/agents/testing.md`](docs/agents/testing.md).
 
 ## CI
 
-Every push to `main` and every pull request runs [GitHub Actions](.github/workflows/ci.yml): `npm test` and `npm run build` on Node 22.
+Every push to `main` and every pull request runs [GitHub Actions](.github/workflows/ci.yml): `npm test`, `npm run test:browser`, and `npm run build` on Node 22.
 
 Do not claim tests pass on a PR without a green **CI** check on that PR.
 
