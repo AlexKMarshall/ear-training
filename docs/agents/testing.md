@@ -29,6 +29,10 @@ PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install chromium
 
 CI runs `npm test`, `npm run test:browser`, and `npm run build` on every PR and `main`.
 
+## Manual QA
+
+- **`?unlock=all`** — Append to home or any exercise URL on a fresh profile to bypass curriculum locks for access (links and exercise mount). Continue and progress hints still use real attempt history.
+
 ## Leaf guides
 
 | Guide | Scope |

@@ -22,7 +22,7 @@ Detailed rules for agents live in [`docs/agents/testing.md`](agents/testing.md) 
 | Notes, chords, preferences | Unit tests | `tests/notes.test.ts`, `tests/chords.test.ts`, `tests/chord-*-preference.test.ts`, `tests/voice-ranges.test.ts` |
 | Intervals, rounds | Unit tests | `tests/interval-questions.test.ts`, `tests/round.test.ts` |
 | History stats, curriculum | Unit tests | `tests/history-stats.test.ts`, `tests/curriculum-*.test.ts` |
-| UI mount / orchestration | **Partial (T2 + scale-degree smoke)** | `mountIdentifyTest` and `mountSingTest` accept ports; scale-degree sing browser smoke in `tests/browser/scale-degree-sing.browser.test.ts` |
+| UI mount / orchestration | **Done (T3)** | `mountExerciseInBrowser` helper; registry contract in `tests/exercises-registry.test.ts`; per-exercise smokes in `tests/browser/` (T1/T2 rounds + `registry-exercises.browser.test.ts`) |
 | Browser / Vitest projects | **Done (T0)** | `npm run test:browser` — `tests/browser/**/*.browser.test.ts` (Vitest browser + Playwright) |
 | **CI (GitHub Actions)** | **Done** | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — `npm test`, `npm run test:browser`, `npm run build` on PRs and `main` |
 
@@ -152,16 +152,16 @@ interface ExerciseUiDeps {
 
 ---
 
-### Phase T3 - Scale with product features
+### Phase T3 - Scale with product features — **Done**
 
 **Goal:** New exercises add browser cases, not new manual matrices.
 
 | Task | Status | Notes |
 |------|--------|--------|
-| Shared test helpers: `mountExerciseInBrowser`, fixture history for unlock states | Todo | |
-| Browser smoke per new `exerciseId` in registry | **Partial** | `scale-degree-sing` smoke in `tests/browser/scale-degree-sing.browser.test.ts`; contract test still TODO |
-| Dev `?unlock=all` (product roadmap) | Todo | Reduces manual path grinding; document in [manual QA checklist](#manual-qa-still-required) |
-| Contract test: registry `mount` + configs expose required `exerciseId` | Todo | Node or browser; catches registry drift |
+| Shared test helpers: `mountExerciseInBrowser`, fixture history for unlock states | **Done** | [`tests/browser/helpers/mount.ts`](../tests/browser/helpers/mount.ts); unlock fixtures in [`tests/fixtures/attempts.ts`](../tests/fixtures/attempts.ts) |
+| Browser smoke per new `exerciseId` in registry | **Done** | T1/T2/scale-degree round tests + [`registry-exercises.browser.test.ts`](../tests/browser/registry-exercises.browser.test.ts) for chord-middle and remaining interval routes |
+| Dev `?unlock=all` (product roadmap) | **Done** | [`src/curriculum/dev-unlock.ts`](../src/curriculum/dev-unlock.ts); access-only bypass in `isExerciseUnlocked`; documented below |
+| Contract test: registry `mount` + configs expose required `exerciseId` | **Done** | [`tests/exercises-registry.test.ts`](../tests/exercises-registry.test.ts) |
 
 **Defer:** Visual regression, multi-browser matrix (start Chromium only), performance profiling.
 
@@ -175,8 +175,9 @@ interface ExerciseUiDeps {
 | `localStorage` preference round-trip | Todo | Node or browser; isolate key prefix for tests |
 | Preview deploy smoke (GitHub Action + Playwright) | Optional | Only if browser suite is stable and fast |
 
-## What stays manual
+## Manual QA notes
 
+- **`?unlock=all`** — On an empty profile, open `/` or any exercise with `?unlock=all` to access locked path exercises without grinding unlock thresholds. Continue and per-exercise progress copy still reflect real history.
 - Microphone permission UX and hardware variation  
 - Headphone vs speaker bleed, piano sample feel  
 - iOS Safari audio unlock edge cases (gesture timing)  
@@ -204,7 +205,8 @@ Align with product work; testing phases can run **in parallel** with feature PRs
 1. ~~[T0](#phase-t0---foundation-tooling--first-ports)~~ — **Done** — browser project + `HistoryPort` + home / locked-page tests + Playwright in CI  
 2. ~~[T1](#phase-t1---identify-exercise-orchestration)~~ — **Done** — identify orchestration (interval ID today; template for future MC exercises)  
 3. ~~[T2](#phase-t2---sing-exercise-orchestration)~~ — **Done** — sing orchestration with fake recording  
-4. **[T3](#phase-t3---scale-with-product-features) — next** — helpers + per-exercise smoke as registry grows  
+4. ~~[T3](#phase-t3---scale-with-product-features)~~ — **Done** — helpers, registry contract, per-exercise smokes, `?unlock=all`  
+5. **[T4](#phase-t4---optional-hardening) — next** — stats browser test, preference round-trip (optional)  
 
 ## Related product roadmap items
 
@@ -213,9 +215,9 @@ Align with product work; testing phases can run **in parallel** with feature PRs
 | PR merge confidence | **Done** ([T-CI](#phase-t-ci---github-actions-baseline) + browser job in [T0](#phase-t0---foundation-tooling--first-ports)) |
 | Curriculum guards, home UI | **Done** ([T0](#phase-t0---foundation-tooling--first-ports)) |
 | Interval + future identify exercises | **Done** ([T1](#phase-t1---identify-exercise-orchestration)) |
-| Scale-degree sing (Level 3) | **Partial** ([T2](#phase-t2---sing-exercise-orchestration) + [`scale-degree-sing.browser.test.ts`](../tests/browser/scale-degree-sing.browser.test.ts)) |
+| Scale-degree sing (Level 3) | **Done** ([T3](#phase-t3---scale-with-product-features) + round/smoke tests) |
 | Unified `ExerciseDefinition` | Ports + config injection; browser tests use test configs |
-| `?unlock=all` for QA | [T3](#phase-t3---scale-with-product-features) + manual checklist |
+| `?unlock=all` for QA | **Done** — append `?unlock=all` to any exercise URL or home; Continue/progress hints unchanged |
 
 ---
 

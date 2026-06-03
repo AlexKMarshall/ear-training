@@ -29,7 +29,7 @@ Browser-based ear training for singers: harmony, pitch recognition, and vocal re
 | **Stats / dashboard** | [`/stats/`](stats/index.html) — overall + per-exercise for all seven `exerciseId`s (IDs from registry). Median ¢ is meaningful for sing exercises only (ID attempts always record 0¢). **No** breakdown by `intervalId`, `degreeId`, chord type, or time trends yet. |
 | **Recognition / naming** | **Partial** — interval identification only (perfect 4th / 5th / octave labels); scale-degree **sing** in key (v1 pool); no scale-degree ID, triad quality, or note names |
 | **Curriculum (v1 shell)** | **Done** — home at `/` shows **Continue**, **Level 1** (single note) → **Level 2** (intervals) → **Level 3** (scale-degree sing), and **Free practice** (`chord-middle`). Unlock from IndexedDB via [`src/curriculum/unlock.ts`](../src/curriculum/unlock.ts) (≥10 questions, ≥70% question pass rate on predecessor). Locked path exercises are non-links on home; direct URLs show a locked page via [`src/ui/exercise-page.ts`](../src/ui/exercise-page.ts). Thresholds are constants, not user-configurable. |
-| **Testing** | **Partial** — Node unit tests (domain, curriculum, history stats) + **browser** tests for home/locked/stats guards, identify/single-note/**scale-degree** sing round flows ([`tests/browser/`](../tests/browser/)). **CI** ([`ci.yml`](../.github/workflows/ci.yml)): `npm test`, `npm run test:browser`, `npm run build`. **Next:** [T3](testing-roadmap.md#phase-t3---scale-with-product-features) — registry contract, `?unlock=all`. |
+| **Testing** | **Partial (T3)** — Node unit tests + **browser** orchestration for all seven registry exercises (round flows + registry smokes), registry contract test, dev `?unlock=all`. **CI:** `npm test`, `npm run test:browser`, `npm run build`. **Next:** [T4](testing-roadmap.md#phase-t4---optional-hardening) (optional hardening). |
 
 Relevant code seams: exercise registry + `mountExercisePage` guard; `CURRICULUM_LEVELS` / `CURRICULUM_PATH` in [`src/curriculum/levels.ts`](../src/curriculum/levels.ts); `computeExerciseProgress` in [`src/history/stats.ts`](../src/history/stats.ts); `SingTestConfig`, `IdentifyTestConfig`, `RoundSummary`, chord/voice/**interval**/**scale-degree** preferences; interval domain in `src/interval-config.ts`, `src/interval-questions.ts`, `src/ui/interval-tests.ts`; scale-degree domain in `src/scale-degree-config.ts`, `src/scale-degree-questions.ts`, `src/ui/scale-degree-tests.ts`.
 
@@ -39,7 +39,7 @@ Full plan: [`docs/testing-roadmap.md`](testing-roadmap.md).
 
 - **Today:** Vitest in Node covers scoring, generation, unlock rules, and stats. Vitest **browser** mode covers curriculum guards plus **identify**, **single-note**, and **scale-degree** sing orchestration (ports + test config hooks; fake recording uses real `scoreFromSamples`). **CI** runs `npm test`, `npm run test:browser`, and `npm run build` on every PR and `main`.
 - **Direction:** [Vitest browser mode](https://vitest.dev/guide/browser/) (real Chromium); **no** jsdom/happy-dom UI tests; **no** mocking `smplr` / `pitchy` or audio modules — inject **ports** at `mount*` boundaries (`HistoryPort`, `AudioPort`, `RecordingPort`, etc.) alongside existing config hooks (`prepareQuestion`, `playReference`).
-- **Phases (testing):** ~~**T-CI**~~ **Done** — GitHub Actions → ~~**T0**~~ **Done** (browser project, `HistoryPort`, home/locked guards, Playwright in CI) → ~~**T1**~~ **Done** (identify orchestration) → ~~**T2**~~ **Done** (sing with fake recording) → **T3 next** (smoke per new registry exercise). Manual QA remains for mic, permissions, and timbre.
+- **Phases (testing):** ~~**T-CI**~~ **Done** → ~~**T0**~~ **Done** → ~~**T1**~~ **Done** → ~~**T2**~~ **Done** → ~~**T3**~~ **Done** (registry contract, smokes, `?unlock=all`) → **T4 next** (optional). Manual QA remains for mic, permissions, and timbre.
 
 ## Product pillars
 
@@ -81,7 +81,7 @@ flowchart LR
 | Practice goals & streaks | Todo | e.g. daily question count or minutes; optional notifications later. |
 | Targeted drills | Todo | Weight generation toward missed tags (chord type, **interval id**, register, degree, etc.) — interval id is already persisted but not used for drill weighting. |
 | Configurable difficulty | Todo | Tolerance (¢), range width, playback repeats — driven by level/settings, not only `config.ts`. |
-| Automated UI regression | **Partial (T2)** | Browser tests for curriculum guards + identify + sing round; [T3](testing-roadmap.md#phase-t3---scale-with-product-features) for per-exercise smoke. Domain tests cover stats/unlock math. |
+| Automated UI regression | **Partial (T3)** | Browser tests for curriculum guards, all registry exercise smokes, identify/sing rounds; registry contract in Node. Domain tests cover stats/unlock math. |
 | CI on every PR | **Done** | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — `npm test`, `npm run test:browser`, `npm run build`; see [T-CI](testing-roadmap.md#phase-t-ci---github-actions-baseline) + [T0](testing-roadmap.md#phase-t0---foundation-tooling--first-ports) |
 
 **Musical content:** interval exercises now feed the same history/stats pipeline as earlier sing tests; habit features (goals, adaptive drills) still TODO.
@@ -113,10 +113,10 @@ flowchart LR
 | v1 pool: perfect 4th, 5th, octave (`src/interval-config.ts`) | **Session-enforced** interval pool per level (unlock only gates *which exercise*, not which intervals appear in a round) |
 | User interval picker + voice range (`interval-preference`) | — |
 | Guided path order: melodic sing → harmonic sing → melodic ID → harmonic ID | Merging sing/identify UIs; mixed-level rounds |
-| Unlock from history (10 questions, 70% question pass rate on predecessor) | Configurable thresholds in UI; dev `?unlock=all` for QA |
+| Unlock from history (10 questions, 70% question pass rate on predecessor) | Configurable thresholds in UI; dev **`?unlock=all`** for QA *(done)* |
 | Home curriculum UI + page guard on locked routes | `chord-middle` on main path (stays **free practice** until triad level) |
 
-**Technical:** [`src/exercises/registry.ts`](../src/exercises/registry.ts) wraps all six exercises; unlock + levels in `src/curriculum/`. Unified `ExerciseDefinition` with shared `prepareQuestion` / `score` — still TODO (parallel `SingTestConfig` / `IdentifyTestConfig` per page).
+**Technical:** [`src/exercises/registry.ts`](../src/exercises/registry.ts) wraps all seven exercises; unlock + levels in `src/curriculum/`. Unified `ExerciseDefinition` with shared `prepareQuestion` / `score` — still TODO (parallel `SingTestConfig` / `IdentifyTestConfig` per page).
 
 **Note-name variant (later within Phase 1+):** same exercises with answers *C*, *F♯*, etc., unlocked as harder mode after degree mode is stable.
 
@@ -177,7 +177,7 @@ flowchart LR
 | Naming / recognition | Select UI + interval ID exercises **done (partial)**; scale-degree **sing** in key **done (partial)**; scale-degree ID & chord ID **TODO** | Degrees-first interval labels **done (partial)**; note names **TODO** |
 | Not only reproduction | Interval ID **done (partial)**; phrase scoring, multi-target rounds **TODO** | Dictation, functional hearing **TODO** |
 | Singer-specific | Range by voice; phrase intonation | Register-aware sets; no rhythm track |
-| Regression safety as features grow | **Partial (T2)** — CI + browser curriculum guards + identify + sing orchestration; [T3](testing-roadmap.md#phase-t3---scale-with-product-features) for registry smoke | Manual full-path QA still needed for mic, permissions, timbre |
+| Regression safety as features grow | **Partial (T3)** — CI + browser coverage for all registry exercises + contract test; T4 optional hardening | Manual full-path QA still needed for mic, permissions, timbre |
 
 ---
 
@@ -197,7 +197,7 @@ flowchart LR
 1. ~~[T0](testing-roadmap.md#phase-t0---foundation-tooling--first-ports)~~ — **Done** — Vitest browser project, `HistoryPort`, home + locked-page + stats browser tests, Playwright in CI
 2. ~~[T1](testing-roadmap.md#phase-t1---identify-exercise-orchestration)~~ — **Done** — identify round + `saveAttempt` in browser
 3. ~~[T2](testing-roadmap.md#phase-t2---sing-exercise-orchestration)~~ — **Done** — fake `RecordingPort`, sing pass/fail paths
-4. [T3](testing-roadmap.md#phase-t3---scale-with-product-features) — per-exercise smoke, `?unlock=all`, registry contract
+4. ~~[T3](testing-roadmap.md#phase-t3---scale-with-product-features)~~ — **Done** — per-exercise smoke, `?unlock=all`, registry contract
 
 ---
 
@@ -224,7 +224,7 @@ flowchart LR
 | Goals, streaks, adaptive drills | Phase 0 |
 | Weakness stats by `intervalId` | Exercise-level unlock only |
 | Configurable unlock thresholds in UI | Constants in `unlock.ts` |
-| Dev `?unlock=all` | Add when QA needs it — see [testing roadmap T3](testing-roadmap.md#phase-t3---scale-with-product-features) |
+| Dev `?unlock=all` | **Done** — [`src/curriculum/dev-unlock.ts`](../src/curriculum/dev-unlock.ts); access-only; see [testing roadmap manual QA](testing-roadmap.md#manual-qa-notes) |
 
 ---
 

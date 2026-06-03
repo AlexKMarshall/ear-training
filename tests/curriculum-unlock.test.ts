@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { isUnlockAllEnabled } from "../src/curriculum/dev-unlock.ts";
 import {
   getContinueExercise,
   getUnlockRequirement,
@@ -41,6 +42,30 @@ describe("isExerciseUnlocked", () => {
     expect(isExerciseUnlocked("scale-degree-sing", passingLevel2History())).toBe(
       true,
     );
+  });
+
+  describe("?unlock=all", () => {
+    beforeEach(() => {
+      vi.stubGlobal("location", { search: "?unlock=all" });
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it("isUnlockAllEnabled reads the query param", () => {
+      expect(isUnlockAllEnabled()).toBe(true);
+      expect(isUnlockAllEnabled("")).toBe(false);
+    });
+
+    it("unlocks path exercises with empty history", () => {
+      expect(isExerciseUnlocked("scale-degree-sing", [])).toBe(true);
+      expect(isExerciseUnlocked("interval-melodic-sing", [])).toBe(true);
+    });
+
+    it("does not change getContinueExercise progress", () => {
+      expect(getContinueExercise([])).toBe("single-note");
+    });
   });
 });
 
