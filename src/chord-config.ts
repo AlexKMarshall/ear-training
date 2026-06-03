@@ -1,3 +1,4 @@
+import type { InversionId } from "./chord-inversions.ts";
 import {
   buildChordQuestion,
   randomChordQuestion,
@@ -13,26 +14,26 @@ export interface ChordTypeEntry extends ChordType {
   enabled: boolean;
 }
 
-/** Major triad in root position; user sings the middle note (the third). */
+/** Major triad; user sings the middle voice of the voiced chord. */
 export const MAJOR_TRIAD_SING_MIDDLE: ChordType = {
   id: "major-triad-sing-middle",
-  voicing: [-4, 0, 3],
+  quality: [0, 4, 7],
   targetIndex: 1,
   rangeAnchorIndex: 1,
 };
 
-/** Minor triad in root position; user sings the middle note (the minor third). */
+/** Minor triad; user sings the middle voice of the voiced chord. */
 export const MINOR_TRIAD_SING_MIDDLE: ChordType = {
   id: "minor-triad-sing-middle",
-  voicing: [-3, 0, 4],
+  quality: [0, 3, 7],
   targetIndex: 1,
   rangeAnchorIndex: 1,
 };
 
-/** Diminished triad in root position; user sings the middle note (the minor third). */
+/** Diminished triad; user sings the middle voice of the voiced chord. */
 export const DIMINISHED_TRIAD_SING_MIDDLE: ChordType = {
   id: "diminished-triad-sing-middle",
-  voicing: [-3, 0, 3],
+  quality: [0, 3, 6],
   targetIndex: 1,
   rangeAnchorIndex: 1,
 };
@@ -64,38 +65,46 @@ export function enabledChordTypes(): ChordType[] {
   return CHORD_TYPES.filter((t) => t.enabled);
 }
 
-/** Fixed C3 major triad (C3–E3–G3); user sings the middle note (E3). */
+/** Fixed C3 major triad in root position (C3–E3–G3); user sings E3. */
 export function cMajorTriadAtC3(): ChordQuestion {
-  return buildChordQuestion(MAJOR_TRIAD_SING_MIDDLE, 52);
+  return buildChordQuestion(MAJOR_TRIAD_SING_MIDDLE, "root", 52);
 }
 
-/** Fixed C3 minor triad (C3–Eb3–G3); user sings the middle note (Eb3). */
+/** Fixed C3 minor triad in root position (C3–Eb3–G3); user sings Eb3. */
 export function cMinorTriadAtC3(): ChordQuestion {
-  return buildChordQuestion(MINOR_TRIAD_SING_MIDDLE, 51);
+  return buildChordQuestion(MINOR_TRIAD_SING_MIDDLE, "root", 51);
 }
 
-/** Random major triad whose third falls within `range`; user sings the middle note. */
+/** Random major triad in root position; middle (third) falls within `range`. */
 export function randomMajorTriadWithMiddleInRange(
   range: NoteRange,
 ): ChordQuestion {
-  return randomChordQuestion(MAJOR_TRIAD_SING_MIDDLE, range);
+  return randomChordQuestion(MAJOR_TRIAD_SING_MIDDLE, "root", range);
 }
 
-/** Random minor triad whose third falls within `range`; user sings the middle note. */
+/** Random minor triad in root position; middle (third) falls within `range`. */
 export function randomMinorTriadWithMiddleInRange(
   range: NoteRange,
 ): ChordQuestion {
-  return randomChordQuestion(MINOR_TRIAD_SING_MIDDLE, range);
+  return randomChordQuestion(MINOR_TRIAD_SING_MIDDLE, "root", range);
 }
 
-/** Fixed C3 diminished triad (C3–Eb3–Gb3); user sings the middle note (Eb3). */
+/** Fixed C3 diminished triad in root position; user sings Eb3. */
 export function cDiminishedTriadAtC3(): ChordQuestion {
-  return buildChordQuestion(DIMINISHED_TRIAD_SING_MIDDLE, 51);
+  return buildChordQuestion(DIMINISHED_TRIAD_SING_MIDDLE, "root", 51);
 }
 
-/** Random diminished triad whose third falls within `range`; user sings the middle note. */
+/** Random diminished triad in root position; middle falls within `range`. */
 export function randomDiminishedTriadWithMiddleInRange(
   range: NoteRange,
 ): ChordQuestion {
-  return randomChordQuestion(DIMINISHED_TRIAD_SING_MIDDLE, range);
+  return randomChordQuestion(DIMINISHED_TRIAD_SING_MIDDLE, "root", range);
+}
+
+/** Fixed major triad with the given inversion; middle note at `middleMidi`. */
+export function majorTriadAtMiddle(
+  inversion: InversionId,
+  middleMidi: number,
+): ChordQuestion {
+  return buildChordQuestion(MAJOR_TRIAD_SING_MIDDLE, inversion, middleMidi);
 }

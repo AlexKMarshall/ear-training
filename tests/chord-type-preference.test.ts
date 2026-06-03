@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { resetInversionPreference } from "../src/chord-inversion-preference.ts";
 import {
   getActiveChordTypes,
   getSelectedChordTypeIds,
@@ -11,10 +12,12 @@ import {
 describe("chord type preference", () => {
   beforeEach(() => {
     resetChordTypePreference();
+    resetInversionPreference();
   });
 
   afterEach(() => {
     resetChordTypePreference();
+    resetInversionPreference();
   });
 
   it("defaults to all selectable chord types", () => {

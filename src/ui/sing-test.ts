@@ -12,6 +12,12 @@ import {
   type VoiceType,
 } from "../voice-ranges.ts";
 import {
+  getActiveInversions,
+  getSelectableInversions,
+  isInversionSelected,
+  setInversionSelected,
+} from "../chord-inversion-preference.ts";
+import {
   getSelectableChordTypes,
   getActiveChordTypes,
   isChordTypeSelected,
@@ -36,6 +42,7 @@ export interface SingTestConfig {
   playButtonLabel: string;
   showVoicePicker: boolean;
   showChordTypePicker?: boolean;
+  showInversionPicker?: boolean;
   status: {
     idle: string;
     playing: string;
@@ -45,6 +52,8 @@ export interface SingTestConfig {
     fail: string;
     /** Shown in idle state when chord type picker is on but nothing is selected. */
     noChordTypes?: string;
+    /** Shown in idle state when inversion picker is on but nothing is selected. */
+    noInversions?: string;
   };
   prepareQuestion: () => SingTestQuestion;
   playReference: (question: SingTestQuestion) => Promise<void>;
@@ -99,6 +108,30 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     `
     : "";
 
+  const inversionPickerHtml = config.showInversionPicker
+    ? `
+      <fieldset class="chord-inversion-picker" id="chord-inversion-picker">
+        <legend class="chord-inversion-picker-legend">Inversions</legend>
+        <div class="chord-inversion-options">
+          ${getSelectableInversions()
+            .map(
+              (inv) => `
+            <label class="chord-inversion-option">
+              <input
+                type="checkbox"
+                value="${inv.id}"
+                class="chord-inversion-option-input"
+              />
+              <span class="chord-inversion-option-label">${inv.label}</span>
+            </label>
+          `,
+            )
+            .join("")}
+        </div>
+      </fieldset>
+    `
+    : "";
+
   root.innerHTML = `
     <main class="app">
       <nav class="nav">
@@ -112,6 +145,7 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
 
       ${voicePickerHtml}
       ${chordTypePickerHtml}
+      ${inversionPickerHtml}
 
       <section class="card" aria-live="polite">
         <p id="status" class="status">${config.status.idle}</p>
@@ -149,6 +183,12 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     root.querySelector<HTMLFieldSetElement>("#chord-type-picker");
   const chordTypeInputs = root.querySelectorAll<HTMLInputElement>(
     ".chord-type-option-input",
+  );
+  const inversionPickerEl = root.querySelector<HTMLFieldSetElement>(
+    "#chord-inversion-picker",
+  );
+  const inversionInputs = root.querySelectorAll<HTMLInputElement>(
+    ".chord-inversion-option-input",
   );
 
   let state: TestState = "idle";
@@ -207,10 +247,33 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     updateUi();
   }
 
+  function syncInversionPicker(): void {
+    if (!config.showInversionPicker) return;
+    for (const input of inversionInputs) {
+      input.checked = isInversionSelected(
+        input.value as "root" | "first" | "second",
+      );
+    }
+  }
+
+  function setInversionPreference(
+    id: "root" | "first" | "second",
+    selected: boolean,
+  ): void {
+    if (!config.showInversionPicker) return;
+    setInversionSelected(id, selected);
+    syncInversionPicker();
+    resetQuestionForPreferenceChange();
+    updateUi();
+  }
+
   function updateUi(): void {
     const settingsLocked = state === "playing" || state === "recording";
     const noChordTypesSelected =
       config.showChordTypePicker && getActiveChordTypes().length === 0;
+    const noInversionsSelected =
+      config.showInversionPicker && getActiveInversions().length === 0;
+    const settingsIncomplete = noChordTypesSelected || noInversionsSelected;
     if (voicePickerEl) {
       voicePickerEl.disabled = settingsLocked;
       for (const input of voiceInputs) {
@@ -223,9 +286,15 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
         input.disabled = settingsLocked;
       }
     }
+    if (inversionPickerEl) {
+      inversionPickerEl.disabled = settingsLocked;
+      for (const input of inversionInputs) {
+        input.disabled = settingsLocked;
+      }
+    }
 
     btnPlay.disabled =
-      state === "playing" || state === "recording" || noChordTypesSelected;
+      state === "playing" || state === "recording" || settingsIncomplete;
     btnRecord.disabled = state !== "ready" && state !== "recording";
     btnDone.hidden = state !== "recording";
     btnDone.disabled = state !== "recording";
@@ -238,7 +307,9 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
         statusEl.textContent =
           noChordTypesSelected && config.status.noChordTypes
             ? config.status.noChordTypes
-            : config.status.idle;
+            : noInversionsSelected && config.status.noInversions
+              ? config.status.noInversions
+              : config.status.idle;
         livePitchEl.hidden = true;
         resultEl.hidden = true;
         break;
@@ -390,7 +461,17 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     });
   }
 
+  for (const input of inversionInputs) {
+    input.addEventListener("change", () => {
+      setInversionPreference(
+        input.value as "root" | "first" | "second",
+        input.checked,
+      );
+    });
+  }
+
   syncVoicePicker();
   syncChordTypePicker();
+  syncInversionPicker();
   updateUi();
 }

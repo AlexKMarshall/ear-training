@@ -1,4 +1,5 @@
 import { CHORD_TYPES, type ChordTypeEntry } from "./chord-config.ts";
+import { pickRandomInversion } from "./chord-inversion-preference.ts";
 import { randomChordQuestion } from "./chord-types.ts";
 import type { ChordType } from "./chord-types.ts";
 import type { ChordQuestion } from "./chords.ts";
@@ -90,7 +91,11 @@ export function pickRandomChordType(): ChordType {
   return active[Math.floor(Math.random() * active.length)]!;
 }
 
-/** Random chord question using a uniformly chosen user-selected chord type. */
+/** Random chord question using user-selected chord types and inversions. */
 export function randomEnabledChordQuestion(range: NoteRange): ChordQuestion {
-  return randomChordQuestion(pickRandomChordType(), range);
+  return randomChordQuestion(
+    pickRandomChordType(),
+    pickRandomInversion(),
+    range,
+  );
 }

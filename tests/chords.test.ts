@@ -7,10 +7,18 @@ import {
   cMajorTriadAtC3,
   cMinorTriadAtC3,
   enabledChordTypes,
+  majorTriadAtMiddle,
   randomMajorTriadWithMiddleInRange,
   randomMinorTriadWithMiddleInRange,
   randomDiminishedTriadWithMiddleInRange,
 } from "../src/chord-config.ts";
+import {
+  getActiveInversions,
+  pickRandomInversion,
+  resetInversionPreference,
+  setInversionSelected,
+} from "../src/chord-inversion-preference.ts";
+import { voicingOffsetsForInversion } from "../src/chord-inversions.ts";
 import {
   getActiveChordTypes,
   pickRandomChordType,
@@ -26,28 +34,54 @@ import { chordFrequenciesHz, chordTarget } from "../src/chords.ts";
 import { midiToHz } from "../src/notes.ts";
 
 describe("buildChordQuestion", () => {
-  it("applies voicing offsets from the anchor note (major)", () => {
-    const question = buildChordQuestion(MAJOR_TRIAD_SING_MIDDLE, 52);
+  it("applies root-position voicing from the middle note (major)", () => {
+    const question = buildChordQuestion(MAJOR_TRIAD_SING_MIDDLE, "root", 52);
 
     expect(question.notes.map((n) => n.name)).toEqual(["C3", "E3", "G3"]);
     expect(question.targetIndex).toBe(1);
     expect(chordTarget(question).name).toBe("E3");
   });
 
-  it("applies voicing offsets from the anchor note (minor)", () => {
-    const question = buildChordQuestion(MINOR_TRIAD_SING_MIDDLE, 51);
+  it("applies root-position voicing from the middle note (minor)", () => {
+    const question = buildChordQuestion(MINOR_TRIAD_SING_MIDDLE, "root", 51);
 
     expect(question.notes.map((n) => n.name)).toEqual(["C3", "D#3", "G3"]);
     expect(question.targetIndex).toBe(1);
     expect(chordTarget(question).name).toBe("D#3");
   });
 
-  it("applies voicing offsets from the anchor note (diminished)", () => {
-    const question = buildChordQuestion(DIMINISHED_TRIAD_SING_MIDDLE, 51);
+  it("applies root-position voicing from the middle note (diminished)", () => {
+    const question = buildChordQuestion(
+      DIMINISHED_TRIAD_SING_MIDDLE,
+      "root",
+      51,
+    );
 
     expect(question.notes.map((n) => n.name)).toEqual(["C3", "D#3", "F#3"]);
     expect(question.targetIndex).toBe(1);
     expect(chordTarget(question).name).toBe("D#3");
+  });
+
+  it("voices major 1st inversion with the fifth as the middle note", () => {
+    const question = majorTriadAtMiddle("first", 55);
+
+    expect(question.notes.map((n) => n.name)).toEqual(["E3", "G3", "C4"]);
+    expect(chordTarget(question).name).toBe("G3");
+  });
+
+  it("voices major 2nd inversion with the root as the middle note", () => {
+    const question = majorTriadAtMiddle("second", 60);
+
+    expect(question.notes.map((n) => n.name)).toEqual(["G3", "C4", "E4"]);
+    expect(chordTarget(question).name).toBe("C4");
+  });
+});
+
+describe("voicingOffsetsForInversion", () => {
+  it("matches legacy root-position offsets for each quality", () => {
+    expect(voicingOffsetsForInversion([0, 4, 7], "root")).toEqual([-4, 0, 3]);
+    expect(voicingOffsetsForInversion([0, 3, 7], "root")).toEqual([-3, 0, 4]);
+    expect(voicingOffsetsForInversion([0, 3, 6], "root")).toEqual([-3, 0, 3]);
   });
 });
 
@@ -55,7 +89,11 @@ describe("randomChordQuestion", () => {
   it("keeps the range anchor note within the given range (major)", () => {
     const range = { lowMidi: 48, highMidi: 67 };
     for (let i = 0; i < 50; i++) {
-      const question = randomChordQuestion(MAJOR_TRIAD_SING_MIDDLE, range);
+      const question = randomChordQuestion(
+        MAJOR_TRIAD_SING_MIDDLE,
+        "root",
+        range,
+      );
       const anchor = question.notes[MAJOR_TRIAD_SING_MIDDLE.rangeAnchorIndex]!;
       expect(anchor.midi).toBeGreaterThanOrEqual(range.lowMidi);
       expect(anchor.midi).toBeLessThanOrEqual(range.highMidi);
@@ -65,7 +103,7 @@ describe("randomChordQuestion", () => {
   it("keeps the range anchor note within the given range (minor)", () => {
     const range = { lowMidi: 48, highMidi: 67 };
     for (let i = 0; i < 50; i++) {
-      const question = randomChordQuestion(MINOR_TRIAD_SING_MIDDLE, range);
+      const question = randomChordQuestion(MINOR_TRIAD_SING_MIDDLE, "root", range);
       const anchor = question.notes[MINOR_TRIAD_SING_MIDDLE.rangeAnchorIndex]!;
       expect(anchor.midi).toBeGreaterThanOrEqual(range.lowMidi);
       expect(anchor.midi).toBeLessThanOrEqual(range.highMidi);
@@ -75,7 +113,11 @@ describe("randomChordQuestion", () => {
   it("keeps the range anchor note within the given range (diminished)", () => {
     const range = { lowMidi: 48, highMidi: 67 };
     for (let i = 0; i < 50; i++) {
-      const question = randomChordQuestion(DIMINISHED_TRIAD_SING_MIDDLE, range);
+      const question = randomChordQuestion(
+        DIMINISHED_TRIAD_SING_MIDDLE,
+        "root",
+        range,
+      );
       const anchor =
         question.notes[DIMINISHED_TRIAD_SING_MIDDLE.rangeAnchorIndex]!;
       expect(anchor.midi).toBeGreaterThanOrEqual(range.lowMidi);
@@ -177,10 +219,12 @@ describe("randomDiminishedTriadWithMiddleInRange", () => {
 describe("chord config", () => {
   beforeEach(() => {
     resetChordTypePreference();
+    resetInversionPreference();
   });
 
   afterEach(() => {
     resetChordTypePreference();
+    resetInversionPreference();
   });
 
   it("includes major, minor, and diminished triads when enabled", () => {
@@ -208,6 +252,18 @@ describe("chord config", () => {
 
     for (let i = 0; i < 30; i++) {
       expect(pickRandomChordType().id).toBe("diminished-triad-sing-middle");
+    }
+  });
+
+  it("respects user inversion selection", () => {
+    setInversionSelected("root", false);
+    setInversionSelected("second", false);
+
+    const activeIds = getActiveInversions().map((inv) => inv.id);
+    expect(activeIds).toEqual(["first"]);
+
+    for (let i = 0; i < 30; i++) {
+      expect(pickRandomInversion()).toBe("first");
     }
   });
 });
