@@ -1,4 +1,8 @@
-import { ANALYSER_FFT_SIZE, MAX_RECORD_MS } from "../config.ts";
+import {
+  ANALYSER_FFT_SIZE,
+  MAX_RECORD_MS,
+  SILENCE_AUTO_STOP_MS,
+} from "../config.ts";
 import { correctHarmonicPitch } from "../pitch/harmonics.ts";
 import { detectPitchFromAnalyser } from "../pitch/detect.ts";
 import { ensureAudioReady } from "./context.ts";
@@ -90,11 +94,14 @@ export async function startRecording(
   const samplesHz: number[] = [];
   const startedAt = performance.now();
   let stopped = false;
+  let lastPitchAt: number | null = null;
+  let hasDetectedPitch = false;
 
   const tick = (): void => {
     if (stopped || !analyserNode) return;
 
-    const elapsed = performance.now() - startedAt;
+    const now = performance.now();
+    const elapsed = now - startedAt;
     if (elapsed >= MAX_RECORD_MS) {
       finish();
       return;
@@ -102,11 +109,20 @@ export async function startRecording(
 
     const sample = detectPitchFromAnalyser(analyserNode, ctx.sampleRate);
     if (sample) {
+      hasDetectedPitch = true;
+      lastPitchAt = now;
       const hz = callbacks.targetHz
         ? correctHarmonicPitch(sample.frequencyHz, callbacks.targetHz)
         : sample.frequencyHz;
       samplesHz.push(hz);
       callbacks.onPitch?.(hz, sample.clarity);
+    } else if (
+      hasDetectedPitch &&
+      lastPitchAt !== null &&
+      now - lastPitchAt >= SILENCE_AUTO_STOP_MS
+    ) {
+      finish();
+      return;
     }
 
     animationFrameId = requestAnimationFrame(tick);

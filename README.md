@@ -20,7 +20,7 @@ npm test          # unit tests for scoring math
 ## How it works
 
 1. **Play note** — a sampled piano ([smplr](https://github.com/danigb/smplr) Soundfont, CDN-hosted) plays a random note in your voice range.
-2. **Start singing** / **Done** — mic capture with [pitchy](https://www.npmjs.com/package/pitchy) autocorrelation.
+2. **Start singing** / **Done** — mic capture with [pitchy](https://www.npmjs.com/package/pitchy) autocorrelation. After you’ve sung a detectable pitch, ~1s of silence auto-finishes the take (Done still works anytime).
 3. **Result** — median pitch vs target; pass if within **40 cents**.
 
 Tuning constants live in [`src/config.ts`](src/config.ts).

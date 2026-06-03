@@ -17,7 +17,8 @@ export const singleNoteTestConfig: SingTestConfig = {
     idle: "Press Play to hear the reference note.",
     playing: "Listen…",
     ready: "Sing the note you heard, then tap Start singing when ready.",
-    recording: "Singing… tap Done when finished.",
+    recording:
+      "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
     pass: "Correct — tap Next question when you are ready.",
     fail: "Try again on this question (up to 3 tries).",
     failExhausted: "Out of tries — tap Next question to continue the round.",
@@ -42,7 +43,8 @@ export const chordMiddleTestConfig: SingTestConfig = {
     noInversions: "Select at least one inversion to begin.",
     playing: "Listen to the chord…",
     ready: "Sing the middle note of the chord, then tap Start singing when ready.",
-    recording: "Singing… tap Done when finished.",
+    recording:
+      "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
     pass: "Correct — tap Next question when you are ready.",
     fail: "Try again on this question (up to 3 tries).",
     failExhausted: "Out of tries — tap Next question to continue the round.",
