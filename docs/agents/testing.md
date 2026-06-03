@@ -21,10 +21,10 @@ npm run test:browser  # Vitest browser — UI orchestration (Playwright)
 npm run build         # production build; run when routes or static assets change
 ```
 
-After `npm ci`, `postinstall` downloads Chromium into `node_modules` (`PLAYWRIGHT_BROWSERS_PATH=0`) so local runs do not depend on a global Playwright cache or IDE sandbox paths. Re-run manually if needed:
+After `npm ci`, `postinstall` runs `playwright install chromium` into the project (`PLAYWRIGHT_BROWSERS_PATH=0`, [Playwright’s hermetic install](https://playwright.dev/docs/browsers#hermetic-install--ci)). Re-run if needed:
 
 ```bash
-npm run playwright:install
+PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install chromium
 ```
 
 CI runs `npm test`, `npm run test:browser`, and `npm run build` on every PR and `main`.
