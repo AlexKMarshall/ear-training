@@ -512,6 +512,7 @@ export function mountSingTest(
           config.showChordTypePicker || config.showInversionPicker,
         ),
         showIntervalFilters: Boolean(config.showIntervalPicker),
+        showDegreeFilters: false,
       },
       currentQuestion,
       score.centsOff,

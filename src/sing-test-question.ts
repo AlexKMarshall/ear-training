@@ -2,6 +2,7 @@ import type { InversionId } from "./chord-inversions.ts";
 import type { ChordQuestion } from "./chords.ts";
 import type { IntervalQuestion } from "./interval-questions.ts";
 import type { TargetNote } from "./notes.ts";
+import type { ScaleDegreeQuestion } from "./scale-degree-questions.ts";
 
 export interface SingTestQuestion {
   target: TargetNote;
@@ -11,4 +12,6 @@ export interface SingTestQuestion {
   inversionId?: InversionId;
   interval?: IntervalQuestion;
   intervalId?: string;
+  scaleDegree?: ScaleDegreeQuestion;
+  degreeId?: string;
 }
