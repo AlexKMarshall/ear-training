@@ -20,6 +20,12 @@ npm run dev       # local dev server
 npm run build     # production build
 ```
 
+## CI
+
+Every push to `main` and every pull request runs [GitHub Actions](.github/workflows/ci.yml): `npm test` and `npm run build` on Node 22.
+
+Do not claim tests pass on a PR without a green **CI** check on that PR.
+
 ## Conventions
 
 - Prefer small, focused PRs; one logical change per PR unless the user asks to combine steps.
