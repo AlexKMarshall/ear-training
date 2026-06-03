@@ -21,16 +21,16 @@ Browser-based ear training for singers: harmony, pitch recognition, and vocal re
 
 | Area | Status |
 |------|--------|
-| **Exercises** | Sing a single note; sing the middle note of a triad (major / minor / diminished) |
-| **Scoring** | Mic → median pitch → cents vs target (40¢ tolerance), harmonic correction, octave hints |
-| **Session shape** | 10-question rounds, up to 3 attempts per question, in-round summary (`firstTry` / `retry` / `wrong`) |
-| **Personalization** | Voice type range; chord type & inversion filters (`localStorage`) |
-| **Persistence** | Preferences in `localStorage`; **attempt history** in IndexedDB (`src/history/`) — each scored try with cents, pass/fail, target, chord meta, round/question ids |
-| **Stats / dashboard** | [`/stats/`](stats/index.html) — overall + per-exercise (`single-note`, `chord-middle`): attempt pass rate, question pass rate, first-try rate, median abs cents error |
-| **Recognition / naming** | Not implemented — reproduction only |
+| **Exercises** | **Sing:** single note; chord middle (major / minor / diminished); melodic & harmonic intervals (sing upper note). **Identify:** melodic & harmonic intervals (multiple choice, degree-style interval names). Routes on home + [`README.md`](../README.md). |
+| **Scoring** | **Sing:** mic → median pitch → cents vs target (40¢ tolerance), harmonic correction, octave hints. **Identify:** pass/fail on selected interval label (no mic); `centsOff` stored as 0. |
+| **Session shape** | 10-question rounds, up to 3 attempts per question, in-round summary (`firstTry` / `retry` / `wrong`) — sing and identify flows |
+| **Personalization** | Voice type range; chord type & inversion filters; **interval set** filter (P4 / P5 / octave in v1 registry) — all `localStorage` |
+| **Persistence** | Preferences in `localStorage`; **attempt history** in IndexedDB (`src/history/`) — per attempt: `exerciseId`, target, `centsOff`, pass/fail, chord meta, **`intervalId`** / presentation / selected answer for ID exercises, `roundId` + `questionIndex` |
+| **Stats / dashboard** | [`/stats/`](stats/index.html) — overall + per-exercise for all six `exerciseId`s. Median ¢ is meaningful for sing exercises only (ID attempts always record 0¢). **No** breakdown by `intervalId`, chord type, or time trends yet. |
+| **Recognition / naming** | **Partial** — interval identification only (perfect 4th / 5th / octave labels); not scale-degree-in-key, triad quality, or note names |
 | **Curriculum** | Manual test choice from home — no unlock progression |
 
-Relevant code seams: `SingTestConfig` (+ `exerciseId`), `RoundSummary`, `SingTestQuestion`, `AttemptRecord`, chord/voice preferences in `localStorage`.
+Relevant code seams: `SingTestConfig`, `IdentifyTestConfig`, `RoundSummary`, `SingTestQuestion`, `AttemptRecord`, chord/voice/**interval** preferences in `localStorage`; interval domain in `src/interval-config.ts`, `src/interval-questions.ts`, `src/ui/interval-tests.ts`.
 
 ## Product pillars
 
@@ -38,9 +38,9 @@ Four skills (rhythm excluded):
 
 | Pillar | Description | Today |
 |--------|-------------|--------|
-| **Discrimination** | Hear differences (wider vs narrower interval, maj vs min) | Partial (chord types) |
-| **Recognition / naming** | Hear → label (degree or note name) | Missing |
-| **Reproduction** | Hear → sing back accurately | Core strength |
+| **Discrimination** | Hear differences (wider vs narrower interval, maj vs min) | Partial (chord types; interval ID exercises with user-selected interval pool) |
+| **Recognition / naming** | Hear → label (degree or note name) | **Partial** — interval names (P4 / P5 / octave); no key context or chord-quality ID |
+| **Reproduction** | Hear → sing back accurately | Core strength (single note, chord middle, interval upper note) |
 | **Contextual intonation** | Phrases, tendency tones, chord tones in key | Missing |
 
 ```mermaid
@@ -66,14 +66,14 @@ flowchart LR
 
 | Feature | Status | Notes |
 |---------|--------|--------|
-| Persist attempt history | **Done** | IndexedDB store; per attempt: `exerciseId`, target, `centsOff`, pass/fail, attempt number, timestamp, voice type, chord notes/type/inversion, active filter snapshot, `roundId` + `questionIndex`. See `src/history/`. |
-| Dashboard | **Done (MVP)** | `/stats/`: attempt pass rate, question pass rate, first-try rate, median abs cents error; overall + per exercise. Weakness-tag breakdown and time trends not yet. |
+| Persist attempt history | **Done** | IndexedDB store; per attempt: `exerciseId`, target, `centsOff`, pass/fail, attempt number, timestamp, voice type, chord notes/type/inversion, interval fields, active filter snapshot, `roundId` + `questionIndex`. See `src/history/`. |
+| Dashboard | **Done (MVP)** | `/stats/`: attempt pass rate, question pass rate, first-try rate, median abs cents error; overall + per exercise (all six types). Weakness-tag breakdown and time trends not yet. |
 | Skill profiles | **Done (lite)** | Separate stats per `exerciseId` on the dashboard. |
 | Practice goals & streaks | Todo | e.g. daily question count or minutes; optional notifications later. |
-| Targeted drills | Todo | Weight generation toward missed tags (chord type, register, degree, etc.). |
+| Targeted drills | Todo | Weight generation toward missed tags (chord type, **interval id**, register, degree, etc.) — interval id is already persisted but not used for drill weighting. |
 | Configurable difficulty | Todo | Tolerance (¢), range width, playback repeats — driven by level/settings, not only `config.ts`. |
 
-**Musical content:** none new — make existing exercises count.
+**Musical content:** interval exercises now feed the same history/stats pipeline as earlier sing tests; habit features (goals, adaptive drills) still TODO.
 
 ---
 
@@ -84,7 +84,7 @@ flowchart LR
 | Level | Reproduction (sing) | Recognition (hear → answer) |
 |-------|---------------------|-----------------------------|
 | 1 | Single note *(done)* | — |
-| 2 | Intervals: melodic, then harmonic (P4, P5, octave first) | **Interval as degree** — e.g. *perfect 5th* / *minor 2nd* (not solfege) |
+| 2 | Intervals: melodic, then harmonic *(done, partial)* | Interval as degree *(done, partial)* |
 | 3 | Scale degrees in one key: sing 2nd, 5th, etc. from established tonic | **Degree ID** — hear note in key → choose degree (and quality where needed, e.g. *minor 7th*) |
 | 4 | Diatonic triads: sing root / 3rd / 5th (extend beyond middle only) | Triad quality: major / minor / diminished |
 | 5 | Triads + inversions | Inversion: root / 1st / 2nd |
@@ -93,7 +93,16 @@ flowchart LR
 | 8 | Chromatic / non-diatonic tones in context | “Which degree?” with altered labels (*flat 5*, *sharp 4*, etc.) |
 | 9 | Dense / atonal clusters | Cluster: which pitch class or degree was added? |
 
-**Technical:** `ExerciseDefinition` registry; unlock rules from rolling accuracy + minimum reps.
+**Level 2 — what shipped vs gaps**
+
+| Shipped | Still open |
+|---------|------------|
+| `/interval-melodic-sing/`, `/interval-harmonic-sing/` — hear interval, sing **upper** note | Sing lower note or both directions; “reproduce the interval” beyond upper-target scoring |
+| `/interval-melodic-id/`, `/interval-harmonic-id/` — MC with degree-style labels (no solfege) | Broader interval registry (2nds, 3rds, 6ths, 7ths, chromatic); confusion-pair drills |
+| v1 pool: perfect 4th, 5th, octave (`src/interval-config.ts`) | Curriculum-enforced “melodic before harmonic” (both exist as separate cards) |
+| User interval picker + voice range (`interval-preference`) | Unlock rules; level wrapper |
+
+**Technical:** `ExerciseDefinition` registry; unlock rules from rolling accuracy + minimum reps — still TODO (today: parallel `SingTestConfig` / `IdentifyTestConfig` per page).
 
 **Note-name variant (later within Phase 1+):** same exercises with answers *C*, *F♯*, etc., unlocked as harder mode after degree mode is stable.
 
@@ -103,16 +112,18 @@ flowchart LR
 
 **Goal:** Ear training is not only “sing it back.”
 
-| Exercise type | Answer format (v1) | Harder variant (later) |
-|---------------|--------------------|-------------------------|
-| Interval identification | Interval name / degree span (*minor 6th*) | — |
-| Scale degree in key | *3rd*, *minor 7th*, *flat 6th*, etc. | Note name in key |
-| Chord quality | Major / minor / dim / aug | — |
-| Chord inversion | Root / 1st / 2nd | — |
-| Tonic / key | Establish key → identify degree of a note or chord function | Note-name key labels optional |
-| Confusion pairs | Extra drills for commonly confused pairs (e.g. M6 vs m7) | — |
+| Exercise type | Answer format (v1) | Status |
+|---------------|--------------------|--------|
+| Interval identification | Interval name / degree span (*Perfect 5th*, etc.) | **Done (partial)** — melodic + harmonic pages; limited interval set; distractors from active picker (min 2 intervals) |
+| Scale degree in key | *3rd*, *minor 7th*, *flat 6th*, etc. | Todo |
+| Chord quality | Major / minor / dim / aug | Todo |
+| Chord inversion | Root / 1st / 2nd | Todo |
+| Tonic / key | Establish key → identify degree of a note or chord function | Todo |
+| Confusion pairs | Extra drills for commonly confused pairs (e.g. M6 vs m7) | Todo |
 
-**Technical:** `responseMode: "sing" | "select"` (and later keyboard/MIDI); shared playback and question generation with reproduction modes.
+**Harder variants (later):** note name in key for scale-degree exercises; note-name key labels optional for tonic/key.
+
+**Technical:** `IdentifyTestConfig` + `mountIdentifyTest` implement select-based scoring and shared round/history with sing tests. Still TODO: unify under `responseMode: "sing" \| "select"` on a single `ExerciseDefinition`; keyboard/MIDI input.
 
 ---
 
@@ -147,10 +158,10 @@ flowchart LR
 | Need | Technical | Musical |
 |------|-----------|---------|
 | Regular practice | Goals, streaks, reminders | Short daily mixed drill |
-| Measurable improvement | History + `/stats/` dashboard *(MVP)*; weakness map by tag still TODO | Per-skill benchmarks *(lite: per exercise id)* |
-| Progressive difficulty | Curriculum engine, unlock rules | Ordered content (see Phase 1 table) |
-| Naming / recognition | Select UI, exercise types, no-mic path | Degrees first; note names second |
-| Not only reproduction | Phrase scoring, multi-target rounds | Dictation, functional hearing |
+| Measurable improvement | History + `/stats/` MVP for all exercises; **weakness map by `intervalId` / chord type still TODO**; ID exercises don’t use cents meaningfully in dashboard | Per-skill benchmarks *(lite: per exercise id)* |
+| Progressive difficulty | Curriculum engine, unlock rules | Level 2 content partial (P4/P5/8ve only); levels 3+ not started |
+| Naming / recognition | Select UI + interval ID exercises **done (partial)**; scale-degree & chord ID **TODO** | Degrees-first interval labels **done (partial)**; note names **TODO** |
+| Not only reproduction | Interval ID **done (partial)**; phrase scoring, multi-target rounds **TODO** | Dictation, functional hearing **TODO** |
 | Singer-specific | Range by voice; phrase intonation | Register-aware sets; no rhythm track |
 
 ---
@@ -158,9 +169,9 @@ flowchart LR
 ## Suggested build order
 
 1. ~~**Persist results + dashboard** (Phase 0)~~ **Done**
-2. **Interval sing + interval recognition (degree labels)** (Phase 1–2) ← *next*
-3. **Curriculum / levels** wrapping existing + new exercises
-4. **Scale-degree sing + degree ID** (primary naming track)
+2. ~~**Interval sing + interval recognition (degree labels)** (Phase 1–2)~~ **Done (partial)** — P4/P5/octave, four routes, history + stats. **Remaining:** expand intervals, per-tag stats/drills, curriculum shell, richer reproduction tasks.
+3. **Curriculum / levels** wrapping existing + new exercises ← *next*
+4. **Scale-degree sing + degree ID** (primary naming track in key)
 5. **Expand chord exercises** (sing other chord tones; quality/inversion ID)
 6. **Melodic dictation & clusters** (degrees → note-name hard mode)
 7. **Adaptive / spaced drills** once item taxonomy is rich enough
@@ -169,11 +180,11 @@ flowchart LR
 
 ## Architectural direction
 
-- Generalize `SingTestConfig` → `ExerciseDefinition` with pluggable `prepareQuestion`, `playReference`, `score(response)`.
-- ~~Persist scored attempts + question snapshots to history store.~~ **Done** — `saveAttempt` on each score; round outcomes still ephemeral in UI only.
-- Extend dashboard with weakness tags and trends; optional round-level aggregates in history.
-- Reuse preference patterns (`voice-ranges`, `chord-type-preference`) for **curriculum level** and **enabled skills**.
-- Implement **recognition** as sibling modes sharing playback and question generation, not a separate app.
+- Generalize `SingTestConfig` / `IdentifyTestConfig` → `ExerciseDefinition` with pluggable `prepareQuestion`, `playReference`, `score(response)` and `responseMode`.
+- ~~Persist scored attempts + question snapshots to history store.~~ **Done** — `saveAttempt` on each score (sing and identify); round outcomes still ephemeral in UI only.
+- Extend dashboard with weakness tags (e.g. by `intervalId`) and trends; optional round-level aggregates in history; ID-appropriate metrics (not median ¢).
+- Reuse preference patterns (`voice-ranges`, `chord-type-preference`, `interval-preference`) for **curriculum level** and **enabled skills**.
+- ~~Implement **recognition** as sibling modes sharing playback and question generation.~~ **Partial** — `identify-test.ts` shares rounds/history with sing tests; interval playback/questions shared via `interval-questions.ts`; not yet one registry abstraction.
 
 ---
 
