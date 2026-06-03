@@ -1,8 +1,6 @@
-import {
-  chordFrequenciesHz,
-  chordTarget,
-  randomMajorTriadWithMiddleInRange,
-} from "../chords.ts";
+import { chordFrequenciesHz, chordTarget } from "../chords.ts";
+import { MAJOR_TRIAD_SING_MIDDLE } from "../chord-types/major-triad.ts";
+import { randomChordQuestion } from "../chord-types.ts";
 import { playChord, playTargetNote } from "../audio/playback.ts";
 import { randomNoteInRange } from "../notes.ts";
 import { getActiveNoteRange } from "../voice-ranges.ts";
@@ -41,7 +39,10 @@ export const chordMiddleTestConfig: SingTestConfig = {
     fail: "Keep practicing — try again.",
   },
   prepareQuestion: () => {
-    const chord = randomMajorTriadWithMiddleInRange(getActiveNoteRange());
+    const chord = randomChordQuestion(
+      MAJOR_TRIAD_SING_MIDDLE,
+      getActiveNoteRange(),
+    );
     return { target: chordTarget(chord), chord };
   },
   playReference: (question) => {

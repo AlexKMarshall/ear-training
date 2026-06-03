@@ -1,11 +1,37 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildChordQuestion,
+  randomChordQuestion,
+} from "../src/chord-types.ts";
+import {
+  MAJOR_TRIAD_SING_MIDDLE,
   cMajorTriadAtC3,
-  chordFrequenciesHz,
-  chordTarget,
   randomMajorTriadWithMiddleInRange,
-} from "../src/chords.ts";
+} from "../src/chord-types/major-triad.ts";
+import { chordFrequenciesHz, chordTarget } from "../src/chords.ts";
 import { midiToHz } from "../src/notes.ts";
+
+describe("buildChordQuestion", () => {
+  it("applies voicing offsets from the anchor note", () => {
+    const question = buildChordQuestion(MAJOR_TRIAD_SING_MIDDLE, 52);
+
+    expect(question.notes.map((n) => n.name)).toEqual(["C3", "E3", "G3"]);
+    expect(question.targetIndex).toBe(1);
+    expect(chordTarget(question).name).toBe("E3");
+  });
+});
+
+describe("randomChordQuestion", () => {
+  it("keeps the range anchor note within the given range", () => {
+    const range = { lowMidi: 48, highMidi: 67 };
+    for (let i = 0; i < 50; i++) {
+      const question = randomChordQuestion(MAJOR_TRIAD_SING_MIDDLE, range);
+      const anchor = question.notes[MAJOR_TRIAD_SING_MIDDLE.rangeAnchorIndex]!;
+      expect(anchor.midi).toBeGreaterThanOrEqual(range.lowMidi);
+      expect(anchor.midi).toBeLessThanOrEqual(range.highMidi);
+    }
+  });
+});
 
 describe("cMajorTriadAtC3", () => {
   it("builds C3–E3–G3 with middle note as target", () => {
