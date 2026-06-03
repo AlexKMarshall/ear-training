@@ -207,7 +207,6 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
       <div class="actions">
         <button type="button" id="btn-play" class="btn btn-primary">${config.playButtonLabel}</button>
         <button type="button" id="btn-record" class="btn" disabled>Start singing</button>
-        <button type="button" id="btn-done" class="btn" disabled hidden>Done</button>
         <button type="button" id="btn-retry" class="btn" hidden>Try again</button>
         <button type="button" id="btn-next" class="btn btn-primary" hidden>Next question</button>
         <button type="button" id="btn-next-round" class="btn btn-primary" hidden>Start next round</button>
@@ -225,7 +224,6 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   const resultEl = root.querySelector<HTMLElement>("#result")!;
   const btnPlay = root.querySelector<HTMLButtonElement>("#btn-play")!;
   const btnRecord = root.querySelector<HTMLButtonElement>("#btn-record")!;
-  const btnDone = root.querySelector<HTMLButtonElement>("#btn-done")!;
   const btnRetry = root.querySelector<HTMLButtonElement>("#btn-retry")!;
   const btnNext = root.querySelector<HTMLButtonElement>("#btn-next")!;
   const btnNextRound = root.querySelector<HTMLButtonElement>("#btn-next-round")!;
@@ -426,8 +424,7 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
       state === "recording" ||
       settingsIncomplete;
     btnRecord.disabled = state !== "ready" && state !== "recording";
-    btnDone.hidden = state !== "recording";
-    btnDone.disabled = state !== "recording";
+    btnRecord.textContent = state === "recording" ? "Done" : "Start singing";
     const showResultActions = state === "result";
     const canRetrySameQuestion =
       showResultActions &&
@@ -692,9 +689,12 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   });
   btnRecord.addEventListener("click", () => {
     unlockAudio();
-    void handleRecordStart();
+    if (state === "recording") {
+      handleDone();
+    } else {
+      void handleRecordStart();
+    }
   });
-  btnDone.addEventListener("click", handleDone);
   btnRetry.addEventListener("click", handleRetry);
   btnNext.addEventListener("click", handleNextQuestion);
   btnNextRound.addEventListener("click", handleNextRound);
