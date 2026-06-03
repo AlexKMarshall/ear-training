@@ -13,6 +13,7 @@ describe("curriculum levels", () => {
       "interval-harmonic-sing",
       "interval-melodic-id",
       "interval-harmonic-id",
+      "scale-degree-sing",
     ]);
   });
 

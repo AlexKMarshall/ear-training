@@ -30,3 +30,28 @@ export function passingSingleNoteHistory(): AttemptRecord[] {
     }),
   );
 }
+
+/** Passing history through every Level 2 path exercise. */
+export function passingLevel2History(): AttemptRecord[] {
+  const records: AttemptRecord[] = [...passingSingleNoteHistory()];
+  for (const exerciseId of [
+    "interval-melodic-sing",
+    "interval-harmonic-sing",
+    "interval-melodic-id",
+    "interval-harmonic-id",
+  ] as const) {
+    records.push(
+      ...Array.from({ length: MIN_QUESTIONS }, (_, i) =>
+        attempt({
+          exerciseId,
+          passed: true,
+          attemptNumber: 1,
+          centsOff: 0,
+          questionIndex: i,
+          roundId: `${exerciseId}-${i}`,
+        }),
+      ),
+    );
+  }
+  return records;
+}

@@ -9,6 +9,7 @@ import {
   mountIntervalMelodicIdTest,
   mountIntervalMelodicSingTest,
 } from "../ui/interval-tests.ts";
+import { mountScaleDegreeSingTest } from "../ui/scale-degree-tests.ts";
 
 export type ResponseMode = "sing" | "select";
 
@@ -69,6 +70,14 @@ const EXERCISE_ENTRIES: readonly ExerciseEntry[] = [
     title: "Identify harmonic intervals",
     subtitle: "Hear two notes together, then choose the interval",
     mount: mountIntervalHarmonicIdTest,
+  },
+  {
+    id: "scale-degree-sing",
+    responseMode: "sing",
+    route: "/scale-degree-sing/",
+    title: "Sing scale degrees",
+    subtitle: "Hear the tonic, then sing the requested scale degree in that key",
+    mount: mountScaleDegreeSingTest,
   },
 ];
 

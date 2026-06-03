@@ -1,6 +1,6 @@
 import { page } from "vitest/browser";
 import { expect, test } from "vitest";
-import { passingSingleNoteHistory } from "../fixtures/attempts.ts";
+import { passingLevel2History, passingSingleNoteHistory } from "../fixtures/attempts.ts";
 import { mountHomeWithHistory } from "./helpers/mount.ts";
 
 test("fresh profile: first exercise is a link, next path exercise is not", async () => {
@@ -24,6 +24,17 @@ test("after single-note unlock: melodic sing appears as link", async () => {
       page
         .getByRole("region", { name: /Level 2/i })
         .getByRole("link", { name: /Sing melodic intervals/i }),
+    )
+    .toBeVisible();
+});
+
+test("after level 2 complete: scale-degree sing appears as link", async () => {
+  await mountHomeWithHistory(passingLevel2History());
+  await expect
+    .element(
+      page
+        .getByRole("region", { name: /Level 3/i })
+        .getByRole("link", { name: /Sing scale degrees/i }),
     )
     .toBeVisible();
 });
