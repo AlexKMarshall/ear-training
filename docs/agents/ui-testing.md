@@ -41,6 +41,10 @@ Exercise **titles** in assertions must match [`src/exercises/registry.ts`](../..
 | Locked exercise page | `getByRole('heading', { name: 'Locked' })`; CTA `getByRole('link', { name: /Go to Sing a single note/i })` |
 | Stats empty state | `getByText(/No practice history yet/i)` |
 | Unlocked guard (no locked UI) | `expect.element(page.getByRole('heading', { name: 'Locked' })).not.toBeInTheDocument()` (or equivalent not-visible assertion) |
+| Identify exercise — play + answer | `getByRole('button', { name: /Play interval/i })` then `getByRole('button', { name: /Perfect 5th/i })` (label from active interval set) |
+| Identify — correct result | `getByText('Correct', { exact: true })` (avoids matching status line “Correct — tap Next…”) |
+| Identify — round progress | `getByText(/question 1 of 10/i)`; after Next question, `question 2 of 10` |
+| Identify — interval picker idle | `getByText(/Select at least one interval to begin/i)`; Play button `toBeDisabled()` |
 
 ## Related
 

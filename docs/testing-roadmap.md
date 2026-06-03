@@ -22,7 +22,7 @@ Detailed rules for agents live in [`docs/agents/testing.md`](agents/testing.md) 
 | Notes, chords, preferences | Unit tests | `tests/notes.test.ts`, `tests/chords.test.ts`, `tests/chord-*-preference.test.ts`, `tests/voice-ranges.test.ts` |
 | Intervals, rounds | Unit tests | `tests/interval-questions.test.ts`, `tests/round.test.ts` |
 | History stats, curriculum | Unit tests | `tests/history-stats.test.ts`, `tests/curriculum-*.test.ts` |
-| UI mount / orchestration | **Partial (T0)** | `mountHome`, `mountExercisePage`, `mountStats` accept `HistoryPort`; sing/identify still use store directly |
+| UI mount / orchestration | **Partial (T1)** | `mountIdentifyTest` accepts `HistoryPort` + `AudioPort`; `mountHome`, `mountExercisePage`, `mountStats` accept `HistoryPort`; sing still uses store directly |
 | Browser / Vitest projects | **Done (T0)** | `npm run test:browser` — `tests/browser/**/*.browser.test.ts` (Vitest browser + Playwright) |
 | **CI (GitHub Actions)** | **Done** | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — `npm test`, `npm run test:browser`, `npm run build` on PRs and `main` |
 
@@ -122,16 +122,16 @@ interface ExerciseUiDeps {
 
 ---
 
-### Phase T1 - Identify exercise orchestration
+### Phase T1 - Identify exercise orchestration — **Done**
 
 **Goal:** Cover select-based flows (no mic) before sing recording port.
 
 | Task | Status | Notes |
 |------|--------|--------|
-| `AudioPort` on `mountIdentifyTest` | Todo | Real browser can use real `AudioContext`; tests may no-op `ensureReady` |
-| Browser test: interval identify — Play → choice → pass → `saveAttempt` | Todo | Fixed `prepareQuestion` in test config; assert `HistoryPort` calls |
-| Browser test: round progress (question N of 10), next question | Todo | |
-| Browser test: interval picker disabled / “select at least one” idle | Todo | Optional; or stay in Node if pure preference logic |
+| `AudioPort` on `mountIdentifyTest` | **Done** | `src/audio/port.ts`; `createTestAudioPort()` in browser tests |
+| Browser test: interval identify — Play → choice → pass → `saveAttempt` | **Done** | `tests/browser/identify-round.browser.test.ts`; fixed `prepareQuestion`, noop `playReference` |
+| Browser test: round progress (question N of 10), next question | **Done** | Q1 → Q2 counter in same file |
+| Browser test: interval picker disabled / “select at least one” idle | **Done** | No-interval + two-interval enable paths |
 
 **Product tie-in:** Safe refactors while adding [Phase 2 scale-degree ID](roadmap.md#phase-2--recognition-first-modes-hear--answer-no-mic) and more MC exercises.
 
@@ -202,8 +202,8 @@ Align with product work; testing phases can run **in parallel** with feature PRs
 
 0. ~~[T-CI](#phase-t-ci---github-actions-baseline)~~ — **Done** — GitHub Actions: `npm test` + `npm run build` on every PR and `main`  
 1. ~~[T0](#phase-t0---foundation-tooling--first-ports)~~ — **Done** — browser project + `HistoryPort` + home / locked-page tests + Playwright in CI  
-2. **[T1](#phase-t1---identify-exercise-orchestration) — next** — identify orchestration (interval ID today; template for future MC exercises)  
-3. [T2](#phase-t2---sing-exercise-orchestration) — sing orchestration with fake recording  
+2. ~~[T1](#phase-t1---identify-exercise-orchestration)~~ — **Done** — identify orchestration (interval ID today; template for future MC exercises)  
+3. **[T2](#phase-t2---sing-exercise-orchestration) — next** — sing orchestration with fake recording  
 4. [T3](#phase-t3---scale-with-product-features) — helpers + per-exercise smoke as registry grows  
 
 ## Related product roadmap items
@@ -212,7 +212,7 @@ Align with product work; testing phases can run **in parallel** with feature PRs
 |--------------|---------------|
 | PR merge confidence | **Done** ([T-CI](#phase-t-ci---github-actions-baseline) + browser job in [T0](#phase-t0---foundation-tooling--first-ports)) |
 | Curriculum guards, home UI | **Done** ([T0](#phase-t0---foundation-tooling--first-ports)) |
-| Interval + future identify exercises | [T1](#phase-t1---identify-exercise-orchestration) |
+| Interval + future identify exercises | **Done** ([T1](#phase-t1---identify-exercise-orchestration)) |
 | Sing / phrase / reproduction | [T2](#phase-t2---sing-exercise-orchestration) |
 | Unified `ExerciseDefinition` | Ports + config injection; browser tests use test configs |
 | `?unlock=all` for QA | [T3](#phase-t3---scale-with-product-features) + manual checklist |

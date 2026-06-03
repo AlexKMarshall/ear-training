@@ -1,11 +1,16 @@
-import { ensureAudioReady, unlockAudio } from "../audio/context.ts";
-import { isPlaying } from "../audio/playback.ts";
+import {
+  createDefaultAudioPort,
+  type AudioPort,
+} from "../audio/port.ts";
+import {
+  createDefaultHistoryPort,
+  type HistoryPort,
+} from "../history/port.ts";
 import {
   MAX_ATTEMPTS_PER_QUESTION,
   QUESTIONS_PER_ROUND,
 } from "../config.ts";
 import { buildAttemptRecord } from "../history/serialize.ts";
-import { saveAttempt } from "../history/store.ts";
 import type { ExerciseId } from "../history/types.ts";
 import {
   getActiveIntervals,
@@ -61,10 +66,18 @@ export interface IdentifyTestConfig {
   playReference: (question: SingTestQuestion) => Promise<void>;
 }
 
+export interface IdentifyMountDeps {
+  history?: HistoryPort;
+  audio?: AudioPort;
+}
+
 export function mountIdentifyTest(
   root: HTMLElement,
   config: IdentifyTestConfig,
+  deps?: IdentifyMountDeps,
 ): void {
+  const history = deps?.history ?? createDefaultHistoryPort();
+  const audio = deps?.audio ?? createDefaultAudioPort();
   const voicePickerHtml = config.showVoicePicker
     ? `
       <fieldset class="voice-picker" id="voice-picker">
@@ -354,7 +367,7 @@ export function mountIdentifyTest(
       scoredAttempts + 1,
       selectedIntervalId,
     );
-    void saveAttempt(record);
+    void history.saveAttempt(record);
   }
 
   function showResult(passed: boolean, selectedLabel: string): void {
@@ -416,10 +429,10 @@ export function mountIdentifyTest(
   }
 
   async function handlePlay(): Promise<void> {
-    if (isPlaying() || settingsIncomplete()) return;
+    if (audio.isPlaying() || settingsIncomplete()) return;
 
     try {
-      await ensureAudioReady();
+      await audio.ensureReady();
       if (state === "idle" || !currentQuestion) {
         currentQuestion = config.prepareQuestion();
         scoredAttempts = 0;
@@ -500,7 +513,7 @@ export function mountIdentifyTest(
   }
 
   btnPlay.addEventListener("click", () => {
-    unlockAudio();
+    audio.unlock();
     void handlePlay();
   });
   btnRetry.addEventListener("click", handleRetry);
