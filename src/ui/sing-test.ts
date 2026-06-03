@@ -627,7 +627,7 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   function handleRetry(): void {
     stopMediaStream();
     resultEl.hidden = true;
-    setState("ready");
+    void handlePlay();
   }
 
   function showRoundSummary(): void {
@@ -677,6 +677,7 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     lastPassed = false;
     resultEl.hidden = true;
     setState("idle");
+    void handlePlay();
   }
 
   function handleNextRound(): void {
