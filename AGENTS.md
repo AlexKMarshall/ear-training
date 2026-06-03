@@ -17,7 +17,7 @@ Read the pull-request guide before creating or updating a PR description, especi
 
 ```bash
 npm test              # Vitest Node — unit tests
-npm run test:browser  # Vitest browser — UI orchestration (Playwright)
+npm run test:browser  # Vitest browser — Playwright (Chromium installed via postinstall)
 npm run dev           # local dev server
 npm run build         # production build
 ```

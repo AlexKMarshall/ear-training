@@ -8,7 +8,9 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run --project unit",
-    "test:browser": "vitest run --project browser"
+    "test:browser": "node scripts/run-browser-tests.mjs",
+    "playwright:install": "node scripts/install-playwright.mjs",
+    "postinstall": "node scripts/install-playwright.mjs"
   },
   "devDependencies": {
     "@vitest/browser-playwright": "^4.1.8",
