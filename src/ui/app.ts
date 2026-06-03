@@ -3,6 +3,7 @@ import { ensureAudioReady } from "../audio/context.ts";
 import { isPlaying, playTargetNote } from "../audio/playback.ts";
 import { MIN_VALID_SAMPLES } from "../config.ts";
 import { randomNoteInRange, type TargetNote } from "../notes.ts";
+import { getActiveNoteRange } from "../voice-ranges.ts";
 import { scoreFromSamples } from "../pitch/score.ts";
 import type { ScoreResult } from "../pitch/score.ts";
 import "./styles.css";
@@ -121,7 +122,7 @@ export function mountApp(root: HTMLElement): void {
     try {
       await ensureAudioReady();
       if (state === "idle" || !currentTarget) {
-        currentTarget = randomNoteInRange();
+        currentTarget = randomNoteInRange(getActiveNoteRange());
       }
       setState("playing");
       await playTargetNote(currentTarget.hz);

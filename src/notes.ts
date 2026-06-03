@@ -22,12 +22,6 @@ export interface NoteRange {
   highMidi: number;
 }
 
-/** Default exercise range; later configurable per voice type. */
-export const DEFAULT_NOTE_RANGE: NoteRange = {
-  lowMidi: 48, // C3
-  highMidi: 60, // C4
-};
-
 export interface TargetNote {
   midi: number;
   hz: number;
@@ -43,9 +37,7 @@ export function midiToNoteName(midi: number): string {
   return `${NOTE_NAMES[midi % 12]!}${octave}`;
 }
 
-export function randomNoteInRange(
-  range: NoteRange = DEFAULT_NOTE_RANGE,
-): TargetNote {
+export function randomNoteInRange(range: NoteRange): TargetNote {
   const span = range.highMidi - range.lowMidi + 1;
   const midi = range.lowMidi + Math.floor(Math.random() * span);
   return {

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_NOTE_RANGE,
   midiToHz,
   midiToNoteName,
   randomNoteInRange,
 } from "../src/notes.ts";
+import { getActiveNoteRange } from "../src/voice-ranges.ts";
 
 describe("midiToHz", () => {
   it("maps C4 to standard tuning", () => {
@@ -25,11 +25,12 @@ describe("midiToNoteName", () => {
 });
 
 describe("randomNoteInRange", () => {
-  it("stays within default C3–C4 range", () => {
+  it("stays within the given range", () => {
+    const range = getActiveNoteRange();
     for (let i = 0; i < 50; i++) {
-      const note = randomNoteInRange();
-      expect(note.midi).toBeGreaterThanOrEqual(DEFAULT_NOTE_RANGE.lowMidi);
-      expect(note.midi).toBeLessThanOrEqual(DEFAULT_NOTE_RANGE.highMidi);
+      const note = randomNoteInRange(range);
+      expect(note.midi).toBeGreaterThanOrEqual(range.lowMidi);
+      expect(note.midi).toBeLessThanOrEqual(range.highMidi);
       expect(note.hz).toBeCloseTo(midiToHz(note.midi), 5);
       expect(note.name).toBe(midiToNoteName(note.midi));
     }
