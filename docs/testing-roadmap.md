@@ -22,9 +22,9 @@ Detailed rules for agents live in [`docs/agents/testing.md`](agents/testing.md) 
 | Notes, chords, preferences | Unit tests | `tests/notes.test.ts`, `tests/chords.test.ts`, `tests/chord-*-preference.test.ts`, `tests/voice-ranges.test.ts` |
 | Intervals, rounds | Unit tests | `tests/interval-questions.test.ts`, `tests/round.test.ts` |
 | History stats, curriculum | Unit tests | `tests/history-stats.test.ts`, `tests/curriculum-*.test.ts` |
-| UI mount / orchestration | **None** | `src/ui/*.ts` import audio + history directly |
-| Browser / Vitest projects | **Not configured** | Single `npm test` → Node only (`vite.config.ts`) |
-| **CI (GitHub Actions)** | **Done** | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — `npm test` + `npm run build` on PRs and `main`; no browser job yet |
+| UI mount / orchestration | **Partial (T0)** | `mountHome`, `mountExercisePage`, `mountStats` accept `HistoryPort`; sing/identify still use store directly |
+| Browser / Vitest projects | **Done (T0)** | `npm run test:browser` — `tests/browser/**/*.browser.test.ts` (Vitest browser + Playwright) |
+| **CI (GitHub Actions)** | **Done** | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — `npm test`, `npm run test:browser`, `npm run build` on PRs and `main` |
 
 **Risk:** Each new exercise and curriculum feature increases manual regression surface (home cards, locked pages, round flow, `saveAttempt` fields) while domain logic stays well tested.
 
@@ -79,7 +79,7 @@ interface ExerciseUiDeps {
 
 ## Continuous integration (GitHub Actions)
 
-**Today:** [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on every PR and `push` to `main`: Node 22, `npm ci`, `npm test`, `npm run build`. Confirm green **CI** on the PR ([`docs/agents/pull-requests.md`](agents/pull-requests.md)). Browser / Playwright steps join the workflow with [T0](#phase-t0---foundation-tooling--first-ports).
+**Today:** [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on every PR and `push` to `main`: Node 22, `npm ci`, `npm test`, Playwright Chromium install, `npm run test:browser`, `npm run build`. Confirm green **CI** on the PR ([`docs/agents/pull-requests.md`](agents/pull-requests.md)).
 
 ### Phase T-CI - GitHub Actions (baseline) — **Done**
 
@@ -92,12 +92,12 @@ interface ExerciseUiDeps {
 | Document CI in `AGENTS.md` | **Done** | PRs must pass CI; link to workflow file |
 | Branch protection on `main` (repo settings) | Todo | Optional manual step: require status check **`ci`** |
 
-### CI after browser tests (extends T0+)
+### CI after browser tests (extends T0+) — **Done**
 
 | Task | Status | Notes |
 |------|--------|--------|
-| Install Playwright browsers in CI | Todo | `npx playwright install --with-deps chromium` (Linux deps for headless) |
-| Run `npm run test:browser` in workflow | Todo | After `test:browser` script exists; headless Chromium only to start |
+| Install Playwright browsers in CI | **Done** | `npx playwright install --with-deps chromium` (Linux deps for headless) |
+| Run `npm run test:browser` in workflow | **Done** | Headless Chromium in the same `ci` job |
 | Optional: split jobs | Todo | `test` (Node) fast; `test-browser` parallel if runtime grows |
 
 **Defer:** Deploy previews, Codecov, matrix across Firefox/WebKit until needed.
@@ -106,17 +106,17 @@ interface ExerciseUiDeps {
 
 ## Phased plan
 
-### Phase T0 - Foundation (tooling + first ports)
+### Phase T0 - Foundation (tooling + first ports) — **Done**
 
-**Goal:** Browser test project runs in CI; history injectable without IndexedDB in tests. **Depends on [T-CI](#phase-t-ci---github-actions-baseline)** for merge gates (or land T-CI in the same PR as the first browser test).
+**Goal:** Browser test project runs in CI; history injectable without IndexedDB in tests. **Depends on [T-CI](#phase-t-ci---github-actions-baseline)** for merge gates.
 
 | Task | Status | Notes |
 |------|--------|--------|
-| Add `@vitest/browser-playwright`, Playwright browsers in CI | Todo | Separate Vitest project, e.g. `tests/browser/**/*.browser.test.ts`; extend [CI workflow](#ci-after-browser-tests-extends-t0) |
-| `npm test` = Node only; `npm run test:browser` = browser project | Todo | Document in `AGENTS.md` / PR guide |
-| Introduce `HistoryPort`; thread through `mountHome`, `mountExercisePage`, `mountStats` | Todo | `createDefaultHistoryPort()` wraps `src/history/store.ts` |
-| First browser tests: locked exercise page, home card locked vs link | Todo | Seed fake history port; assert DOM per [`ui-testing.md`](agents/ui-testing.md); inject history per [`mocking.md`](agents/mocking.md) |
-| Agent testing guides (hub + UI + mocking) | Todo | [`testing.md`](agents/testing.md), [`ui-testing.md`](agents/ui-testing.md), [`mocking.md`](agents/mocking.md) — PR 0 of T0 plan |
+| Add `@vitest/browser-playwright`, Playwright browsers in CI | **Done** | `tests/browser/**/*.browser.test.ts`; [CI workflow](#ci-after-browser-tests-extends-t0) |
+| `npm test` = Node only; `npm run test:browser` = browser project | **Done** | Documented in `AGENTS.md` / PR guide |
+| Introduce `HistoryPort`; thread through `mountHome`, `mountExercisePage`, `mountStats` | **Done** | `src/history/port.ts` — `createDefaultHistoryPort()` wraps `src/history/store.ts` |
+| First browser tests: locked exercise page, home card locked vs link | **Done** | `createMemoryHistoryPort()` in browser helpers; [`ui-testing.md`](agents/ui-testing.md) + [`mocking.md`](agents/mocking.md) |
+| Agent testing guides (hub + UI + mocking) | **Done** | [`testing.md`](agents/testing.md), [`ui-testing.md`](agents/ui-testing.md), [`mocking.md`](agents/mocking.md) |
 
 **Exit criteria:** CI runs Node + browser suites; curriculum guard regressions caught without manual URL typing; tests follow [`ui-testing.md`](agents/ui-testing.md) and [`mocking.md`](agents/mocking.md).
 
@@ -194,15 +194,15 @@ npm run test:browser  # Vitest browser — UI orchestration (T0)
 npm run build         # unchanged; run when routes/assets change
 ```
 
-**GitHub Actions:** [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs `npm test` and `npm run build` on every PR and `main`. `npm run test:browser` joins the workflow when [T0](#phase-t0---foundation-tooling--first-ports) lands.
+**GitHub Actions:** [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs `npm test`, `npm run test:browser`, and `npm run build` on every PR and `main`.
 
 ## Suggested implementation order
 
 Align with product work; testing phases can run **in parallel** with feature PRs once CI exists.
 
 0. ~~[T-CI](#phase-t-ci---github-actions-baseline)~~ — **Done** — GitHub Actions: `npm test` + `npm run build` on every PR and `main`  
-1. **[T0](#phase-t0---foundation-tooling--first-ports) — next** — browser project + `HistoryPort` + home / locked-page tests + Playwright in CI  
-2. [T1](#phase-t1---identify-exercise-orchestration) — identify orchestration (interval ID today; template for future MC exercises)  
+1. ~~[T0](#phase-t0---foundation-tooling--first-ports)~~ — **Done** — browser project + `HistoryPort` + home / locked-page tests + Playwright in CI  
+2. **[T1](#phase-t1---identify-exercise-orchestration) — next** — identify orchestration (interval ID today; template for future MC exercises)  
 3. [T2](#phase-t2---sing-exercise-orchestration) — sing orchestration with fake recording  
 4. [T3](#phase-t3---scale-with-product-features) — helpers + per-exercise smoke as registry grows  
 
@@ -210,8 +210,8 @@ Align with product work; testing phases can run **in parallel** with feature PRs
 
 | Product item | Testing track |
 |--------------|---------------|
-| PR merge confidence | **Done** ([T-CI](#phase-t-ci---github-actions-baseline)); extend with browser job in [T0](#phase-t0---foundation-tooling--first-ports) |
-| Curriculum guards, home UI | [T0](#phase-t0---foundation-tooling--first-ports) |
+| PR merge confidence | **Done** ([T-CI](#phase-t-ci---github-actions-baseline) + browser job in [T0](#phase-t0---foundation-tooling--first-ports)) |
+| Curriculum guards, home UI | **Done** ([T0](#phase-t0---foundation-tooling--first-ports)) |
 | Interval + future identify exercises | [T1](#phase-t1---identify-exercise-orchestration) |
 | Sing / phrase / reproduction | [T2](#phase-t2---sing-exercise-orchestration) |
 | Unified `ExerciseDefinition` | Ports + config injection; browser tests use test configs |

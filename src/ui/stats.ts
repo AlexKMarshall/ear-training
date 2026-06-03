@@ -1,5 +1,8 @@
+import {
+  createDefaultHistoryPort,
+  type MountDeps,
+} from "../history/port.ts";
 import { computeDashboardStats, type ExerciseStats } from "../history/stats.ts";
-import { getAllAttempts } from "../history/store.ts";
 
 function renderExerciseSection(stats: ExerciseStats): string {
   if (stats.attemptCount === 0) {
@@ -40,8 +43,12 @@ function renderExerciseSection(stats: ExerciseStats): string {
   `;
 }
 
-export async function mountStats(root: HTMLElement): Promise<void> {
-  const records = await getAllAttempts();
+export async function mountStats(
+  root: HTMLElement,
+  deps: MountDeps = {},
+): Promise<void> {
+  const history = deps.history ?? createDefaultHistoryPort();
+  const records = await history.getAllAttempts();
   const stats = computeDashboardStats(records);
   const hasData = stats.totalAttempts > 0;
 
