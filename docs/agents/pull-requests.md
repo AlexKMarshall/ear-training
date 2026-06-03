@@ -8,7 +8,7 @@ For work split across several merge-gated PRs (status table, merge gates, final 
 
 1. **Sync `main`** — `git fetch origin main && git checkout main && git pull origin main`, then branch.
 2. **Scope** — One logical change per PR. Do not bundle unrelated refactors or sneak ahead on a multi-step plan unless the user asks to combine.
-3. **Verify** — Run `npm test` (and `npm run build` if the change touches build, routes, or static assets). When browser tests exist, run `npm run test:browser` for PRs that touch `src/ui/` or mount/orchestration code — see [`docs/testing-roadmap.md`](../testing-roadmap.md). Confirm GitHub Actions **CI** is green on the PR. Do not claim tests pass without running them locally and without a green CI check.
+3. **Verify** — Run `npm test` (and `npm run build` if the change touches build, routes, or static assets). When browser tests exist, run `npm run test:browser` for PRs that touch `src/ui/` or mount/orchestration code — see [`docs/agents/testing.md`](testing.md) and [`docs/testing-roadmap.md`](../testing-roadmap.md). Confirm GitHub Actions **CI** is green on the PR. Do not claim tests pass without running them locally and without a green CI check.
 4. **Commits** — Only commit when the user asks. Use clear messages focused on *why* (1–2 sentences).
 
 ## Branch naming
@@ -42,6 +42,8 @@ Use `gh pr create` with a HEREDOC body. Default structure:
 - [ ] (when applicable) `npm run test:browser` — UI/orchestration changes after [testing T0](../testing-roadmap.md#phase-t0---foundation-tooling--first-ports) lands
 - [ ] (optional) `npm run build` — if relevant
 - [ ] GitHub Actions `CI` workflow green on the PR
+
+PRs that add or change tests should cite the relevant guide(s) in this section or under **New behavior**: [`testing.md`](testing.md) (hub), [`ui-testing.md`](ui-testing.md) (browser queries), [`mocking.md`](mocking.md) (ports and doubles).
 
 ### New behavior
 
@@ -107,6 +109,9 @@ Return the PR URL to the user. Do not push or merge unless they ask.
 
 ## Related
 
+- Testing hub: [`testing.md`](testing.md)
+- UI testing: [`ui-testing.md`](ui-testing.md)
+- Mocking: [`mocking.md`](mocking.md)
 - Multi-PR plans: [`multi-pr-plans.md`](multi-pr-plans.md)
 - Product roadmap: [`docs/roadmap.md`](../roadmap.md)
 - Human README: [`README.md`](../../README.md)

@@ -4,12 +4,14 @@ How we close the gap between strong **domain unit tests** and **no automated UI 
 
 ## Principles
 
+Detailed rules for agents live in [`docs/agents/testing.md`](agents/testing.md) and its leaf guides: [`ui-testing.md`](agents/ui-testing.md) (browser queries) and [`mocking.md`](agents/mocking.md) (ports and test doubles). The table below summarizes; leaf docs are authoritative when they differ.
+
 | Principle | Rationale |
 |-----------|-----------|
 | **Node Vitest for domain** | Scoring, chords, intervals, curriculum unlock, history stats, round logic — fast, deterministic, already in `tests/**/*.test.ts`. |
-| **Real browser for UI** | Use [Vitest browser mode](https://vitest.dev/guide/browser/) (Playwright provider). **No jsdom / happy-dom** for UI — layout, focus, and gesture semantics matter. |
-| **Inject dependencies at mount boundaries** | `mountSingTest`, `mountIdentifyTest`, `mountHome`, `mountExercisePage`, etc. accept optional **ports** (history, audio unlock, recording). Production entrypoints wire defaults once. |
-| **Do not mock module internals or vendor libs** | No `vi.mock("../audio/capture")`, no mocking `smplr` / `pitchy`. Fakes implement our **ports**; exercise config already injects `prepareQuestion` / `playReference`. |
+| **Real browser for UI** | Use [Vitest browser mode](https://vitest.dev/guide/browser/) (Playwright provider). **No jsdom / happy-dom** for UI — layout, focus, and gesture semantics matter. See [`ui-testing.md`](agents/ui-testing.md). |
+| **Inject dependencies at mount boundaries** | `mountSingTest`, `mountIdentifyTest`, `mountHome`, `mountExercisePage`, etc. accept optional **ports** (history, audio unlock, recording). Production entrypoints wire defaults once. See [`mocking.md`](agents/mocking.md). |
+| **Do not mock module internals or vendor libs** | No `vi.mock("../audio/capture")`, no mocking `smplr` / `pitchy`. Fakes implement our **ports**; exercise config already injects `prepareQuestion` / `playReference`. See [`mocking.md`](agents/mocking.md). |
 | **Do not E2E real microphone or piano timbre** | Browser tests use a **fake `RecordingPort`** (canned Hz samples → real `scoreFromSamples`) and **no-op or instant `playReference`**. Manual QA covers mic permissions, latency, and sound quality. |
 
 ## Current state
@@ -113,9 +115,10 @@ interface ExerciseUiDeps {
 | Add `@vitest/browser-playwright`, Playwright browsers in CI | Todo | Separate Vitest project, e.g. `tests/browser/**/*.browser.test.ts`; extend [CI workflow](#ci-after-browser-tests-extends-t0) |
 | `npm test` = Node only; `npm run test:browser` = browser project | Todo | Document in `AGENTS.md` / PR guide |
 | Introduce `HistoryPort`; thread through `mountHome`, `mountExercisePage`, `mountStats` | Todo | `createDefaultHistoryPort()` wraps `src/history/store.ts` |
-| First browser tests: locked exercise page, home card locked vs link | Todo | Seed fake history port; assert DOM via `vitest/browser` `userEvent` / `expect.element` |
+| First browser tests: locked exercise page, home card locked vs link | Todo | Seed fake history port; assert DOM per [`ui-testing.md`](agents/ui-testing.md); inject history per [`mocking.md`](agents/mocking.md) |
+| Agent testing guides (hub + UI + mocking) | Todo | [`testing.md`](agents/testing.md), [`ui-testing.md`](agents/ui-testing.md), [`mocking.md`](agents/mocking.md) — PR 0 of T0 plan |
 
-**Exit criteria:** CI runs Node + browser suites; curriculum guard regressions caught without manual URL typing.
+**Exit criteria:** CI runs Node + browser suites; curriculum guard regressions caught without manual URL typing; tests follow [`ui-testing.md`](agents/ui-testing.md) and [`mocking.md`](agents/mocking.md).
 
 ---
 

@@ -8,6 +8,7 @@ Browser-based ear training (static site, TypeScript, Vite, Vitest). Product dire
 |-------|-----|
 | **Opening pull requests** | [`docs/agents/pull-requests.md`](docs/agents/pull-requests.md) |
 | **Multi-PR plans** | [`docs/agents/multi-pr-plans.md`](docs/agents/multi-pr-plans.md) |
+| **Testing (agent guides)** | [`docs/agents/testing.md`](docs/agents/testing.md) |
 | **Testing strategy & phases** | [`docs/testing-roadmap.md`](docs/testing-roadmap.md) |
 
 Read the pull-request guide before creating or updating a PR description, especially the **test plan** sections and naming for unchanged-behavior checks.
