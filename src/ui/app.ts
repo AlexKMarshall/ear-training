@@ -1,7 +1,8 @@
 import { startRecording, stopMediaStream } from "../audio/capture.ts";
 import { ensureAudioReady } from "../audio/context.ts";
 import { isPlaying, playTargetNote } from "../audio/playback.ts";
-import { MIN_VALID_SAMPLES, TARGET_HZ } from "../config.ts";
+import { MIN_VALID_SAMPLES } from "../config.ts";
+import { randomNoteInRange, type TargetNote } from "../notes.ts";
 import { scoreFromSamples } from "../pitch/score.ts";
 import type { ScoreResult } from "../pitch/score.ts";
 import "./styles.css";
@@ -13,7 +14,7 @@ export function mountApp(root: HTMLElement): void {
     <main class="app">
       <header class="header">
         <h1>Ear Training</h1>
-        <p class="subtitle">Sing back the note you hear (C4)</p>
+        <p class="subtitle">Sing back the note you hear</p>
       </header>
 
       <section class="card" aria-live="polite">
@@ -46,6 +47,7 @@ export function mountApp(root: HTMLElement): void {
 
   let state: AppState = "idle";
   let recordingSession: { stop: () => void } | null = null;
+  let currentTarget: TargetNote | null = null;
 
   function setState(next: AppState): void {
     state = next;
@@ -95,7 +97,7 @@ export function mountApp(root: HTMLElement): void {
     resultEl.innerHTML = `
       <p class="result-verdict">${score.passed ? "Correct" : "Not quite"}</p>
       <p class="result-detail">${score.message}</p>
-      <p class="result-meta">Detected ${score.detectedHz.toFixed(1)} Hz (target ${score.targetHz.toFixed(1)} Hz)</p>
+      <p class="result-meta">Detected ${score.detectedHz.toFixed(1)} Hz (target ${score.targetHz.toFixed(1)} Hz — ${currentTarget?.name ?? "?"})</p>
     `;
     statusEl.textContent = score.passed
       ? "Nice work!"
@@ -118,8 +120,11 @@ export function mountApp(root: HTMLElement): void {
 
     try {
       await ensureAudioReady();
+      if (state === "idle" || !currentTarget) {
+        currentTarget = randomNoteInRange();
+      }
       setState("playing");
-      await playTargetNote(TARGET_HZ);
+      await playTargetNote(currentTarget.hz);
       setState("ready");
     } catch {
       showError("Could not play audio. Tap Play again after interacting with the page.");
@@ -136,6 +141,7 @@ export function mountApp(root: HTMLElement): void {
       livePitchEl.textContent = "Listening…";
 
       recordingSession = await startRecording({
+        targetHz: currentTarget?.hz,
         onPitch: (hz, clarity) => {
           livePitchEl.textContent = `~${hz.toFixed(0)} Hz (clarity ${(clarity * 100).toFixed(0)}%)`;
         },
@@ -161,7 +167,12 @@ export function mountApp(root: HTMLElement): void {
       return;
     }
 
-    const outcome = scoreFromSamples(samplesHz, TARGET_HZ);
+    if (!currentTarget) {
+      showError("No reference note — press Play first.");
+      return;
+    }
+
+    const outcome = scoreFromSamples(samplesHz, currentTarget.hz);
     if ("error" in outcome) {
       showError(outcome.error);
       return;
@@ -178,6 +189,7 @@ export function mountApp(root: HTMLElement): void {
 
   function handleRetry(): void {
     stopMediaStream();
+    currentTarget = null;
     resultEl.hidden = true;
     setState("idle");
   }

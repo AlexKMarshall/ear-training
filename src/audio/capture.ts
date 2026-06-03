@@ -1,4 +1,5 @@
 import { ANALYSER_FFT_SIZE, MAX_RECORD_MS } from "../config.ts";
+import { correctHarmonicPitch } from "../pitch/harmonics.ts";
 import { detectPitchFromAnalyser } from "../pitch/detect.ts";
 import { ensureAudioReady } from "./context.ts";
 
@@ -7,6 +8,8 @@ export interface RecordingSession {
 }
 
 export interface RecordingCallbacks {
+  /** Reference pitch (Hz); used to fold spurious harmonic detections. */
+  targetHz?: number;
   onPitch?: (frequencyHz: number, clarity: number) => void;
   onComplete: (samplesHz: number[]) => void;
   onError: (message: string) => void;
@@ -73,10 +76,16 @@ export async function startRecording(
   const stream = await ensureMicStream();
 
   sourceNode = ctx.createMediaStreamSource(stream);
+  const lowpass = ctx.createBiquadFilter();
+  lowpass.type = "lowpass";
+  lowpass.frequency.value = 500;
+  lowpass.Q.value = 0.7;
+
   analyserNode = ctx.createAnalyser();
   analyserNode.fftSize = ANALYSER_FFT_SIZE;
   analyserNode.smoothingTimeConstant = 0.3;
-  sourceNode.connect(analyserNode);
+  sourceNode.connect(lowpass);
+  lowpass.connect(analyserNode);
 
   const samplesHz: number[] = [];
   const startedAt = performance.now();
@@ -93,8 +102,11 @@ export async function startRecording(
 
     const sample = detectPitchFromAnalyser(analyserNode, ctx.sampleRate);
     if (sample) {
-      samplesHz.push(sample.frequencyHz);
-      callbacks.onPitch?.(sample.frequencyHz, sample.clarity);
+      const hz = callbacks.targetHz
+        ? correctHarmonicPitch(sample.frequencyHz, callbacks.targetHz)
+        : sample.frequencyHz;
+      samplesHz.push(hz);
+      callbacks.onPitch?.(hz, sample.clarity);
     }
 
     animationFrameId = requestAnimationFrame(tick);

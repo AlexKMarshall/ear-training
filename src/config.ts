@@ -1,6 +1,3 @@
-/** Target note for MVP: C4 at A4 = 440 Hz */
-export const TARGET_HZ = 261.63;
-
 export const TOLERANCE_CENTS = 40;
 export const MIN_CLARITY = 0.85;
 export const MAX_RECORD_MS = 8000;

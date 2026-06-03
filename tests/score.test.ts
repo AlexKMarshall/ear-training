@@ -47,4 +47,14 @@ describe("scoreFromSamples", () => {
       expect(result.passed).toBe(true);
     }
   });
+
+  it("corrects frames that locked onto a harmonic before scoring", () => {
+    const targetHz = 207.7;
+    const samples = Array(20).fill(601.4);
+    const result = scoreFromSamples(samples, targetHz, 40);
+    expect("error" in result).toBe(false);
+    if (!("error" in result)) {
+      expect(result.detectedHz).toBeCloseTo(601.4 / 3, 0);
+    }
+  });
 });

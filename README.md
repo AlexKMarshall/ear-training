@@ -1,6 +1,6 @@
 # Ear Training
 
-Browser-based ear training for singers. MVP: hear **C4**, sing it back, get pass/fail feedback using local pitch detection (no server, login, or AI).
+Browser-based ear training for singers. MVP: hear a **random note** (C3–C4), sing it back, get pass/fail feedback using local pitch detection (no server, login, or AI).
 
 ## Quick start
 
@@ -19,7 +19,7 @@ npm test          # unit tests for scoring math
 
 ## How it works
 
-1. **Play note** — Web Audio synthesizes C4 (~261.63 Hz).
+1. **Play note** — Web Audio synthesizes a random note from C3–C4.
 2. **Start singing** / **Done** — mic capture with [pitchy](https://www.npmjs.com/package/pitchy) autocorrelation.
 3. **Result** — median pitch vs target; pass if within **40 cents**.
 
