@@ -492,6 +492,7 @@ export function mountIdentifyTest(
     resultEl.hidden = true;
     choicesEl.innerHTML = "";
     setState("idle");
+    void handlePlay();
   }
 
   function handleNextRound(): void {

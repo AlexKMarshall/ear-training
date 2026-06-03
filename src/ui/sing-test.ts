@@ -677,6 +677,7 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     lastPassed = false;
     resultEl.hidden = true;
     setState("idle");
+    void handlePlay();
   }
 
   function handleNextRound(): void {
