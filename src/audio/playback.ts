@@ -1,4 +1,7 @@
-import { PLAYBACK_DURATION_MS } from "../config.ts";
+import {
+  MELODIC_INTERVAL_GAP_MS,
+  PLAYBACK_DURATION_MS,
+} from "../config.ts";
 import { ensurePianoReady } from "./piano.ts";
 
 let playing = false;
@@ -45,6 +48,51 @@ export async function playTargetNote(
 /** Play three simultaneous notes (chord reference). */
 export async function playChord(
   midis: [number, number, number],
+  durationMs = PLAYBACK_DURATION_MS,
+): Promise<void> {
+  await playMidiNotes(midis, durationMs, 80);
+}
+
+/** Play two notes in sequence (low then high). */
+export async function playMelodicSequence(
+  midis: [number, number],
+  durationMs = PLAYBACK_DURATION_MS,
+  gapMs = MELODIC_INTERVAL_GAP_MS,
+): Promise<void> {
+  if (playing) return;
+
+  playing = true;
+  const durationSec = durationMs / 1000;
+
+  try {
+    const piano = await ensurePianoReady();
+    piano.start({
+      note: midis[0],
+      duration: durationSec,
+      velocity: 100,
+    });
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, durationMs + RELEASE_TAIL_MS);
+    });
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, gapMs);
+    });
+    piano.start({
+      note: midis[1],
+      duration: durationSec,
+      velocity: 100,
+    });
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, durationMs + RELEASE_TAIL_MS);
+    });
+  } finally {
+    playing = false;
+  }
+}
+
+/** Play two simultaneous notes (harmonic interval). */
+export async function playDyad(
+  midis: [number, number],
   durationMs = PLAYBACK_DURATION_MS,
 ): Promise<void> {
   await playMidiNotes(midis, durationMs, 80);

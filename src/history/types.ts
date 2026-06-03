@@ -1,10 +1,14 @@
 import type { InversionId } from "../chord-inversions.ts";
 
-export type ExerciseId = "single-note" | "chord-middle";
+export type ExerciseId =
+  | "single-note"
+  | "chord-middle"
+  | "interval-melodic-sing";
 
 export const EXERCISE_LABELS: Record<ExerciseId, string> = {
   "single-note": "Sing a single note",
   "chord-middle": "Sing the middle note of a chord",
+  "interval-melodic-sing": "Sing melodic intervals",
 };
 
 /** One scored mic attempt, persisted for stats and future drill weighting. */
@@ -27,6 +31,11 @@ export interface AttemptRecord {
   /** User filter settings at attempt time (chord-middle). */
   activeChordTypeIds?: string[];
   activeInversionIds?: string[];
+  intervalId?: string;
+  intervalSemitones?: number;
+  presentation?: "melodic" | "harmonic";
+  referenceMidi?: number;
+  activeIntervalIds?: string[];
   roundId: string;
   /** Position in the round (0-based) when this attempt was scored. */
   questionIndex: number;

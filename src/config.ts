@@ -8,5 +8,7 @@ export const MAX_ATTEMPTS_PER_QUESTION = 3;
 export const QUESTIONS_PER_ROUND = 10;
 
 export const PLAYBACK_DURATION_MS = 1400;
+/** Gap between melodic interval tones. */
+export const MELODIC_INTERVAL_GAP_MS = 500;
 export const ANALYSER_FFT_SIZE = 2048;
 export const MIN_RMS = 0.01;

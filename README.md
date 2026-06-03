@@ -29,6 +29,14 @@ Tuning constants live in [`src/config.ts`](src/config.ts).
 
 Static hosting (Vercel, Netlify, GitHub Pages). Ensure HTTPS so `getUserMedia` works on mobile.
 
+## Exercises
+
+| Route | Mode |
+|-------|------|
+| `/single-note/` | Sing one reference note |
+| `/chord-middle/` | Sing the middle note of a chord |
+| `/interval-melodic-sing/` | Hear two notes in sequence; sing the top note |
+
 ## Extension points (post-MVP)
 
 | Module | Extend for full test |
