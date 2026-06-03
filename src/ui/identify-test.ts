@@ -442,8 +442,7 @@ export function mountIdentifyTest(
 
   function handleRetry(): void {
     resultEl.hidden = true;
-    renderChoices();
-    setState("ready");
+    void handlePlay();
   }
 
   function showRoundSummary(): void {
