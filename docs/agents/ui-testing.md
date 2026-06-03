@@ -45,6 +45,11 @@ Exercise **titles** in assertions must match [`src/exercises/registry.ts`](../..
 | Identify — correct result | `getByText('Correct', { exact: true })` (avoids matching status line “Correct — tap Next…”) |
 | Identify — round progress | `getByText(/question 1 of 10/i)`; after Next question, `question 2 of 10` |
 | Identify — interval picker idle | `getByText(/Select at least one interval to begin/i)`; Play button `toBeDisabled()` |
+| Sing — play + record | `getByRole('button', { name: /Play note/i })` → `Start singing` → `Done` |
+| Sing — correct result | `getByText('Correct', { exact: true })` |
+| Sing — fail + retry | `getByText('Not quite', { exact: true })`; `getByRole('button', { name: /Try again/i })` |
+| Sing — round progress | `getByText(/question 1 of 10/i)`; after Next question, `question 2 of 10` |
+| Sing — not enough pitch | `getByText(/Not enough clear pitch detected/i)` |
 
 ## Related
 

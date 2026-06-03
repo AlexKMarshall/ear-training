@@ -1,6 +1,11 @@
-import { startRecording, stopMediaStream } from "../audio/capture.ts";
-import { ensureAudioReady, unlockAudio } from "../audio/context.ts";
-import { isPlaying } from "../audio/playback.ts";
+import {
+  createDefaultAudioPort,
+  type AudioPort,
+} from "../audio/port.ts";
+import {
+  createDefaultRecordingPort,
+  type RecordingPort,
+} from "../audio/recording-port.ts";
 import {
   MAX_ATTEMPTS_PER_QUESTION,
   MIN_VALID_SAMPLES,
@@ -39,8 +44,11 @@ import {
   isIntervalSelected,
   setIntervalSelected,
 } from "../interval-preference.ts";
+import {
+  createDefaultHistoryPort,
+  type HistoryPort,
+} from "../history/port.ts";
 import { buildAttemptRecord } from "../history/serialize.ts";
-import { saveAttempt } from "../history/store.ts";
 import type { ExerciseId } from "../history/types.ts";
 import { scoreFromSamples } from "../pitch/score.ts";
 import type { ScoreResult } from "../pitch/score.ts";
@@ -84,7 +92,20 @@ export interface SingTestConfig {
   playReference: (question: SingTestQuestion) => Promise<void>;
 }
 
-export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
+export interface SingMountDeps {
+  history?: HistoryPort;
+  audio?: AudioPort;
+  recording?: RecordingPort;
+}
+
+export function mountSingTest(
+  root: HTMLElement,
+  config: SingTestConfig,
+  deps?: SingMountDeps,
+): void {
+  const history = deps?.history ?? createDefaultHistoryPort();
+  const audio = deps?.audio ?? createDefaultAudioPort();
+  const recording = deps?.recording ?? createDefaultRecordingPort();
   const voicePickerHtml = config.showVoicePicker
     ? `
       <fieldset class="voice-picker" id="voice-picker">
@@ -497,13 +518,13 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
       score.passed,
       scoredAttempts + 1,
     );
-    void saveAttempt(record);
+    void history.saveAttempt(record);
   }
 
   function showResult(score: ScoreResult): void {
-    scoredAttempts += 1;
     lastPassed = score.passed;
     persistAttempt(score);
+    scoredAttempts += 1;
 
     const triesLeft = MAX_ATTEMPTS_PER_QUESTION - scoredAttempts;
     const nextLabel = nextStepButtonLabel();
@@ -548,10 +569,10 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   }
 
   async function handlePlay(): Promise<void> {
-    if (isPlaying()) return;
+    if (audio.isPlaying()) return;
 
     try {
-      await ensureAudioReady();
+      await audio.ensureReady();
       if (state === "idle" || !currentQuestion) {
         currentQuestion = config.prepareQuestion();
         scoredAttempts = 0;
@@ -570,11 +591,11 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     if (state === "recording") return;
 
     try {
-      await ensureAudioReady();
+      await audio.ensureReady();
       setState("recording");
       livePitchEl.textContent = "Listening…";
 
-      recordingSession = await startRecording({
+      recordingSession = await recording.start({
         targetHz: currentQuestion?.target.hz,
         onPitch: (hz, clarity) => {
           livePitchEl.textContent = `~${hz.toFixed(0)} Hz (clarity ${(clarity * 100).toFixed(0)}%)`;
@@ -622,7 +643,7 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   }
 
   function handleRetry(): void {
-    stopMediaStream();
+    recording.stopStream();
     resultEl.hidden = true;
     void handlePlay();
   }
@@ -661,7 +682,7 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   }
 
   function handleNextQuestion(): void {
-    stopMediaStream();
+    recording.stopStream();
     recordQuestionOutcome();
 
     if (roundResults.length >= QUESTIONS_PER_ROUND) {
@@ -678,17 +699,17 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   }
 
   function handleNextRound(): void {
-    stopMediaStream();
+    recording.stopStream();
     resetRound();
     setState("idle");
   }
 
   btnPlay.addEventListener("click", () => {
-    unlockAudio();
+    audio.unlock();
     void handlePlay();
   });
   btnRecord.addEventListener("click", () => {
-    unlockAudio();
+    audio.unlock();
     if (state === "recording") {
       handleDone();
     } else {

@@ -1,4 +1,5 @@
 import { createTestAudioPort } from "../../../src/audio/port.ts";
+import { createTestRecordingPort } from "../../../src/audio/recording-port.ts";
 import { getIntervalById } from "../../../src/interval-config.ts";
 import {
   buildIntervalQuestion,
@@ -18,6 +19,12 @@ import {
 import { intervalMelodicIdConfig } from "../../../src/ui/interval-tests.ts";
 import { mountExercisePage } from "../../../src/ui/exercise-page.ts";
 import { mountHome } from "../../../src/ui/home.ts";
+import {
+  mountSingTest,
+  type SingMountDeps,
+  type SingTestConfig,
+} from "../../../src/ui/sing-test.ts";
+import { singleNoteTestConfig } from "../../../src/ui/tests.ts";
 import { mountStats } from "../../../src/ui/stats.ts";
 import { resetVoiceTypePreference } from "../../../src/voice-ranges.ts";
 import "../../../src/ui/styles.css";
@@ -95,5 +102,47 @@ export function mountMelodicIntervalIdTest(options?: {
       audio: options?.deps?.audio ?? createTestAudioPort(),
     },
   );
+  return { history };
+}
+
+const fixedSingleNoteTarget = {
+  name: "C4",
+  midi: 60,
+  hz: 261.63,
+} as const;
+
+export function createSingleNoteTestConfig(
+  overrides?: Partial<SingTestConfig>,
+): SingTestConfig {
+  return {
+    ...singleNoteTestConfig,
+    prepareQuestion: () => ({ target: { ...fixedSingleNoteTarget } }),
+    playReference: async () => {},
+    ...overrides,
+  };
+}
+
+export interface MountSingleNoteSingOptions {
+  config?: SingTestConfig;
+  deps?: SingMountDeps;
+  samplesHz: number[];
+  resetPreferences?: boolean;
+}
+
+export function mountSingleNoteSingTest(
+  options: MountSingleNoteSingOptions,
+): MountMelodicIdResult {
+  if (options.resetPreferences !== false) {
+    resetVoiceTypePreference();
+  }
+  const history = options.deps?.history ?? createMemoryHistoryPort();
+  const root = createAppRoot();
+  mountSingTest(root, options.config ?? createSingleNoteTestConfig(), {
+    history,
+    audio: options.deps?.audio ?? createTestAudioPort(),
+    recording:
+      options.deps?.recording ??
+      createTestRecordingPort({ samplesHz: options.samplesHz }),
+  });
   return { history };
 }

@@ -22,7 +22,7 @@ Detailed rules for agents live in [`docs/agents/testing.md`](agents/testing.md) 
 | Notes, chords, preferences | Unit tests | `tests/notes.test.ts`, `tests/chords.test.ts`, `tests/chord-*-preference.test.ts`, `tests/voice-ranges.test.ts` |
 | Intervals, rounds | Unit tests | `tests/interval-questions.test.ts`, `tests/round.test.ts` |
 | History stats, curriculum | Unit tests | `tests/history-stats.test.ts`, `tests/curriculum-*.test.ts` |
-| UI mount / orchestration | **Partial (T1)** | `mountIdentifyTest` accepts `HistoryPort` + `AudioPort`; `mountHome`, `mountExercisePage`, `mountStats` accept `HistoryPort`; sing still uses store directly |
+| UI mount / orchestration | **Partial (T2)** | `mountIdentifyTest` and `mountSingTest` accept `HistoryPort` + `AudioPort` + `RecordingPort` (sing); `mountHome`, `mountExercisePage`, `mountStats` accept `HistoryPort` |
 | Browser / Vitest projects | **Done (T0)** | `npm run test:browser` — `tests/browser/**/*.browser.test.ts` (Vitest browser + Playwright) |
 | **CI (GitHub Actions)** | **Done** | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — `npm test`, `npm run test:browser`, `npm run build` on PRs and `main` |
 
@@ -137,16 +137,16 @@ interface ExerciseUiDeps {
 
 ---
 
-### Phase T2 - Sing exercise orchestration
+### Phase T2 - Sing exercise orchestration — **Done**
 
 **Goal:** Round/scoring/save path without `getUserMedia`.
 
 | Task | Status | Notes |
 |------|--------|--------|
-| `RecordingPort` + `AudioPort` on `mountSingTest` | Todo | |
-| Browser test: play → record (fake) → pass UI + history record | Todo | Canned samples near `target.hz` |
-| Browser test: fail / retry / exhaust attempts copy | Todo | |
-| Browser test: “not enough pitch” error path | Todo | Empty or short `samplesHz` from fake |
+| `RecordingPort` + `AudioPort` on `mountSingTest` | **Done** | `src/audio/recording-port.ts`; `SingMountDeps`; `createTestRecordingPort()` |
+| Browser test: play → record (fake) → pass UI + history record | **Done** | `tests/browser/sing-round.browser.test.ts`; fixed `prepareQuestion`, noop `playReference` |
+| Browser test: fail / retry / exhaust attempts copy | **Done** | Wrong Hz samples; 3 attempts → Next question |
+| Browser test: “not enough pitch” error path | **Done** | Short `samplesHz`; no `saveAttempt` |
 
 **Product tie-in:** Protects sing-heavy [Phase 1 level 3+](roadmap.md#phase-1--curriculum-spine-progressive-difficulty) and [Phase 3 phrase scoring](roadmap.md#phase-3--context--musicianship-still-no-rhythm).
 
@@ -203,8 +203,8 @@ Align with product work; testing phases can run **in parallel** with feature PRs
 0. ~~[T-CI](#phase-t-ci---github-actions-baseline)~~ — **Done** — GitHub Actions: `npm test` + `npm run build` on every PR and `main`  
 1. ~~[T0](#phase-t0---foundation-tooling--first-ports)~~ — **Done** — browser project + `HistoryPort` + home / locked-page tests + Playwright in CI  
 2. ~~[T1](#phase-t1---identify-exercise-orchestration)~~ — **Done** — identify orchestration (interval ID today; template for future MC exercises)  
-3. **[T2](#phase-t2---sing-exercise-orchestration) — next** — sing orchestration with fake recording  
-4. [T3](#phase-t3---scale-with-product-features) — helpers + per-exercise smoke as registry grows  
+3. ~~[T2](#phase-t2---sing-exercise-orchestration)~~ — **Done** — sing orchestration with fake recording  
+4. **[T3](#phase-t3---scale-with-product-features) — next** — helpers + per-exercise smoke as registry grows  
 
 ## Related product roadmap items
 
@@ -213,7 +213,7 @@ Align with product work; testing phases can run **in parallel** with feature PRs
 | PR merge confidence | **Done** ([T-CI](#phase-t-ci---github-actions-baseline) + browser job in [T0](#phase-t0---foundation-tooling--first-ports)) |
 | Curriculum guards, home UI | **Done** ([T0](#phase-t0---foundation-tooling--first-ports)) |
 | Interval + future identify exercises | **Done** ([T1](#phase-t1---identify-exercise-orchestration)) |
-| Sing / phrase / reproduction | [T2](#phase-t2---sing-exercise-orchestration) |
+| Sing / phrase / reproduction | **Done** ([T2](#phase-t2---sing-exercise-orchestration)) |
 | Unified `ExerciseDefinition` | Ports + config injection; browser tests use test configs |
 | `?unlock=all` for QA | [T3](#phase-t3---scale-with-product-features) + manual checklist |
 
