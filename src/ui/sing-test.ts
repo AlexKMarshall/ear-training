@@ -45,6 +45,13 @@ import {
   setIntervalSelected,
 } from "../interval-preference.ts";
 import {
+  getActiveScaleDegrees,
+  getSelectableScaleDegrees,
+  isScaleDegreeSelected,
+  setScaleDegreeSelected,
+} from "../scale-degree-preference.ts";
+import { getScaleDegreeById } from "../scale-degree-config.ts";
+import {
   createDefaultHistoryPort,
   type HistoryPort,
 } from "../history/port.ts";
@@ -72,6 +79,8 @@ export interface SingTestConfig {
   showChordTypePicker?: boolean;
   showInversionPicker?: boolean;
   showIntervalPicker?: boolean;
+  showDegreePicker?: boolean;
+  questionPrompt?: (question: SingTestQuestion) => string;
   status: {
     idle: string;
     playing: string;
@@ -87,9 +96,13 @@ export interface SingTestConfig {
     noInversions?: string;
     /** Shown in idle state when interval picker is on but nothing is selected. */
     noIntervals?: string;
+    /** Shown in idle state when degree picker is on but nothing is selected. */
+    noDegrees?: string;
   };
   prepareQuestion: () => SingTestQuestion;
   playReference: (question: SingTestQuestion) => Promise<void>;
+  /** Called when a round is cleared (new round, preference change, voice change). */
+  onRoundReset?: () => void;
 }
 
 export interface SingMountDeps {
@@ -202,6 +215,30 @@ export function mountSingTest(
     `
     : "";
 
+  const degreePickerHtml = config.showDegreePicker
+    ? `
+      <fieldset class="degree-picker chord-type-picker" id="degree-picker">
+        <legend class="chord-type-picker-legend">Scale degrees</legend>
+        <div class="chord-type-options">
+          ${getSelectableScaleDegrees()
+            .map(
+              (entry) => `
+            <label class="chord-type-option">
+              <input
+                type="checkbox"
+                value="${entry.id}"
+                class="degree-option-input chord-type-option-input"
+              />
+              <span class="chord-type-option-label">${entry.label}</span>
+            </label>
+          `,
+            )
+            .join("")}
+        </div>
+      </fieldset>
+    `
+    : "";
+
   root.innerHTML = `
     <main class="app">
       <nav class="nav">
@@ -218,9 +255,11 @@ export function mountSingTest(
       ${chordTypePickerHtml}
       ${inversionPickerHtml}
       ${intervalPickerHtml}
+      ${degreePickerHtml}
 
       <section class="card" aria-live="polite">
         <p id="status" class="status">${config.status.idle}</p>
+        <p id="question-prompt" class="question-prompt" hidden></p>
         <p id="live-pitch" class="live-pitch" hidden></p>
         <div id="result" class="result" hidden></div>
       </section>
@@ -241,6 +280,7 @@ export function mountSingTest(
   `;
 
   const statusEl = root.querySelector<HTMLElement>("#status")!;
+  const questionPromptEl = root.querySelector<HTMLElement>("#question-prompt")!;
   const livePitchEl = root.querySelector<HTMLElement>("#live-pitch")!;
   const resultEl = root.querySelector<HTMLElement>("#result")!;
   const btnPlay = root.querySelector<HTMLButtonElement>("#btn-play")!;
@@ -270,6 +310,11 @@ export function mountSingTest(
   const intervalInputs = root.querySelectorAll<HTMLInputElement>(
     ".interval-option-input",
   );
+  const degreePickerEl =
+    root.querySelector<HTMLFieldSetElement>("#degree-picker");
+  const degreeInputs = root.querySelectorAll<HTMLInputElement>(
+    ".degree-option-input",
+  );
 
   let state: TestState = "idle";
   let recordingSession: { stop: () => void } | null = null;
@@ -286,6 +331,7 @@ export function mountSingTest(
     scoredAttempts = 0;
     lastPassed = false;
     resultEl.hidden = true;
+    config.onRoundReset?.();
   }
 
   function currentQuestionNumber(): number {
@@ -401,6 +447,46 @@ export function mountSingTest(
     updateUi();
   }
 
+  function syncDegreePicker(): void {
+    if (!config.showDegreePicker) return;
+    for (const input of degreeInputs) {
+      input.checked = isScaleDegreeSelected(input.value);
+    }
+  }
+
+  function setDegreePreference(id: string, selected: boolean): void {
+    if (!config.showDegreePicker) return;
+    setScaleDegreeSelected(id, selected);
+    syncDegreePicker();
+    resetQuestionForPreferenceChange();
+    updateUi();
+  }
+
+  function questionPromptText(question: SingTestQuestion | null): string | null {
+    if (!question) return null;
+    if (config.questionPrompt) {
+      return config.questionPrompt(question);
+    }
+    if (question.scaleDegree) {
+      const label =
+        getScaleDegreeById(question.degreeId ?? "")?.label ??
+        question.degreeId;
+      return label ? `Sing the ${label}` : null;
+    }
+    return null;
+  }
+
+  function syncQuestionPrompt(): void {
+    const prompt = questionPromptText(currentQuestion);
+    if (state === "ready" && prompt) {
+      questionPromptEl.textContent = prompt;
+      questionPromptEl.hidden = false;
+    } else {
+      questionPromptEl.hidden = true;
+      questionPromptEl.textContent = "";
+    }
+  }
+
   function updateUi(): void {
     const inRoundSummary = state === "roundSummary";
     const settingsLocked =
@@ -411,8 +497,13 @@ export function mountSingTest(
       config.showInversionPicker && getActiveInversions().length === 0;
     const noIntervalsSelected =
       config.showIntervalPicker && getActiveIntervals().length === 0;
+    const noDegreesSelected =
+      config.showDegreePicker && getActiveScaleDegrees().length === 0;
     const settingsIncomplete = Boolean(
-      noChordTypesSelected || noInversionsSelected || noIntervalsSelected,
+      noChordTypesSelected ||
+        noInversionsSelected ||
+        noIntervalsSelected ||
+        noDegreesSelected,
     );
     if (voicePickerEl) {
       voicePickerEl.disabled = settingsLocked;
@@ -435,6 +526,12 @@ export function mountSingTest(
     if (intervalPickerEl) {
       intervalPickerEl.disabled = settingsLocked;
       for (const input of intervalInputs) {
+        input.disabled = settingsLocked;
+      }
+    }
+    if (degreePickerEl) {
+      degreePickerEl.disabled = settingsLocked;
+      for (const input of degreeInputs) {
         input.disabled = settingsLocked;
       }
     }
@@ -475,7 +572,9 @@ export function mountSingTest(
               ? config.status.noInversions
               : noIntervalsSelected && config.status.noIntervals
                 ? config.status.noIntervals
-                : config.status.idle;
+                : noDegreesSelected && config.status.noDegrees
+                  ? config.status.noDegrees
+                  : config.status.idle;
         livePitchEl.hidden = true;
         resultEl.hidden = true;
         break;
@@ -498,6 +597,8 @@ export function mountSingTest(
         livePitchEl.hidden = true;
         break;
     }
+
+    syncQuestionPrompt();
   }
 
   function persistAttempt(score: ScoreResult): void {
@@ -512,7 +613,7 @@ export function mountSingTest(
           config.showChordTypePicker || config.showInversionPicker,
         ),
         showIntervalFilters: Boolean(config.showIntervalPicker),
-        showDegreeFilters: false,
+        showDegreeFilters: Boolean(config.showDegreePicker),
       },
       currentQuestion,
       score.centsOff,
@@ -749,10 +850,17 @@ export function mountSingTest(
     });
   }
 
+  for (const input of degreeInputs) {
+    input.addEventListener("change", () => {
+      setDegreePreference(input.value, input.checked);
+    });
+  }
+
   syncVoicePicker();
   syncChordTypePicker();
   syncInversionPicker();
   syncIntervalPicker();
+  syncDegreePicker();
   syncRoundProgress();
   updateUi();
 }

@@ -423,6 +423,12 @@ body {
   font-size: 1rem;
 }
 
+.question-prompt {
+  margin: 0.75rem 0 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
 .live-pitch {
   margin: 0.75rem 0 0;
   font-variant-numeric: tabular-nums;

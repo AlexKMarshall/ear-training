@@ -6,6 +6,12 @@ import {
   intervalToSingTestQuestion,
 } from "../../../src/interval-questions.ts";
 import { resetIntervalPreference } from "../../../src/interval-preference.ts";
+import { getScaleDegreeById } from "../../../src/scale-degree-config.ts";
+import {
+  buildScaleDegreeQuestion,
+  scaleDegreeToSingTestQuestion,
+} from "../../../src/scale-degree-questions.ts";
+import { resetScaleDegreePreference } from "../../../src/scale-degree-preference.ts";
 import {
   createMemoryHistoryPort,
   type HistoryPort,
@@ -17,6 +23,7 @@ import {
   type IdentifyTestConfig,
 } from "../../../src/ui/identify-test.ts";
 import { intervalMelodicIdConfig } from "../../../src/ui/interval-tests.ts";
+import { scaleDegreeSingConfig } from "../../../src/ui/scale-degree-tests.ts";
 import { mountExercisePage } from "../../../src/ui/exercise-page.ts";
 import { mountHome } from "../../../src/ui/home.ts";
 import {
@@ -138,6 +145,48 @@ export function mountSingleNoteSingTest(
   const history = options.deps?.history ?? createMemoryHistoryPort();
   const root = createAppRoot();
   mountSingTest(root, options.config ?? createSingleNoteTestConfig(), {
+    history,
+    audio: options.deps?.audio ?? createTestAudioPort(),
+    recording:
+      options.deps?.recording ??
+      createTestRecordingPort({ samplesHz: options.samplesHz }),
+  });
+  return { history };
+}
+
+const scaleDegreeFifth = getScaleDegreeById("fifth")!;
+
+export function createScaleDegreeSingTestConfig(
+  overrides?: Partial<SingTestConfig>,
+): SingTestConfig {
+  return {
+    ...scaleDegreeSingConfig,
+    prepareQuestion: () =>
+      scaleDegreeToSingTestQuestion(
+        buildScaleDegreeQuestion(scaleDegreeFifth, 60),
+      ),
+    playReference: async () => {},
+    ...overrides,
+  };
+}
+
+export interface MountScaleDegreeSingOptions {
+  config?: SingTestConfig;
+  deps?: SingMountDeps;
+  samplesHz: number[];
+  resetPreferences?: boolean;
+}
+
+export function mountScaleDegreeSingTest(
+  options: MountScaleDegreeSingOptions,
+): MountMelodicIdResult {
+  if (options.resetPreferences !== false) {
+    resetScaleDegreePreference();
+    resetVoiceTypePreference();
+  }
+  const history = options.deps?.history ?? createMemoryHistoryPort();
+  const root = createAppRoot();
+  mountSingTest(root, options.config ?? createScaleDegreeSingTestConfig(), {
     history,
     audio: options.deps?.audio ?? createTestAudioPort(),
     recording:

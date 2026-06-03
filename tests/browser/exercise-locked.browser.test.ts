@@ -22,3 +22,15 @@ test("unlocked interval exercise does not show locked heading", async () => {
     .element(page.getByRole("heading", { name: "Locked" }))
     .not.toBeInTheDocument();
 });
+
+test("locked scale-degree exercise shows locked heading", async () => {
+  await mountExercisePageWithHistory("scale-degree-sing", []);
+  await expect
+    .element(page.getByRole("heading", { name: "Locked" }))
+    .toBeVisible();
+  await expect
+    .element(
+      page.getByRole("link", { name: /Go to Identify harmonic intervals/i }),
+    )
+    .toBeVisible();
+});

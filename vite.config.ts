@@ -25,6 +25,10 @@ export default defineConfig({
           __dirname,
           "interval-harmonic-id/index.html",
         ),
+        scaleDegreeSing: resolve(
+          __dirname,
+          "scale-degree-sing/index.html",
+        ),
         stats: resolve(__dirname, "stats/index.html"),
       },
     },

@@ -22,7 +22,7 @@ Detailed rules for agents live in [`docs/agents/testing.md`](agents/testing.md) 
 | Notes, chords, preferences | Unit tests | `tests/notes.test.ts`, `tests/chords.test.ts`, `tests/chord-*-preference.test.ts`, `tests/voice-ranges.test.ts` |
 | Intervals, rounds | Unit tests | `tests/interval-questions.test.ts`, `tests/round.test.ts` |
 | History stats, curriculum | Unit tests | `tests/history-stats.test.ts`, `tests/curriculum-*.test.ts` |
-| UI mount / orchestration | **Partial (T2)** | `mountIdentifyTest` and `mountSingTest` accept `HistoryPort` + `AudioPort` + `RecordingPort` (sing); `mountHome`, `mountExercisePage`, `mountStats` accept `HistoryPort` |
+| UI mount / orchestration | **Partial (T2 + scale-degree smoke)** | `mountIdentifyTest` and `mountSingTest` accept ports; scale-degree sing browser smoke in `tests/browser/scale-degree-sing.browser.test.ts` |
 | Browser / Vitest projects | **Done (T0)** | `npm run test:browser` — `tests/browser/**/*.browser.test.ts` (Vitest browser + Playwright) |
 | **CI (GitHub Actions)** | **Done** | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — `npm test`, `npm run test:browser`, `npm run build` on PRs and `main` |
 
@@ -159,7 +159,7 @@ interface ExerciseUiDeps {
 | Task | Status | Notes |
 |------|--------|--------|
 | Shared test helpers: `mountExerciseInBrowser`, fixture history for unlock states | Todo | |
-| Browser smoke per new `exerciseId` in registry | Todo | At minimum: mount + one happy path |
+| Browser smoke per new `exerciseId` in registry | **Partial** | `scale-degree-sing` smoke in `tests/browser/scale-degree-sing.browser.test.ts`; contract test still TODO |
 | Dev `?unlock=all` (product roadmap) | Todo | Reduces manual path grinding; document in [manual QA checklist](#manual-qa-still-required) |
 | Contract test: registry `mount` + configs expose required `exerciseId` | Todo | Node or browser; catches registry drift |
 
@@ -213,7 +213,7 @@ Align with product work; testing phases can run **in parallel** with feature PRs
 | PR merge confidence | **Done** ([T-CI](#phase-t-ci---github-actions-baseline) + browser job in [T0](#phase-t0---foundation-tooling--first-ports)) |
 | Curriculum guards, home UI | **Done** ([T0](#phase-t0---foundation-tooling--first-ports)) |
 | Interval + future identify exercises | **Done** ([T1](#phase-t1---identify-exercise-orchestration)) |
-| Sing / phrase / reproduction | **Done** ([T2](#phase-t2---sing-exercise-orchestration)) |
+| Scale-degree sing (Level 3) | **Partial** ([T2](#phase-t2---sing-exercise-orchestration) + [`scale-degree-sing.browser.test.ts`](../tests/browser/scale-degree-sing.browser.test.ts)) |
 | Unified `ExerciseDefinition` | Ports + config injection; browser tests use test configs |
 | `?unlock=all` for QA | [T3](#phase-t3---scale-with-product-features) + manual checklist |
 

@@ -10,6 +10,7 @@ import {
 import type { AttemptRecord } from "../src/history/types.ts";
 import {
   attempt,
+  passingLevel2History,
   passingSingleNoteHistory,
 } from "./fixtures/attempts.ts";
 
@@ -31,6 +32,16 @@ describe("isExerciseUnlocked", () => {
     const records = passingSingleNoteHistory();
     expect(isExerciseUnlocked("interval-melodic-sing", records)).toBe(true);
   });
+
+  it("locks scale-degree-sing until interval-harmonic-id passes", () => {
+    const records = passingLevel2History().filter(
+      (record) => record.exerciseId !== "interval-harmonic-id",
+    );
+    expect(isExerciseUnlocked("scale-degree-sing", records)).toBe(false);
+    expect(isExerciseUnlocked("scale-degree-sing", passingLevel2History())).toBe(
+      true,
+    );
+  });
 });
 
 describe("isLevelUnlocked", () => {
@@ -41,6 +52,11 @@ describe("isLevelUnlocked", () => {
   it("locks level 2 until single-note meets thresholds", () => {
     expect(isLevelUnlocked(2, [])).toBe(false);
     expect(isLevelUnlocked(2, passingSingleNoteHistory())).toBe(true);
+  });
+
+  it("locks level 3 until level 2 path is complete", () => {
+    expect(isLevelUnlocked(3, passingSingleNoteHistory())).toBe(false);
+    expect(isLevelUnlocked(3, passingLevel2History())).toBe(true);
   });
 });
 
@@ -53,6 +69,9 @@ describe("getContinueExercise", () => {
     expect(getContinueExercise(passingSingleNoteHistory())).toBe(
       "interval-melodic-sing",
     );
+    expect(getContinueExercise(passingLevel2History())).toBe(
+      "scale-degree-sing",
+    );
   });
 
   it("returns null when every path exercise meets thresholds", () => {
@@ -63,6 +82,7 @@ describe("getContinueExercise", () => {
       "interval-harmonic-sing",
       "interval-melodic-id",
       "interval-harmonic-id",
+      "scale-degree-sing",
     ] as const) {
       records.push(
         ...Array.from({ length: MIN_QUESTIONS }, (_, i) =>

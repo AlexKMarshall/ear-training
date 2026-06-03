@@ -21,23 +21,23 @@ Browser-based ear training for singers: harmony, pitch recognition, and vocal re
 
 | Area | Status |
 |------|--------|
-| **Exercises** | **Sing:** single note; chord middle (major / minor / diminished); melodic & harmonic intervals (sing upper note). **Identify:** melodic & harmonic intervals (multiple choice, degree-style interval names). Six routes; metadata in [`src/exercises/registry.ts`](../src/exercises/registry.ts). |
+| **Exercises** | **Sing:** single note; chord middle (major / minor / diminished); melodic & harmonic intervals (sing upper note); **scale degrees in key** (tonic → sing 4th / 5th / octave). **Identify:** melodic & harmonic intervals (multiple choice, degree-style interval names). Seven routes; metadata in [`src/exercises/registry.ts`](../src/exercises/registry.ts). |
 | **Scoring** | **Sing:** mic → median pitch → cents vs target (40¢ tolerance), harmonic correction, octave hints. **Identify:** pass/fail on selected interval label (no mic); `centsOff` stored as 0. |
 | **Session shape** | 10-question rounds, up to 3 attempts per question, in-round summary (`firstTry` / `retry` / `wrong`) — sing and identify flows |
-| **Personalization** | Voice type range; chord type & inversion filters; **interval set** filter (P4 / P5 / octave in v1 registry) — all `localStorage` |
-| **Persistence** | Preferences in `localStorage`; **attempt history** in IndexedDB (`src/history/`) — per attempt: `exerciseId`, target, `centsOff`, pass/fail, chord meta, **`intervalId`** / presentation / selected answer for ID exercises, `roundId` + `questionIndex` |
-| **Stats / dashboard** | [`/stats/`](stats/index.html) — overall + per-exercise for all six `exerciseId`s (IDs from registry). Median ¢ is meaningful for sing exercises only (ID attempts always record 0¢). **No** breakdown by `intervalId`, chord type, or time trends yet. |
-| **Recognition / naming** | **Partial** — interval identification only (perfect 4th / 5th / octave labels); not scale-degree-in-key, triad quality, or note names |
-| **Curriculum (v1 shell)** | **Done** — home at `/` shows **Continue**, **Level 1** (single note) → **Level 2** (intervals in path order), and **Free practice** (`chord-middle`). Unlock from IndexedDB via [`src/curriculum/unlock.ts`](../src/curriculum/unlock.ts) (≥10 questions, ≥70% question pass rate on predecessor). Locked path exercises are non-links on home; direct URLs show a locked page via [`src/ui/exercise-page.ts`](../src/ui/exercise-page.ts). Thresholds are constants, not user-configurable. |
-| **Testing** | **Partial** — Node unit tests (domain, curriculum, history stats) + **browser** tests for home/locked/stats guards, **identify** and **sing** round flows ([`tests/browser/`](../tests/browser/)). **CI** ([`ci.yml`](../.github/workflows/ci.yml)): `npm test`, `npm run test:browser`, `npm run build`. Ports on `mountIdentifyTest` and `mountSingTest` (`HistoryPort`, `AudioPort`, `RecordingPort`); `HistoryPort` on home/exercise page/stats. **Next:** [T3](testing-roadmap.md#phase-t3---scale-with-product-features) — registry smoke helpers. |
+| **Personalization** | Voice type range; chord type & inversion filters; **interval set** filter (P4 / P5 / octave in v1 registry); **scale-degree set** filter (4th / 5th / octave in v1) — all `localStorage` |
+| **Persistence** | Preferences in `localStorage`; **attempt history** in IndexedDB (`src/history/`) — per attempt: `exerciseId`, target, `centsOff`, pass/fail, chord meta, **`intervalId`** / presentation / selected answer for ID exercises, **`degreeId`** / `tonicMidi` for scale-degree sing, `roundId` + `questionIndex` |
+| **Stats / dashboard** | [`/stats/`](stats/index.html) — overall + per-exercise for all seven `exerciseId`s (IDs from registry). Median ¢ is meaningful for sing exercises only (ID attempts always record 0¢). **No** breakdown by `intervalId`, `degreeId`, chord type, or time trends yet. |
+| **Recognition / naming** | **Partial** — interval identification only (perfect 4th / 5th / octave labels); scale-degree **sing** in key (v1 pool); no scale-degree ID, triad quality, or note names |
+| **Curriculum (v1 shell)** | **Done** — home at `/` shows **Continue**, **Level 1** (single note) → **Level 2** (intervals) → **Level 3** (scale-degree sing), and **Free practice** (`chord-middle`). Unlock from IndexedDB via [`src/curriculum/unlock.ts`](../src/curriculum/unlock.ts) (≥10 questions, ≥70% question pass rate on predecessor). Locked path exercises are non-links on home; direct URLs show a locked page via [`src/ui/exercise-page.ts`](../src/ui/exercise-page.ts). Thresholds are constants, not user-configurable. |
+| **Testing** | **Partial** — Node unit tests (domain, curriculum, history stats) + **browser** tests for home/locked/stats guards, identify/single-note/**scale-degree** sing round flows ([`tests/browser/`](../tests/browser/)). **CI** ([`ci.yml`](../.github/workflows/ci.yml)): `npm test`, `npm run test:browser`, `npm run build`. **Next:** [T3](testing-roadmap.md#phase-t3---scale-with-product-features) — registry contract, `?unlock=all`. |
 
-Relevant code seams: exercise registry + `mountExercisePage` guard; `CURRICULUM_LEVELS` / `CURRICULUM_PATH` in [`src/curriculum/levels.ts`](../src/curriculum/levels.ts); `computeExerciseProgress` in [`src/history/stats.ts`](../src/history/stats.ts); `SingTestConfig`, `IdentifyTestConfig`, `RoundSummary`, chord/voice/**interval** preferences; interval domain in `src/interval-config.ts`, `src/interval-questions.ts`, `src/ui/interval-tests.ts`.
+Relevant code seams: exercise registry + `mountExercisePage` guard; `CURRICULUM_LEVELS` / `CURRICULUM_PATH` in [`src/curriculum/levels.ts`](../src/curriculum/levels.ts); `computeExerciseProgress` in [`src/history/stats.ts`](../src/history/stats.ts); `SingTestConfig`, `IdentifyTestConfig`, `RoundSummary`, chord/voice/**interval**/**scale-degree** preferences; interval domain in `src/interval-config.ts`, `src/interval-questions.ts`, `src/ui/interval-tests.ts`; scale-degree domain in `src/scale-degree-config.ts`, `src/scale-degree-questions.ts`, `src/ui/scale-degree-tests.ts`.
 
 ## Testing (summary)
 
 Full plan: [`docs/testing-roadmap.md`](testing-roadmap.md).
 
-- **Today:** Vitest in Node covers scoring, generation, unlock rules, and stats. Vitest **browser** mode covers curriculum guards plus **identify** and **sing** round orchestration (ports + test config hooks; fake recording uses real `scoreFromSamples`). **CI** runs `npm test`, `npm run test:browser`, and `npm run build` on every PR and `main`.
+- **Today:** Vitest in Node covers scoring, generation, unlock rules, and stats. Vitest **browser** mode covers curriculum guards plus **identify**, **single-note**, and **scale-degree** sing orchestration (ports + test config hooks; fake recording uses real `scoreFromSamples`). **CI** runs `npm test`, `npm run test:browser`, and `npm run build` on every PR and `main`.
 - **Direction:** [Vitest browser mode](https://vitest.dev/guide/browser/) (real Chromium); **no** jsdom/happy-dom UI tests; **no** mocking `smplr` / `pitchy` or audio modules — inject **ports** at `mount*` boundaries (`HistoryPort`, `AudioPort`, `RecordingPort`, etc.) alongside existing config hooks (`prepareQuestion`, `playReference`).
 - **Phases (testing):** ~~**T-CI**~~ **Done** — GitHub Actions → ~~**T0**~~ **Done** (browser project, `HistoryPort`, home/locked guards, Playwright in CI) → ~~**T1**~~ **Done** (identify orchestration) → ~~**T2**~~ **Done** (sing with fake recording) → **T3 next** (smoke per new registry exercise). Manual QA remains for mic, permissions, and timbre.
 
@@ -49,8 +49,8 @@ Four skills (rhythm excluded):
 |--------|-------------|--------|
 | **Discrimination** | Hear differences (wider vs narrower interval, maj vs min) | Partial (chord types; interval ID exercises with user-selected interval pool) |
 | **Recognition / naming** | Hear → label (degree or note name) | **Partial** — interval names (P4 / P5 / octave); no key context or chord-quality ID |
-| **Reproduction** | Hear → sing back accurately | Core strength (single note, chord middle, interval upper note) |
-| **Contextual intonation** | Phrases, tendency tones, chord tones in key | Missing |
+| **Reproduction** | Hear → sing back accurately | Core strength (single note, chord middle, interval upper note, **scale degrees from tonic**) |
+| **Contextual intonation** | Phrases, tendency tones, chord tones in key | **Partial** — Level 3 establishes tonic before singing a degree; no phrases or functional harmony yet |
 
 ```mermaid
 flowchart LR
@@ -96,7 +96,7 @@ flowchart LR
 |-------|---------------------|-----------------------------|
 | 1 | Single note *(done)* | — |
 | 2 | Intervals: melodic, then harmonic *(done, partial)* | Interval as degree *(done, partial)* |
-| 3 | Scale degrees in one key: sing 2nd, 5th, etc. from established tonic | **Degree ID** — hear note in key → choose degree (and quality where needed, e.g. *minor 7th*) |
+| 3 | Scale degrees in one key: sing 4th, 5th, octave from established tonic *(done, partial)* | **Degree ID** — deferred until pool diverges from interval ID |
 | 4 | Diatonic triads: sing root / 3rd / 5th (extend beyond middle only) | Triad quality: major / minor / diminished |
 | 5 | Triads + inversions | Inversion: root / 1st / 2nd |
 | 6 | Seventh chords; sing requested chord tone | Quality + inversion ID |
@@ -129,7 +129,7 @@ flowchart LR
 | Exercise type | Answer format (v1) | Status |
 |---------------|--------------------|--------|
 | Interval identification | Interval name / degree span (*Perfect 5th*, etc.) | **Done (partial)** — melodic + harmonic pages; limited interval set; distractors from active picker (min 2 intervals) |
-| Scale degree in key | *3rd*, *minor 7th*, *flat 6th*, etc. | Todo |
+| Scale degree in key | *3rd*, *minor 7th*, *flat 6th*, etc. | **Sing (partial)** — `/scale-degree-sing/` with v1 pool; **ID deferred** (same spans as interval ID today) |
 | Chord quality | Major / minor / dim / aug | Todo |
 | Chord inversion | Root / 1st / 2nd | Todo |
 | Tonic / key | Establish key → identify degree of a note or chord function | Todo |
@@ -173,8 +173,8 @@ flowchart LR
 |------|-----------|---------|
 | Regular practice | Goals, streaks, reminders | Short daily mixed drill |
 | Measurable improvement | History + `/stats/` MVP for all exercises; **weakness map by `intervalId` / chord type still TODO**; ID exercises don’t use cents meaningfully in dashboard | Per-skill benchmarks *(lite: per exercise id)* |
-| Progressive difficulty | **Curriculum v1 done** — levels 1–2 path, history unlock, home + guards; levels 3+ not started | Level 2 content partial (P4/P5/8ve only); per-level interval enforcement still TODO |
-| Naming / recognition | Select UI + interval ID exercises **done (partial)**; scale-degree & chord ID **TODO** | Degrees-first interval labels **done (partial)**; note names **TODO** |
+| Progressive difficulty | **Curriculum v1 done** — levels 1–3 path, history unlock, home + guards; level 4+ not started | Level 2–3 content partial (P4/P5/8ve pools); per-level pool enforcement still TODO |
+| Naming / recognition | Select UI + interval ID exercises **done (partial)**; scale-degree **sing** in key **done (partial)**; scale-degree ID & chord ID **TODO** | Degrees-first interval labels **done (partial)**; note names **TODO** |
 | Not only reproduction | Interval ID **done (partial)**; phrase scoring, multi-target rounds **TODO** | Dictation, functional hearing **TODO** |
 | Singer-specific | Range by voice; phrase intonation | Register-aware sets; no rhythm track |
 | Regression safety as features grow | **Partial (T2)** — CI + browser curriculum guards + identify + sing orchestration; [T3](testing-roadmap.md#phase-t3---scale-with-product-features) for registry smoke | Manual full-path QA still needed for mic, permissions, timbre |
@@ -186,7 +186,7 @@ flowchart LR
 1. ~~**Persist results + dashboard** (Phase 0)~~ **Done**
 2. ~~**Interval sing + interval recognition (degree labels)** (Phase 1–2)~~ **Done (partial)** — P4/P5/octave, four routes, history + stats. **Remaining:** expand intervals, per-tag stats/drills, richer reproduction tasks.
 3. ~~**Curriculum / levels (v1 shell)**~~ **Done** — registry, levels 1–2 path, history unlock, curriculum home, page guards, free practice for `chord-middle`.
-4. **Scale-degree sing + degree ID** (primary naming track in key) ← *next*
+4. ~~**Scale-degree sing in key** (Level 3)~~ **Done (partial)** — `/scale-degree-sing/`, tonic → prompt → sing; v1 pool 4th/5th/octave. **Remaining:** degree ID (when pool diverges from interval ID), expand degrees with interval pool.
 5. **Expand chord exercises** (sing other chord tones; quality/inversion ID)
 6. **Melodic dictation & clusters** (degrees → note-name hard mode)
 7. **Adaptive / spaced drills** once item taxonomy is rich enough
@@ -219,7 +219,7 @@ flowchart LR
 | Enforced interval pool per level | Would need session-scoped override of `interval-preference.ts`; v1 only gates which exercise |
 | Melodic-before-harmonic beyond unlock order | Path order only; user can still pick intervals freely inside an unlocked exercise |
 | `chord-middle` in main path | Free practice until level 4 triads |
-| Level 3+ placeholders | No exercises yet |
+| Level 4+ placeholders | No exercises yet |
 | Mixed-level rounds | Per-exercise rounds unchanged |
 | Goals, streaks, adaptive drills | Phase 0 |
 | Weakness stats by `intervalId` | Exercise-level unlock only |

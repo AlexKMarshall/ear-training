@@ -22,6 +22,11 @@ export const CURRICULUM_LEVELS: readonly CurriculumLevel[] = [
       "interval-harmonic-id",
     ],
   },
+  {
+    level: 3,
+    label: "Scale degrees",
+    exerciseIds: ["scale-degree-sing"],
+  },
 ] as const;
 
 /** Ordered guided path (Level 1 → Level 2 exercises). */
