@@ -11,6 +11,11 @@ import {
   VOICE_TYPES,
   type VoiceType,
 } from "../voice-ranges.ts";
+import {
+  getSelectableChordTypes,
+  isChordTypeSelected,
+  setChordTypeSelected,
+} from "../chord-type-preference.ts";
 import { scoreFromSamples } from "../pitch/score.ts";
 import type { ScoreResult } from "../pitch/score.ts";
 
@@ -29,6 +34,7 @@ export interface SingTestConfig {
   subtitle: string;
   playButtonLabel: string;
   showVoicePicker: boolean;
+  showChordTypePicker?: boolean;
   status: {
     idle: string;
     playing: string;
@@ -66,6 +72,30 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     `
     : "";
 
+  const chordTypePickerHtml = config.showChordTypePicker
+    ? `
+      <fieldset class="chord-type-picker" id="chord-type-picker">
+        <legend class="chord-type-picker-legend">Chord types</legend>
+        <div class="chord-type-options">
+          ${getSelectableChordTypes()
+            .map(
+              (type) => `
+            <label class="chord-type-option">
+              <input
+                type="checkbox"
+                value="${type.id}"
+                class="chord-type-option-input"
+              />
+              <span class="chord-type-option-label">${type.label}</span>
+            </label>
+          `,
+            )
+            .join("")}
+        </div>
+      </fieldset>
+    `
+    : "";
+
   root.innerHTML = `
     <main class="app">
       <nav class="nav">
@@ -78,6 +108,7 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
       </header>
 
       ${voicePickerHtml}
+      ${chordTypePickerHtml}
 
       <section class="card" aria-live="polite">
         <p id="status" class="status">${config.status.idle}</p>
@@ -111,6 +142,11 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
   const voiceInputs = root.querySelectorAll<HTMLInputElement>(
     ".voice-option-input",
   );
+  const chordTypePickerEl =
+    root.querySelector<HTMLFieldSetElement>("#chord-type-picker");
+  const chordTypeInputs = root.querySelectorAll<HTMLInputElement>(
+    ".chord-type-option-input",
+  );
 
   let state: TestState = "idle";
   let recordingSession: { stop: () => void } | null = null;
@@ -143,12 +179,44 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     }
   }
 
+  function syncChordTypePicker(): void {
+    if (!config.showChordTypePicker) return;
+    for (const input of chordTypeInputs) {
+      input.checked = isChordTypeSelected(input.value);
+    }
+  }
+
+  function resetQuestionForPreferenceChange(): void {
+    currentQuestion = null;
+    if (state === "result") {
+      resultEl.hidden = true;
+      setState("idle");
+    } else if (state === "ready") {
+      setState("idle");
+    }
+  }
+
+  function setChordTypePreference(id: string, selected: boolean): void {
+    if (!config.showChordTypePicker) return;
+    const applied = setChordTypeSelected(id, selected);
+    syncChordTypePicker();
+    if (applied) {
+      resetQuestionForPreferenceChange();
+    }
+  }
+
   function updateUi(): void {
-    const voiceLocked = state === "playing" || state === "recording";
+    const settingsLocked = state === "playing" || state === "recording";
     if (voicePickerEl) {
-      voicePickerEl.disabled = voiceLocked;
+      voicePickerEl.disabled = settingsLocked;
       for (const input of voiceInputs) {
-        input.disabled = voiceLocked;
+        input.disabled = settingsLocked;
+      }
+    }
+    if (chordTypePickerEl) {
+      chordTypePickerEl.disabled = settingsLocked;
+      for (const input of chordTypeInputs) {
+        input.disabled = settingsLocked;
       }
     }
 
@@ -308,6 +376,13 @@ export function mountSingTest(root: HTMLElement, config: SingTestConfig): void {
     });
   }
 
+  for (const input of chordTypeInputs) {
+    input.addEventListener("change", () => {
+      setChordTypePreference(input.value, input.checked);
+    });
+  }
+
   syncVoicePicker();
+  syncChordTypePicker();
   updateUi();
 }

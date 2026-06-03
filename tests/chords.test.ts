@@ -1,15 +1,23 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+  DIMINISHED_TRIAD_SING_MIDDLE,
   MAJOR_TRIAD_SING_MIDDLE,
   MINOR_TRIAD_SING_MIDDLE,
+  cDiminishedTriadAtC3,
   cMajorTriadAtC3,
   cMinorTriadAtC3,
   enabledChordTypes,
-  pickRandomChordType,
-  randomEnabledChordQuestion,
   randomMajorTriadWithMiddleInRange,
   randomMinorTriadWithMiddleInRange,
+  randomDiminishedTriadWithMiddleInRange,
 } from "../src/chord-config.ts";
+import {
+  getActiveChordTypes,
+  pickRandomChordType,
+  randomEnabledChordQuestion,
+  resetChordTypePreference,
+  setChordTypeSelected,
+} from "../src/chord-type-preference.ts";
 import {
   buildChordQuestion,
   randomChordQuestion,
@@ -33,6 +41,14 @@ describe("buildChordQuestion", () => {
     expect(question.targetIndex).toBe(1);
     expect(chordTarget(question).name).toBe("D#3");
   });
+
+  it("applies voicing offsets from the anchor note (diminished)", () => {
+    const question = buildChordQuestion(DIMINISHED_TRIAD_SING_MIDDLE, 51);
+
+    expect(question.notes.map((n) => n.name)).toEqual(["C3", "D#3", "F#3"]);
+    expect(question.targetIndex).toBe(1);
+    expect(chordTarget(question).name).toBe("D#3");
+  });
 });
 
 describe("randomChordQuestion", () => {
@@ -51,6 +67,17 @@ describe("randomChordQuestion", () => {
     for (let i = 0; i < 50; i++) {
       const question = randomChordQuestion(MINOR_TRIAD_SING_MIDDLE, range);
       const anchor = question.notes[MINOR_TRIAD_SING_MIDDLE.rangeAnchorIndex]!;
+      expect(anchor.midi).toBeGreaterThanOrEqual(range.lowMidi);
+      expect(anchor.midi).toBeLessThanOrEqual(range.highMidi);
+    }
+  });
+
+  it("keeps the range anchor note within the given range (diminished)", () => {
+    const range = { lowMidi: 48, highMidi: 67 };
+    for (let i = 0; i < 50; i++) {
+      const question = randomChordQuestion(DIMINISHED_TRIAD_SING_MIDDLE, range);
+      const anchor =
+        question.notes[DIMINISHED_TRIAD_SING_MIDDLE.rangeAnchorIndex]!;
       expect(anchor.midi).toBeGreaterThanOrEqual(range.lowMidi);
       expect(anchor.midi).toBeLessThanOrEqual(range.highMidi);
     }
@@ -81,6 +108,15 @@ describe("cMinorTriadAtC3", () => {
     const question = cMinorTriadAtC3();
 
     expect(question.notes.map((n) => n.name)).toEqual(["C3", "D#3", "G3"]);
+    expect(chordTarget(question).name).toBe("D#3");
+  });
+});
+
+describe("cDiminishedTriadAtC3", () => {
+  it("builds C3–Eb3–Gb3 with middle note as target", () => {
+    const question = cDiminishedTriadAtC3();
+
+    expect(question.notes.map((n) => n.name)).toEqual(["C3", "D#3", "F#3"]);
     expect(chordTarget(question).name).toBe("D#3");
   });
 });
@@ -124,19 +160,54 @@ describe("randomMinorTriadWithMiddleInRange", () => {
   });
 });
 
+describe("randomDiminishedTriadWithMiddleInRange", () => {
+  it("builds a diminished triad with the middle note as target", () => {
+    const question = randomDiminishedTriadWithMiddleInRange({
+      lowMidi: 51,
+      highMidi: 51,
+    });
+    const [root, third, fifth] = question.notes;
+
+    expect(third.midi - root.midi).toBe(3);
+    expect(fifth.midi - third.midi).toBe(3);
+    expect(chordTarget(question)).toBe(third);
+  });
+});
+
 describe("chord config", () => {
-  it("includes major and minor triads when enabled", () => {
+  beforeEach(() => {
+    resetChordTypePreference();
+  });
+
+  afterEach(() => {
+    resetChordTypePreference();
+  });
+
+  it("includes major, minor, and diminished triads when enabled", () => {
     const ids = enabledChordTypes().map((t) => t.id);
     expect(ids).toContain("major-triad-sing-middle");
     expect(ids).toContain("minor-triad-sing-middle");
+    expect(ids).toContain("diminished-triad-sing-middle");
   });
 
-  it("randomEnabledChordQuestion uses only enabled types", () => {
+  it("randomEnabledChordQuestion uses only selected types", () => {
     const range = { lowMidi: 48, highMidi: 67 };
-    const enabledIds = new Set(enabledChordTypes().map((t) => t.id));
+    const activeIds = new Set(getActiveChordTypes().map((t) => t.id));
     for (let i = 0; i < 80; i++) {
-      expect(enabledIds).toContain(pickRandomChordType().id);
+      expect(activeIds).toContain(pickRandomChordType().id);
       randomEnabledChordQuestion(range);
+    }
+  });
+
+  it("respects user chord type selection", () => {
+    setChordTypeSelected("major-triad-sing-middle", false);
+    setChordTypeSelected("minor-triad-sing-middle", false);
+
+    const activeIds = getActiveChordTypes().map((t) => t.id);
+    expect(activeIds).toEqual(["diminished-triad-sing-middle"]);
+
+    for (let i = 0; i < 30; i++) {
+      expect(pickRandomChordType().id).toBe("diminished-triad-sing-middle");
     }
   });
 });

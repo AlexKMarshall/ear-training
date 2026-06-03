@@ -1,4 +1,4 @@
-import { randomEnabledChordQuestion } from "../chord-config.ts";
+import { randomEnabledChordQuestion } from "../chord-type-preference.ts";
 import { chordMidis, chordTarget } from "../chords.ts";
 import { playChord, playTargetNote } from "../audio/playback.ts";
 import { randomNoteInRange } from "../notes.ts";
@@ -29,6 +29,7 @@ export const chordMiddleTestConfig: SingTestConfig = {
   subtitle: "Hear a chord and sing the middle note",
   playButtonLabel: "Play chord",
   showVoicePicker: true,
+  showChordTypePicker: true,
   status: {
     idle: "Press Play to hear the chord.",
     playing: "Listen to the chord…",

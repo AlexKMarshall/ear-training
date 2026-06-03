@@ -29,6 +29,14 @@ export const MINOR_TRIAD_SING_MIDDLE: ChordType = {
   rangeAnchorIndex: 1,
 };
 
+/** Diminished triad in root position; user sings the middle note (the minor third). */
+export const DIMINISHED_TRIAD_SING_MIDDLE: ChordType = {
+  id: "diminished-triad-sing-middle",
+  voicing: [-3, 0, 3],
+  targetIndex: 1,
+  rangeAnchorIndex: 1,
+};
+
 /** All supported chord types for sing-the-middle (and future) modes. */
 export const CHORD_TYPES: readonly ChordTypeEntry[] = [
   {
@@ -41,6 +49,11 @@ export const CHORD_TYPES: readonly ChordTypeEntry[] = [
     label: "Minor triad",
     enabled: true,
   },
+  {
+    ...DIMINISHED_TRIAD_SING_MIDDLE,
+    label: "Diminished triad",
+    enabled: true,
+  },
 ] as const;
 
 export function getChordTypeById(id: string): ChordTypeEntry | undefined {
@@ -49,19 +62,6 @@ export function getChordTypeById(id: string): ChordTypeEntry | undefined {
 
 export function enabledChordTypes(): ChordType[] {
   return CHORD_TYPES.filter((t) => t.enabled);
-}
-
-export function pickRandomChordType(): ChordType {
-  const enabled = enabledChordTypes();
-  if (enabled.length === 0) {
-    throw new Error("No chord types are enabled");
-  }
-  return enabled[Math.floor(Math.random() * enabled.length)]!;
-}
-
-/** Random chord question using a uniformly chosen enabled chord type. */
-export function randomEnabledChordQuestion(range: NoteRange): ChordQuestion {
-  return randomChordQuestion(pickRandomChordType(), range);
 }
 
 /** Fixed C3 major triad (C3–E3–G3); user sings the middle note (E3). */
@@ -86,4 +86,16 @@ export function randomMinorTriadWithMiddleInRange(
   range: NoteRange,
 ): ChordQuestion {
   return randomChordQuestion(MINOR_TRIAD_SING_MIDDLE, range);
+}
+
+/** Fixed C3 diminished triad (C3–Eb3–Gb3); user sings the middle note (Eb3). */
+export function cDiminishedTriadAtC3(): ChordQuestion {
+  return buildChordQuestion(DIMINISHED_TRIAD_SING_MIDDLE, 51);
+}
+
+/** Random diminished triad whose third falls within `range`; user sings the middle note. */
+export function randomDiminishedTriadWithMiddleInRange(
+  range: NoteRange,
+): ChordQuestion {
+  return randomChordQuestion(DIMINISHED_TRIAD_SING_MIDDLE, range);
 }

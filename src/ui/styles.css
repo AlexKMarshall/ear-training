@@ -177,6 +177,50 @@ body {
   color: var(--muted);
 }
 
+.chord-type-picker {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.chord-type-picker:disabled .chord-type-option {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.chord-type-picker-legend {
+  padding: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.chord-type-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.chord-type-option {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.chord-type-option-input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.chord-type-option-label {
+  color: var(--text);
+}
+
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
