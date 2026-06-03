@@ -11,7 +11,7 @@ Browser-based ear training (static site, TypeScript, Vite, Vitest). Product dire
 | **Testing (agent guides)** | [`docs/agents/testing.md`](docs/agents/testing.md) |
 | **Testing strategy & phases** | [`docs/testing-roadmap.md`](docs/testing-roadmap.md) |
 
-Read the pull-request guide before creating or updating a PR description, especially the **test plan** sections and naming for unchanged-behavior checks.
+Read the pull-request guide before creating or updating a PR description, especially the **test plan** sections, **roadmap updates** (both [`docs/roadmap.md`](docs/roadmap.md) and [`docs/testing-roadmap.md`](docs/testing-roadmap.md) when applicable), and naming for unchanged-behavior checks.
 
 ## Quick commands
 

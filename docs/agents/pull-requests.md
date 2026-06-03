@@ -10,6 +10,23 @@ For work split across several merge-gated PRs (status table, merge gates, final 
 2. **Scope** — One logical change per PR. Do not bundle unrelated refactors or sneak ahead on a multi-step plan unless the user asks to combine.
 3. **Verify** — Run `npm test` (and `npm run build` if the change touches build, routes, or static assets). When browser tests exist, run `npm run test:browser` for PRs that touch `src/ui/` or mount/orchestration code — see [`docs/agents/testing.md`](testing.md) and [`docs/testing-roadmap.md`](../testing-roadmap.md). Confirm GitHub Actions **CI** is green on the PR. Do not claim tests pass without running them locally and without a green CI check.
 4. **Commits** — Only commit when the user asks. Use clear messages focused on *why* (1–2 sentences).
+5. **Roadmaps** — When the PR finishes a milestone or changes what roadmaps claim about current state, update **all** applicable roadmaps in that PR (see [Roadmap updates](#roadmap-updates)).
+
+## Roadmap updates
+
+This repo has two status roadmaps agents must keep aligned:
+
+| Roadmap | Path |
+|---------|------|
+| Product | [`docs/roadmap.md`](../roadmap.md) |
+| Testing | [`docs/testing-roadmap.md`](../testing-roadmap.md) |
+
+| Situation | When to update |
+|-----------|----------------|
+| **Single PR** | Update every applicable roadmap in the **same** PR before merge. If the change touches tests, CI, or ports, update **both** roadmaps unless only one domain changed. |
+| **Multi-PR plan** | The **last** PR in the sequence (implementation or docs-only) must sync **all** roadmaps named in the plan—default: **both** files. Do not mark the plan complete if [`docs/roadmap.md`](../roadmap.md) still says “next” while [`docs/testing-roadmap.md`](../testing-roadmap.md) says “Done”. See [`multi-pr-plans.md`](multi-pr-plans.md). |
+
+Checklist: mark completed phases **Done**, fix obsolete “today / next” wording, align CI commands with [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml), and note what phase is **next**.
 
 ## Branch naming
 
@@ -39,7 +56,7 @@ Use `gh pr create` with a HEREDOC body. Default structure:
 ### Automated
 
 - [ ] `npm test` — all pass
-- [ ] (when applicable) `npm run test:browser` — UI/orchestration changes after [testing T0](../testing-roadmap.md#phase-t0---foundation-tooling--first-ports) lands
+- [ ] (when applicable) `npm run test:browser` — changes to `src/ui/`, mount functions, or `tests/browser/`
 - [ ] (optional) `npm run build` — if relevant
 - [ ] GitHub Actions `CI` workflow green on the PR
 
@@ -79,8 +96,8 @@ Avoid the word **Regression** as a test-plan heading — readers often read it a
 ### When to expand the test plan
 
 - **Feature PR** — New behavior + Existing behavior (unchanged) when shared code is touched.
-- **Multi-step plan (final docs PR)** — You may include a full end-to-end checklist (all steps) under **New behavior**; still use **Existing behavior (unchanged)** for cross-cutting smoke items.
-- **Docs-only** — Summary + note “No runtime changes”; minimal or no checklists.
+- **Multi-step plan (final PR)** — Include roadmap sync in Summary; you may include a full end-to-end checklist (all steps) under **New behavior**; still use **Existing behavior (unchanged)** for cross-cutting smoke items.
+- **Docs-only / roadmap sync** — Summary + note “No runtime changes”; list which roadmaps were updated; minimal or no checklists.
 
 ## Creating the PR
 

@@ -1,6 +1,6 @@
 # Ear Training — Testing Roadmap
 
-How we close the gap between strong **domain unit tests** and **no automated UI coverage**, without fighting the audio stack. Complements the [product roadmap](roadmap.md).
+How we close the gap between strong **domain unit tests** and **no automated UI coverage**, without fighting the audio stack. Complements the [product roadmap](roadmap.md). When a testing phase ships, update **both** roadmaps in the same PR (or the last PR of a multi-PR plan); see [`agents/pull-requests.md`](agents/pull-requests.md#roadmap-updates).
 
 ## Principles
 

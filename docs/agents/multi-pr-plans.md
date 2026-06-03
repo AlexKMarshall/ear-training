@@ -23,8 +23,13 @@ Keep the table accurate. Update status only after the user confirms a PR is **me
 
 ## Typical PR sequence
 
-1. **Implementation PR(s)** — Code, config, tests, or agent docs that enable later steps. Order dependencies explicitly (e.g. process guide before CI workflow).
-2. **Final roadmap-sync PR (recommended)** — Updates [`docs/roadmap.md`](../roadmap.md), [`docs/testing-roadmap.md`](../testing-roadmap.md), and any other status docs named in the plan. Land this **after** the behavior it describes is on `main` (e.g. do not mark CI “Done” until CI has run green on `main`).
+1. **Implementation PR(s)** — Code, config, tests, or agent docs that enable later steps. Order dependencies explicitly (e.g. process guide before CI workflow). Middle PRs may update the roadmap that matches their scope (e.g. testing-roadmap when only infra lands), but must not leave the other roadmap claiming the old world.
+2. **Roadmap sync (required)** — Before the plan is complete, **every** status roadmap must reflect shipped reality:
+   - [`docs/roadmap.md`](../roadmap.md) — product / current-state table, testing summary, gap matrix, build order
+   - [`docs/testing-roadmap.md`](../testing-roadmap.md) — test phases, CI, coverage tables
+   - Any additional `*roadmap*` files named in the plan
+
+   Do this in the **last** PR of the sequence (implementation or docs-only), **after** the behavior is on `main` (e.g. do not mark CI “Done” until CI has run green on `main`). A dedicated final docs-only PR is fine when implementation PRs already merged without a full sync.
 
 The user may fold roadmap updates into the last implementation PR; if so, still run the **Final step: roadmap sync** checklist before calling the plan complete.
 
@@ -60,19 +65,20 @@ For each PR:
 
 Docs-only PRs: summary + “No runtime changes”; omit CI checkboxes until a workflow exists.
 
-## Final step: roadmap sync
+## Final step: roadmap sync (required)
 
-After the **last** PR in the plan is merged, update roadmap docs (at minimum [`docs/roadmap.md`](../roadmap.md) and [`docs/testing-roadmap.md`](../testing-roadmap.md) unless the plan names others):
+After the **last** PR in the plan is merged, confirm **all** applicable roadmaps were updated (default: both [`docs/roadmap.md`](../roadmap.md) and [`docs/testing-roadmap.md`](../testing-roadmap.md)):
 
 | Check | Action |
 |-------|--------|
+| **All roadmaps** | Product and testing roadmaps stay consistent with each other and with `main` (no “T0 next” in one file and “T0 Done” in another). |
 | **New status** | Mark completed items (e.g. Todo → Done). |
-| **Obsolete** | Remove or revise wording that is no longer true (e.g. “no CI today” after CI ships). |
-| **Changed** | Align descriptions with shipped behavior (e.g. PR guide: CI required on PRs). |
-| **Unlocked** | Note what work is unblocked next (e.g. T0 after T-CI). |
+| **Obsolete** | Remove or revise wording that is no longer true (e.g. “no browser tests” after T0 ships). |
+| **Changed** | Align descriptions with shipped behavior (commands, CI steps, file paths). |
+| **Unlocked** | Note what work is unblocked next (e.g. T1 after T0). |
 | **Plan table** | Mark all PR rows `merged`; archive or close the plan if appropriate. |
 
-If roadmap sync was not a dedicated final PR, confirm those updates were included in the last PR and run this checklist before calling the plan done.
+If an earlier PR updated only one roadmap, the last PR (or a follow-up docs PR) must bring the rest in line before calling the plan done.
 
 ## Related
 
