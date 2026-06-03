@@ -6,7 +6,7 @@ How to open and describe PRs in this repo. Intended for Cursor, Copilot, Claude 
 
 1. **Sync `main`** — `git fetch origin main && git checkout main && git pull origin main`, then branch.
 2. **Scope** — One logical change per PR. Do not bundle unrelated refactors or sneak ahead on a multi-step plan unless the user asks to combine.
-3. **Verify** — Run `npm test` (and `npm run build` if the change touches build, routes, or static assets). Do not claim tests pass without running them.
+3. **Verify** — Run `npm test` (and `npm run build` if the change touches build, routes, or static assets). When browser tests exist, run `npm run test:browser` for PRs that touch `src/ui/` or mount/orchestration code — see [`docs/testing-roadmap.md`](../testing-roadmap.md). After [T-CI](../testing-roadmap.md#phase-t-ci---github-actions-baseline) lands, confirm GitHub Actions is green on the PR. Do not claim tests pass without running them.
 4. **Commits** — Only commit when the user asks. Use clear messages focused on *why* (1–2 sentences).
 
 ## Branch naming
@@ -37,7 +37,9 @@ Use `gh pr create` with a HEREDOC body. Default structure:
 ### Automated
 
 - [ ] `npm test` — all pass
+- [ ] (when applicable) `npm run test:browser` — UI/orchestration changes after [testing T0](../testing-roadmap.md#phase-t0---foundation-tooling--first-ports) lands
 - [ ] (optional) `npm run build` — if relevant
+- [ ] (after T-CI) GitHub Actions `CI` workflow green on the PR
 
 ### New behavior
 

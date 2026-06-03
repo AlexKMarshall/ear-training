@@ -29,8 +29,19 @@ Browser-based ear training for singers: harmony, pitch recognition, and vocal re
 | **Stats / dashboard** | [`/stats/`](stats/index.html) — overall + per-exercise for all six `exerciseId`s (IDs from registry). Median ¢ is meaningful for sing exercises only (ID attempts always record 0¢). **No** breakdown by `intervalId`, chord type, or time trends yet. |
 | **Recognition / naming** | **Partial** — interval identification only (perfect 4th / 5th / octave labels); not scale-degree-in-key, triad quality, or note names |
 | **Curriculum (v1 shell)** | **Done** — home at `/` shows **Continue**, **Level 1** (single note) → **Level 2** (intervals in path order), and **Free practice** (`chord-middle`). Unlock from IndexedDB via [`src/curriculum/unlock.ts`](../src/curriculum/unlock.ts) (≥10 questions, ≥70% question pass rate on predecessor). Locked path exercises are non-links on home; direct URLs show a locked page via [`src/ui/exercise-page.ts`](../src/ui/exercise-page.ts). Thresholds are constants, not user-configurable. |
+| **Testing** | **Partial** — 12 Node unit test files (domain, curriculum, history stats); **no** automated UI/orchestration tests; **no** GitHub Actions CI. Plan: [Testing roadmap](testing-roadmap.md) — CI (`npm test` + build), then Vitest browser mode + injectable ports. |
 
 Relevant code seams: exercise registry + `mountExercisePage` guard; `CURRICULUM_LEVELS` / `CURRICULUM_PATH` in [`src/curriculum/levels.ts`](../src/curriculum/levels.ts); `computeExerciseProgress` in [`src/history/stats.ts`](../src/history/stats.ts); `SingTestConfig`, `IdentifyTestConfig`, `RoundSummary`, chord/voice/**interval** preferences; interval domain in `src/interval-config.ts`, `src/interval-questions.ts`, `src/ui/interval-tests.ts`.
+
+## Testing (summary)
+
+Full plan: [`docs/testing-roadmap.md`](testing-roadmap.md).
+
+- **Today:** Vitest in Node covers scoring, generation, unlock rules, and stats — not mount flows, rounds in the DOM, or history writes from UI.
+- **Direction:** [Vitest browser mode](https://vitest.dev/guide/browser/) (real Chromium); **no** jsdom/happy-dom UI tests; **no** mocking `smplr` / `pitchy` or audio modules — inject **ports** at `mount*` boundaries (`HistoryPort`, `RecordingPort`, etc.) alongside existing config hooks (`prepareQuestion`, `playReference`).
+- **Phases (testing):** **T-CI** GitHub Actions (`npm test` + `npm run build` on every PR) → T0 browser tooling + history port + home/locked guards → T1 identify orchestration → T2 sing with fake recording → T3 smoke per new registry exercise. Manual QA remains for mic, permissions, and timbre.
+
+Run alongside product phases below; land **T-CI** immediately, then **T0–T1** before large Phase 2 UI churn.
 
 ## Product pillars
 
@@ -72,6 +83,8 @@ flowchart LR
 | Practice goals & streaks | Todo | e.g. daily question count or minutes; optional notifications later. |
 | Targeted drills | Todo | Weight generation toward missed tags (chord type, **interval id**, register, degree, etc.) — interval id is already persisted but not used for drill weighting. |
 | Configurable difficulty | Todo | Tolerance (¢), range width, playback repeats — driven by level/settings, not only `config.ts`. |
+| Automated UI regression | Todo | [Testing roadmap T0–T2](testing-roadmap.md#phased-plan) — browser orchestration tests; domain tests already cover stats/unlock math. |
+| CI on every PR | Todo | [Testing roadmap T-CI](testing-roadmap.md#phase-t-ci---github-actions-baseline) — GitHub Actions; no workflows today. |
 
 **Musical content:** interval exercises now feed the same history/stats pipeline as earlier sing tests; habit features (goals, adaptive drills) still TODO.
 
@@ -166,6 +179,7 @@ flowchart LR
 | Naming / recognition | Select UI + interval ID exercises **done (partial)**; scale-degree & chord ID **TODO** | Degrees-first interval labels **done (partial)**; note names **TODO** |
 | Not only reproduction | Interval ID **done (partial)**; phrase scoring, multi-target rounds **TODO** | Dictation, functional hearing **TODO** |
 | Singer-specific | Range by voice; phrase intonation | Register-aware sets; no rhythm track |
+| Regression safety as features grow | [Testing T0–T3](testing-roadmap.md#phased-plan); injectable UI ports | Manual full-path QA does not scale past ~6 exercises |
 
 ---
 
@@ -179,6 +193,14 @@ flowchart LR
 6. **Melodic dictation & clusters** (degrees → note-name hard mode)
 7. **Adaptive / spaced drills** once item taxonomy is rich enough
 
+**Testing (parallel where possible):**
+
+0. [T-CI](testing-roadmap.md#phase-t-ci---github-actions-baseline) — GitHub Actions: `npm test` + `npm run build` on PRs and `main`
+1. [T0](testing-roadmap.md#phase-t0---foundation-tooling--first-ports) — Vitest browser project, `HistoryPort`, home + locked-page tests *(before or with next UI-heavy PR)*
+2. [T1](testing-roadmap.md#phase-t1---identify-exercise-orchestration) — identify round + `saveAttempt` in browser
+3. [T2](testing-roadmap.md#phase-t2---sing-exercise-orchestration) — fake `RecordingPort`, sing pass/fail paths
+4. [T3](testing-roadmap.md#phase-t3---scale-with-product-features) — per-exercise smoke, `?unlock=all`, registry contract
+
 ---
 
 ## Architectural direction
@@ -189,6 +211,7 @@ flowchart LR
 - Extend dashboard with weakness tags (e.g. by `intervalId`) and trends; optional round-level aggregates in history; ID-appropriate metrics (not median ¢).
 - Reuse preference patterns (`voice-ranges`, `chord-type-preference`, `interval-preference`) for **per-level interval pools** and **enabled skills** (v1 unlock does not override session interval picker).
 - ~~Implement **recognition** as sibling modes sharing playback and question generation.~~ **Partial** — `identify-test.ts` shares rounds/history with sing tests; interval playback/questions shared via `interval-questions.ts`; registry lists `responseMode` but sing/identify mount paths remain separate.
+- **Testability at UI boundaries** — thread `HistoryPort` / `AudioPort` / `RecordingPort` into mount functions; production defaults in page entrypoints only. Enables [browser orchestration tests](testing-roadmap.md#dependency-ports-enabler) without mocking vendor audio libs.
 
 ### Curriculum v1 — intentional gaps (post–levels shell)
 
@@ -203,7 +226,7 @@ flowchart LR
 | Goals, streaks, adaptive drills | Phase 0 |
 | Weakness stats by `intervalId` | Exercise-level unlock only |
 | Configurable unlock thresholds in UI | Constants in `unlock.ts` |
-| Dev `?unlock=all` | Add when QA needs it |
+| Dev `?unlock=all` | Add when QA needs it — see [testing roadmap T3](testing-roadmap.md#phase-t3---scale-with-product-features) |
 
 ---
 
