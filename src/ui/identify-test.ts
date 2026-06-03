@@ -1,5 +1,4 @@
 import { ensureAudioReady, unlockAudio } from "../audio/context.ts";
-import { getIntervalById } from "../interval-config.ts";
 import { isPlaying } from "../audio/playback.ts";
 import {
   MAX_ATTEMPTS_PER_QUESTION,
@@ -373,9 +372,6 @@ export function mountIdentifyTest(
       }
     }
 
-    const correctLabel =
-      getIntervalById(currentQuestion!.intervalId!)?.label ?? "Unknown";
-
     resultEl.hidden = false;
     resultEl.className = `result ${passed ? "result-pass" : "result-fail"}`;
     resultEl.innerHTML = passed
@@ -386,7 +382,7 @@ export function mountIdentifyTest(
     `
       : `
       <p class="result-verdict">Not quite</p>
-      <p class="result-detail">You chose ${selectedLabel}. The answer was ${correctLabel}.</p>
+      <p class="result-detail">That wasn't right — tap Try again to hear the interval and pick again.</p>
       ${attemptNote}
     `;
 
