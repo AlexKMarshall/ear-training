@@ -2,6 +2,8 @@
 
 How to open and describe PRs in this repo. Intended for Cursor, Copilot, Claude Code, and other coding agents.
 
+For work split across several merge-gated PRs (status table, merge gates, final roadmap-sync step), see [`multi-pr-plans.md`](multi-pr-plans.md).
+
 ## Before you open a PR
 
 1. **Sync `main`** — `git fetch origin main && git checkout main && git pull origin main`, then branch.
@@ -105,5 +107,6 @@ Return the PR URL to the user. Do not push or merge unless they ask.
 
 ## Related
 
+- Multi-PR plans: [`multi-pr-plans.md`](multi-pr-plans.md)
 - Product roadmap: [`docs/roadmap.md`](../roadmap.md)
 - Human README: [`README.md`](../../README.md)
