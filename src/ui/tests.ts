@@ -1,7 +1,7 @@
 import {
   chordFrequenciesHz,
   chordTarget,
-  cMajorTriadAtC3,
+  randomMajorTriadWithMiddleInRange,
 } from "../chords.ts";
 import { playChord, playTargetNote } from "../audio/playback.ts";
 import { randomNoteInRange } from "../notes.ts";
@@ -29,9 +29,9 @@ export const singleNoteTestConfig: SingTestConfig = {
 
 export const chordMiddleTestConfig: SingTestConfig = {
   title: "Sing the middle note",
-  subtitle: "Hear a C major chord and sing the middle note (E3)",
+  subtitle: "Hear a major chord and sing the middle note",
   playButtonLabel: "Play chord",
-  showVoicePicker: false,
+  showVoicePicker: true,
   status: {
     idle: "Press Play to hear the chord.",
     playing: "Listen to the chord…",
@@ -41,7 +41,7 @@ export const chordMiddleTestConfig: SingTestConfig = {
     fail: "Keep practicing — try again.",
   },
   prepareQuestion: () => {
-    const chord = cMajorTriadAtC3();
+    const chord = randomMajorTriadWithMiddleInRange(getActiveNoteRange());
     return { target: chordTarget(chord), chord };
   },
   playReference: (question) => {

@@ -1,4 +1,13 @@
-import { midiToHz, midiToNoteName, type TargetNote } from "./notes.ts";
+import {
+  midiToHz,
+  midiToNoteName,
+  randomNoteInRange,
+  type NoteRange,
+  type TargetNote,
+} from "./notes.ts";
+
+const MAJOR_THIRD = 4;
+const MINOR_THIRD = 3;
 
 /** A three-note chord with a designated target note to sing. */
 export interface ChordQuestion {
@@ -15,6 +24,21 @@ function targetNote(midi: number): TargetNote {
 export function cMajorTriadAtC3(): ChordQuestion {
   return {
     notes: [targetNote(48), targetNote(52), targetNote(55)],
+    targetIndex: 1,
+  };
+}
+
+/** Random major triad whose third falls within `range`; user sings the middle note. */
+export function randomMajorTriadWithMiddleInRange(
+  range: NoteRange,
+): ChordQuestion {
+  const third = randomNoteInRange(range);
+  return {
+    notes: [
+      targetNote(third.midi - MAJOR_THIRD),
+      third,
+      targetNote(third.midi + MINOR_THIRD),
+    ],
     targetIndex: 1,
   };
 }
