@@ -23,6 +23,10 @@ export function mountHome(root: HTMLElement): void {
           <span class="test-card-title">Sing melodic intervals</span>
           <span class="test-card-desc">Hear two notes in sequence and sing the top note</span>
         </a>
+        <a href="/interval-harmonic-sing/" class="test-card">
+          <span class="test-card-title">Sing harmonic intervals</span>
+          <span class="test-card-desc">Hear two notes at once and sing the top note</span>
+        </a>
       </nav>
     </main>
   `;

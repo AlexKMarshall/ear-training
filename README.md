@@ -36,6 +36,7 @@ Static hosting (Vercel, Netlify, GitHub Pages). Ensure HTTPS so `getUserMedia` w
 | `/single-note/` | Sing one reference note |
 | `/chord-middle/` | Sing the middle note of a chord |
 | `/interval-melodic-sing/` | Hear two notes in sequence; sing the top note |
+| `/interval-harmonic-sing/` | Hear two notes together; sing the top note |
 
 ## Extension points (post-MVP)
 

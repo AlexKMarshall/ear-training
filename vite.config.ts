@@ -12,6 +12,10 @@ export default defineConfig({
           __dirname,
           "interval-melodic-sing/index.html",
         ),
+        intervalHarmonicSing: resolve(
+          __dirname,
+          "interval-harmonic-sing/index.html",
+        ),
         stats: resolve(__dirname, "stats/index.html"),
       },
     },

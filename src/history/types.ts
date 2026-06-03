@@ -3,12 +3,14 @@ import type { InversionId } from "../chord-inversions.ts";
 export type ExerciseId =
   | "single-note"
   | "chord-middle"
-  | "interval-melodic-sing";
+  | "interval-melodic-sing"
+  | "interval-harmonic-sing";
 
 export const EXERCISE_LABELS: Record<ExerciseId, string> = {
   "single-note": "Sing a single note",
   "chord-middle": "Sing the middle note of a chord",
   "interval-melodic-sing": "Sing melodic intervals",
+  "interval-harmonic-sing": "Sing harmonic intervals",
 };
 
 /** One scored mic attempt, persisted for stats and future drill weighting. */
