@@ -6,4 +6,4 @@ if (!root) {
   throw new Error("#app element not found");
 }
 
-mountHome(root);
+void mountHome(root);
