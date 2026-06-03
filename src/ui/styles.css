@@ -1,0 +1,156 @@
+:root {
+  color-scheme: light dark;
+  --bg: #0f1419;
+  --surface: #1a2332;
+  --text: #e8eef4;
+  --muted: #8b9aab;
+  --accent: #5b9fd4;
+  --accent-hover: #7ab3de;
+  --pass: #3d9a6a;
+  --fail: #c45c5c;
+  --border: #2a3a4f;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  line-height: 1.5;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 2.5rem;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  flex: 1;
+}
+
+.status {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.live-pitch {
+  margin: 0.75rem 0 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  font-size: 0.95rem;
+}
+
+.result {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.result-pass .result-verdict {
+  color: var(--pass);
+}
+
+.result-fail .result-verdict {
+  color: var(--fail);
+}
+
+.result-verdict {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.result-detail {
+  margin: 0.35rem 0 0;
+}
+
+.result-meta {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.btn {
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0a1018;
+}
+
+.btn-primary:not(:disabled):hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+@media (min-width: 480px) {
+  .app {
+    padding-top: 2.5rem;
+  }
+}
