@@ -53,6 +53,10 @@ Static hosting (Vercel, Netlify, GitHub Pages). Ensure HTTPS so `getUserMedia` w
 
 **Piano samples:** loaded from smplr's CDN in [`src/audio/piano.ts`](src/audio/piano.ts) on first Play (after user tap unlocks audio).
 
+## Contributing
+
+Agent and PR conventions: [`AGENTS.md`](AGENTS.md) (pull-request test-plan format, branch naming).
+
 ## Browser notes
 
 - First tap resumes `AudioContext` (iOS Safari).
