@@ -1,4 +1,4 @@
-import { playMelodicSequence } from "../audio/playback.ts";
+import { playDyad, playMelodicSequence } from "../audio/playback.ts";
 import { randomIntervalSingQuestion } from "../interval-questions.ts";
 import { getActiveNoteRange } from "../voice-ranges.ts";
 import { mountSingTest, type SingTestConfig } from "./sing-test.ts";
@@ -34,4 +34,37 @@ export const intervalMelodicSingConfig: SingTestConfig = {
 
 export function mountIntervalMelodicSingTest(root: HTMLElement): void {
   mountSingTest(root, intervalMelodicSingConfig);
+}
+
+export const intervalHarmonicSingConfig: SingTestConfig = {
+  exerciseId: "interval-harmonic-sing",
+  title: "Sing harmonic intervals",
+  subtitle: "Hear two notes together, then sing the top note",
+  playButtonLabel: "Play interval",
+  showVoicePicker: true,
+  showIntervalPicker: true,
+  status: {
+    idle: "Press Play to hear the interval.",
+    noIntervals: "Select at least one interval to begin.",
+    playing: "Listen to both notes…",
+    ready:
+      "Sing the top note of the interval, then tap Start singing when ready.",
+    recording: "Singing… tap Done when finished.",
+    pass: "Correct — tap Next question when you are ready.",
+    fail: "Try again on this question (up to 3 tries).",
+    failExhausted: "Out of tries — tap Next question to continue the round.",
+  },
+  prepareQuestion: () =>
+    randomIntervalSingQuestion("harmonic", getActiveNoteRange()),
+  playReference: (question) => {
+    if (!question.interval) {
+      throw new Error("Missing interval for playback");
+    }
+    const { lower, upper } = question.interval;
+    return playDyad([lower.midi, upper.midi]);
+  },
+};
+
+export function mountIntervalHarmonicSingTest(root: HTMLElement): void {
+  mountSingTest(root, intervalHarmonicSingConfig);
 }

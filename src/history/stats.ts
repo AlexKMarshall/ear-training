@@ -118,6 +118,7 @@ export function computeDashboardStats(
     "single-note",
     "chord-middle",
     "interval-melodic-sing",
+    "interval-harmonic-sing",
   ] as const;
 
   return {
