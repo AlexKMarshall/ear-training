@@ -1,5 +1,6 @@
 import { resolve } from "node:path";
-import { defineConfig } from "vite";
+import { playwright } from "@vitest/browser-playwright";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   build: {
@@ -29,6 +30,27 @@ export default defineConfig({
     },
   },
   test: {
-    include: ["tests/**/*.test.ts"],
+    projects: [
+      {
+        test: {
+          name: "unit",
+          environment: "node",
+          include: ["tests/**/*.test.ts"],
+          exclude: ["tests/**/*.browser.test.ts"],
+        },
+      },
+      {
+        test: {
+          name: "browser",
+          include: ["tests/**/*.browser.test.ts"],
+          browser: {
+            enabled: true,
+            headless: true,
+            provider: playwright(),
+            instances: [{ browser: "chromium" }],
+          },
+        },
+      },
+    ],
   },
 });

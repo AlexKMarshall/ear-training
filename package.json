@@ -7,9 +7,12 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run --project unit",
+    "test:browser": "vitest run --project browser"
   },
   "devDependencies": {
+    "@vitest/browser-playwright": "^4.1.8",
+    "playwright": "^1.60.0",
     "typescript": "~6.0.2",
     "vite": "^8.0.12",
     "vitest": "^4.1.8"
