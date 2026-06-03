@@ -110,6 +110,118 @@ body {
   color: var(--muted);
 }
 
+.home-section-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.home-section-desc {
+  margin: -0.25rem 0 0.75rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.home-continue {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.home-continue-done-text {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.test-card-continue {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+}
+
+.test-card-continue:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+}
+
+.home-curriculum {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.curriculum-level {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.curriculum-level-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.curriculum-level-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.curriculum-level-badge {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.curriculum-level-locked {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.curriculum-exercise-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.home-free-practice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.exercise-progress {
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.test-card-locked {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.test-card-locked .exercise-progress {
+  color: var(--muted);
+}
+
+.test-card-complete .exercise-progress {
+  color: var(--pass);
+}
+
 .exercise-locked {
   display: flex;
   flex-direction: column;
