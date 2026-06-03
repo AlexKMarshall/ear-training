@@ -1,12 +1,13 @@
 # Agent guide — Ear Training
 
-Browser-based ear training (static site, TypeScript, Vite, Vitest). Product direction: [`docs/roadmap.md`](docs/roadmap.md).
+Browser-based ear training (static site, TypeScript, Vite, Vitest). Product direction: [`docs/roadmap.md`](docs/roadmap.md). Testing direction: [`docs/testing-roadmap.md`](docs/testing-roadmap.md).
 
 ## Documentation for agents
 
 | Topic | Doc |
 |-------|-----|
 | **Opening pull requests** | [`docs/agents/pull-requests.md`](docs/agents/pull-requests.md) |
+| **Testing strategy & phases** | [`docs/testing-roadmap.md`](docs/testing-roadmap.md) |
 
 Read the pull-request guide before creating or updating a PR description, especially the **test plan** sections and naming for unchanged-behavior checks.
 
