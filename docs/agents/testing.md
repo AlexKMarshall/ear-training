@@ -17,11 +17,17 @@ More leaf guides may be added later (e.g. fixtures, manual QA). This page stays 
 
 ```bash
 npm test              # Vitest Node — domain unit tests
-npm run test:browser  # Vitest browser — UI orchestration (after T0 PR 1 lands)
+npm run test:browser  # Vitest browser — UI orchestration (Playwright)
 npm run build         # production build; run when routes or static assets change
 ```
 
-CI runs `npm test` and `npm run build` on every PR and `main`. Browser tests join CI when [T0](../testing-roadmap.md#phase-t0---foundation-tooling--first-ports) lands.
+After `npm ci`, `postinstall` runs `playwright install chromium` into the project (`PLAYWRIGHT_BROWSERS_PATH=0`, [Playwright’s hermetic install](https://playwright.dev/docs/browsers#hermetic-install--ci)). Re-run if needed:
+
+```bash
+PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install chromium
+```
+
+CI runs `npm test`, `npm run test:browser`, and `npm run build` on every PR and `main`.
 
 ## Leaf guides
 
