@@ -360,6 +360,7 @@ export function mountIdentifyTest(
         showVoicePicker: config.showVoicePicker,
         showChordFilters: false,
         showIntervalFilters: config.showIntervalPicker,
+        showDegreeFilters: false,
       },
       currentQuestion,
       0,

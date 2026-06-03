@@ -1,6 +1,7 @@
 import { getActiveInversions } from "../chord-inversion-preference.ts";
 import { getSelectedChordTypeIds } from "../chord-type-preference.ts";
 import { getSelectedIntervalIds } from "../interval-preference.ts";
+import { getSelectedScaleDegreeIds } from "../scale-degree-preference.ts";
 import type { SingTestQuestion } from "../sing-test-question.ts";
 import { getVoiceType } from "../voice-ranges.ts";
 import type { AttemptInput, ExerciseId } from "./types.ts";
@@ -12,6 +13,7 @@ export interface AttemptContext {
   showVoicePicker: boolean;
   showChordFilters: boolean;
   showIntervalFilters: boolean;
+  showDegreeFilters: boolean;
 }
 
 export function buildAttemptRecord(
@@ -54,6 +56,11 @@ export function buildAttemptRecord(
       ? getSelectedIntervalIds()
       : undefined,
     selectedIntervalId,
+    degreeId: question.degreeId,
+    tonicMidi: question.scaleDegree?.tonic.midi,
+    activeDegreeIds: context.showDegreeFilters
+      ? getSelectedScaleDegreeIds()
+      : undefined,
     roundId: context.roundId,
     questionIndex: context.questionIndex,
   };
