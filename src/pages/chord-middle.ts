@@ -6,4 +6,4 @@ if (!root) {
   throw new Error("#app element not found");
 }
 
-mountExercisePage(root, "chord-middle");
+void mountExercisePage(root, "chord-middle");

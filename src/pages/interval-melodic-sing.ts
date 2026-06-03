@@ -6,4 +6,4 @@ if (!root) {
   throw new Error("#app element not found");
 }
 
-mountExercisePage(root, "interval-melodic-sing");
+void mountExercisePage(root, "interval-melodic-sing");
