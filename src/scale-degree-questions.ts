@@ -1,5 +1,8 @@
 import { type ScaleDegreeEntry } from "./scale-degree-config.ts";
-import { pickRandomScaleDegree } from "./scale-degree-preference.ts";
+import {
+  getActiveScaleDegrees,
+  pickRandomScaleDegree,
+} from "./scale-degree-preference.ts";
 import {
   midiToHz,
   midiToNoteName,
@@ -49,6 +52,47 @@ export function buildScaleDegreeQuestion(
   };
 }
 
+/** Largest semitone span among degrees — tonic must fit all of them in range. */
+export function maxSemitonesAmong(
+  degrees: readonly ScaleDegreeEntry[],
+): number {
+  if (degrees.length === 0) {
+    throw new Error("No scale degrees provided");
+  }
+  return Math.max(...degrees.map((entry) => entry.semitonesFromTonic));
+}
+
+/** Tonic MIDI values where every active degree target fits in range. */
+export function validRoundTonicMidis(
+  range: NoteRange,
+  degrees: readonly ScaleDegreeEntry[] = getActiveScaleDegrees(),
+): number[] {
+  return validTonicMidis(range, maxSemitonesAmong(degrees));
+}
+
+export function pickRandomRoundTonic(
+  range: NoteRange,
+  degrees: readonly ScaleDegreeEntry[] = getActiveScaleDegrees(),
+): number {
+  if (degrees.length === 0) {
+    throw new Error("No scale degrees are selected");
+  }
+  const tonics = validRoundTonicMidis(range, degrees);
+  if (tonics.length === 0) {
+    throw new Error(
+      `No valid tonic for selected degrees in voice range (${range.lowMidi}–${range.highMidi})`,
+    );
+  }
+  return tonics[Math.floor(Math.random() * tonics.length)]!;
+}
+
+export function randomScaleDegreeQuestionForTonic(
+  tonicMidi: number,
+  degree: ScaleDegreeEntry = pickRandomScaleDegree(),
+): ScaleDegreeQuestion {
+  return buildScaleDegreeQuestion(degree, tonicMidi);
+}
+
 export function randomScaleDegreeQuestion(
   range: NoteRange,
   degree: ScaleDegreeEntry = pickRandomScaleDegree(),
@@ -75,6 +119,9 @@ export function scaleDegreeToSingTestQuestion(
 
 export function randomScaleDegreeSingQuestion(
   range: NoteRange,
+  tonicMidi: number = pickRandomRoundTonic(range),
 ): SingTestQuestion {
-  return scaleDegreeToSingTestQuestion(randomScaleDegreeQuestion(range));
+  return scaleDegreeToSingTestQuestion(
+    randomScaleDegreeQuestionForTonic(tonicMidi),
+  );
 }

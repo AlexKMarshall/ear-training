@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { getScaleDegreeById } from "../src/scale-degree-config.ts";
+import { getScaleDegreeById, SCALE_DEGREES } from "../src/scale-degree-config.ts";
 import { resetScaleDegreePreference } from "../src/scale-degree-preference.ts";
 import {
   buildScaleDegreeQuestion,
+  maxSemitonesAmong,
   randomScaleDegreeQuestion,
+  randomScaleDegreeQuestionForTonic,
   scaleDegreeToSingTestQuestion,
+  validRoundTonicMidis,
   validTonicMidis,
 } from "../src/scale-degree-questions.ts";
 
@@ -41,5 +44,29 @@ describe("randomScaleDegreeQuestion", () => {
     expect(() =>
       randomScaleDegreeQuestion({ lowMidi: 60, highMidi: 65 }, octave),
     ).toThrow(/No valid tonic/);
+  });
+});
+
+describe("round tonic", () => {
+  const tenorRange = { lowMidi: 48, highMidi: 67 } as const;
+
+  it("uses max span among active degrees for valid round tonics", () => {
+    resetScaleDegreePreference();
+    const roundTonics = validRoundTonicMidis(tenorRange, SCALE_DEGREES);
+    const fourthOnly = validTonicMidis(tenorRange, 5);
+    expect(roundTonics.length).toBeLessThan(fourthOnly.length);
+    expect(maxSemitonesAmong(SCALE_DEGREES)).toBe(12);
+    expect(Math.max(...roundTonics) + 12).toBeLessThanOrEqual(67);
+  });
+
+  it("keeps the same tonic across questions in a round", () => {
+    const fourth = getScaleDegreeById("fourth")!;
+    const fifth = getScaleDegreeById("fifth")!;
+    const tonicMidi = 60;
+    const q4 = randomScaleDegreeQuestionForTonic(tonicMidi, fourth);
+    const q5 = randomScaleDegreeQuestionForTonic(tonicMidi, fifth);
+    expect(q4.tonic.midi).toBe(tonicMidi);
+    expect(q5.tonic.midi).toBe(tonicMidi);
+    expect(q4.target.midi).not.toBe(q5.target.midi);
   });
 });

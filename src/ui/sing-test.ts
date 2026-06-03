@@ -101,6 +101,8 @@ export interface SingTestConfig {
   };
   prepareQuestion: () => SingTestQuestion;
   playReference: (question: SingTestQuestion) => Promise<void>;
+  /** Called when a round is cleared (new round, preference change, voice change). */
+  onRoundReset?: () => void;
 }
 
 export interface SingMountDeps {
@@ -329,6 +331,7 @@ export function mountSingTest(
     scoredAttempts = 0;
     lastPassed = false;
     resultEl.hidden = true;
+    config.onRoundReset?.();
   }
 
   function currentQuestionNumber(): number {

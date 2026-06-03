@@ -76,7 +76,8 @@ const EXERCISE_ENTRIES: readonly ExerciseEntry[] = [
     responseMode: "sing",
     route: "/scale-degree-sing/",
     title: "Sing scale degrees",
-    subtitle: "Hear the tonic, then sing the requested scale degree in that key",
+    subtitle:
+      "One key per round — hear the tonic, then sing each requested scale degree",
     mount: mountScaleDegreeSingTest,
   },
 ];
