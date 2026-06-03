@@ -1,0 +1,28 @@
+import { getAllAttempts, saveAttempt } from "./store.ts";
+import type { AttemptInput, AttemptRecord } from "./types.ts";
+
+export interface HistoryPort {
+  getAllAttempts(): Promise<AttemptRecord[]>;
+  saveAttempt(input: AttemptInput): Promise<void>;
+}
+
+export interface MountDeps {
+  history?: HistoryPort;
+}
+
+export function createDefaultHistoryPort(): HistoryPort {
+  return { getAllAttempts, saveAttempt };
+}
+
+export function createMemoryHistoryPort(
+  initial: AttemptRecord[] = [],
+): HistoryPort {
+  const records = [...initial];
+
+  return {
+    getAllAttempts: async () => [...records],
+    saveAttempt: async (input) => {
+      records.push({ ...input });
+    },
+  };
+}

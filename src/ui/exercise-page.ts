@@ -3,7 +3,10 @@ import {
   isExerciseUnlocked,
 } from "../curriculum/unlock.ts";
 import { getExercise, mountExercise } from "../exercises/registry.ts";
-import { getAllAttempts } from "../history/store.ts";
+import {
+  createDefaultHistoryPort,
+  type MountDeps,
+} from "../history/port.ts";
 import type { ExerciseId } from "../history/types.ts";
 
 function mountLockedExercise(
@@ -47,8 +50,10 @@ function mountLockedExercise(
 export async function mountExercisePage(
   root: HTMLElement,
   exerciseId: ExerciseId,
+  deps: MountDeps = {},
 ): Promise<void> {
-  const records = await getAllAttempts();
+  const history = deps.history ?? createDefaultHistoryPort();
+  const records = await history.getAllAttempts();
   if (!isExerciseUnlocked(exerciseId, records)) {
     mountLockedExercise(root, exerciseId);
     return;

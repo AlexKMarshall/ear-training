@@ -7,8 +7,11 @@ import {
   MIN_QUESTIONS,
 } from "../curriculum/unlock.ts";
 import { getExercise } from "../exercises/registry.ts";
+import {
+  createDefaultHistoryPort,
+  type MountDeps,
+} from "../history/port.ts";
 import { computeExerciseProgress } from "../history/stats.ts";
-import { getAllAttempts } from "../history/store.ts";
 import type { AttemptRecord, ExerciseId } from "../history/types.ts";
 
 function meetsProgressThreshold(
@@ -149,8 +152,12 @@ function renderFreePractice(records: readonly AttemptRecord[]): string {
   `;
 }
 
-export async function mountHome(root: HTMLElement): Promise<void> {
-  const records = await getAllAttempts();
+export async function mountHome(
+  root: HTMLElement,
+  deps: MountDeps = {},
+): Promise<void> {
+  const history = deps.history ?? createDefaultHistoryPort();
+  const records = await history.getAllAttempts();
   const continueId = getContinueExercise(records);
 
   root.innerHTML = `
