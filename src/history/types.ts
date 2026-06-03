@@ -4,13 +4,17 @@ export type ExerciseId =
   | "single-note"
   | "chord-middle"
   | "interval-melodic-sing"
-  | "interval-harmonic-sing";
+  | "interval-harmonic-sing"
+  | "interval-melodic-id"
+  | "interval-harmonic-id";
 
 export const EXERCISE_LABELS: Record<ExerciseId, string> = {
   "single-note": "Sing a single note",
   "chord-middle": "Sing the middle note of a chord",
   "interval-melodic-sing": "Sing melodic intervals",
   "interval-harmonic-sing": "Sing harmonic intervals",
+  "interval-melodic-id": "Identify melodic intervals",
+  "interval-harmonic-id": "Identify harmonic intervals",
 };
 
 /** One scored mic attempt, persisted for stats and future drill weighting. */
@@ -38,6 +42,7 @@ export interface AttemptRecord {
   presentation?: "melodic" | "harmonic";
   referenceMidi?: number;
   activeIntervalIds?: string[];
+  selectedIntervalId?: string;
   roundId: string;
   /** Position in the round (0-based) when this attempt was scored. */
   questionIndex: number;

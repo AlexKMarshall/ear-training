@@ -20,6 +20,7 @@ export function buildAttemptRecord(
   centsOff: number,
   passed: boolean,
   attemptNumber: number,
+  selectedIntervalId?: string,
 ): AttemptInput {
   const chordNotes = question.chord?.notes.map((n) => ({
     midi: n.midi,
@@ -52,6 +53,7 @@ export function buildAttemptRecord(
     activeIntervalIds: context.showIntervalFilters
       ? getSelectedIntervalIds()
       : undefined,
+    selectedIntervalId,
     roundId: context.roundId,
     questionIndex: context.questionIndex,
   };

@@ -454,6 +454,23 @@ body {
   color: var(--muted);
 }
 
+.choice-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.choice-btn {
+  width: 100%;
+  text-align: left;
+  font-weight: 500;
+}
+
+.choice-btn:disabled {
+  opacity: 0.5;
+}
+
 @media (min-width: 480px) {
   .app {
     padding-top: 2.5rem;
