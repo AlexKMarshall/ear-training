@@ -75,16 +75,20 @@ One slot on the curriculum — a fixed place in the sequence with its own exerci
 _Avoid_: Curriculum step (legacy), level step, exercise card
 
 **Guided path**:
-The ordered sequence of curriculum lessons from first practice through the current end of the shipped curriculum. On home, the guided path is the only practice navigation: a single flat list of path nodes — not grouped into level bands, with no separate free-practice area. Lessons not yet woven into the middle of the sequence (e.g. chord middle) sit as path nodes at the end until inserted elsewhere.
+The ordered sequence of curriculum lessons from first practice through the current end of the shipped curriculum. On home, the guided path is the only practice navigation: a single flat list of path nodes — not grouped into level bands, with no separate free-practice area. Lessons not yet woven into the middle of the sequence (e.g. chord middle) sit as path nodes at the end until inserted elsewhere. Another exercise-type family may appear between tiers of the same family (e.g. scale degrees between interval tiers **2a** and **2b**; easy chord tiers may interleave similarly later).
 _Avoid_: Curriculum path, level grid, free practice section
 
 **Content tier**:
-A named pool of practice items (e.g. perfect 4th / 5th / octave vs full diatonic within one octave). Often aligns with the exercise type **sub** for a curriculum lesson; several curriculum lessons can share one tier across different presentation modes.
+A named pool of practice items (e.g. perfect 4th / 5th / octave vs full diatonic scale degrees within one octave). Often aligns with the exercise type **sub** for a curriculum lesson; several curriculum lessons can share one tier across different presentation modes. Scale-degree tier ids follow `{family}-{keyQuality}-{poolScope}` (e.g. `degree-major-intro`, `degree-major-diatonic`, `degree-minor-diatonic`; later `degree-major-chromatic`, `degree-minor-chromatic`, `degree-major-extended`, …). New pool scopes add new path tiers rather than silently widening an existing one.
 _Avoid_: Level (when meaning tier), difficulty setting, exercise type sub (when they are the same pool — pick one term in prose)
 
-**Curriculum level**:
-Coarse planning label for a stretch of the roadmap (e.g. level 2 = interval family). Used in docs and agent planning, not shown on the home path.
-_Avoid_: Level on home UI, path node title
+**Key quality**:
+Whether scale-degree exercises anchor on a major or natural minor collection of pitches. Same ordinal degree labels (e.g. *3rd*, *7th*) can map to different pitches depending on key quality. The learner sees key quality on the path node subtitle and in a **persistent lesson banner** on the exercise screen; no cadence or harmonic context playback is required to establish it.
+_Avoid_: Mode (without “key”), scale type, minor key (when meaning natural minor specifically)
+
+**Curriculum level** (legacy):
+Numbered planning label grouping practice modes by exercise-type family (e.g. intervals, scale degrees). Not learner-facing; prefer **path node title** (exercise-type family name) in new docs and code over “level N”.
+_Avoid_: Level on home UI, path node title, level 2 (as shorthand for interval family)
 
 **Path node**:
 One curriculum lesson as it appears on the home guided path: passed (practicable again), current (first unlocked lesson not yet meeting the unlock requirement), or locked (future). The full guided path is visible; locked nodes are shown but not enterable (greyed out, no lesson run). Only the next locked node after the current one carries unlock copy naming its predecessor lesson. Home has no separate Continue section — the current node on the path is the entry point for resuming guided practice.
@@ -95,7 +99,7 @@ The exercise-type family on a path node (e.g. Intervals, Chords, Scale degrees, 
 _Avoid_: Mode as primary label, level number
 
 **Path node subtitle**:
-How this curriculum lesson differs within the family: presentation mode and content tier (e.g. “Melodic reproduction · perfect 4th, 5th, octave”, “Major vs minor · root position”).
+How this curriculum lesson differs within the family: presentation mode, content tier, and key quality where relevant (e.g. “Melodic reproduction · major key · 4th, 5th, octave”, “Melodic reproduction · natural minor scale degrees”).
 _Avoid_: Tier hint alone (home cards), practice mode route title
 
 **Path node labels**:
@@ -111,7 +115,7 @@ How a path node opens practice: the practice-mode route plus a curriculum-lesson
 _Avoid_: Practice-mode-only URL for guided lessons, lesson state without URL
 
 **Lesson slot completion**:
-A path node is complete when its curriculum lesson meets the unlock requirement (minimum exercises attempted across lesson runs and pass rate). Complete nodes stay marked complete on the path; further practice on that slot does not revert the node to in-progress. Only the current (first incomplete unlocked) node shows full progress detail toward the threshold.
+A path node is complete when its curriculum lesson meets the unlock requirement (minimum exercises attempted across lesson runs and pass rate). Complete nodes stay marked complete on the path; further practice on that slot does not revert the node to in-progress. Only the current (first incomplete unlocked) node shows full progress detail toward the threshold. Curriculum reordering or new tiers may invalidate prior attempts for affected lessons; pre-launch, affected history may be wiped rather than migrated.
 _Avoid_: Re-locking on bad replay, per-node stats on every passed lesson
 
 **Path complete**:
@@ -127,15 +131,15 @@ A separate home area for choosing what to work on outside the guided path sequen
 _Avoid_: Free practice (when meaning path replay), practice picker
 
 **Tier block**:
-The consecutive curriculum lessons on the guided path that share one content tier — all presentation modes at that tier before the path advances to the next tier.
-_Avoid_: Tier group, difficulty band
+The curriculum lessons on the guided path that share one content tier — all presentation modes at that tier must pass before the path advances to the next tier **within the same exercise-type family**. Tier blocks need not be contiguous on the path; another family (e.g. scale degrees) may sit between interval tiers.
+_Avoid_: Tier group, difficulty band, level block
 
 **Presentation mode**:
 How an interval is heard and answered — melodic sing, harmonic sing, melodic identification, or harmonic identification. Part of the exercise type **main** for interval work; today each presentation mode is its own practice mode and curriculum lesson on the path.
 _Avoid_: Mode alone, exercise type (when meaning the whole type — use main/sub instead)
 
 **Cross-mode sequencing**:
-Within an interval tier block, presentation modes advance in this order: melodic reproduction → melodic identification → harmonic reproduction → harmonic identification. The path does not enter the next interval tier block until all four modes pass at the current tier. Other exercise-type families may define their own within-block mode order when they gain multiple presentation modes.
+Within an interval tier block, presentation modes advance in this order: melodic reproduction → melodic identification → harmonic reproduction → harmonic identification. The path does not enter the next interval tier block until all four modes pass at the current tier (another exercise-type family may appear on the path between interval tiers). Other exercise-type families may define their own within-block mode order when they gain multiple presentation modes.
 _Avoid_: Cross-practice-mode unlock, tier hopping, mode-first across tiers
 
 **Unlock requirement**:
