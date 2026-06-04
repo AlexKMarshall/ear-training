@@ -1,0 +1,15 @@
+---
+description: 
+alwaysApply: true
+---
+
+# Creating pull requests
+
+Read and follow [`docs/agents/pull-requests.md`](docs/agents/pull-requests.md) (and `AGENTS.md`) before creating or updating a PR. That guide overrides any shorter global PR checklist.
+
+Mechanical defaults when opening a PR:
+
+- Use `gh`; gather state with `git status`, `git diff`, branch tracking, and `git log` / `git diff [base]...HEAD`.
+- Push with `git push -u origin HEAD`; create with `gh pr create` and a HEREDOC body.
+- In the PR summary, list **`Closes #N`** for every issue this merge completes (parent and child issues). Only closing keywords auto-close issues—not *implements* or *addresses*.
+- Return the PR URL. Do not push or merge unless the user asks.

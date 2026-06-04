@@ -81,3 +81,16 @@ Or "None - can start immediately" if no blockers.
 </issue-template>
 
 Do NOT close or modify any parent issue.
+
+### Linking child issues when work merges
+
+Child issues are for **planning and grabbing**; GitHub does not know they belong to a parent unless a PR closes them explicitly.
+
+When the user expects **one PR** to deliver the whole breakdown (common for a small slice set):
+
+1. Tell the implementer (or note in the parent issue comment) to put **`Closes #<n>`** for **every** published child issue in the PR summary, plus **`Closes #<parent>`** if the parent should close on merge.
+2. Do not rely on *Implements #46–#50* or *Parent #45* — those do not auto-close.
+
+When each child is a **separate PR**, each PR should `Closes` only its own issue number.
+
+See [`docs/agents/pull-requests.md`](../../../docs/agents/pull-requests.md#closing-github-issues-from-a-pr).

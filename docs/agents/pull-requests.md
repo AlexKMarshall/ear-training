@@ -114,6 +114,35 @@ Avoid the word **Regression** as a test-plan heading — readers often read it a
 - **Multi-step plan (final PR)** — Include roadmap sync in Summary; you may include a full end-to-end checklist (all steps) under **New behavior**; still use **Existing behavior (unchanged)** for cross-cutting smoke items.
 - **Docs-only / roadmap sync** — Summary + note “No runtime changes”; list which roadmaps were updated; minimal or no checklists.
 
+## Closing GitHub issues from a PR
+
+GitHub **only** auto-closes issues when the PR description or a commit message uses a [closing keyword](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) (`Closes`, `Fixes`, `Resolves`, etc.) **before** the issue number. Words like *implements*, *addresses*, or *part of* do **not** close issues.
+
+| Situation | PR summary line |
+|-----------|-----------------|
+| One issue | `Closes #45` |
+| Parent + child slices (one PR ships all) | List every issue: `Closes #45`, `Closes #46`, … `Closes #50` |
+| Child slices delivered in separate PRs | Each PR closes only its own issue(s) |
+
+When work was broken down with `/to-issues` (see [`.agents/skills/to-issues/SKILL.md`](../../.agents/skills/to-issues/SKILL.md)) under a parent PRD issue, a **single merge PR** that delivers the full parent should close **the parent and every child issue** included in that merge, not only the parent.
+
+Example (one vertical-slice PR for parent #45 and children #46–#50):
+
+```markdown
+## Summary
+
+- …
+
+Closes #45
+Closes #46
+Closes #47
+Closes #48
+Closes #49
+Closes #50
+```
+
+If child issues stay open after merge, close them manually: `gh issue close 46 --comment "Delivered in #51."` (repeat per issue).
+
 ## Creating the PR
 
 After push:
