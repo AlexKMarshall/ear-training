@@ -82,7 +82,6 @@ test("eligible tier pool drives multiple choice without interval picker", async 
   const eligibleTagIds = getEligibleTagIds(step);
   mountMelodicIntervalIdTest({
     config: createMelodicIdTestConfig({
-      showIntervalPicker: false,
       prepareExercise: () => {
         const intervalQuestion = randomIntervalExerciseForTag(
           "minor-sixth",

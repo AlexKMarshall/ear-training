@@ -23,7 +23,7 @@ Authoritative detail in leaf guides.
 | **Ports at mount boundaries** | `HistoryPort`, `AudioPort`, `RecordingPort`; optional `exercisesPerLesson` on sing/identify mount deps for shortened lesson browser tests. |
 | **No real mic in CI** | Fake `RecordingPort` + real `scoreFromSamples`; manual QA for permissions and timbre. |
 
-**Solid + Vitest:** `vite-plugin-solid` injects a default `test.environment` of `jsdom` when none is set at the root of `vite.config.ts`. This repo sets `test.environment: "node"` at the root so unit tests stay in Node and UI tests use **Vitest browser mode** (Playwright Chromium) only — do not add `jsdom` for UI coverage.
+**Solid + Vitest:** `vite-plugin-solid` injects a default `test.environment` of `jsdom` when none is set at the root of `vite.config.ts`. This repo sets `test.environment: "node"` at the root so unit tests stay in Node and UI tests use **Vitest browser mode** (Playwright Chromium) only — do not add `jsdom` for UI coverage. Unit tests that import modules pulling in Solid JSX use a minimal `window`/`document` stub in `tests/vitest-unit-setup.ts` (not UI coverage).
 
 ## Registry smoke contract
 
