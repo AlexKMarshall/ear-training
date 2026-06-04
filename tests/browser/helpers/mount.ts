@@ -37,7 +37,7 @@ import {
 } from "../../../src/ui/interval-tests.ts";
 import { scaleDegreeSingConfig } from "../../../src/ui/scale-degree-tests.ts";
 import { mountPracticeModePage } from "../../../src/ui/exercise-page.ts";
-import { mountHome } from "../../../src/ui/home.ts";
+import { mountHome } from "../../../src/ui/home.tsx";
 import {
   mountSingTest,
   type SingMountDeps,

@@ -1,6 +1,6 @@
 import { page } from "vitest/browser";
 import { expect, test } from "vitest";
-import { mountHome } from "../../src/ui/home.ts";
+import { mountHome } from "../../src/ui/home.tsx";
 import "../../src/ui/styles.css";
 
 test("mountHome renders heading and first exercise link", async () => {
