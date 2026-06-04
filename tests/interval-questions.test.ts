@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { getIntervalById } from "../src/interval-config.ts";
+import {
+  DIATONIC_MAJOR_INTERVAL_IDS,
+  getIntervalById,
+} from "../src/interval-config.ts";
 import { resetIntervalPreference } from "../src/interval-preference.ts";
 import {
   buildIntervalChoices,
   buildIntervalQuestion,
   intervalToSingTestQuestion,
+  randomIntervalQuestion,
   validLowerMidis,
 } from "../src/interval-questions.ts";
 
@@ -19,6 +23,11 @@ describe("validLowerMidis", () => {
     const lowers = validLowerMidis({ lowMidi: 60, highMidi: 65 }, 12);
     expect(lowers).toEqual([]);
   });
+
+  it("can be sparse for minor second in a narrow range", () => {
+    const lowers = validLowerMidis({ lowMidi: 60, highMidi: 61 }, 1);
+    expect(lowers).toEqual([60]);
+  });
 });
 
 describe("buildIntervalQuestion", () => {
@@ -29,6 +38,42 @@ describe("buildIntervalQuestion", () => {
     expect(sing.target.midi).toBe(67);
     expect(question.lower.midi).toBe(60);
     expect(question.intervalId).toBe("perfect-fifth");
+  });
+
+  it.each([
+    ["minor-second", 61],
+    ["major-third", 64],
+    ["tritone", 66],
+    ["major-seventh", 71],
+  ] as const)(
+    "builds diatonic interval %s from root 60",
+    (intervalId, upperMidi) => {
+      const interval = getIntervalById(intervalId)!;
+      const question = buildIntervalQuestion(interval, "melodic", 60);
+      expect(question.intervalId).toBe(intervalId);
+      expect(question.upper.midi).toBe(upperMidi);
+    },
+  );
+});
+
+describe("randomIntervalQuestion", () => {
+  it("generates a question for each diatonic id in a tenor range", () => {
+    const range = { lowMidi: 48, highMidi: 72 };
+    for (const intervalId of DIATONIC_MAJOR_INTERVAL_IDS) {
+      const interval = getIntervalById(intervalId)!;
+      const question = randomIntervalQuestion("melodic", range, interval);
+      expect(question.intervalId).toBe(intervalId);
+      expect(question.upper.midi - question.lower.midi).toBe(
+        interval.semitones,
+      );
+    }
+  });
+
+  it("throws when the interval does not fit the voice range", () => {
+    const octave = getIntervalById("perfect-octave")!;
+    expect(() =>
+      randomIntervalQuestion("melodic", { lowMidi: 60, highMidi: 65 }, octave),
+    ).toThrow(/No valid root/);
   });
 });
 
