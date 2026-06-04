@@ -7,14 +7,13 @@ import {
 } from "../curriculum/path-node.ts";
 import { CURRICULUM_LESSONS } from "../curriculum/curriculum-lessons.ts";
 import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
-import {
-  createDefaultHistoryPort,
-  type MountDeps,
-} from "../history/port.ts";
+import { createDefaultHistoryPort, type MountDeps } from "../history/port.ts";
 import type { AttemptRecord } from "../history/types.ts";
 import { render } from "solid-js/web";
 
-function pathNodeStateClass(state: ReturnType<typeof getPathNodeState>): string {
+function pathNodeStateClass(
+  state: ReturnType<typeof getPathNodeState>,
+): string {
   return state === "passed"
     ? "path-node-passed"
     : state === "current"
@@ -26,18 +25,8 @@ function PathNode(props: {
   step: CurriculumLesson;
   records: readonly AttemptRecord[];
 }) {
-  const { title, subtitle } = getPathNodeLabels(props.step);
   const state = getPathNodeState(props.step, props.records);
-  const status = formatPathNodeStatus(props.step, props.records);
   const stateClass = pathNodeStateClass(state);
-
-  const inner = (
-    <>
-      <span class="path-node-title">{title}</span>
-      <span class="path-node-subtitle">{subtitle}</span>
-      <span class="path-node-status">{status}</span>
-    </>
-  );
 
   if (state === "locked") {
     return (
@@ -46,7 +35,7 @@ function PathNode(props: {
         data-path-node={state}
         aria-disabled="true"
       >
-        {inner}
+        <PathNodeContent step={props.step} records={props.records} />
       </div>
     );
   }
@@ -58,8 +47,24 @@ function PathNode(props: {
       class={`path-node ${stateClass}`}
       data-path-node={state === "current" ? "current" : undefined}
     >
-      {inner}
+      <PathNodeContent step={props.step} records={props.records} />
     </a>
+  );
+}
+
+function PathNodeContent(props: {
+  step: CurriculumLesson;
+  records: readonly AttemptRecord[];
+}) {
+  const { title, subtitle } = getPathNodeLabels(props.step);
+  const status = formatPathNodeStatus(props.step, props.records);
+
+  return (
+    <>
+      <span class="path-node-title">{title}</span>
+      <span class="path-node-subtitle">{subtitle}</span>
+      <span class="path-node-status">{status}</span>
+    </>
   );
 }
 
