@@ -1,6 +1,7 @@
 import { CHORD_TYPES } from "../chord-config.ts";
 import { CHORD_INVERSIONS, type InversionId } from "../chord-inversions.ts";
-import type { ExerciseId } from "../history/types.ts";
+import { EXERCISE_LABELS, type ExerciseId } from "../history/types.ts";
+import type { AttemptRecord } from "../history/types.ts";
 import {
   DIATONIC_MAJOR_INTERVAL_IDS,
   INTERVAL_2A_IDS,
@@ -82,6 +83,38 @@ export function getEligibleInversionIds(
 }
 
 /** Tag ids the session planner may draw for this step (interval, degree, or chord type). */
+/** Attempts that count toward progress for this step (tier filter when set on records). */
+export function filterRecordsForStep(
+  records: readonly AttemptRecord[],
+  step: CurriculumStep,
+): AttemptRecord[] {
+  const firstTierId = stepsForExercise(step.exerciseId)[0]?.contentTierId;
+  return records.filter((record) => {
+    if (record.exerciseId !== step.exerciseId) {
+      return false;
+    }
+    const tier = record.contentTierId;
+    if (tier === undefined) {
+      return step.contentTierId === firstTierId;
+    }
+    return tier === step.contentTierId;
+  });
+}
+
+const INTERVAL_TIER_POOL_LABEL: Record<"interval-2a" | "interval-2b", string> = {
+  "interval-2a": "perfect 4th, 5th, octave",
+  "interval-2b": "diatonic intervals within one octave",
+};
+
+/** Human-readable step label for unlock copy (includes tier pool when relevant). */
+export function getStepLabel(step: CurriculumStep): string {
+  const title = EXERCISE_LABELS[step.exerciseId];
+  if (step.contentTierId === "interval-2a" || step.contentTierId === "interval-2b") {
+    return `${title} (${INTERVAL_TIER_POOL_LABEL[step.contentTierId]})`;
+  }
+  return title;
+}
+
 export function getEligibleTagIds(step: CurriculumStep): readonly string[] {
   switch (step.contentTierId) {
     case "tier-1":
