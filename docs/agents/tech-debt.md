@@ -7,7 +7,7 @@ How to track, pay down, and document **structural and tooling debt** in this rep
 | Question | Where to look |
 |----------|----------------|
 | What should we build next? | [`docs/roadmap.md`](../roadmap.md) |
-| What shipped behavior lacks tests? | [`docs/testing-roadmap.md`](../testing-roadmap.md) |
+| How to write tests? | [`testing.md`](testing.md) |
 | What makes the codebase hard to change? | [`docs/tech-debt.md`](../tech-debt.md) — **open debt table** |
 | How do I open a PR? | [`pull-requests.md`](pull-requests.md) |
 
@@ -75,5 +75,5 @@ Multi-PR plans: sync the tech debt table in the **last** PR that closes debt for
 - Registry: [`docs/tech-debt.md`](../tech-debt.md)
 - Pull requests: [`pull-requests.md`](pull-requests.md)
 - Multi-PR plans: [`multi-pr-plans.md`](multi-pr-plans.md)
-- Testing debt: [`docs/testing-roadmap.md`](../testing-roadmap.md)
+- Testing: [`testing.md`](testing.md)
 - Product roadmap: [`docs/roadmap.md`](../roadmap.md)

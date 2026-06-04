@@ -65,6 +65,8 @@ export interface IdentifyTestConfig {
 export interface IdentifyMountDeps {
   history?: HistoryPort;
   audio?: AudioPort;
+  /** Override lesson length (browser tests); production uses default from config. */
+  exercisesPerLesson?: number;
 }
 
 export function mountIdentifyTest(
@@ -162,7 +164,11 @@ export function mountIdentifyTest(
   let currentChoices: IntervalChoice[] = [];
   let pendingSelectedIntervalId: string | undefined;
 
+  const exercisesPerLesson =
+    deps?.exercisesPerLesson ?? EXERCISES_PER_LESSON;
+
   const lessonRun = new LessonRun({
+    exercisesPerLesson,
     onAttemptScored: (ctx) => {
       if (!currentExercise || pendingSelectedIntervalId === undefined) return;
       const record = buildAttemptRecord(
@@ -231,7 +237,7 @@ export function mountIdentifyTest(
     }
     lessonProgressEl.hidden = false;
     const { exerciseNumber } = lessonSnapshot();
-    lessonProgressEl.textContent = `Lesson — exercise ${exerciseNumber} of ${EXERCISES_PER_LESSON}`;
+    lessonProgressEl.textContent = `Lesson — exercise ${exerciseNumber} of ${exercisesPerLesson}`;
   }
 
   function setState(next: TestState): void {

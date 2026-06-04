@@ -308,16 +308,22 @@ export function mountPracticeModeInBrowser(
     | undefined;
 
   if (responseMode === "select") {
+    const identifyDeps = options.deps as IdentifyMountDeps | undefined;
     mountIdentifyTest(
       root,
       createIdentifyTestConfigFor(practiceModeId, configOverrides),
-      { history, audio },
+      {
+        history,
+        audio,
+        exercisesPerLesson: identifyDeps?.exercisesPerLesson,
+      },
     );
     return { history };
   }
 
   const samplesHz =
     options.samplesHz ?? defaultPassSamplesHzFor(practiceModeId);
+  const singDeps = options.deps as SingMountDeps | undefined;
   mountSingTest(
     root,
     createSingTestConfigFor(practiceModeId, configOverrides),
@@ -325,8 +331,8 @@ export function mountPracticeModeInBrowser(
       history,
       audio,
       recording:
-        (options.deps as SingMountDeps | undefined)?.recording ??
-        createTestRecordingPort({ samplesHz }),
+        singDeps?.recording ?? createTestRecordingPort({ samplesHz }),
+      exercisesPerLesson: singDeps?.exercisesPerLesson,
     },
   );
   return { history };

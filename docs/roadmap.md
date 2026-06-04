@@ -29,18 +29,17 @@ Browser-based ear training for singers: harmony, pitch recognition, and vocal re
 | **Stats / dashboard** | [`/stats/`](stats/index.html) — overall + per-exercise for all seven `practiceModeId`s; **weakness breakdown** by `intervalId`, `degreeId`, and chord type (weakest first). Overall / sing sections use median ¢; identify sections omit median. **No** time trends yet. |
 | **Recognition / naming** | **Partial** — interval identification (2a: P4 / P5 / 8ve; **2b:** full diatonic-within-octave set on melodic and harmonic); scale-degree **sing** in key (4th / 5th / octave); no scale-degree ID, triad quality, or note names |
 | **Curriculum (v1 shell)** | **Done** — home at `/` is a flat **guided path**: one **path node** per entry in **`CURRICULUM_LESSONS`** (passed / current / locked), with **lesson links** (`?step=`) on enterable nodes; stats entry unchanged. Labels in [`src/curriculum/path-node.ts`](../src/curriculum/path-node.ts). **Cross-mode sequencing** at interval tiers (melodic reproduction → melodic identification → harmonic reproduction → harmonic identification). **Step-level unlock** from IndexedDB via [`src/curriculum/unlock.ts`](../src/curriculum/unlock.ts) (≥10 questions, ≥70% on predecessor **step**). Locked nodes are non-links on home; direct URLs show a locked page via [`src/ui/exercise-page.ts`](../src/ui/exercise-page.ts). Thresholds are constants, not user-configurable. |
-| **Testing** | **Strong domain + browser baseline** — CI runs `npm test`, `npm run test:browser`, `npm run build`; seven practice modes covered by unit tests, lesson/orchestration tests, and registry smokes. **Remaining gaps** (lesson summary UI, sing fail/retry on more exercises, etc.): [testing debt](testing-roadmap.md#open-testing-debt). New product work ships tests in the same PR — see [`docs/agents/testing.md`](agents/testing.md). |
+| **Testing** | **Strong domain + browser baseline** — CI runs `npm test`, `npm run test:browser`, `npm run build`; seven practice modes with unit tests, lesson summary + fail/retry browser coverage, and registry smokes for all modes. New product work ships tests in the same PR — see [`docs/agents/testing.md`](agents/testing.md). |
 
 Relevant code seams: practice-mode registry + `mountPracticeModePage` guard; `CURRICULUM_LESSONS` / tier presets in [`src/curriculum/curriculum-lessons.ts`](../src/curriculum/curriculum-lessons.ts); step unlock + `getContinueCurriculumLesson` in [`src/curriculum/unlock.ts`](../src/curriculum/unlock.ts); path node UI in [`src/curriculum/path-node.ts`](../src/curriculum/path-node.ts) + [`src/ui/home.ts`](../src/ui/home.ts); **session planner** in [`src/session/planner.ts`](../src/session/planner.ts); per-exercise session wiring (`interval-session`, `scale-degree-session`, `chord-session`); step resolution in [`src/curriculum/session-curriculum-lesson.ts`](../src/curriculum/session-curriculum-lesson.ts) + [`src/curriculum/lesson-link.ts`](../src/curriculum/lesson-link.ts); `computePracticeModeProgress` / tag stats in [`src/history/stats.ts`](../src/history/stats.ts); `SingTestConfig`, `IdentifyTestConfig`, `LessonSummary`, `voice-ranges`; interval domain in `src/interval-config.ts`, `src/interval-exercises.ts`, `src/ui/interval-tests.ts`; scale-degree domain in `src/scale-degree-config.ts`, `src/scale-degree-exercises.ts`, `src/ui/scale-degree-tests.ts`. Legacy preference modules remain in tree but are **not** used for question draw on shipped exercises.
 
 ## Testing (summary)
 
-Conventions: [`docs/agents/testing.md`](agents/testing.md). **Open debt** on shipped behavior: [`docs/testing-roadmap.md`](testing-roadmap.md) (not a forward plan for unbuilt features). **Structural / tooling debt:** [`docs/tech-debt.md`](tech-debt.md).
+Conventions: [`docs/agents/testing.md`](agents/testing.md). **Structural / tooling debt:** [`docs/tech-debt.md`](tech-debt.md).
 
 - **Today:** Vitest Node (scoring, generation, unlock, stats) + Vitest **browser** (curriculum guards, identify/sing lessons, registry smokes, ports). **CI** on every PR and `main`.
-- **Debt:** e.g. lesson-completion UI, broader sing fail/retry coverage — see [open debt table](testing-roadmap.md#open-testing-debt).
-- **New features:** tests ship with the feature PR; do not add speculative cases to the testing debt doc.
-- **Manual QA:** mic, permissions, timbre — [`testing-roadmap.md` § Manual QA](testing-roadmap.md#manual-qa-always-required).
+- **New features:** tests ship with the feature PR ([`docs/agents/testing.md`](agents/testing.md)).
+- **Manual QA:** mic, permissions, timbre — [`docs/agents/testing.md` § Manual QA](agents/testing.md#manual-qa).
 
 ## Product pillars
 
@@ -172,7 +171,7 @@ Free practice (`chord-middle`) uses the same planner within the selected **mode*
 | Practice goals & streaks | Todo | e.g. daily question count or minutes; optional notifications later. |
 | Targeted drills | **Done (v1)** | **Session planner** — ~70% weak-area / ~30% maintenance tag mix from history (`src/session/planner.ts`); wired on all interval, scale-degree, and chord-middle exercises. Per-tag tier gates and richer drill copy still TODO. |
 | Configurable difficulty | Todo | Scoring/session params (¢ tolerance, range width, playback repeats) — **not** user-facing interval/chord/degree pickers (those retire; see [Session model](#session-model--settings)). |
-| Automated UI regression | **Partial** | Baseline in CI; [open debt](testing-roadmap.md#open-testing-debt) for lesson summary and related UI gaps |
+| Automated UI regression | **Done (baseline)** | CI: unit + browser + build; lesson summary, sing fail/retry on interval/chord modes, seven-mode registry smokes |
 | CI on every PR | **Done** | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — `npm test`, `npm run test:browser`, `npm run build` |
 
 **Musical content:** interval exercises feed history/stats with per-tag fields; session planner + step-level tier unlock **done (v1 scope)**; goals/streaks and tier 2c+ still TODO.
@@ -274,7 +273,7 @@ Free practice (`chord-middle`) uses the same planner within the selected **mode*
 | Naming / recognition | Select UI + interval ID exercises **done (partial)**; scale-degree **sing** in key **done (partial)**; scale-degree ID & chord ID **TODO** | Degrees-first interval labels **done (partial)**; note names **TODO** |
 | Not only reproduction | Interval ID **done (partial)**; phrase scoring, multi-target lessons **TODO** | Dictation, functional hearing **TODO** |
 | Singer-specific | Range by voice; phrase intonation | Register-aware sets; no rhythm track |
-| Regression safety as features grow | **Partial** — CI + browser baseline; [testing debt](testing-roadmap.md#open-testing-debt) for remaining UI gaps | Manual QA for mic, permissions, timbre |
+| Regression safety as features grow | **Done (baseline)** — CI + browser coverage for shipped modes; new behavior tests in feature PRs | Manual QA for mic, permissions, timbre |
 
 ---
 
@@ -289,7 +288,7 @@ Free practice (`chord-middle`) uses the same planner within the selected **mode*
 7. **Melodic dictation & clusters** (degrees → note-name hard mode)
 8. **Goals & streaks** (Phase 0) — align with current path node / daily session focus
 
-**Testing debt (shipped behavior only):** close items in [`docs/testing-roadmap.md`](testing-roadmap.md#open-testing-debt) as small PRs; no phased rollout doc for future product features.
+**Testing:** new or changed behavior includes tests in the same PR ([`docs/agents/testing.md`](agents/testing.md)).
 
 ---
 
@@ -303,7 +302,7 @@ Free practice (`chord-middle`) uses the same planner within the selected **mode*
 - ~~**Curriculum steps**~~ **Done (v1)** — [`src/curriculum/curriculum-lessons.ts`](../src/curriculum/curriculum-lessons.ts); `isCurriculumLessonUnlocked(step, records)`; interval-2b on all four interval modes. **Next:** per-tag tier gates; tier 2c+.
 - ~~Migrate generation from user pickers to planner output~~ **Done** — tier pools via `getEligibleTagIds`; `contentTierId` / `eligibleTagIds` on attempts.
 - ~~Implement **recognition** as sibling modes sharing playback and question generation.~~ **Partial** — `identify-test.ts` shares lesson flow/history with sing tests; interval playback/questions shared via `interval-exercises.ts`; registry lists `responseMode` but sing/identify mount paths remain separate.
-- **Testability at UI boundaries** — **Done (baseline):** ports on mount functions; browser orchestration without mocking vendor audio libs. Remaining UI gaps: [testing debt](testing-roadmap.md#open-testing-debt). Boundary and tooling gaps: [tech debt registry](tech-debt.md).
+- **Testability at UI boundaries** — **Done (baseline):** ports on mount functions; browser orchestration without mocking vendor audio libs. Boundary and tooling gaps: [tech debt registry](tech-debt.md).
 
 ### Curriculum v1 — intentional gaps (post–levels shell)
 
@@ -319,7 +318,7 @@ Free practice (`chord-middle`) uses the same planner within the selected **mode*
 | Goals, streaks | Phase 0; planner weak + maintenance weighting **done** |
 | Weakness stats by `intervalId` | **Done** on `/stats/`; planner uses same tags for question draw |
 | Configurable unlock thresholds in UI | Constants in `unlock.ts` today; step-level config later |
-| Dev `?unlock=all` | **Done** — [`src/curriculum/dev-unlock.ts`](../src/curriculum/dev-unlock.ts); access-only; see [manual QA](testing-roadmap.md#manual-qa-always-required) |
+| Dev `?unlock=all` | **Done** — [`src/curriculum/dev-unlock.ts`](../src/curriculum/dev-unlock.ts); access-only; see [manual QA](agents/testing.md#manual-qa) |
 
 ---
 

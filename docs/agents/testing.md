@@ -7,18 +7,30 @@ How to write and run tests in this repo.
 | Question | Where to look |
 |----------|----------------|
 | How do I write tests? | This page and leaf guides below |
-| What shipped behavior still lacks tests? | [`docs/testing-roadmap.md`](../testing-roadmap.md) — **open debt table only** |
 | What should we build next? | [`docs/roadmap.md`](../roadmap.md) |
+| Structural / tooling gaps? | [`docs/tech-debt.md`](../tech-debt.md) |
 
-**Rule:** Tests for new or changed behavior belong in the **same PR** as that behavior. Do not add rows to the testing roadmap for features that are not on `main` yet.
+**Rule:** Tests for new or changed behavior belong in the **same PR** as that behavior. If you discover shipped behavior on `main` without adequate coverage, add tests in that PR (or a focused follow-up)—there is no separate testing-debt register.
 
-The testing roadmap is a **debt register**, not a forward plan. It should get smaller as gaps close and can be retired when the open-debt table is empty. Ongoing conventions live here and in the leaf guides.
+## Principles (summary)
+
+Authoritative detail in leaf guides.
+
+| Principle | Rationale |
+|-----------|-----------|
+| **Node Vitest for domain** | Scoring, generation, unlock, stats, lesson run — fast, deterministic (`tests/**/*.test.ts`). |
+| **Real browser for UI** | Vitest browser + Playwright; **no** jsdom/happy-dom for UI. |
+| **Ports at mount boundaries** | `HistoryPort`, `AudioPort`, `RecordingPort`; optional `exercisesPerLesson` on sing/identify mount deps for shortened lesson browser tests. |
+| **No real mic in CI** | Fake `RecordingPort` + real `scoreFromSamples`; manual QA for permissions and timbre. |
+
+## Registry smoke contract
+
+All seven shipped `practiceModeId`s have a one-question pass smoke in `registry-exercises.browser.test.ts`. Richer flows (lesson progress, fail/retry, tier pool, lesson summary) live in dedicated `*.browser.test.ts` files—extend those when adding behavior, and add a registry smoke when adding an eighth practice mode.
 
 ## When to read what
 
 | Situation | Read |
 |-----------|------|
-| Closing a known coverage gap | [`docs/testing-roadmap.md`](../testing-roadmap.md) — pick a debt ID, implement, mark done |
 | Browser/UI tests (`*.browser.test.ts`, `src/ui/`) | [`ui-testing.md`](ui-testing.md) |
 | Mocking, ports, dependency injection | [`mocking.md`](mocking.md) |
 | Opening a PR with test changes | [`pull-requests.md`](pull-requests.md) — cite relevant leaf guide(s) in the test plan |
@@ -41,7 +53,23 @@ CI runs `npm test`, `npm run test:browser`, and `npm run build` on every PR and 
 
 ## Manual QA
 
+Automation does not replace:
+
 - **`?unlock=all`** — Append to home or any exercise URL on a fresh profile to bypass curriculum locks for access (links and exercise mount). Current-path progress and unlock copy still use real attempt history.
+- Microphone permission and hardware variation
+- Headphone vs speaker bleed, piano sample feel
+- iOS Safari audio unlock (gesture timing)
+- Full cross-browser matrix (CI uses Chromium only)
+
+Use the manual checklist in [`pull-requests.md`](pull-requests.md) when touching `src/ui/`, `src/audio/`, or curriculum.
+
+## Explicitly out of scope (automation)
+
+- Real microphone capture in CI
+- Mocking `pitchy` / `smplr` in UI tests
+- jsdom/happy-dom UI tests
+- Replacing domain unit tests with browser tests
+- Tests for **unshipped** product roadmap items
 
 ## Leaf guides
 

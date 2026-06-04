@@ -55,4 +55,4 @@ Exercise **titles** in assertions must match [`src/practice-modes/registry.ts`](
 
 - [`testing.md`](testing.md) — hub and commands
 - [`mocking.md`](mocking.md) — inject `HistoryPort` etc. at mount boundaries
-- [`docs/testing-roadmap.md`](../testing-roadmap.md) — open browser/UI debt (e.g. stats with history, lesson summary)
+- [`testing.md`](testing.md) — browser test conventions and registry smoke contract

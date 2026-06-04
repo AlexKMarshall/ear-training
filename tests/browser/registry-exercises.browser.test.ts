@@ -8,10 +8,13 @@ import {
 } from "./helpers/mount.ts";
 
 const SMOKE_IDS = [
+  "single-note",
   "chord-middle",
   "interval-melodic-sing",
   "interval-harmonic-sing",
+  "interval-melodic-id",
   "interval-harmonic-id",
+  "scale-degree-sing",
 ] as const satisfies readonly PracticeModeId[];
 
 beforeEach(() => {
@@ -34,7 +37,13 @@ for (const practiceModeId of SMOKE_IDS) {
       .toBeVisible();
 
     const playLabel =
-      practiceModeId === "chord-middle" ? /Play chord/i : /Play interval/i;
+      practiceModeId === "single-note"
+        ? /Play note/i
+        : practiceModeId === "chord-middle"
+          ? /Play chord/i
+          : practiceModeId === "scale-degree-sing"
+            ? /Play tonic/i
+            : /Play interval/i;
     await userEvent.click(page.getByRole("button", { name: playLabel }));
 
     if (entry.responseMode === "select") {

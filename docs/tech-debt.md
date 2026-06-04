@@ -5,7 +5,7 @@ Tracks **structural and tooling debt** that makes the codebase harder to change:
 **Not in scope here:**
 
 - **Product direction** — [`docs/roadmap.md`](roadmap.md)
-- **Testing gaps on shipped behavior** — [`docs/testing-roadmap.md`](testing-roadmap.md)
+- **Testing conventions** — [`docs/agents/testing.md`](agents/testing.md)
 - **Forward plans for unbuilt features** — add debt rows only when the problem exists on `main` today, or when a feature PR discovers new debt worth tracking
 
 Agent workflow: [`docs/agents/tech-debt.md`](agents/tech-debt.md). PR conventions: [`docs/agents/pull-requests.md`](agents/pull-requests.md).
@@ -18,7 +18,7 @@ Agent workflow: [`docs/agents/tech-debt.md`](agents/tech-debt.md). PR convention
 |----------|------|
 | [`docs/roadmap.md`](roadmap.md) | What to build (product) |
 | **This file** | What makes building it **harder or riskier** on today's architecture |
-| [`docs/testing-roadmap.md`](testing-roadmap.md) | Shipped behavior lacking automated tests |
+| [`docs/agents/testing.md`](agents/testing.md) | How to write tests; tests ship with the feature PR |
 
 Prioritize debt that blocks or complicates **near-term roadmap work** — especially the session planner, content tiers, curriculum lessons, and new practice-mode families (Phase 0 → Phase 1 in the roadmap).
 
@@ -53,6 +53,7 @@ Prioritize debt that blocks or complicates **near-term roadmap work** — especi
 | TD-015 | P2 | CI | CI runs tests and **`npm run build`** (`tsc` + Vite) but no dedicated **`lint`** / **`typecheck`** scripts; **`tsconfig.json`** includes **`src`** only — **`tests/`** not typechecked by `tsc`. | Test helpers can drift from domain types; lint rules not enforced on PRs. | Add `npm run lint`, `npm run typecheck` (include `tests/` or solution-style config); wire into [`.github/workflows/ci.yml`](../.github/workflows/ci.yml). |
 | TD-016 | P2 | TypeScript | **`strict`** mode not enabled (`tsconfig.json` uses selective flags only). | Weaker guarantees at module boundaries; nullable fields on attempts/questions easier to misuse. | Enable `strict` incrementally (or `strictNullChecks` first) with a tracked burn-down. |
 | TD-017 | P2 | UI architecture | Exercise UIs built as **imperative DOM strings** inside mount functions rather than components or templates. | Harder to test presentation separately; TD-002 extraction is more painful. | Optional long-term: lightweight template helpers or component layer — only after lesson orchestration is shared (TD-002). |
+| TD-018 | P2 | Copy / UX | Lesson **summary** headline says **Round complete** while glossary uses **lesson** / **lesson summary** (see `CONTEXT.md`). Browser tests assert shipped copy until aligned. | Terminology drift for learners and docs; agents may confuse round vs lesson. | Rename headline (e.g. **Lesson complete**) and progress strings if any still say *round*; update tests in same PR. |
 
 ---
 
