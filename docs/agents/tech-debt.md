@@ -8,7 +8,7 @@ How to track, pay down, and document **structural and tooling debt** in this rep
 |----------|----------------|
 | What should we build next? | [`docs/roadmap.md`](../roadmap.md) |
 | How to write tests? | [`testing.md`](testing.md) |
-| What makes the codebase hard to change? | [`docs/tech-debt.md`](../tech-debt.md) — **open debt table** |
+| What makes the codebase hard to change? | [`docs/tech-debt.md`](../tech-debt.md) — **outstanding debt table** |
 | How do I open a PR? | [`pull-requests.md`](pull-requests.md) |
 
 **Rule:** Do not duplicate product plans or testing debt rows here. Tech debt is about **architecture, module boundaries, contracts, and tooling** — not missing test cases (unless the missing tests are a symptom of an untestable boundary; then file both).
@@ -21,7 +21,7 @@ Add or update [`docs/tech-debt.md`](../tech-debt.md) when:
 
 1. **Implementing a feature (single or multi-PR)** — you hit a boundary problem (duplicate logic, leaky type, two sources of truth) that is **out of scope** for the current PR but should be tracked.
 2. **Reviewing or exploring** — you find debt on `main` that would affect roadmap work and is not already listed.
-3. **Closing debt** — see [When to remove or mark done](#when-to-remove-or-mark-done).
+3. **Closing debt** — see [When to remove a row](#when-to-remove-a-row).
 
 Do **not** add speculative rows for code that does not exist yet. If a feature PR introduces new debt (e.g. a third copy of history-cache), add the row in that PR or a immediate follow-up docs PR.
 
@@ -33,27 +33,27 @@ Each row needs: **ID** (`TD-###`), **priority** (P0–P2), **problem**, **roadma
 
 When a feature PR touches an area with open debt:
 
-1. Check the [open table](../tech-debt.md#open-tech-debt) for related **P0** / **P1** items (same module or roadmap milestone).
+1. Check the [outstanding table](../tech-debt.md#outstanding-tech-debt) for related **P0** / **P1** items (same module or roadmap milestone).
 2. If paying down the debt **reduces risk or diff size** for the feature, include it in the PR scope and say so in the PR summary.
 3. If it would **expand scope unsafely**, leave the row open and link to the TD ID in **Downstream** (see [`pull-requests.md`](pull-requests.md)).
 
 Examples:
 
-- **Session planner work** — consider TD-003, TD-005, TD-007, TD-008 in scope.
+- **Session planner work** — consider TD-003, TD-005, TD-007, TD-011 in scope.
 - **New identify exercise** — TD-001, TD-002, TD-006 are likely blockers; do not add another one-off identify mount without a plan.
 - **Tooling PR** — TD-013 / TD-014 / TD-015 can be one focused PR series.
 
 ---
 
-## When to remove or mark done
+## When to remove a row
 
 On every PR that **closes** tech debt:
 
-1. Update [`docs/tech-debt.md`](../tech-debt.md): remove the row from **Open tech debt** or move it to **Closed tech debt** with PR link and brief note.
-2. Mention the closed **TD-###** ID(s) in the PR summary.
-3. If closing debt removes a **Technical enablers** blocker listed on the roadmap, ensure that roadmap row is still accurate (usually no change — enablers stay in tech debt until paid).
+1. **Delete** the row from [`docs/tech-debt.md`](../tech-debt.md) — do not append to a “closed” section.
+2. Mention the closed **TD-###** ID(s) in the PR summary (and link the PR if useful).
+3. Reuse the same TD ID only if the same problem regresses; otherwise assign the next free ID for new debt.
 
-Multi-PR plans: sync the tech debt table in the **last** PR that closes debt for that plan, same as [testing debt sync](multi-pr-plans.md#final-step-roadmap-sync-required). See [`multi-pr-plans.md`](multi-pr-plans.md).
+Multi-PR plans: remove closed rows in the **last** PR that pays the debt, same as [roadmap sync](multi-pr-plans.md#final-step-roadmap-sync-required). See [`multi-pr-plans.md`](multi-pr-plans.md).
 
 ---
 
@@ -64,7 +64,7 @@ Multi-PR plans: sync the tech debt table in the **last** PR that closes debt for
 
 - [ ] Checked [`docs/tech-debt.md`](../tech-debt.md) for related open items
 - [ ] Added new TD row(s) if this PR discovered debt out of scope
-- [ ] Closed TD row(s): TD-___ (if applicable)
+- [ ] Removed TD row(s) from registry: TD-___ (if applicable)
 - [ ] Brought related debt into scope: TD-___ (if applicable)
 ```
 

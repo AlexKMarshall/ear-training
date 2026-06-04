@@ -1,12 +1,14 @@
-# Ear Training — Tech debt registry
+# Ear Training — Tech debt
 
-Tracks **structural and tooling debt** that makes the codebase harder to change: unclear module boundaries, duplicated responsibilities, leaky contracts, and missing static analysis. This file should shrink as debt is paid down.
+**Outstanding structural and tooling debt only.** Unclear module boundaries, duplicated responsibilities, leaky contracts, and missing static analysis.
+
+When debt is paid down, **remove its row** from this file and cite the closed **TD-###** in the PR summary. Do not maintain a changelog of closed items here — use git history and merged PRs.
 
 **Not in scope here:**
 
 - **Product direction** — [`docs/roadmap.md`](roadmap.md)
 - **Testing conventions** — [`docs/agents/testing.md`](agents/testing.md)
-- **Forward plans for unbuilt features** — add debt rows only when the problem exists on `main` today, or when a feature PR discovers new debt worth tracking
+- **Forward plans for unbuilt features** — add a row only when the problem exists on `main` today, or when a feature PR discovers debt worth tracking
 
 Agent workflow: [`docs/agents/tech-debt.md`](agents/tech-debt.md). PR conventions: [`docs/agents/pull-requests.md`](agents/pull-requests.md).
 
@@ -28,13 +30,13 @@ Prioritize debt that blocks or complicates **near-term roadmap work** — especi
 
 | Priority | Meaning |
 |----------|---------|
-| **P0** | Likely to block or significantly slow the next roadmap milestones (planner/tiers, unified exercises, Level 4+). Pay down when touching related code. |
+| **P0** | Likely to block or significantly slow the next roadmap milestones. Pay down when touching related code. |
 | **P1** | Adds friction and bug risk; workarounds exist today. Bring into scope when the PR already touches the area. |
 | **P2** | Quality, consistency, or ops; lower direct roadmap impact. Good standalone cleanup PRs. |
 
 ---
 
-## Open tech debt
+## Outstanding tech debt
 
 | ID | Priority | Area | Problem | Roadmap impact | Suggested direction |
 |----|----------|------|---------|----------------|---------------------|
@@ -48,7 +50,7 @@ Prioritize debt that blocks or complicates **near-term roadmap work** — especi
 | TD-010 | P1 | Exercise wiring | Each exercise adds a **page entry**, **Vite `rollupOptions` input**, **`*-tests.ts` config blob**, and registry row. **`tests/browser/helpers/mount.ts`** duplicates config factories. | Level 4+ (triads, inversions, dictation) scales linearly in boilerplate files. | Reduce per-exercise surface: route table drives pages/build inputs; registry holds behavior; test helpers import registry configs. |
 | TD-011 | P1 | Async cache | History caches load via **`void port.getAllAttempts().then(...)`** — first **`prepareExercise`** may run before records load, so planner sees empty history. | Weak-area weighting wrong on cold start / fast first Play. | Await history ready before enabling Play, or block question draw until cache is hydrated. |
 | TD-012 | P2 | Module boundaries | **`history/tag-stats.ts`** imports **`practice-modes/registry.ts`** to filter sing attempts for median ¢ — stats layer depends on UI registry for **`responseMode`**. | Circular-import risk as registry grows; stats should not know about mount metadata. | Move `responseMode` (or `scoringKind`) to a domain constant on `PracticeModeId` in `history/types.ts` or a small `exercises/meta.ts` without UI imports. |
-| TD-013 | P2 | Tooling | No **knip** (or equivalent) — unused exports and dead files are caught only by manual review. | Refactors leave orphan modules; pickers/planner migration will increase stale code. | Add knip config; run in CI after baseline cleanup PR. |
+| TD-013 | P2 | Tooling | No **knip** (or equivalent) — unused exports and dead files are caught only by manual review. | Refactors leave orphan modules; pickers/planner migration will increase stale code. | Add knip config; report-only locally, fix baseline, then CI gate on PRs. |
 | TD-014 | P2 | Tooling | No project **linter** or **formatter** (no ESLint, Prettier, or Biome). Style and obvious issues rely on reviewer attention and `tsc` on `src/` only. | Inconsistent formatting; latent bugs (`no-floating-promises`, unused imports) slip through. | Adopt **Biome** (single tool) or ESLint + Prettier; match existing style in an initial format pass. |
 | TD-015 | P2 | CI | CI runs tests and **`npm run build`** (`tsc` + Vite) but no dedicated **`lint`** / **`typecheck`** scripts; **`tsconfig.json`** includes **`src`** only — **`tests/`** not typechecked by `tsc`. | Test helpers can drift from domain types; lint rules not enforced on PRs. | Add `npm run lint`, `npm run typecheck` (include `tests/` or solution-style config); wire into [`.github/workflows/ci.yml`](../.github/workflows/ci.yml). |
 | TD-016 | P2 | TypeScript | **`strict`** mode not enabled (`tsconfig.json` uses selective flags only). | Weaker guarantees at module boundaries; nullable fields on attempts/questions easier to misuse. | Enable `strict` incrementally (or `strictNullChecks` first) with a tracked burn-down. |
@@ -57,35 +59,14 @@ Prioritize debt that blocks or complicates **near-term roadmap work** — especi
 
 ---
 
-## Tooling debt (tracked explicitly)
-
-These rows are the user's requested infrastructure items; they can be closed individually or in one "static analysis" PR series.
-
-| ID | Item | Notes |
-|----|------|-------|
-| TD-013 | **knip** — dead code detection | Start with report-only locally; fix baseline; then CI gate on PRs. |
-| TD-014 | **Linter + formatter** | Biome recommended for minimal config surface; ESLint + Prettier is fine if the team prefers split tools. |
-| TD-015 | **CI static analysis** | At minimum: lint + typecheck (including tests) on every PR alongside existing `npm test`, `test:browser`, `build`. |
-
----
-
-## Closed tech debt
-
-| ID | Closed | PR | Notes |
-|----|--------|-----|-------|
-| TD-004 | 2026-06-04 | (this PR) | Locked pages use tier-aware **unlock requirement** labels; home **tier hints** for all four interval presentation modes at interval-2b. Levels vs steps authority consolidation still open. |
-| TD-008 | 2026-06-04 | (this PR) | Harmonic interval exercises use highest unlocked **curriculum lesson** (interval-2b when earned). Explicit predecessor graph still TODO. |
-
----
-
 ## Related code seams (for agents)
 
-Quick map of where boundary debt concentrates today:
+Where boundary debt concentrates today:
 
 | Seam | Files |
 |------|--------|
 | Exercise registry + mount | [`src/practice-modes/registry.ts`](../src/practice-modes/registry.ts), [`src/ui/sing-test.ts`](../src/ui/sing-test.ts), [`src/ui/identify-test.ts`](../src/ui/identify-test.ts), [`src/ui/*-tests.ts`](../src/ui/) |
 | Session planner + question draw | [`src/session/planner.ts`](../src/session/planner.ts), [`src/ui/*-session.ts`](../src/ui/) |
-| Curriculum steps vs levels | [`src/curriculum/curriculum-lessons.ts`](../src/curriculum/curriculum-lessons.ts), [`src/curriculum/levels.ts`](../src/curriculum/levels.ts), [`src/curriculum/unlock.ts`](../src/curriculum/unlock.ts), [`src/curriculum/session-curriculum-lesson.ts`](../src/curriculum/session-curriculum-lesson.ts) |
+| Curriculum lessons + unlock | [`src/curriculum/curriculum-lessons.ts`](../src/curriculum/curriculum-lessons.ts), [`src/curriculum/unlock.ts`](../src/curriculum/unlock.ts), [`src/curriculum/session-curriculum-lesson.ts`](../src/curriculum/session-curriculum-lesson.ts) |
 | User content preferences (target: retire) | [`src/interval-preference.ts`](../src/interval-preference.ts), [`src/scale-degree-preference.ts`](../src/scale-degree-preference.ts), [`src/chord-type-preference.ts`](../src/chord-type-preference.ts) |
 | Tag stats vs tier eligibility | [`src/history/tag-stats.ts`](../src/history/tag-stats.ts), [`src/curriculum/curriculum-lessons.ts`](../src/curriculum/curriculum-lessons.ts) |
