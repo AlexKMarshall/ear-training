@@ -1,11 +1,20 @@
-import { normalizeAttemptRecord } from "./normalize.ts";
 import type { AttemptInput, AttemptRecord } from "./types.ts";
 
 const DB_NAME = "ear-training";
-const DB_VERSION = 1;
+/** Bump when attempt shape changes; upgrade recreates the store (wipes local history). */
+const DB_VERSION = 2;
 const STORE_NAME = "attempts";
 
 let dbPromise: Promise<IDBDatabase | null> | null = null;
+
+function createAttemptsStore(db: IDBDatabase): void {
+  const store = db.createObjectStore(STORE_NAME, {
+    keyPath: "id",
+    autoIncrement: true,
+  });
+  store.createIndex("by_timestamp", "timestamp", { unique: false });
+  store.createIndex("by_exercise", "practiceModeId", { unique: false });
+}
 
 function openDatabase(): Promise<IDBDatabase | null> {
   if (typeof indexedDB === "undefined") return Promise.resolve(null);
@@ -15,15 +24,13 @@ function openDatabase(): Promise<IDBDatabase | null> {
 
     request.onerror = () => resolve(null);
 
-    request.onupgradeneeded = () => {
+    request.onupgradeneeded = (event) => {
       const db = request.result;
+      if (event.oldVersion < 2 && db.objectStoreNames.contains(STORE_NAME)) {
+        db.deleteObjectStore(STORE_NAME);
+      }
       if (!db.objectStoreNames.contains(STORE_NAME)) {
-        const store = db.createObjectStore(STORE_NAME, {
-          keyPath: "id",
-          autoIncrement: true,
-        });
-        store.createIndex("by_timestamp", "timestamp", { unique: false });
-        store.createIndex("by_exercise", "practiceModeId", { unique: false });
+        createAttemptsStore(db);
       }
     };
 
@@ -64,13 +71,10 @@ export function saveAttempt(record: AttemptInput): Promise<void> {
   return runTransaction("readwrite", (store) => store.add(record)).then(() => {});
 }
 
-/** All attempts, oldest first (legacy IndexedDB rows are normalized on read). */
+/** All attempts, oldest first. */
 export function getAllAttempts(): Promise<AttemptRecord[]> {
   return runTransaction<AttemptRecord[]>("readonly", (store) => store.getAll()).then(
-    (rows) =>
-      (rows ?? [])
-        .map((row) => normalizeAttemptRecord(row))
-        .filter((row): row is AttemptRecord => row !== null),
+    (rows) => rows ?? [],
   );
 }
 
