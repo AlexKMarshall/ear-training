@@ -26,14 +26,21 @@ test("unlocked interval exercise does not show locked heading", async () => {
     .not.toBeInTheDocument();
 });
 
-test("locked scale-degree exercise shows locked heading", async () => {
+test("locked scale-degree exercise shows tier-aware predecessor copy", async () => {
   await mountExercisePageWithHistory("scale-degree-sing", []);
   await expect
     .element(page.getByRole("heading", { name: "Locked" }))
     .toBeVisible();
   await expect
     .element(
-      page.getByRole("link", { name: /Go to Identify melodic intervals/i }),
+      page.getByText(
+        /Identify harmonic intervals \(diatonic intervals within one octave\)/i,
+      ),
+    )
+    .toBeVisible();
+  await expect
+    .element(
+      page.getByRole("link", { name: /Go to Identify harmonic intervals/i }),
     )
     .toBeVisible();
 });

@@ -83,12 +83,27 @@ export function passingMelodicSing2bHistory(): AttemptRecord[] {
   ];
 }
 
-/** Full guided path through melodic 2b (scale-degree step still available). */
+/** Melodic identification at interval-2b complete; harmonic 2b steps not yet done. */
 export function passingThroughMelodic2bHistory(): AttemptRecord[] {
   return [
     ...passingMelodicSing2bHistory(),
     ...passingStepHistory({
       exerciseId: "interval-melodic-id",
+      contentTierId: "interval-2b",
+    }),
+  ];
+}
+
+/** Full interval tier 2b (all four presentation modes); scale-degree step unlockable. */
+export function passingThroughHarmonic2bHistory(): AttemptRecord[] {
+  return [
+    ...passingThroughMelodic2bHistory(),
+    ...passingStepHistory({
+      exerciseId: "interval-harmonic-sing",
+      contentTierId: "interval-2b",
+    }),
+    ...passingStepHistory({
+      exerciseId: "interval-harmonic-id",
       contentTierId: "interval-2b",
     }),
   ];

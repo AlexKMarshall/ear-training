@@ -21,13 +21,13 @@ Browser-based ear training for singers: harmony, pitch recognition, and vocal re
 
 | Area | Status |
 |------|--------|
-| **Exercises** | **Sing:** single note; chord middle (major / minor / diminished); melodic & harmonic intervals (sing upper note); **scale degrees in key** (tonic → sing 4th / 5th / octave). **Identify:** melodic & harmonic intervals (multiple choice, degree-style interval names). Seven routes; metadata in [`src/exercises/registry.ts`](../src/exercises/registry.ts). **Melodic** interval sing/ID unlock **tier 2b** (all diatonic major intervals within one octave) after the full 2a path; harmonic sing/ID stay on 2a. |
+| **Exercises** | **Sing:** single note; chord middle (major / minor / diminished); melodic & harmonic intervals (sing upper note); **scale degrees in key** (tonic → sing 4th / 5th / octave). **Identify:** melodic & harmonic intervals (multiple choice, degree-style interval names). Seven routes; metadata in [`src/exercises/registry.ts`](../src/exercises/registry.ts). Interval sing/ID unlock **tier 2b** (all diatonic major intervals within one octave) on all four presentation modes after the guided path reaches harmonic 2b. |
 | **Scoring** | **Sing:** mic → median pitch → cents vs target (40¢ tolerance), harmonic correction, octave hints. **Identify:** pass/fail on selected interval label (no mic); `centsOff` stored as 0. |
 | **Session shape** | 10-question rounds, up to 3 attempts per question, in-round summary (`firstTry` / `retry` / `wrong`) — sing and identify flows |
 | **Personalization** | Voice type range only (user-configurable). **Session planner** draws each question from curriculum tier pools — no user-facing interval / scale-degree / chord-type / inversion pickers ([session model](#session-model--settings)). |
 | **Persistence** | Voice type in `localStorage`; **attempt history** in IndexedDB (`src/history/`) — per attempt: `exerciseId`, target, `centsOff`, pass/fail, chord meta, **`intervalId`** / presentation / selected answer for ID exercises, **`degreeId`** / `tonicMidi` for scale-degree sing, **`contentTierId`** / **`eligibleTagIds`** for planner sessions, `roundId` + `questionIndex` |
 | **Stats / dashboard** | [`/stats/`](stats/index.html) — overall + per-exercise for all seven `exerciseId`s; **weakness breakdown** by `intervalId`, `degreeId`, and chord type (weakest first). Overall / sing sections use median ¢; identify sections omit median. **No** time trends yet. |
-| **Recognition / naming** | **Partial** — interval identification (2a: P4 / P5 / 8ve; **melodic 2b:** full diatonic-within-octave set); scale-degree **sing** in key (4th / 5th / octave); no scale-degree ID, triad quality, or note names |
+| **Recognition / naming** | **Partial** — interval identification (2a: P4 / P5 / 8ve; **2b:** full diatonic-within-octave set on melodic and harmonic); scale-degree **sing** in key (4th / 5th / octave); no scale-degree ID, triad quality, or note names |
 | **Curriculum (v1 shell)** | **Done** — home at `/` shows **Continue** (first incomplete **curriculum step**), **Level 1** → **Level 2** → **Level 3**, and **Free practice** (`chord-middle`). **Step-level unlock** from IndexedDB via [`src/curriculum/unlock.ts`](../src/curriculum/unlock.ts) (≥10 questions, ≥70% on predecessor **step** `(exerciseId, contentTierId)`). Locked path exercises are non-links on home; direct URLs show a locked page via [`src/ui/exercise-page.ts`](../src/ui/exercise-page.ts). Thresholds are constants, not user-configurable. |
 | **Testing** | **Strong domain + browser baseline** — CI runs `npm test`, `npm run test:browser`, `npm run build`; seven exercises covered by unit tests, round/orchestration tests, and registry smokes. **Remaining gaps** (round summary UI, sing fail/retry on more exercises, etc.): [testing debt](testing-roadmap.md#open-testing-debt). New product work ships tests in the same PR — see [`docs/agents/testing.md`](agents/testing.md). |
 
@@ -48,7 +48,7 @@ Four skills (rhythm excluded):
 
 | Pillar | Description | Today |
 |--------|-------------|--------|
-| **Discrimination** | Hear differences (wider vs narrower interval, maj vs min) | Partial (chord types via planner; interval ID with tier pools — 2a + melodic 2b) |
+| **Discrimination** | Hear differences (wider vs narrower interval, maj vs min) | Partial (chord types via planner; interval ID with tier pools — 2a + 2b) |
 | **Recognition / naming** | Hear → label (degree or note name) | **Partial** — interval names (P4 / P5 / octave); no key context or chord-quality ID |
 | **Reproduction** | Hear → sing back accurately | Core strength (single note, chord middle, interval upper note, **scale degrees from tonic**) |
 | **Contextual intonation** | Phrases, tendency tones, chord tones in key | **Partial** — Level 3 establishes tonic before singing a degree; no phrases or functional harmony yet |
@@ -77,7 +77,7 @@ Progress is **not** only linear through exercise types (single note → melodic 
 | Axis | What advances | Example (intervals) | Unlock / measurement today |
 |------|----------------|----------------------|----------------------------|
 | **Exercise / mode** | Which route and response type | `interval-melodic-sing` → `interval-harmonic-sing` → `interval-melodic-id` | **Done (v1)** — predecessor exercise on `CURRICULUM_PATH` |
-| **Content tier** | Which items are eligible in a round | P4 / P5 / 8ve → diatonic major scale intervals → any interval within an octave → compound (>8ve) → descending variants per tier | **Partial** — tiers **2a** + **melodic 2b** shipped; planner enforces pool per step; harmonic 2b and 2c+ still TODO |
+| **Content tier** | Which items are eligible in a round | P4 / P5 / 8ve → diatonic major scale intervals → any interval within an octave → compound (>8ve) → descending variants per tier | **Partial** — tiers **2a** + **2b** shipped on all four interval modes; planner enforces pool per step; tier 2c+ still TODO |
 
 A **curriculum step** in the target model is `(exerciseId, contentTierId)` (or equivalent preset), not only `exerciseId`.
 
@@ -89,9 +89,9 @@ Within a content tier, advance **presentation mode** before jumping to the next 
 2. Harmonic sing (tier A)
 3. Melodic identification (tier A)
 4. Harmonic identification (tier A)
-5. Then tier B on melodic sing → harmonic sing → …
+5. Then tier B: melodic sing → melodic identification → harmonic sing → harmonic identification (shipped at interval-2b; harmonic modes follow melodic identification at that tier)
 
-Avoid unlocking “harder melodic only” while harmonic at the same tier is still locked or untrained. The v1 path order on home is a **placeholder** for this; it does not enforce tier alignment across modes.
+Avoid unlocking Level 3 until all four interval presentation modes pass interval-2b on the guided path.
 
 ### Content tiers (example: interval exercises)
 
@@ -201,12 +201,12 @@ Free practice (`chord-middle`) uses the same planner within the selected **mode*
 |---------|------------|
 | `/interval-melodic-sing/`, `/interval-harmonic-sing/` — hear interval, sing **upper** note | Sing lower note or both directions; “reproduce the interval” beyond upper-target scoring |
 | `/interval-melodic-id/`, `/interval-harmonic-id/` — MC with degree-style labels (no solfege) | Chromatic / compound / descending tiers (2c+); confusion-pair drills |
-| **Tier 2a:** perfect 4th, 5th, octave — all four interval modes | **Harmonic 2b** — diatonic pool on harmonic sing/ID (melodic 2b **done**) |
-| **Tier melodic 2b:** all diatonic major intervals within one octave (melodic sing + ID) | Per-tag tier gates before next tier |
+| **Tier 2a:** perfect 4th, 5th, octave — all four interval modes | Per-tag tier gates before next tier |
+| **Tier 2b:** all diatonic major intervals within one octave — all four interval modes | Tier 2c+ (chromatic, compound, descending) |
 | **Session planner** — weak + maintenance mix; no user interval picker | Richer home copy from planner (“practicing weak minor 6ths”) |
 | **Step-level unlock** + Continue on first incomplete step; cross-mode 2a → melodic 2b gates | **Tier 2c+** (chromatic, compound, descending) |
 | Voice range only (`voice-ranges.ts`) | Configurable unlock thresholds in UI |
-| Guided path order: melodic sing → harmonic sing → melodic ID → harmonic ID → melodic 2b → scale-degree sing | Mixed-level rounds across exercises |
+| Guided path: 2a (four modes) → 2b melodic sing → melodic ID → harmonic sing → harmonic ID → scale-degree sing | Mixed-level rounds across exercises |
 | Home curriculum UI + page guard on locked routes | `chord-middle` on main path (stays **free practice** until triad level) |
 
 **Interval tier ladder (target):** see [content tiers example](#content-tiers-example-interval-exercises) in Progressive difficulty model.
@@ -223,7 +223,7 @@ Free practice (`chord-middle`) uses the same planner within the selected **mode*
 
 | Exercise type | Answer format (v1) | Status |
 |---------------|--------------------|--------|
-| Interval identification | Interval name / degree span (*Perfect 5th*, etc.) | **Done (partial)** — melodic + harmonic pages; **2a** (P4/P5/8ve) + **melodic 2b** (diatonic within octave); distractors from eligible tier pool via planner |
+| Interval identification | Interval name / degree span (*Perfect 5th*, etc.) | **Done (partial)** — melodic + harmonic pages; **2a** (P4/P5/8ve) + **2b** (diatonic within octave); distractors from eligible tier pool via planner |
 | Scale degree in key | *3rd*, *minor 7th*, *flat 6th*, etc. | **Sing (partial)** — `/scale-degree-sing/` with `degree-3a` pool (4th/5th/octave) via planner; **ID deferred** |
 | Chord quality | Major / minor / dim / aug | Todo |
 | Chord inversion | Root / 1st / 2nd | Todo |
@@ -268,7 +268,7 @@ Free practice (`chord-middle`) uses the same planner within the selected **mode*
 |------|-----------|---------|
 | Regular practice | Goals, streaks, reminders | Short daily mixed drill |
 | Measurable improvement | History + `/stats/` with per-tag weakness (interval, degree, chord type); ID exercises omit median ¢; **time trends** still TODO | Per-tag stats drive planner mix; tier unlock uses step aggregates today |
-| Progressive difficulty | **Curriculum v1 done** — step-level unlock + tiers **2a / melodic 2b / degree-3a / chord-1a**; harmonic 2b and 2c+ still TODO | Cross-mode sequencing **done for 2a→melodic 2b**; per-tag tier gates still TODO |
+| Progressive difficulty | **Curriculum v1 done** — step-level unlock + tiers **2a / 2b / degree-3a / chord-1a**; tier 2c+ still TODO | Cross-mode sequencing through interval-2b on guided path; per-tag tier gates still TODO |
 | Naming / recognition | Select UI + interval ID exercises **done (partial)**; scale-degree **sing** in key **done (partial)**; scale-degree ID & chord ID **TODO** | Degrees-first interval labels **done (partial)**; note names **TODO** |
 | Not only reproduction | Interval ID **done (partial)**; phrase scoring, multi-target rounds **TODO** | Dictation, functional hearing **TODO** |
 | Singer-specific | Range by voice; phrase intonation | Register-aware sets; no rhythm track |
@@ -279,9 +279,9 @@ Free practice (`chord-middle`) uses the same planner within the selected **mode*
 ## Suggested build order
 
 1. ~~**Persist results + dashboard** (Phase 0)~~ **Done** — includes per-tag weakness on `/stats/` (PR #33)
-2. ~~**Interval sing + interval recognition (degree labels)** (Phase 1–2)~~ **Done (partial)** — 2a + melodic 2b, four routes, history + stats. **Remaining:** harmonic 2b, tier 2c+, richer reproduction tasks.
+2. ~~**Interval sing + interval recognition (degree labels)** (Phase 1–2)~~ **Done (partial)** — 2a + 2b on four interval modes, history + stats. **Remaining:** tier 2c+, richer reproduction tasks.
 3. ~~**Curriculum / levels (v1 shell)**~~ **Done** — registry, levels 1–3 path, step-level unlock, home + guards, free practice for `chord-middle`.
-4. ~~**Session planner + tiers (Phase 0 → 1)**~~ **Done (v1 scope)** — weak + maintenance planner; curriculum steps; cross-mode 2a→melodic 2b; item pickers retired (voice range kept). **Remaining:** harmonic 2b, tier 2c+, per-tag tier gates, goals/streaks alignment.
+4. ~~**Session planner + tiers (Phase 0 → 1)**~~ **Done (v1 scope)** — weak + maintenance planner; curriculum steps through interval-2b on all interval modes; item pickers retired (voice range kept). **Remaining:** tier 2c+, per-tag tier gates, goals/streaks alignment.
 5. ~~**Scale-degree sing in key** (Level 3)~~ **Done (partial)** — `/scale-degree-sing/`, planner-driven `degree-3a` pool, tonic → prompt → sing. **Remaining:** degree tiers beyond 3a + degree ID when pool diverges from interval ID.
 6. **Expand chord exercises** (sing other chord tones; quality/inversion ID) with chord **tiers** same pattern.
 7. **Melodic dictation & clusters** (degrees → note-name hard mode)
@@ -298,7 +298,7 @@ Free practice (`chord-middle`) uses the same planner within the selected **mode*
 - ~~**Curriculum spine (v1).**~~ **Done** — `EXERCISES` registry, `CURRICULUM_STEPS`, step unlock + Continue, async home + `mountExercisePage` guard.
 - ~~Extend dashboard with weakness tags (e.g. by `intervalId`).~~ **Done** — [`src/history/tag-stats.ts`](../src/history/tag-stats.ts), `/stats/` UI. **Next:** time trends; optional round-level aggregates; filter stats by `contentTierId`.
 - ~~**Session planner** module~~ **Done (v1)** — [`src/session/planner.ts`](../src/session/planner.ts); weak-area + maintenance mix; wired on interval, scale-degree, and chord-middle exercises. **Next:** richer home copy from planner state.
-- ~~**Curriculum steps**~~ **Done (v1)** — [`src/curriculum/steps.ts`](../src/curriculum/steps.ts); `isStepUnlocked(step, records)`; melodic 2b cross-mode gates. **Next:** harmonic 2b rows; per-tag tier gates; tier 2c+.
+- ~~**Curriculum steps**~~ **Done (v1)** — [`src/curriculum/steps.ts`](../src/curriculum/steps.ts); `isStepUnlocked(step, records)`; interval-2b on all four interval modes. **Next:** per-tag tier gates; tier 2c+.
 - ~~Migrate generation from user pickers to planner output~~ **Done** — tier pools via `getEligibleTagIds`; `contentTierId` / `eligibleTagIds` on attempts.
 - ~~Implement **recognition** as sibling modes sharing playback and question generation.~~ **Partial** — `identify-test.ts` shares rounds/history with sing tests; interval playback/questions shared via `interval-questions.ts`; registry lists `responseMode` but sing/identify mount paths remain separate.
 - **Testability at UI boundaries** — **Done (baseline):** ports on mount functions; browser orchestration without mocking vendor audio libs. Remaining UI gaps: [testing debt](testing-roadmap.md#open-testing-debt). Boundary and tooling gaps: [tech debt registry](tech-debt.md).
@@ -310,7 +310,7 @@ Free practice (`chord-middle`) uses the same planner within the selected **mode*
 | Unified `ExerciseDefinition` with `prepareQuestion` / `score` on one type | Registry wrapper is enough for now; sing/identify UI merge is high churn |
 | Exercise-only unlock | ~~**Curriculum steps** with content tiers~~ **Done (v1)** — per-tag tier gates still TODO |
 | User interval / degree / chord pickers | ~~**Session planner** + tier presets~~ **Done** — legacy preference modules may be deleted in a cleanup PR |
-| Melodic-before-harmonic at same tier | **Done for 2a→melodic 2b** — harmonic 2b still TODO |
+| Melodic-before-harmonic at same tier | **Done for 2a**; at **2b** shipped order is melodic sing → melodic ID → harmonic sing → harmonic ID |
 | `chord-middle` in main path | Free practice until level 4 triads; planner-driven `chord-1a` pool |
 | Level 4+ placeholders | No exercises yet |
 | Mixed-level rounds | Per-exercise rounds unchanged; planner mixes tags within one tier |

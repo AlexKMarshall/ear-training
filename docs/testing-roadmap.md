@@ -66,7 +66,7 @@ Seven registry exercises; curriculum path + free practice. Use this table to see
 | Round scoring math (`summarizeRound`) | Yes | — | |
 | History stats + unlock + tag breakdown | Yes | — | Step unlock + `getContinueStep` in Node; `tag-stats` + dashboard weakness |
 | Exercise registry + configs | Yes | — | |
-| Home curriculum cards + Continue | Partial | Yes | Step-level unlock progression, Continue link, melodic 2b hint, `?unlock=all` |
+| Home curriculum cards + Continue | Partial | Yes | Step-level unlock progression, Continue link, interval-2b tier hints on all four interval modes, `?unlock=all` |
 | Locked exercise page | — | Yes | |
 | Stats dashboard `/stats/` | Yes | Partial | Tag weakness + identify copy in browser ([`stats.browser.test.ts`](../tests/browser/stats.browser.test.ts)); optional deeper exercise-summary assertions |
 | **single-note** sing | — | Yes | Dedicated round test; not in registry smoke list |
@@ -145,7 +145,7 @@ CI runs all three on every PR and `main` ([workflow](../.github/workflows/ci.yml
 - Mocking `pitchy` / `smplr` in UI tests  
 - jsdom/happy-dom UI tests  
 - Replacing domain unit tests with browser tests  
-- Tests for **unshipped** product roadmap items (harmonic 2b, tier 2c+, per-tag tier gates, new exercise types, goals/streaks, etc.)
+- Tests for **unshipped** product roadmap items (tier 2c+, per-tag tier gates, new exercise types, goals/streaks, etc.)
 
 ---
 

@@ -1,5 +1,4 @@
 import type { CurriculumStep } from "./steps.ts";
-import { stepsForExercise } from "./steps.ts";
 import { getHighestUnlockedStepForExercise } from "./unlock.ts";
 import type { AttemptRecord, ExerciseId } from "../history/types.ts";
 
@@ -24,45 +23,23 @@ function isIntervalExercise(
 
 /**
  * Resolves the curriculum step for the current session: highest unlocked tier
- * for melodic exercises; harmonic exercises stay on interval-2a.
+ * for that exercise on the guided path (or chord-1a for free practice).
  */
 export function getSessionStepForExercise(
   exerciseId: ExerciseId,
   records: readonly AttemptRecord[],
 ): CurriculumStep {
-  if (exerciseId === "scale-degree-sing") {
-    const step = getHighestUnlockedStepForExercise(exerciseId, records);
-    if (!step) {
-      throw new Error(`No unlocked step for ${exerciseId}`);
-    }
-    return step;
-  }
-
   if (exerciseId === "chord-middle") {
     return CHORD_MIDDLE_STEP;
   }
 
-  if (!isIntervalExercise(exerciseId)) {
+  if (!isIntervalExercise(exerciseId) && exerciseId !== "scale-degree-sing") {
     throw new Error(`No session step for exercise: ${exerciseId}`);
   }
 
-  const isMelodic =
-    exerciseId === "interval-melodic-sing" ||
-    exerciseId === "interval-melodic-id";
-
-  if (isMelodic) {
-    const step = getHighestUnlockedStepForExercise(exerciseId, records);
-    if (!step) {
-      throw new Error(`No unlocked step for ${exerciseId}`);
-    }
-    return step;
+  const step = getHighestUnlockedStepForExercise(exerciseId, records);
+  if (!step) {
+    throw new Error(`No unlocked step for ${exerciseId}`);
   }
-
-  const harmonic2a = stepsForExercise(exerciseId).find(
-    (s) => s.contentTierId === "interval-2a",
-  );
-  if (!harmonic2a) {
-    throw new Error(`Missing interval-2a step for ${exerciseId}`);
-  }
-  return harmonic2a;
+  return step;
 }
