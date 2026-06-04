@@ -11,12 +11,8 @@ import {
   MIN_VALID_SAMPLES,
   EXERCISES_PER_LESSON,
 } from "../config.ts";
-import {
-  classifyExerciseOutcome,
-  percentOf,
-  summarizeLesson,
-  type LessonExerciseResult,
-} from "../lesson.ts";
+import { LessonRun } from "../lesson-run.ts";
+import { percentOf, summarizeLesson } from "../lesson.ts";
 import type { LessonExercise } from "../lesson-exercise.ts";
 import {
   getVoiceType,
@@ -319,31 +315,48 @@ export function mountSingTest(
   let state: TestState = "idle";
   let recordingSession: { stop: () => void } | null = null;
   let currentExercise: LessonExercise | null = null;
-  let scoredAttempts = 0;
-  let lastPassed = false;
-  let lessonExerciseResults: LessonExerciseResult[] = [];
-  let lessonId = crypto.randomUUID();
+  let pendingCentsOff: number | undefined;
+
+  const lessonRun = new LessonRun({
+    onAttemptScored: (ctx) => {
+      if (!currentExercise || pendingCentsOff === undefined) return;
+      const record = buildAttemptRecord(
+        {
+          practiceModeId: config.practiceModeId,
+          lessonId: ctx.lessonId,
+          exerciseIndex: ctx.exerciseIndex,
+          showVoicePicker: config.showVoicePicker,
+          showChordFilters: Boolean(
+            config.showChordTypePicker || config.showInversionPicker,
+          ),
+          showIntervalFilters: Boolean(config.showIntervalPicker),
+          showDegreeFilters: Boolean(config.showDegreePicker),
+        },
+        currentExercise,
+        pendingCentsOff,
+        ctx.passed,
+        ctx.attemptNumber,
+      );
+      void history.saveAttempt(record);
+    },
+  });
+
+  function lessonSnapshot() {
+    return lessonRun.getSnapshot();
+  }
 
   function resetLesson(): void {
-    lessonId = crypto.randomUUID();
-    lessonExerciseResults = [];
+    lessonRun.reset();
     currentExercise = null;
-    scoredAttempts = 0;
-    lastPassed = false;
+    pendingCentsOff = undefined;
     resultEl.hidden = true;
     config.onLessonReset?.();
   }
 
-  function currentExerciseNumber(): number {
-    return lessonExerciseResults.length + 1;
-  }
-
-  function isLastExerciseInLesson(): boolean {
-    return lessonExerciseResults.length >= EXERCISES_PER_LESSON - 1;
-  }
-
   function nextStepButtonLabel(): string {
-    return isLastExerciseInLesson() ? "Finish lesson" : "Next exercise";
+    return lessonSnapshot().isLastExerciseInLesson
+      ? "Finish lesson"
+      : "Next exercise";
   }
 
   function syncLessonProgress(): void {
@@ -352,7 +365,8 @@ export function mountSingTest(
       return;
     }
     lessonProgressEl.hidden = false;
-    lessonProgressEl.textContent = `Lesson — exercise ${currentExerciseNumber()} of ${EXERCISES_PER_LESSON}`;
+    const { exerciseNumber } = lessonSnapshot();
+    lessonProgressEl.textContent = `Lesson — exercise ${exerciseNumber} of ${EXERCISES_PER_LESSON}`;
   }
 
   function setState(next: TestState): void {
@@ -544,13 +558,10 @@ export function mountSingTest(
     btnRecord.disabled = state !== "ready" && state !== "recording";
     btnRecord.textContent = state === "recording" ? "Done" : "Start singing";
     const showResultActions = state === "result";
-    const canRetrySameQuestion =
-      showResultActions &&
-      !lastPassed &&
-      scoredAttempts < MAX_ATTEMPTS_PER_EXERCISE;
-    const canGoToNextQuestion =
-      showResultActions &&
-      (lastPassed || scoredAttempts >= MAX_ATTEMPTS_PER_EXERCISE);
+    const { canRetry: lessonCanRetry, canAdvance: lessonCanAdvance } =
+      lessonSnapshot();
+    const canRetrySameQuestion = showResultActions && lessonCanRetry;
+    const canGoToNextQuestion = showResultActions && lessonCanAdvance;
 
     btnRetry.hidden = !canRetrySameQuestion || inLessonSummary;
     btnNext.hidden = !canGoToNextQuestion || inLessonSummary;
@@ -601,34 +612,12 @@ export function mountSingTest(
     syncExercisePrompt();
   }
 
-  function persistAttempt(score: ScoreResult): void {
-    if (!currentExercise) return;
-    const record = buildAttemptRecord(
-      {
-        practiceModeId: config.practiceModeId,
-        lessonId,
-        exerciseIndex: lessonExerciseResults.length,
-        showVoicePicker: config.showVoicePicker,
-        showChordFilters: Boolean(
-          config.showChordTypePicker || config.showInversionPicker,
-        ),
-        showIntervalFilters: Boolean(config.showIntervalPicker),
-        showDegreeFilters: Boolean(config.showDegreePicker),
-      },
-      currentExercise,
-      score.centsOff,
-      score.passed,
-      scoredAttempts + 1,
-    );
-    void history.saveAttempt(record);
-  }
-
   function showResult(score: ScoreResult): void {
-    lastPassed = score.passed;
-    persistAttempt(score);
-    scoredAttempts += 1;
+    pendingCentsOff = score.centsOff;
+    lessonRun.recordScore(score.passed);
 
-    const triesLeft = MAX_ATTEMPTS_PER_EXERCISE - scoredAttempts;
+    const snap = lessonSnapshot();
+    const triesLeft = MAX_ATTEMPTS_PER_EXERCISE - snap.scoredAttemptsOnCurrent;
     const nextLabel = nextStepButtonLabel();
     let attemptNote = "";
     if (!score.passed) {
@@ -647,7 +636,7 @@ export function mountSingTest(
       <p class="result-meta">Detected ${score.detectedHz.toFixed(1)} Hz (target ${score.targetHz.toFixed(1)} Hz — ${currentExercise?.target.name ?? "?"})</p>
       ${attemptNote}
     `;
-    const onLastQuestion = isLastExerciseInLesson();
+    const onLastQuestion = snap.isLastExerciseInLesson;
     statusEl.textContent = score.passed
       ? onLastQuestion
         ? `Correct — tap ${nextLabel} when you are ready.`
@@ -677,8 +666,7 @@ export function mountSingTest(
       await audio.ensureReady();
       if (state === "idle" || !currentExercise) {
         currentExercise = config.prepareExercise();
-        scoredAttempts = 0;
-        lastPassed = false;
+        lessonRun.ensureCurrentExercise();
       }
       setState("playing");
       await config.playReference(currentExercise);
@@ -746,12 +734,13 @@ export function mountSingTest(
 
   function handleRetry(): void {
     recording.stopStream();
+    lessonRun.retryCurrentExercise();
     resultEl.hidden = true;
     void handlePlay();
   }
 
   function showLessonSummary(): void {
-    const summary = summarizeLesson(lessonExerciseResults);
+    const summary = summarizeLesson(lessonSnapshot().results);
     const correctPct = percentOf(summary.correctCount, summary.total);
     const firstTryPct = percentOf(summary.firstTryCount, summary.total);
     const retryPct = percentOf(summary.retryCount, summary.total);
@@ -775,26 +764,15 @@ export function mountSingTest(
     setState("lessonSummary");
   }
 
-  function recordExerciseOutcome(): void {
-    lessonExerciseResults.push({
-      exerciseIndex: lessonExerciseResults.length,
-      outcome: classifyExerciseOutcome(lastPassed, scoredAttempts),
-      exercise: currentExercise ?? undefined,
-    });
-  }
-
   function handleNextQuestion(): void {
     recording.stopStream();
-    recordExerciseOutcome();
-
-    if (lessonExerciseResults.length >= EXERCISES_PER_LESSON) {
+    lessonRun.advanceAfterResult(currentExercise ?? undefined);
+    if (lessonSnapshot().isLessonComplete) {
       showLessonSummary();
       return;
     }
 
     currentExercise = null;
-    scoredAttempts = 0;
-    lastPassed = false;
     resultEl.hidden = true;
     setState("idle");
     void handlePlay();
