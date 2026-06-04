@@ -44,6 +44,7 @@ const TIER_POOL_LABEL: Record<
   "interval-2a": "perfect 4th, 5th, octave",
   "interval-2b": "diatonic intervals within one octave",
   "degree-major-intro": "major key · 4th, 5th, octave",
+  "degree-major-diatonic": "major key · diatonic degrees within one octave",
   "chord-1a": "major vs minor · root position",
 };
 

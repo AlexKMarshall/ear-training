@@ -105,7 +105,7 @@ export function passingThroughMelodic2bHistory(): AttemptRecord[] {
   ];
 }
 
-/** Full interval tier 2b (all four presentation modes); chord-middle unlockable. */
+/** Full interval tier 2b (all four presentation modes); major diatonic scale degrees unlockable. */
 export function passingThroughHarmonic2bHistory(): AttemptRecord[] {
   return [
     ...passingThroughMelodic2bHistory(),
@@ -120,6 +120,17 @@ export function passingThroughHarmonic2bHistory(): AttemptRecord[] {
   ];
 }
 
+/** Major diatonic scale degrees complete; chord-middle unlockable. */
+export function passingMajorDiatonicScaleDegreeHistory(): AttemptRecord[] {
+  return [
+    ...passingThroughHarmonic2bHistory(),
+    ...passingStepHistory({
+      practiceModeId: "scale-degree-sing",
+      contentTierId: "degree-major-diatonic",
+    }),
+  ];
+}
+
 /** @deprecated Use passingIntroScaleDegreeHistory — intro tier only until major/minor tiers ship. */
 export function passingScaleDegreeHistory(): AttemptRecord[] {
   return passingIntroScaleDegreeHistory();
@@ -128,7 +139,7 @@ export function passingScaleDegreeHistory(): AttemptRecord[] {
 /** Every shipped curriculum step meets unlock thresholds. */
 export function passingFullGuidedPathHistory(): AttemptRecord[] {
   return [
-    ...passingThroughHarmonic2bHistory(),
+    ...passingMajorDiatonicScaleDegreeHistory(),
     ...passingStepHistory({
       practiceModeId: "chord-middle",
       contentTierId: "chord-1a",

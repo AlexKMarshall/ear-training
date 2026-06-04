@@ -4,21 +4,25 @@ import { getScaleDegreeById } from "../src/scale-degree-config.ts";
 import {
   prepareScaleDegreeExercise,
 } from "../src/ui/scale-degree-session.ts";
-import { attempt, passingThroughHarmonic2bHistory } from "./fixtures/attempts.ts";
+import {
+  attempt,
+  passingIntroScaleDegreeHistory,
+  passingThroughHarmonic2bHistory,
+} from "./fixtures/attempts.ts";
 import type { SessionPlanner } from "../src/session/planner.ts";
 
-const unlockedHistory = passingThroughHarmonic2bHistory();
-
 describe("prepareScaleDegreeExercise", () => {
-  it("uses planner tag and attaches tier metadata", () => {
+  it("uses planner tag and attaches intro tier metadata", () => {
+    const introHistory = passingIntroScaleDegreeHistory();
     const planner: SessionPlanner = {
       planNextExerciseTag: () => "fifth",
     };
     const { exercise, lessonTonicMidi } = prepareScaleDegreeExercise(
-      unlockedHistory,
+      introHistory,
       null,
       planner,
       { lowMidi: 48, highMidi: 67 },
+      { practiceModeId: "scale-degree-sing", contentTierId: "degree-major-intro" },
     );
 
     expect(exercise.degreeId).toBe("fifth");
@@ -28,20 +32,38 @@ describe("prepareScaleDegreeExercise", () => {
     expect(exercise.target.midi).toBe(lessonTonicMidi + 7);
   });
 
+  it("uses major diatonic tier after harmonic identify at 2b passes", () => {
+    const planner: SessionPlanner = {
+      planNextExerciseTag: () => "third",
+    };
+    const { exercise } = prepareScaleDegreeExercise(
+      passingThroughHarmonic2bHistory(),
+      null,
+      planner,
+      { lowMidi: 48, highMidi: 67 },
+    );
+
+    expect(exercise.degreeId).toBe("third");
+    expect(exercise.contentTierId).toBe("degree-major-diatonic");
+    expect(exercise.eligibleTagIds).toEqual(getEligibleDegreeIds("degree-major-diatonic"));
+  });
+
   it("keeps the same round tonic across questions", () => {
+    const introHistory = passingIntroScaleDegreeHistory();
     const planner: SessionPlanner = {
       planNextExerciseTag: (_step, records) =>
         records.length === 0 ? "fourth" : "fifth",
     };
     const first = prepareScaleDegreeExercise(
-      unlockedHistory,
+      introHistory,
       null,
       planner,
       { lowMidi: 48, highMidi: 67 },
+      { practiceModeId: "scale-degree-sing", contentTierId: "degree-major-intro" },
     );
     const second = prepareScaleDegreeExercise(
       [
-        ...unlockedHistory,
+        ...introHistory,
         attempt({
           practiceModeId: "scale-degree-sing",
           degreeId: "fourth",
@@ -54,6 +76,7 @@ describe("prepareScaleDegreeExercise", () => {
       first.lessonTonicMidi,
       planner,
       { lowMidi: 48, highMidi: 67 },
+      { practiceModeId: "scale-degree-sing", contentTierId: "degree-major-intro" },
     );
 
     expect(second.lessonTonicMidi).toBe(first.lessonTonicMidi);
@@ -62,25 +85,28 @@ describe("prepareScaleDegreeExercise", () => {
   });
 
   it("resets tonic when round state is cleared", () => {
+    const introHistory = passingIntroScaleDegreeHistory();
     const planner: SessionPlanner = {
       planNextExerciseTag: () => "fifth",
     };
 
     let lessonTonicMidi: number | null = null;
     const first = prepareScaleDegreeExercise(
-      unlockedHistory,
+      introHistory,
       lessonTonicMidi,
       planner,
       { lowMidi: 48, highMidi: 67 },
+      { practiceModeId: "scale-degree-sing", contentTierId: "degree-major-intro" },
     );
     lessonTonicMidi = first.lessonTonicMidi;
 
     lessonTonicMidi = null;
     const second = prepareScaleDegreeExercise(
-      unlockedHistory,
+      introHistory,
       lessonTonicMidi,
       planner,
       { lowMidi: 48, highMidi: 67 },
+      { practiceModeId: "scale-degree-sing", contentTierId: "degree-major-intro" },
     );
 
     expect(second.lessonTonicMidi).toBeTypeOf("number");
@@ -88,11 +114,26 @@ describe("prepareScaleDegreeExercise", () => {
 });
 
 describe("scaleDegreeQuestionForTag", () => {
-  it("builds a question for each tier degree", () => {
+  it("builds a question for each intro tier degree", () => {
     for (const id of getEligibleDegreeIds("degree-major-intro")) {
       const degree = getScaleDegreeById(id)!;
       const { exercise } = prepareScaleDegreeExercise(
-        unlockedHistory,
+        passingIntroScaleDegreeHistory(),
+        60,
+        { planNextExerciseTag: () => id },
+        undefined,
+        { practiceModeId: "scale-degree-sing", contentTierId: "degree-major-intro" },
+      );
+      expect(exercise.degreeId).toBe(id);
+      expect(exercise.target.midi).toBe(60 + degree.semitonesFromTonic);
+    }
+  });
+
+  it("builds a question for each major diatonic tier degree", () => {
+    for (const id of getEligibleDegreeIds("degree-major-diatonic")) {
+      const degree = getScaleDegreeById(id)!;
+      const { exercise } = prepareScaleDegreeExercise(
+        passingThroughHarmonic2bHistory(),
         60,
         { planNextExerciseTag: () => id },
       );

@@ -19,6 +19,7 @@ import {
   passingMelodicSing2bHistory,
   passingSingleNoteHistory,
   passingStepHistory,
+  passingMajorDiatonicScaleDegreeHistory,
   passingThroughHarmonic2bHistory,
   passingThroughMelodic2bHistory,
 } from "./fixtures/attempts.ts";
@@ -28,13 +29,16 @@ describe("isPracticeModeUnlocked", () => {
     expect(isPracticeModeUnlocked("single-note", [])).toBe(true);
   });
 
-  it("locks chord-middle until interval 2b passes", () => {
+  it("locks chord-middle until major diatonic scale degrees pass", () => {
     expect(isPracticeModeUnlocked("chord-middle", [])).toBe(false);
     expect(isPracticeModeUnlocked("chord-middle", passingLevel2History())).toBe(
       false,
     );
     expect(
       isPracticeModeUnlocked("chord-middle", passingThroughHarmonic2bHistory()),
+    ).toBe(false);
+    expect(
+      isPracticeModeUnlocked("chord-middle", passingMajorDiatonicScaleDegreeHistory()),
     ).toBe(true);
   });
 
@@ -233,9 +237,21 @@ describe("getContinueCurriculumLesson", () => {
     });
   });
 
-  it("advances to chord middle after interval 2b completes", () => {
-    expect(getContinuePracticeMode(passingThroughHarmonic2bHistory())).toBe("chord-middle");
+  it("advances to major diatonic scale degrees after interval 2b completes", () => {
+    expect(getContinuePracticeMode(passingThroughHarmonic2bHistory())).toBe(
+      "scale-degree-sing",
+    );
     expect(getContinueCurriculumLesson(passingThroughHarmonic2bHistory())).toEqual({
+      practiceModeId: "scale-degree-sing",
+      contentTierId: "degree-major-diatonic",
+    });
+  });
+
+  it("advances to chord middle after major diatonic scale degrees complete", () => {
+    expect(getContinuePracticeMode(passingMajorDiatonicScaleDegreeHistory())).toBe(
+      "chord-middle",
+    );
+    expect(getContinueCurriculumLesson(passingMajorDiatonicScaleDegreeHistory())).toEqual({
       practiceModeId: "chord-middle",
       contentTierId: "chord-1a",
     });
@@ -282,11 +298,24 @@ describe("getUnlockRequirement", () => {
     });
   });
 
-  it("requires harmonic identify at 2b before chord middle", () => {
+  it("locks major diatonic scale degrees until harmonic identify at 2b passes", () => {
+    const majorDiatonic = {
+      practiceModeId: "scale-degree-sing" as const,
+      contentTierId: "degree-major-diatonic" as const,
+    };
+    expect(isCurriculumLessonUnlocked(majorDiatonic, passingThroughMelodic2bHistory())).toBe(
+      false,
+    );
+    expect(
+      isCurriculumLessonUnlocked(majorDiatonic, passingThroughHarmonic2bHistory()),
+    ).toBe(true);
+  });
+
+  it("requires major diatonic scale degrees before chord middle", () => {
     expect(getUnlockRequirement("chord-middle")).toEqual({
-      predecessorPracticeModeId: "interval-harmonic-id",
+      predecessorPracticeModeId: "scale-degree-sing",
       predecessorLabel:
-        "Identify harmonic intervals (diatonic intervals within one octave)",
+        "Sing scale degrees (major key · diatonic degrees within one octave)",
       minExercisesForUnlock: MIN_EXERCISES_FOR_UNLOCK,
       minPassRatePercent: MIN_EXERCISE_PASS_RATE,
     });

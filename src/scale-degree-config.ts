@@ -9,8 +9,34 @@ export interface ScaleDegreeEntry {
   enabled: boolean;
 }
 
-/** v1 curriculum: 4th, 5th, and octave — same spans as interval v1, degree labels. */
+/** Intro tier: perfect fourth, fifth, and octave. */
+export const DEGREE_MAJOR_INTRO_IDS = ["fourth", "fifth", "octave"] as const;
+
+/** Major diatonic within one octave (no unison). */
+export const DEGREE_MAJOR_DIATONIC_IDS = [
+  "second",
+  "third",
+  "fourth",
+  "fifth",
+  "sixth",
+  "seventh",
+  "octave",
+] as const;
+
+/** v1 curriculum registry; tier presets select pools, not only `enabled`. */
 export const SCALE_DEGREES: readonly ScaleDegreeEntry[] = [
+  {
+    id: "second",
+    semitonesFromTonic: 2,
+    label: "2nd",
+    enabled: false,
+  },
+  {
+    id: "third",
+    semitonesFromTonic: 4,
+    label: "3rd",
+    enabled: false,
+  },
   {
     id: "fourth",
     semitonesFromTonic: 5,
@@ -22,6 +48,18 @@ export const SCALE_DEGREES: readonly ScaleDegreeEntry[] = [
     semitonesFromTonic: 7,
     label: "5th",
     enabled: true,
+  },
+  {
+    id: "sixth",
+    semitonesFromTonic: 9,
+    label: "6th",
+    enabled: false,
+  },
+  {
+    id: "seventh",
+    semitonesFromTonic: 11,
+    label: "7th",
+    enabled: false,
   },
   {
     id: "octave",

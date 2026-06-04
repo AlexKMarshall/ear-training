@@ -37,6 +37,18 @@ describe("getPathNodeLabels", () => {
       subtitle: "Melodic reproduction · major key · 4th, 5th, octave",
     });
   });
+
+  it("uses family title and diatonic pool subtitle for major diatonic scale degrees", () => {
+    expect(
+      getPathNodeLabels({
+        practiceModeId: "scale-degree-sing",
+        contentTierId: "degree-major-diatonic",
+      }),
+    ).toEqual({
+      title: "Scale degrees",
+      subtitle: "Melodic reproduction · major key · diatonic degrees within one octave",
+    });
+  });
 });
 
 describe("getPathNodeState", () => {
