@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { getScaleDegreeById, SCALE_DEGREES } from "../src/scale-degree-config.ts";
-import { resetScaleDegreePreference } from "../src/scale-degree-preference.ts";
 import {
   buildScaleDegreeQuestion,
   maxSemitonesAmong,
@@ -39,7 +38,6 @@ describe("buildScaleDegreeQuestion", () => {
 
 describe("randomScaleDegreeQuestion", () => {
   it("throws when no tonic fits the range", () => {
-    resetScaleDegreePreference();
     const octave = getScaleDegreeById("octave")!;
     expect(() =>
       randomScaleDegreeQuestion({ lowMidi: 60, highMidi: 65 }, octave),
@@ -49,10 +47,10 @@ describe("randomScaleDegreeQuestion", () => {
 
 describe("round tonic", () => {
   const tenorRange = { lowMidi: 48, highMidi: 67 } as const;
+  const enabledDegrees = SCALE_DEGREES.filter((entry) => entry.enabled);
 
-  it("uses max span among active degrees for valid round tonics", () => {
-    resetScaleDegreePreference();
-    const roundTonics = validRoundTonicMidis(tenorRange, SCALE_DEGREES);
+  it("uses max span among tier degrees for valid round tonics", () => {
+    const roundTonics = validRoundTonicMidis(tenorRange, enabledDegrees);
     const fourthOnly = validTonicMidis(tenorRange, 5);
     expect(roundTonics.length).toBeLessThan(fourthOnly.length);
     expect(maxSemitonesAmong(SCALE_DEGREES)).toBe(12);

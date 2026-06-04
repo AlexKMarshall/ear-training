@@ -1,11 +1,13 @@
-import { pickRandomInversion } from "../chord-inversion-preference.ts";
-import { pickRandomChordType } from "../chord-type-preference.ts";
-import { randomChordQuestion } from "../chord-types.ts";
-import { chordMidis, chordTarget } from "../chords.ts";
+import { chordMidis } from "../chords.ts";
 import { playChord, playTargetNote } from "../audio/playback.ts";
 import { randomNoteInRange } from "../notes.ts";
 import { getActiveNoteRange } from "../voice-ranges.ts";
-import { mountSingTest, type SingTestConfig } from "./sing-test.ts";
+import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts";
+import {
+  prepareChordQuestion,
+  resolveChordSession,
+  type ChordSessionDeps,
+} from "./chord-session.ts";
 
 export const singleNoteTestConfig: SingTestConfig = {
   exerciseId: "single-note",
@@ -29,18 +31,18 @@ export const singleNoteTestConfig: SingTestConfig = {
   playReference: (question) => playTargetNote(question.target.midi),
 };
 
-export const chordMiddleTestConfig: SingTestConfig = {
-  exerciseId: "chord-middle",
+const chordMiddleBase = {
+  exerciseId: "chord-middle" as const,
   title: "Sing the middle note",
   subtitle: "Hear a chord and sing the middle note",
   playButtonLabel: "Play chord",
   showVoicePicker: true,
-  showChordTypePicker: true,
-  showInversionPicker: true,
+  showChordTypePicker: false,
+  showInversionPicker: false,
   status: {
     idle: "Press Play to hear the chord.",
-    noChordTypes: "Select at least one chord type to begin.",
-    noInversions: "Select at least one inversion to begin.",
+    noChordTypes: "",
+    noInversions: "",
     playing: "Listen to the chord…",
     ready: "Sing the middle note of the chord, then tap Start singing when ready.",
     recording:
@@ -49,22 +51,7 @@ export const chordMiddleTestConfig: SingTestConfig = {
     fail: "Try again on this question (up to 3 tries).",
     failExhausted: "Out of tries — tap Next question to continue the round.",
   },
-  prepareQuestion: () => {
-    const type = pickRandomChordType();
-    const inversion = pickRandomInversion();
-    const chord = randomChordQuestion(
-      type,
-      inversion,
-      getActiveNoteRange(),
-    );
-    return {
-      target: chordTarget(chord),
-      chord,
-      chordTypeId: type.id,
-      inversionId: inversion,
-    };
-  },
-  playReference: (question) => {
+  playReference: (question: Parameters<SingTestConfig["playReference"]>[0]) => {
     if (!question.chord) {
       throw new Error("Missing chord for playback");
     }
@@ -72,10 +59,27 @@ export const chordMiddleTestConfig: SingTestConfig = {
   },
 };
 
+export const chordMiddleTestConfig: SingTestConfig = {
+  ...chordMiddleBase,
+  prepareQuestion: () => prepareChordQuestion([]),
+};
+
 export function mountSingleNoteTest(root: HTMLElement): void {
   mountSingTest(root, singleNoteTestConfig);
 }
 
-export function mountChordMiddleTest(root: HTMLElement): void {
-  mountSingTest(root, chordMiddleTestConfig);
+export function mountChordMiddleTest(
+  root: HTMLElement,
+  deps?: ChordSessionDeps & SingMountDeps,
+): void {
+  const { cache, planner, rng } = resolveChordSession(deps);
+  mountSingTest(
+    root,
+    {
+      ...chordMiddleBase,
+      prepareQuestion: () =>
+        prepareChordQuestion(cache.getRecords(), planner, undefined, rng),
+    },
+    { ...deps, history: cache.historyPort },
+  );
 }

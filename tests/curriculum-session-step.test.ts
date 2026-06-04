@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { getSessionStepForExercise } from "../src/curriculum/session-step.ts";
+import { CHORD_MIDDLE_STEP, getSessionStepForExercise } from "../src/curriculum/session-step.ts";
 import {
   passingLevel2History,
   passingMelodicSing2bHistory,
   passingSingleNoteHistory,
+  passingThroughMelodic2bHistory,
 } from "./fixtures/attempts.ts";
 
 describe("getSessionStepForExercise", () => {
@@ -57,5 +58,21 @@ describe("getSessionStepForExercise", () => {
       exerciseId: "interval-harmonic-id",
       contentTierId: "interval-2a",
     });
+  });
+
+  it("returns degree-3a for scale-degree sing when unlocked", () => {
+    const records = passingThroughMelodic2bHistory();
+    expect(
+      getSessionStepForExercise("scale-degree-sing", records),
+    ).toEqual({
+      exerciseId: "scale-degree-sing",
+      contentTierId: "degree-3a",
+    });
+  });
+
+  it("returns chord-1a for chord-middle free practice", () => {
+    expect(getSessionStepForExercise("chord-middle", [])).toEqual(
+      CHORD_MIDDLE_STEP,
+    );
   });
 });
