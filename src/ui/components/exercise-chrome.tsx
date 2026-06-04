@@ -34,6 +34,10 @@ export function ExerciseActionBar(props: {
   playLabel: string;
   playHidden: boolean;
   playDisabled: boolean;
+  recordHidden?: boolean;
+  recordDisabled?: boolean;
+  recordLabel?: string;
+  onRecord?: () => void;
   retryHidden: boolean;
   nextHidden: boolean;
   nextLabel: string;
@@ -54,6 +58,17 @@ export function ExerciseActionBar(props: {
       >
         {props.playLabel}
       </button>
+      {props.onRecord ? (
+        <button
+          type="button"
+          class="btn"
+          hidden={props.recordHidden}
+          disabled={props.recordDisabled}
+          onClick={props.onRecord}
+        >
+          {props.recordLabel ?? "Start singing"}
+        </button>
+      ) : null}
       <button
         type="button"
         class="btn"
