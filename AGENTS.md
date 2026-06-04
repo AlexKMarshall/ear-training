@@ -9,6 +9,7 @@ Browser-based ear training (static site, TypeScript, Vite, Vitest). Product dire
 | **Opening pull requests** | [`docs/agents/pull-requests.md`](docs/agents/pull-requests.md) |
 | **Multi-PR plans** | [`docs/agents/multi-pr-plans.md`](docs/agents/multi-pr-plans.md) |
 | **Testing (agent guides)** | [`docs/agents/testing.md`](docs/agents/testing.md) |
+| **JSX / Solid UI** | [`docs/agents/jsx.md`](docs/agents/jsx.md) |
 | **Tech debt (architecture & tooling)** | [`docs/tech-debt.md`](docs/tech-debt.md) |
 | **Tech debt (agent workflow)** | [`docs/agents/tech-debt.md`](docs/agents/tech-debt.md) |
 
@@ -36,6 +37,7 @@ Do not claim tests pass on a PR without a green **CI** check on that PR.
 
 - Prefer small, focused PRs; one logical change per PR unless the user asks to combine steps.
 - Match existing code style in `src/`; avoid drive-by refactors.
+- **JSX:** do not assign element trees to locals inside a component; extract a function component ([`docs/agents/jsx.md`](docs/agents/jsx.md)).
 - Do not create git commits unless the user explicitly asks.
 
 ## Agent skills
