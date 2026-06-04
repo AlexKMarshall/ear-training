@@ -232,4 +232,36 @@ describe("planNextQuestionTag", () => {
       ["perfect-fourth", "perfect-fifth", "perfect-octave"].includes(id),
     )).toBe(true);
   });
+
+  it("draws scale degrees from the degree-3a pool", () => {
+    const step = {
+      exerciseId: "scale-degree-sing" as const,
+      contentTierId: "degree-3a" as const,
+    };
+    const counts = new Set<string>();
+    for (let i = 0; i < 30; i++) {
+      counts.add(planNextQuestionTag(step, []));
+    }
+    expect([...counts].every((id) =>
+      ["fourth", "fifth", "octave"].includes(id),
+    )).toBe(true);
+  });
+
+  it("draws chord types from the chord-1a pool", () => {
+    const step = {
+      exerciseId: "chord-middle" as const,
+      contentTierId: "chord-1a" as const,
+    };
+    const counts = new Set<string>();
+    for (let i = 0; i < 30; i++) {
+      counts.add(planNextQuestionTag(step, []));
+    }
+    expect([...counts].every((id) =>
+      [
+        "major-triad-sing-middle",
+        "minor-triad-sing-middle",
+        "diminished-triad-sing-middle",
+      ].includes(id),
+    )).toBe(true);
+  });
 });

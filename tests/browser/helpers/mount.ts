@@ -155,6 +155,12 @@ function createSingTestConfigFor(
           chord: fixedChordQuestion,
           chordTypeId: MAJOR_TRIAD_SING_MIDDLE.id,
           inversionId: "root",
+          contentTierId: "chord-1a",
+          eligibleTagIds: [
+            "major-triad-sing-middle",
+            "minor-triad-sing-middle",
+            "diminished-triad-sing-middle",
+          ],
         }),
         playReference: async () => {},
         ...overrides,
@@ -188,10 +194,13 @@ function createSingTestConfigFor(
     case "scale-degree-sing":
       return {
         ...scaleDegreeSingConfig,
-        prepareQuestion: () =>
-          scaleDegreeToSingTestQuestion(
+        prepareQuestion: () => ({
+          ...scaleDegreeToSingTestQuestion(
             buildScaleDegreeQuestion(scaleDegreeFifth, 60),
           ),
+          contentTierId: "degree-3a",
+          eligibleTagIds: ["fourth", "fifth", "octave"],
+        }),
         playReference: async () => {},
         ...overrides,
       };

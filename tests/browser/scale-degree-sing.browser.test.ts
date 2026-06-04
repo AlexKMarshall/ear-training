@@ -47,6 +47,7 @@ test("play tonic, show degree prompt, pass recording, and saveAttempt", async ()
     degreeId: "fifth",
     tonicMidi: 60,
     targetMidi: 67,
+    contentTierId: "degree-3a",
     questionIndex: 0,
   });
 });

@@ -1,8 +1,8 @@
-import { type ScaleDegreeEntry } from "./scale-degree-config.ts";
 import {
-  getActiveScaleDegrees,
-  pickRandomScaleDegree,
-} from "./scale-degree-preference.ts";
+  getScaleDegreeById,
+  SCALE_DEGREES,
+  type ScaleDegreeEntry,
+} from "./scale-degree-config.ts";
 import {
   midiToHz,
   midiToNoteName,
@@ -62,20 +62,20 @@ export function maxSemitonesAmong(
   return Math.max(...degrees.map((entry) => entry.semitonesFromTonic));
 }
 
-/** Tonic MIDI values where every active degree target fits in range. */
+/** Tonic MIDI values where every degree target fits in range. */
 export function validRoundTonicMidis(
   range: NoteRange,
-  degrees: readonly ScaleDegreeEntry[] = getActiveScaleDegrees(),
+  degrees: readonly ScaleDegreeEntry[],
 ): number[] {
   return validTonicMidis(range, maxSemitonesAmong(degrees));
 }
 
 export function pickRandomRoundTonic(
   range: NoteRange,
-  degrees: readonly ScaleDegreeEntry[] = getActiveScaleDegrees(),
+  degrees: readonly ScaleDegreeEntry[],
 ): number {
   if (degrees.length === 0) {
-    throw new Error("No scale degrees are selected");
+    throw new Error("No scale degrees in tier pool");
   }
   const tonics = validRoundTonicMidis(range, degrees);
   if (tonics.length === 0) {
@@ -86,16 +86,27 @@ export function pickRandomRoundTonic(
   return tonics[Math.floor(Math.random() * tonics.length)]!;
 }
 
+export function scaleDegreeQuestionForTag(
+  degreeId: string,
+  tonicMidi: number,
+): ScaleDegreeQuestion {
+  const degree = getScaleDegreeById(degreeId);
+  if (!degree) {
+    throw new Error(`Unknown scale degree id: ${degreeId}`);
+  }
+  return buildScaleDegreeQuestion(degree, tonicMidi);
+}
+
 export function randomScaleDegreeQuestionForTonic(
   tonicMidi: number,
-  degree: ScaleDegreeEntry = pickRandomScaleDegree(),
+  degree: ScaleDegreeEntry,
 ): ScaleDegreeQuestion {
   return buildScaleDegreeQuestion(degree, tonicMidi);
 }
 
 export function randomScaleDegreeQuestion(
   range: NoteRange,
-  degree: ScaleDegreeEntry = pickRandomScaleDegree(),
+  degree: ScaleDegreeEntry,
 ): ScaleDegreeQuestion {
   const tonics = validTonicMidis(range, degree.semitonesFromTonic);
   if (tonics.length === 0) {
@@ -119,9 +130,13 @@ export function scaleDegreeToSingTestQuestion(
 
 export function randomScaleDegreeSingQuestion(
   range: NoteRange,
-  tonicMidi: number = pickRandomRoundTonic(range),
+  degrees: readonly ScaleDegreeEntry[] = SCALE_DEGREES.filter(
+    (entry) => entry.enabled,
+  ),
+  tonicMidi: number = pickRandomRoundTonic(range, degrees),
 ): SingTestQuestion {
+  const degree = degrees[Math.floor(Math.random() * degrees.length)]!;
   return scaleDegreeToSingTestQuestion(
-    randomScaleDegreeQuestionForTonic(tonicMidi),
+    randomScaleDegreeQuestionForTonic(tonicMidi, degree),
   );
 }
