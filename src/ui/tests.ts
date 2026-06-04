@@ -38,12 +38,8 @@ const chordMiddleBase = {
   subtitle: "Hear a chord and sing the middle note",
   playButtonLabel: "Play chord",
   showVoicePicker: true,
-  showChordTypePicker: false,
-  showInversionPicker: false,
   status: {
     idle: "Press Play to hear the chord.",
-    noChordTypes: "",
-    noInversions: "",
     playing: "Listen to the chord…",
     ready: "Sing the middle note of the chord, then tap Start singing when ready.",
     recording:

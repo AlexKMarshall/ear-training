@@ -15,7 +15,6 @@ const intervalMelodicSingBase = {
   subtitle: "Hear two notes in sequence, then sing the top note",
   playButtonLabel: "Play interval",
   showVoicePicker: true,
-  showIntervalPicker: false,
   status: {
     idle: "Press Play to hear the interval.",
     playing: "Listen to both notes…",
@@ -48,7 +47,6 @@ const intervalHarmonicSingBase = {
   subtitle: "Hear two notes together, then sing the top note",
   playButtonLabel: "Play interval",
   showVoicePicker: true,
-  showIntervalPicker: false,
   status: {
     idle: "Press Play to hear the interval.",
     playing: "Listen to both notes…",

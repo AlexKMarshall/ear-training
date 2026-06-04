@@ -14,10 +14,8 @@ const scaleDegreeSingBase = {
     "One key per lesson — hear the tonic, then sing each requested scale degree",
   playButtonLabel: "Play tonic",
   showVoicePicker: true,
-  showDegreePicker: false,
   status: {
     idle: "Press Play to hear the tonic for this lesson.",
-    noDegrees: "",
     playing: "Listen to the tonic…",
     ready: "Sing the degree shown below, then tap Start singing when ready.",
     recording:
