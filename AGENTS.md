@@ -37,3 +37,17 @@ Do not claim tests pass on a PR without a green **CI** check on that PR.
 - Prefer small, focused PRs; one logical change per PR unless the user asks to combine steps.
 - Match existing code style in `src/`; avoid drive-by refactors.
 - Do not create git commits unless the user explicitly asks.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in Linear ([Ear training project](https://linear.app/alexkmarshall/project/ear-training-8cc2326d7302/overview)); GitHub is for code and PRs only. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Five state roles use default label strings (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`); category roles `bug` and `enhancement`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context — `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
