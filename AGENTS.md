@@ -42,7 +42,7 @@ Do not claim tests pass on a PR without a green **CI** check on that PR.
 
 ### Issue tracker
 
-Issues live in Linear ([Ear training project](https://linear.app/alexkmarshall/project/ear-training-8cc2326d7302/overview)); GitHub is for code and PRs only. See `docs/agents/issue-tracker.md`.
+Issues and PRDs live as [GitHub issues](https://github.com/AlexKMarshall/ear-training/issues) on this repo; use `gh` per `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
