@@ -4,6 +4,36 @@ Browser-based ear training for singers: a guided curriculum of lessons, each mad
 
 ## Language
 
+### UI layer
+
+**Presentation**:
+DOM structure, styling, and user-visible copy only — including which controls are shown, hidden, or disabled for a given view. Does not decide scoring, unlock, lesson progression, or which question to draw.
+_Avoid_: UI (when meaning the whole mount module), view layer
+
+**Business logic**:
+Rules that determine outcomes: scoring, curriculum and unlock checks, session planner draws, lesson progression (exercise index, attempts per exercise, lesson summary), and attempt persistence. Must not live in presentation code; the UI receives outcomes and maps them to presentation.
+_Avoid_: Domain (without scope), backend (this app has no server)
+
+**Exercise screen state**:
+The phase machine inside a practice-mode mount today (e.g. idle → playing → ready → recording → result → lesson summary on sing exercises). Duplicated across sing and identify mounts; mixes lesson rules with presentation updates and should move toward a shared, testable lesson controller separate from markup.
+_Avoid_: Test state, UI state (when meaning curriculum or unlock state)
+
+**Lesson run**:
+The unified, rules-only controller for one ten-exercise lesson: exercise index, attempts on the current exercise, when retry and advance are allowed, lesson results, and lesson summary. Shared by sing and identify; mounts map its snapshot to presentation. Does not own exercise screen state (playback, recording, choice UI).
+_Avoid_: Lesson (when meaning the controller module), test state machine
+
+**Attempt scored** (callback):
+Hook fired when the learner completes a scored try on the current exercise. The lesson run updates lesson rules; the adapter (mount or session wiring) builds and persists the history record — not the lesson run itself.
+_Avoid_: Save attempt (when meaning the callback event), score event
+
+**Presentation implementation** (deferred):
+How the presentation layer is built and assembled in code — distinct from lesson run and business rules. Chosen after lesson run is extracted; not part of that refactor.
+_Avoid_: UI framework, front-end stack
+
+**Lesson run extraction**:
+Refactor that introduces the unified lesson run and rewires practice-mode mounts to use it while leaving presentation authoring unchanged. Delivered as separate pull requests: lesson run with unit tests first, then one PR per mount (identify, then sing) for reviewability.
+_Avoid_: UI rewrite, framework migration
+
 ### Practice flow (Duolingo-aligned)
 
 **Exercise**:
