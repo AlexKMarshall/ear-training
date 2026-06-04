@@ -1,5 +1,10 @@
-import { EXERCISES } from "../exercises/registry.ts";
+import { EXERCISES, getExercise } from "../exercises/registry.ts";
 import { percentOf } from "../round.ts";
+import {
+  computeTagBreakdownForExercise,
+  singAttemptsMedianAbsCents,
+  type TagStats,
+} from "./tag-stats.ts";
 import {
   EXERCISE_LABELS,
   type AttemptRecord,
@@ -15,8 +20,10 @@ export interface ExerciseStats {
   attemptPassRatePercent: number;
   /** Share of questions with at least one passing attempt. */
   questionPassRatePercent: number;
-  medianAbsCents: number;
+  /** Null for identify-only exercise sections (cents not meaningful). */
+  medianAbsCents: number | null;
   firstTryRatePercent: number;
+  byTag?: TagStats[];
 }
 
 export interface DashboardStats {
@@ -24,6 +31,7 @@ export interface DashboardStats {
   totalQuestions: number;
   attemptPassRatePercent: number;
   questionPassRatePercent: number;
+  /** Median abs cents over sing attempts only. */
   medianAbsCents: number;
   firstTryRatePercent: number;
   byExercise: ExerciseStats[];
@@ -43,7 +51,7 @@ function median(values: number[]): number {
   return sorted[mid]!;
 }
 
-function computeQuestionStats(records: readonly AttemptRecord[]): {
+export function computeQuestionStats(records: readonly AttemptRecord[]): {
   questionCount: number;
   questionPassRatePercent: number;
   firstTryRatePercent: number;
@@ -89,7 +97,7 @@ function computeAttemptPassRate(records: readonly AttemptRecord[]): number {
   return percentOf(passed, records.length);
 }
 
-function computeMedianAbsCents(records: readonly AttemptRecord[]): number {
+export function computeMedianAbsCents(records: readonly AttemptRecord[]): number {
   if (records.length === 0) return 0;
   return Math.round(
     median(records.map((r) => Math.abs(r.centsOff))),
@@ -101,13 +109,15 @@ function statsForExercise(
   records: readonly AttemptRecord[],
 ): ExerciseStats {
   const questionStats = computeQuestionStats(records);
+  const isIdentify = getExercise(exerciseId).responseMode === "select";
   return {
     exerciseId,
     label: EXERCISE_LABELS[exerciseId],
     attemptCount: records.length,
     ...questionStats,
     attemptPassRatePercent: computeAttemptPassRate(records),
-    medianAbsCents: computeMedianAbsCents(records),
+    medianAbsCents: isIdentify ? null : computeMedianAbsCents(records),
+    byTag: computeTagBreakdownForExercise(exerciseId, records),
   };
 }
 
@@ -149,7 +159,7 @@ export function computeDashboardStats(
     questionPassRatePercent: questionStats.questionPassRatePercent,
     firstTryRatePercent: questionStats.firstTryRatePercent,
     attemptPassRatePercent: computeAttemptPassRate(records),
-    medianAbsCents: computeMedianAbsCents(records),
+    medianAbsCents: singAttemptsMedianAbsCents(records),
     byExercise: exerciseIds.map((id) =>
       statsForExercise(
         id,

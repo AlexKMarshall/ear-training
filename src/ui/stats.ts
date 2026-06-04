@@ -1,8 +1,62 @@
+import { getExercise } from "../exercises/registry.ts";
 import {
   createDefaultHistoryPort,
   type MountDeps,
 } from "../history/port.ts";
 import { computeDashboardStats, type ExerciseStats } from "../history/stats.ts";
+import {
+  getTagBreakdownConfig,
+  tagBreakdownHeading,
+  type TagStats,
+} from "../history/tag-stats.ts";
+function formatMedianCents(value: number | null): string {
+  if (value === null) return "—";
+  return `${value}¢`;
+}
+
+function renderTagRow(tag: TagStats, showMedian: boolean): string {
+  return `
+    <div class="stats-tag-row">
+      <span class="stats-tag-label">${tag.label}</span>
+      <dl class="stats-grid stats-grid-compact">
+        <div class="stats-item">
+          <dt>Questions correct</dt>
+          <dd>${tag.questionPassRatePercent}%</dd>
+        </div>
+        <div class="stats-item">
+          <dt>First try</dt>
+          <dd>${tag.firstTryRatePercent}%</dd>
+        </div>
+        ${
+          showMedian
+            ? `
+        <div class="stats-item">
+          <dt>Median error</dt>
+          <dd>${formatMedianCents(tag.medianAbsCents)}</dd>
+        </div>
+        `
+            : ""
+        }
+      </dl>
+    </div>
+  `;
+}
+
+function renderTagBreakdown(stats: ExerciseStats): string {
+  const config = getTagBreakdownConfig(stats.exerciseId);
+  if (!config || !stats.byTag?.length) return "";
+
+  const showMedian = config.includeMedianCents;
+  return `
+    <div class="stats-subsection">
+      <h3 class="stats-subsection-title">${tagBreakdownHeading(config.kind)}</h3>
+      <p class="stats-hint">Weakest first (by questions correct).</p>
+      <div class="stats-tag-list">
+        ${stats.byTag.map((tag) => renderTagRow(tag, showMedian)).join("")}
+      </div>
+    </div>
+  `;
+}
 
 function renderExerciseSection(stats: ExerciseStats): string {
   if (stats.attemptCount === 0) {
@@ -13,6 +67,8 @@ function renderExerciseSection(stats: ExerciseStats): string {
       </section>
     `;
   }
+
+  const showMedian = stats.medianAbsCents !== null;
 
   return `
     <section class="stats-section">
@@ -34,11 +90,18 @@ function renderExerciseSection(stats: ExerciseStats): string {
           <dt>First try</dt>
           <dd>${stats.firstTryRatePercent}%</dd>
         </div>
+        ${
+          showMedian
+            ? `
         <div class="stats-item">
           <dt>Median error</dt>
-          <dd>${stats.medianAbsCents}¢</dd>
+          <dd>${formatMedianCents(stats.medianAbsCents)}</dd>
         </div>
+        `
+            : ""
+        }
       </dl>
+      ${renderTagBreakdown(stats)}
     </section>
   `;
 }
@@ -51,6 +114,9 @@ export async function mountStats(
   const records = await history.getAllAttempts();
   const stats = computeDashboardStats(records);
   const hasData = stats.totalAttempts > 0;
+  const hasSingAttempts = records.some(
+    (r) => getExercise(r.exerciseId).responseMode === "sing",
+  );
 
   root.innerHTML = `
     <main class="app">
@@ -89,11 +155,22 @@ export async function mountStats(
               <dt>First try</dt>
               <dd>${stats.firstTryRatePercent}%</dd>
             </div>
+            ${
+              hasSingAttempts
+                ? `
             <div class="stats-item">
-              <dt>Median error</dt>
+              <dt>Median error (singing)</dt>
               <dd>${stats.medianAbsCents}¢</dd>
             </div>
+            `
+                : ""
+            }
           </dl>
+          ${
+            hasSingAttempts
+              ? ""
+              : `<p class="stats-hint">Median error applies to singing exercises only.</p>`
+          }
         </section>
         ${stats.byExercise.map(renderExerciseSection).join("")}
       `

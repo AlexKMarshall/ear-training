@@ -26,7 +26,7 @@ Browser-based ear training for singers: harmony, pitch recognition, and vocal re
 | **Session shape** | 10-question rounds, up to 3 attempts per question, in-round summary (`firstTry` / `retry` / `wrong`) — sing and identify flows |
 | **Personalization** | Voice type range; chord type & inversion filters; **interval set** filter (P4 / P5 / octave in v1 registry); **scale-degree set** filter (4th / 5th / octave in v1) — all `localStorage` |
 | **Persistence** | Preferences in `localStorage`; **attempt history** in IndexedDB (`src/history/`) — per attempt: `exerciseId`, target, `centsOff`, pass/fail, chord meta, **`intervalId`** / presentation / selected answer for ID exercises, **`degreeId`** / `tonicMidi` for scale-degree sing, `roundId` + `questionIndex` |
-| **Stats / dashboard** | [`/stats/`](stats/index.html) — overall + per-exercise for all seven `exerciseId`s (IDs from registry). Median ¢ is meaningful for sing exercises only (ID attempts always record 0¢). **No** breakdown by `intervalId`, `degreeId`, chord type, or time trends yet. |
+| **Stats / dashboard** | [`/stats/`](stats/index.html) — overall + per-exercise for all seven `exerciseId`s; **weakness breakdown** by `intervalId`, `degreeId`, and chord type (weakest first). Overall / sing sections use median ¢; identify sections omit median. **No** time trends yet. |
 | **Recognition / naming** | **Partial** — interval identification only (perfect 4th / 5th / octave labels); scale-degree **sing** in key (v1 pool); no scale-degree ID, triad quality, or note names |
 | **Curriculum (v1 shell)** | **Done** — home at `/` shows **Continue**, **Level 1** (single note) → **Level 2** (intervals) → **Level 3** (scale-degree sing), and **Free practice** (`chord-middle`). Unlock from IndexedDB via [`src/curriculum/unlock.ts`](../src/curriculum/unlock.ts) (≥10 questions, ≥70% question pass rate on predecessor). Locked path exercises are non-links on home; direct URLs show a locked page via [`src/ui/exercise-page.ts`](../src/ui/exercise-page.ts). Thresholds are constants, not user-configurable. |
 | **Testing** | **Partial (T3)** — Node unit tests + **browser** orchestration for all seven registry exercises (round flows + registry smokes), registry contract test, dev `?unlock=all`. **CI:** `npm test`, `npm run test:browser`, `npm run build`. **Next:** [T4](testing-roadmap.md#phase-t4---optional-hardening) (optional hardening). |
@@ -76,7 +76,7 @@ flowchart LR
 | Feature | Status | Notes |
 |---------|--------|--------|
 | Persist attempt history | **Done** | IndexedDB store; per attempt: `exerciseId`, target, `centsOff`, pass/fail, attempt number, timestamp, voice type, chord notes/type/inversion, interval fields, active filter snapshot, `roundId` + `questionIndex`. See `src/history/`. |
-| Dashboard | **Done (MVP)** | `/stats/`: attempt pass rate, question pass rate, first-try rate, median abs cents error; overall + per exercise (all six types). Weakness-tag breakdown and time trends not yet. |
+| Dashboard | **Done (MVP+)** | `/stats/`: attempt pass rate, question pass rate, first-try rate; median ¢ on sing exercises only; per-exercise **by-tag** breakdown (interval / degree / chord type). Time trends not yet. |
 | Skill profiles | **Done (lite)** | Separate stats per `exerciseId` on the dashboard. |
 | Practice goals & streaks | Todo | e.g. daily question count or minutes; optional notifications later. |
 | Targeted drills | Todo | Weight generation toward missed tags (chord type, **interval id**, register, degree, etc.) — interval id is already persisted but not used for drill weighting. |
@@ -172,7 +172,7 @@ flowchart LR
 | Need | Technical | Musical |
 |------|-----------|---------|
 | Regular practice | Goals, streaks, reminders | Short daily mixed drill |
-| Measurable improvement | History + `/stats/` MVP for all exercises; **weakness map by `intervalId` / chord type still TODO**; ID exercises don’t use cents meaningfully in dashboard | Per-skill benchmarks *(lite: per exercise id)* |
+| Measurable improvement | History + `/stats/` with per-tag weakness (interval, degree, chord type); ID exercises omit median ¢; **time trends still TODO** | Per-skill benchmarks *(lite: per exercise id + tags)* |
 | Progressive difficulty | **Curriculum v1 done** — levels 1–3 path, history unlock, home + guards; level 4+ not started | Level 2–3 content partial (P4/P5/8ve pools); per-level pool enforcement still TODO |
 | Naming / recognition | Select UI + interval ID exercises **done (partial)**; scale-degree **sing** in key **done (partial)**; scale-degree ID & chord ID **TODO** | Degrees-first interval labels **done (partial)**; note names **TODO** |
 | Not only reproduction | Interval ID **done (partial)**; phrase scoring, multi-target rounds **TODO** | Dictation, functional hearing **TODO** |
@@ -184,7 +184,7 @@ flowchart LR
 ## Suggested build order
 
 1. ~~**Persist results + dashboard** (Phase 0)~~ **Done**
-2. ~~**Interval sing + interval recognition (degree labels)** (Phase 1–2)~~ **Done (partial)** — P4/P5/octave, four routes, history + stats. **Remaining:** expand intervals, per-tag stats/drills, richer reproduction tasks.
+2. ~~**Interval sing + interval recognition (degree labels)** (Phase 1–2)~~ **Done (partial)** — P4/P5/octave, four routes, history + stats. **Remaining:** expand intervals, targeted drills (tags now visible on dashboard), richer reproduction tasks.
 3. ~~**Curriculum / levels (v1 shell)**~~ **Done** — registry, levels 1–2 path, history unlock, curriculum home, page guards, free practice for `chord-middle`.
 4. ~~**Scale-degree sing in key** (Level 3)~~ **Done (partial)** — `/scale-degree-sing/`, tonic → prompt → sing; v1 pool 4th/5th/octave. **Remaining:** degree ID (when pool diverges from interval ID), expand degrees with interval pool.
 5. **Expand chord exercises** (sing other chord tones; quality/inversion ID)
@@ -206,7 +206,7 @@ flowchart LR
 - Generalize `SingTestConfig` / `IdentifyTestConfig` → `ExerciseDefinition` with pluggable `prepareQuestion`, `playReference`, `score(response)` and `responseMode`.
 - ~~Persist scored attempts + question snapshots to history store.~~ **Done** — `saveAttempt` on each score (sing and identify); round outcomes still ephemeral in UI only.
 - ~~**Curriculum spine (v1).**~~ **Done** — `EXERCISES` registry, `CURRICULUM_PATH` / unlock from `computeExerciseProgress`, async home + `mountExercisePage` guard.
-- Extend dashboard with weakness tags (e.g. by `intervalId`) and trends; optional round-level aggregates in history; ID-appropriate metrics (not median ¢).
+- ~~Extend dashboard with weakness tags (e.g. by `intervalId`).~~ **Done** — [`src/history/tag-stats.ts`](../src/history/tag-stats.ts), `/stats/` UI. **Next:** trends; optional round-level aggregates; targeted drill weighting from tags.
 - Reuse preference patterns (`voice-ranges`, `chord-type-preference`, `interval-preference`) for **per-level interval pools** and **enabled skills** (v1 unlock does not override session interval picker).
 - ~~Implement **recognition** as sibling modes sharing playback and question generation.~~ **Partial** — `identify-test.ts` shares rounds/history with sing tests; interval playback/questions shared via `interval-questions.ts`; registry lists `responseMode` but sing/identify mount paths remain separate.
 - **Testability at UI boundaries** — **Partial (T2):** `HistoryPort` + `AudioPort` on `mountIdentifyTest`; `HistoryPort` + `AudioPort` + `RecordingPort` on `mountSingTest`; `HistoryPort` on home, exercise page, and stats. Enables [browser orchestration tests](testing-roadmap.md#dependency-ports-enabler) without mocking vendor audio libs.
@@ -222,7 +222,7 @@ flowchart LR
 | Level 4+ placeholders | No exercises yet |
 | Mixed-level rounds | Per-exercise rounds unchanged |
 | Goals, streaks, adaptive drills | Phase 0 |
-| Weakness stats by `intervalId` | Exercise-level unlock only |
+| Weakness stats by `intervalId` | **Done** on `/stats/`; drill weighting still TODO |
 | Configurable unlock thresholds in UI | Constants in `unlock.ts` |
 | Dev `?unlock=all` | **Done** — [`src/curriculum/dev-unlock.ts`](../src/curriculum/dev-unlock.ts); access-only; see [testing roadmap manual QA](testing-roadmap.md#manual-qa-notes) |
 

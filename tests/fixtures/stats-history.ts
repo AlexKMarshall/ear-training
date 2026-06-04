@@ -1,0 +1,25 @@
+import type { AttemptRecord } from "../../src/history/types.ts";
+import { attempt } from "./attempts.ts";
+
+/** Interval sing with two tags for weakness breakdown UI tests. */
+export function intervalWeaknessHistory(): AttemptRecord[] {
+  return [
+    attempt({
+      exerciseId: "interval-melodic-sing",
+      passed: true,
+      attemptNumber: 1,
+      centsOff: 5,
+      intervalId: "perfect-fifth",
+      questionIndex: 0,
+    }),
+    attempt({
+      exerciseId: "interval-melodic-sing",
+      passed: false,
+      attemptNumber: 1,
+      centsOff: 40,
+      intervalId: "perfect-fourth",
+      questionIndex: 1,
+      roundId: "round-1",
+    }),
+  ];
+}
