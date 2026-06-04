@@ -19,6 +19,10 @@ Apply triage labels per `docs/agents/triage-labels.md`. Create missing labels in
 
 Create a GitHub issue with the approved title and body. Apply `ready-for-agent` (or the label the maintainer specified) unless told otherwise.
 
+## Closing issues from merged PRs
+
+Only `Closes` / `Fixes` / `Resolves` (etc.) in the **PR body or commit message** auto-close linked issues. A parent closing does **not** close child issues. See [Closing GitHub issues from a PR](pull-requests.md#closing-github-issues-from-a-pr).
+
 ## When a skill says "fetch the relevant ticket"
 
 Run `gh issue view <number> --comments`. Accept issue URLs (`github.com/.../issues/<n>`) or numbers from the user.
