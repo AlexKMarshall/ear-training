@@ -19,6 +19,8 @@ Apply triage labels per `docs/agents/triage-labels.md`. Create missing labels in
 
 Create a GitHub issue with the approved title and body. Apply `ready-for-agent` (or the label the maintainer specified) unless told otherwise.
 
+If the planning session updated **`CONTEXT.md`**, publish (or remind the user to merge) a **glossary documentation PR** on `main` **before** implementation slices start — see [`domain.md`](domain.md#glossary-pr-before-implementation). When using `/to-issues`, add a parent-epic comment that names the glossary PR or slice-0 issue and tells implementers to merge it first.
+
 ## Closing issues from merged PRs
 
 Only `Closes` / `Fixes` / `Resolves` (etc.) in the **PR body or commit message** auto-close linked issues. Closing a parent epic does **not** close child slice issues (and the reverse). See [Closing GitHub issues from a PR](pull-requests.md#closing-github-issues-from-a-pr).

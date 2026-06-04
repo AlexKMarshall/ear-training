@@ -23,6 +23,7 @@ Keep the table accurate. Update status only after the user confirms a PR is **me
 
 ## Typical PR sequence
 
+0. **Glossary documentation PR (when planning updated `CONTEXT.md`)** — Merge `CONTEXT.md` (and any new ADRs) on `main` **before** the first implementation PR. See [`domain.md`](domain.md#glossary-pr-before-implementation). Implementation agents assume the committed glossary.
 1. **Implementation PR(s)** — Code, config, tests, or agent docs that enable later steps. Order dependencies explicitly (e.g. process guide before CI workflow). **Tests for new behavior ship in the same PR as that behavior** — not as forward entries in the testing debt doc.
 2. **Roadmap sync (required)** — Before the plan is complete, sync docs to `main`:
    - [`docs/roadmap.md`](../roadmap.md) — remove shipped backlog items; add or reprioritize remaining planned work

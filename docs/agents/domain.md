@@ -29,6 +29,14 @@ When your output names a domain concept (in an issue title, a refactor proposal,
 
 If the concept you need isn't in the glossary yet, that's a signal — either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/grill-with-docs`).
 
+## Glossary PR before implementation
+
+When planning (`/grill-with-docs`, `/to-prd`, `/to-issues`) adds or updates **`CONTEXT.md`**, land that glossary on **`main` in a documentation PR before the first implementation slice**. Implementation issues and PRs assume agents read the committed glossary — not working-tree-only terms.
+
+- **One docs PR** at the start of the initiative (or immediately after the PRD/issues are published).
+- **Scope:** `CONTEXT.md` and any new ADRs from the session; agent-skill wording that records the “glossary first” rule.
+- **Do not** fold uncommitted glossary edits into the first code slice PR unless the user explicitly asks to combine.
+
 ## Flag ADR conflicts
 
 If your output contradicts an existing ADR, surface it explicitly rather than silently overriding:
