@@ -10,7 +10,7 @@ For work split across several merge-gated PRs (status table, merge gates, final 
 2. **Scope** — One logical change per PR. Do not bundle unrelated refactors or sneak ahead on a multi-step plan unless the user asks to combine.
 3. **Verify** — Run `npm test` (and `npm run build` if the change touches build, routes, or static assets). When browser tests exist, run `npm run test:browser` for PRs that touch `src/ui/` or mount/orchestration code — see [`docs/agents/testing.md`](testing.md) and [`docs/testing-roadmap.md`](../testing-roadmap.md). Confirm GitHub Actions **CI** is green on the PR. Do not claim tests pass without running them locally and without a green CI check.
 4. **Commits** — Only commit when the user asks. Use clear messages focused on *why* (1–2 sentences).
-5. **Roadmaps** — Update [`docs/roadmap.md`](../roadmap.md) when product milestones or current-state tables change. Update [`docs/testing-roadmap.md`](../testing-roadmap.md) only when the PR **closes or adds testing debt** on shipped behavior (see [Roadmap updates](#roadmap-updates)). New features include their own tests in the feature PR; do not add speculative debt rows for unbuilt work.
+5. **Roadmaps** — Update [`docs/roadmap.md`](../roadmap.md) when product milestones or current-state tables change. Update [`docs/testing-roadmap.md`](../testing-roadmap.md) only when the PR **closes or adds testing debt** on shipped behavior (see [Roadmap updates](#roadmap-updates)). Update [`docs/tech-debt.md`](../tech-debt.md) when the PR **closes or adds tech debt** (see [Tech debt registry](#tech-debt-registry)). New features include their own tests in the feature PR; do not add speculative debt rows for unbuilt work.
 
 ## Roadmap updates
 
@@ -26,6 +26,22 @@ For work split across several merge-gated PRs (status table, merge gates, final 
 | **Multi-PR plan** | Last PR syncs product roadmap to `main` | Last debt-closing PR syncs testing debt table; see [`multi-pr-plans.md`](multi-pr-plans.md) |
 
 Do not duplicate forward-looking test plans for roadmap features that are not built yet — those tests ship with the feature PR ([`testing.md`](testing.md)).
+
+## Tech debt registry
+
+| Document | Path | When to update |
+|----------|------|----------------|
+| **Tech debt** | [`docs/tech-debt.md`](../tech-debt.md) | Architecture/tooling debt **discovered**, **closed**, or **brought into scope** on a feature PR |
+
+Workflow detail: [`tech-debt.md`](tech-debt.md).
+
+| Situation | Product roadmap | Testing debt doc | Tech debt doc |
+|-----------|-----------------|------------------|---------------|
+| **Feature PR** | Update if the feature changes “current state” | Update only if the PR closes an open debt row (or documents new gap on `main`) | Add row if the PR reveals debt out of scope; close row if paying debt in this PR; note related TD IDs in **Downstream** |
+| **Refactor / tooling PR** | Usually omit | Usually omit | Mark TD IDs done; adjust open table |
+| **Multi-PR plan** | Last PR syncs product roadmap to `main` | Last debt-closing PR syncs testing debt table | Last debt-closing PR syncs tech debt table; see [`multi-pr-plans.md`](multi-pr-plans.md) |
+
+When implementing features, check the open tech debt table for **P0** items in the same area. If clearing them reduces risk for the feature, bring them into scope; otherwise link the TD ID for a follow-up.
 
 ## Branch naming
 
@@ -131,4 +147,5 @@ Return the PR URL to the user. Do not push or merge unless they ask.
 - Multi-PR plans: [`multi-pr-plans.md`](multi-pr-plans.md)
 - Product roadmap: [`docs/roadmap.md`](../roadmap.md)
 - Testing debt: [`docs/testing-roadmap.md`](../testing-roadmap.md)
+- Tech debt: [`docs/tech-debt.md`](../tech-debt.md)
 - Human README: [`README.md`](../../README.md)
