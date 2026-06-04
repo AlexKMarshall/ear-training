@@ -3,6 +3,7 @@ import { CHORD_MIDDLE_STEP, getSessionStepForExercise } from "../src/curriculum/
 import {
   passingLevel2History,
   passingMelodicSing2bHistory,
+  passingScaleDegreeHistory,
   passingSingleNoteHistory,
   passingStepHistory,
   passingThroughHarmonic2bHistory,
@@ -104,8 +105,8 @@ describe("getSessionStepForExercise", () => {
     });
   });
 
-  it("returns chord-1a for chord-middle free practice", () => {
-    expect(getSessionStepForExercise("chord-middle", [])).toEqual(
+  it("returns chord-1a for chord-middle when that step is unlocked", () => {
+    expect(getSessionStepForExercise("chord-middle", passingScaleDegreeHistory())).toEqual(
       CHORD_MIDDLE_STEP,
     );
   });

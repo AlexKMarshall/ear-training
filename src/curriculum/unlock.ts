@@ -1,10 +1,7 @@
 import { computeQuestionStats } from "../history/stats.ts";
 import type { AttemptRecord, ExerciseId } from "../history/types.ts";
 import { isUnlockAllEnabled } from "./dev-unlock.ts";
-import {
-  CURRICULUM_LEVELS,
-  FREE_PRACTICE_IDS,
-} from "./levels.ts";
+import { CURRICULUM_LEVELS } from "./levels.ts";
 import type { CurriculumStep } from "./steps.ts";
 import {
   CURRICULUM_STEPS,
@@ -87,9 +84,6 @@ export function isExerciseUnlocked(
   if (isUnlockAllEnabled()) {
     return true;
   }
-  if ((FREE_PRACTICE_IDS as readonly ExerciseId[]).includes(exerciseId)) {
-    return true;
-  }
   const firstStep = stepsForExercise(exerciseId)[0];
   if (!firstStep) {
     return false;
@@ -134,9 +128,6 @@ export function getContinueExercise(
 export function getUnlockRequirement(
   exerciseId: ExerciseId,
 ): UnlockRequirement | null {
-  if ((FREE_PRACTICE_IDS as readonly ExerciseId[]).includes(exerciseId)) {
-    return null;
-  }
   const firstStep = stepsForExercise(exerciseId)[0];
   if (!firstStep) {
     return null;

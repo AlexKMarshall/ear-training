@@ -27,11 +27,13 @@ export const CURRICULUM_LEVELS: readonly CurriculumLevel[] = [
     label: "Scale degrees",
     exerciseIds: ["scale-degree-sing"],
   },
+  {
+    level: 4,
+    label: "Chord middle",
+    exerciseIds: ["chord-middle"],
+  },
 ] as const;
 
-/** Ordered guided path (Level 1 → Level 2 exercises). */
+/** Ordered guided path (Level 1 → Level 4 exercises). */
 export const CURRICULUM_PATH: readonly ExerciseId[] =
   CURRICULUM_LEVELS.flatMap((level) => level.exerciseIds);
-
-/** Exercises outside the guided path; always available for free practice. */
-export const FREE_PRACTICE_IDS: readonly ExerciseId[] = ["chord-middle"];

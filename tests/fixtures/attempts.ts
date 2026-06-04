@@ -108,3 +108,25 @@ export function passingThroughHarmonic2bHistory(): AttemptRecord[] {
     }),
   ];
 }
+
+/** Scale degrees complete; chord-middle step unlockable. */
+export function passingScaleDegreeHistory(): AttemptRecord[] {
+  return [
+    ...passingThroughHarmonic2bHistory(),
+    ...passingStepHistory({
+      exerciseId: "scale-degree-sing",
+      contentTierId: "degree-3a",
+    }),
+  ];
+}
+
+/** Every shipped curriculum step meets unlock thresholds. */
+export function passingFullGuidedPathHistory(): AttemptRecord[] {
+  return [
+    ...passingScaleDegreeHistory(),
+    ...passingStepHistory({
+      exerciseId: "chord-middle",
+      contentTierId: "chord-1a",
+    }),
+  ];
+}

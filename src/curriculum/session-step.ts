@@ -2,7 +2,6 @@ import type { CurriculumStep } from "./steps.ts";
 import { getHighestUnlockedStepForExercise } from "./unlock.ts";
 import type { AttemptRecord, ExerciseId } from "../history/types.ts";
 
-/** Free-practice chord exercise uses the chord-1a tier preset (not on CURRICULUM_STEPS). */
 export const CHORD_MIDDLE_STEP: CurriculumStep = {
   exerciseId: "chord-middle",
   contentTierId: "chord-1a",
@@ -23,17 +22,17 @@ function isIntervalExercise(
 
 /**
  * Resolves the curriculum step for the current session: highest unlocked tier
- * for that exercise on the guided path (or chord-1a for free practice).
+ * for that exercise on the guided path.
  */
 export function getSessionStepForExercise(
   exerciseId: ExerciseId,
   records: readonly AttemptRecord[],
 ): CurriculumStep {
-  if (exerciseId === "chord-middle") {
-    return CHORD_MIDDLE_STEP;
-  }
-
-  if (!isIntervalExercise(exerciseId) && exerciseId !== "scale-degree-sing") {
+  if (
+    !isIntervalExercise(exerciseId) &&
+    exerciseId !== "scale-degree-sing" &&
+    exerciseId !== "chord-middle"
+  ) {
     throw new Error(`No session step for exercise: ${exerciseId}`);
   }
 

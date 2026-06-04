@@ -28,7 +28,7 @@ Browser-based ear training for singers: harmony, pitch recognition, and vocal re
 | **Persistence** | Voice type in `localStorage`; **attempt history** in IndexedDB (`src/history/`) — per attempt: `exerciseId`, target, `centsOff`, pass/fail, chord meta, **`intervalId`** / presentation / selected answer for ID exercises, **`degreeId`** / `tonicMidi` for scale-degree sing, **`contentTierId`** / **`eligibleTagIds`** for planner sessions, `roundId` + `questionIndex` |
 | **Stats / dashboard** | [`/stats/`](stats/index.html) — overall + per-exercise for all seven `exerciseId`s; **weakness breakdown** by `intervalId`, `degreeId`, and chord type (weakest first). Overall / sing sections use median ¢; identify sections omit median. **No** time trends yet. |
 | **Recognition / naming** | **Partial** — interval identification (2a: P4 / P5 / 8ve; **2b:** full diatonic-within-octave set on melodic and harmonic); scale-degree **sing** in key (4th / 5th / octave); no scale-degree ID, triad quality, or note names |
-| **Curriculum (v1 shell)** | **Done** — home at `/` shows **Continue** (first incomplete **curriculum step**), **Level 1** → **Level 2** → **Level 3**, and **Free practice** (`chord-middle`). **Step-level unlock** from IndexedDB via [`src/curriculum/unlock.ts`](../src/curriculum/unlock.ts) (≥10 questions, ≥70% on predecessor **step** `(exerciseId, contentTierId)`). Locked path exercises are non-links on home; direct URLs show a locked page via [`src/ui/exercise-page.ts`](../src/ui/exercise-page.ts). Thresholds are constants, not user-configurable. |
+| **Curriculum (v1 shell)** | **Done** — home at `/` shows **Continue** (first incomplete **curriculum step**), **Level 1** → **Level 4** (including **chord-middle** at end of path). **`CURRICULUM_STEPS`** use **cross-mode sequencing** at interval tiers (melodic reproduction → melodic identification → harmonic reproduction → harmonic identification). **Step-level unlock** from IndexedDB via [`src/curriculum/unlock.ts`](../src/curriculum/unlock.ts) (≥10 questions, ≥70% on predecessor **step** `(exerciseId, contentTierId)`). Locked path exercises are non-links on home; direct URLs show a locked page via [`src/ui/exercise-page.ts`](../src/ui/exercise-page.ts). Thresholds are constants, not user-configurable. |
 | **Testing** | **Strong domain + browser baseline** — CI runs `npm test`, `npm run test:browser`, `npm run build`; seven exercises covered by unit tests, round/orchestration tests, and registry smokes. **Remaining gaps** (round summary UI, sing fail/retry on more exercises, etc.): [testing debt](testing-roadmap.md#open-testing-debt). New product work ships tests in the same PR — see [`docs/agents/testing.md`](agents/testing.md). |
 
 Relevant code seams: exercise registry + `mountExercisePage` guard; `CURRICULUM_STEPS` / tier presets in [`src/curriculum/steps.ts`](../src/curriculum/steps.ts); step unlock + Continue in [`src/curriculum/unlock.ts`](../src/curriculum/unlock.ts); **session planner** in [`src/session/planner.ts`](../src/session/planner.ts); per-exercise session wiring (`interval-session`, `scale-degree-session`, `chord-session`); `getSessionStepForExercise` in [`src/curriculum/session-step.ts`](../src/curriculum/session-step.ts); `computeExerciseProgress` / tag stats in [`src/history/stats.ts`](../src/history/stats.ts); `SingTestConfig`, `IdentifyTestConfig`, `RoundSummary`, `voice-ranges`; interval domain in `src/interval-config.ts`, `src/interval-questions.ts`, `src/ui/interval-tests.ts`; scale-degree domain in `src/scale-degree-config.ts`, `src/scale-degree-questions.ts`, `src/ui/scale-degree-tests.ts`. Legacy preference modules remain in tree but are **not** used for question draw on shipped exercises.
@@ -206,8 +206,8 @@ Free practice (`chord-middle`) uses the same planner within the selected **mode*
 | **Session planner** — weak + maintenance mix; no user interval picker | Richer home copy from planner (“practicing weak minor 6ths”) |
 | **Step-level unlock** + Continue on first incomplete step; cross-mode 2a → melodic 2b gates | **Tier 2c+** (chromatic, compound, descending) |
 | Voice range only (`voice-ranges.ts`) | Configurable unlock thresholds in UI |
-| Guided path: 2a (four modes) → 2b melodic sing → melodic ID → harmonic sing → harmonic ID → scale-degree sing | Mixed-level rounds across exercises |
-| Home curriculum UI + page guard on locked routes | `chord-middle` on main path (stays **free practice** until triad level) |
+| Guided path: cross-mode **2a** → cross-mode **2b** → scale-degree sing → chord-middle (`chord-1a`) | Mixed-level rounds across exercises |
+| Home curriculum UI + page guard on locked routes | Flat guided-path home (no level bands / free-practice section) — see parent #53 |
 
 **Interval tier ladder (target):** see [content tiers example](#content-tiers-example-interval-exercises) in Progressive difficulty model.
 
@@ -310,8 +310,8 @@ Free practice (`chord-middle`) uses the same planner within the selected **mode*
 | Unified `ExerciseDefinition` with `prepareQuestion` / `score` on one type | Registry wrapper is enough for now; sing/identify UI merge is high churn |
 | Exercise-only unlock | ~~**Curriculum steps** with content tiers~~ **Done (v1)** — per-tag tier gates still TODO |
 | User interval / degree / chord pickers | ~~**Session planner** + tier presets~~ **Done** — legacy preference modules may be deleted in a cleanup PR |
-| Melodic-before-harmonic at same tier | **Done for 2a**; at **2b** shipped order is melodic sing → melodic ID → harmonic sing → harmonic ID |
-| `chord-middle` in main path | Free practice until level 4 triads; planner-driven `chord-1a` pool |
+| Cross-mode sequencing per interval tier | **Done** — melodic reproduction → melodic ID → harmonic reproduction → harmonic ID at **2a** and **2b** |
+| `chord-middle` on guided path | **Done (slice 1)** — last step, `chord-1a` tier, linear unlock after scale degrees |
 | Level 4+ placeholders | No exercises yet |
 | Mixed-level rounds | Per-exercise rounds unchanged; planner mixes tags within one tier |
 | Goals, streaks | Phase 0; planner weak + maintenance weighting **done** |
