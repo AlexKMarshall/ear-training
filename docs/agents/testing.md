@@ -41,7 +41,7 @@ CI runs `npm test`, `npm run test:browser`, and `npm run build` on every PR and 
 
 ## Manual QA
 
-- **`?unlock=all`** — Append to home or any exercise URL on a fresh profile to bypass curriculum locks for access (links and exercise mount). Continue and progress hints still use real attempt history.
+- **`?unlock=all`** — Append to home or any exercise URL on a fresh profile to bypass curriculum locks for access (links and exercise mount). Current-path progress and unlock copy still use real attempt history.
 
 ## Leaf guides
 
