@@ -46,6 +46,7 @@ export default defineConfig({
         test: {
           name: "unit",
           environment: "node",
+          setupFiles: ["tests/vitest-unit-setup.ts"],
           include: ["tests/**/*.test.ts"],
           exclude: ["tests/**/*.browser.test.ts"],
         },

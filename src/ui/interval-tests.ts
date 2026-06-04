@@ -136,11 +136,8 @@ const intervalMelodicIdBase = {
   subtitle: "Hear two notes in sequence, then choose the interval",
   playButtonLabel: "Play interval",
   showVoicePicker: true,
-  showIntervalPicker: false,
   status: {
     idle: "Press Play to hear the interval.",
-    noIntervals: "",
-    tooFewIntervals: "",
     playing: "Listen to both notes…",
     ready: "Choose the interval you heard.",
     pass: "Correct — tap Next exercise when you are ready.",
@@ -166,11 +163,8 @@ const intervalHarmonicIdBase = {
   subtitle: "Hear two notes together, then choose the interval",
   playButtonLabel: "Play interval",
   showVoicePicker: true,
-  showIntervalPicker: false,
   status: {
     idle: "Press Play to hear the interval.",
-    noIntervals: "",
-    tooFewIntervals: "",
     playing: "Listen to both notes…",
     ready: "Choose the interval you heard.",
     pass: "Correct — tap Next exercise when you are ready.",
