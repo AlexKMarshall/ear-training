@@ -1,167 +1,78 @@
-import { CURRICULUM_LEVELS } from "../curriculum/levels.ts";
 import {
-  computeStepProgress,
-  getContinueExercise,
-  getHighestUnlockedStepForExercise,
-  getUnlockRequirement,
-  isExerciseUnlocked,
-  meetsStepThreshold,
-  MIN_QUESTION_PASS_RATE,
-  MIN_QUESTIONS,
-} from "../curriculum/unlock.ts";
-import { getExercise } from "../exercises/registry.ts";
+  formatPathNodeHref,
+  formatPathNodeStatus,
+  getPathNodeLabels,
+  getPathNodeState,
+  isGuidedPathComplete,
+} from "../curriculum/path-node.ts";
+import { CURRICULUM_STEPS } from "../curriculum/steps.ts";
 import {
   createDefaultHistoryPort,
   type MountDeps,
 } from "../history/port.ts";
-import { computeExerciseProgress } from "../history/stats.ts";
-import type { AttemptRecord, ExerciseId } from "../history/types.ts";
+import type { AttemptRecord } from "../history/types.ts";
 
-const INTERVAL_EXERCISE_IDS = [
-  "interval-melodic-sing",
-  "interval-harmonic-sing",
-  "interval-melodic-id",
-  "interval-harmonic-id",
-] as const satisfies readonly ExerciseId[];
-
-function isInterval2bActive(
-  exerciseId: ExerciseId,
-  records: readonly AttemptRecord[],
-): boolean {
-  if (!(INTERVAL_EXERCISE_IDS as readonly ExerciseId[]).includes(exerciseId)) {
-    return false;
-  }
-  const step = getHighestUnlockedStepForExercise(exerciseId, records);
-  return step?.contentTierId === "interval-2b";
-}
-
-function progressHint(
-  exerciseId: ExerciseId,
+function renderPathNode(
+  step: (typeof CURRICULUM_STEPS)[number],
   records: readonly AttemptRecord[],
 ): string {
-  if (!isExerciseUnlocked(exerciseId, records)) {
-    const requirement = getUnlockRequirement(exerciseId);
-    if (!requirement) {
-      return "Locked";
-    }
-    return `Locked · complete ${requirement.predecessorLabel} first`;
-  }
-
-  const step = getHighestUnlockedStepForExercise(exerciseId, records);
-  const progress = step
-    ? computeStepProgress(step, records)
-    : computeExerciseProgress(exerciseId, records);
-  const { questionCount, questionPassRatePercent } = progress;
-  const complete = step
-    ? meetsStepThreshold(step, records)
-    : questionCount >= MIN_QUESTIONS &&
-      questionPassRatePercent >= MIN_QUESTION_PASS_RATE;
-
-  if (complete) {
-    const suffix = isInterval2bActive(exerciseId, records)
-      ? " · + diatonic intervals"
-      : "";
-    return questionCount > 0
-      ? `Complete · ${questionCount} questions${suffix}`
-      : `Complete${suffix}`;
-  }
-
-  const tierNote = isInterval2bActive(exerciseId, records)
-    ? " · diatonic intervals"
-    : "";
-  return `${questionCount} / ${MIN_QUESTIONS} questions · ${questionPassRatePercent}% pass (need ${MIN_QUESTION_PASS_RATE}%)${tierNote}`;
-}
-
-function renderExerciseCard(
-  exerciseId: ExerciseId,
-  records: readonly AttemptRecord[],
-): string {
-  const entry = getExercise(exerciseId);
-  const unlocked = isExerciseUnlocked(exerciseId, records);
-  const step = getHighestUnlockedStepForExercise(exerciseId, records);
-  const complete = step
-    ? meetsStepThreshold(step, records)
-    : (() => {
-        const { questionCount, questionPassRatePercent } =
-          computeExerciseProgress(exerciseId, records);
-        return (
-          questionCount >= MIN_QUESTIONS &&
-          questionPassRatePercent >= MIN_QUESTION_PASS_RATE
-        );
-      })();
-  const hint = progressHint(exerciseId, records);
-
-  const statusClass = !unlocked
-    ? "test-card-locked"
-    : complete
-      ? "test-card-complete"
-      : "";
+  const { title, subtitle } = getPathNodeLabels(step);
+  const state = getPathNodeState(step, records);
+  const status = formatPathNodeStatus(step, records);
+  const stateClass =
+    state === "passed"
+      ? "path-node-passed"
+      : state === "current"
+        ? "path-node-current"
+        : "path-node-locked";
 
   const inner = `
-    <span class="test-card-title">${entry.title}</span>
-    <span class="test-card-desc">${entry.subtitle}</span>
-    <span class="exercise-progress">${hint}</span>
+    <span class="path-node-title">${title}</span>
+    <span class="path-node-subtitle">${subtitle}</span>
+    <span class="path-node-status">${status}</span>
   `;
 
-  if (!unlocked) {
-    return `<div class="test-card ${statusClass}" aria-disabled="true">${inner}</div>`;
+  if (state === "locked") {
+    return `<div class="path-node ${stateClass}" data-path-node="${state}" aria-disabled="true">${inner}</div>`;
   }
 
-  return `<a href="${entry.route}" class="test-card ${statusClass}">${inner}</a>`;
+  const href = formatPathNodeHref(step);
+  const currentAttr = state === "current" ? ' data-path-node="current"' : "";
+  return `<a href="${href}" class="path-node ${stateClass}"${currentAttr}>${inner}</a>`;
 }
 
-function renderContinueSection(
-  continueId: ExerciseId | null,
-): string {
-  if (!continueId) {
-    return `
-      <section class="home-continue home-continue-done" aria-label="Guided path">
-        <p class="home-continue-done-text">You have completed the guided path. Keep practicing any exercise below.</p>
-      </section>
-    `;
-  }
+function renderGuidedPath(records: readonly AttemptRecord[]): string {
+  const pathComplete = isGuidedPathComplete(records);
+  const completeBanner = pathComplete
+    ? `<p class="guided-path-complete">You have completed the guided path. Replay any step below.</p>`
+    : "";
 
-  const entry = getExercise(continueId);
+  const nodes = CURRICULUM_STEPS.map((step) =>
+    renderPathNode(step, records),
+  ).join("");
+
   return `
-    <section class="home-continue" aria-label="Continue guided path">
-      <h2 class="home-section-title">Continue</h2>
-      <a href="${entry.route}" class="test-card test-card-continue">
-        <span class="test-card-title">${entry.title}</span>
-        <span class="test-card-desc">${entry.subtitle}</span>
-        <span class="exercise-progress">Pick up where you left off</span>
-      </a>
+    <section class="guided-path" aria-label="Guided path">
+      ${completeBanner}
+      <div class="guided-path-list">
+        ${nodes}
+      </div>
     </section>
   `;
 }
 
-function renderCurriculumLevels(records: readonly AttemptRecord[]): string {
-  return CURRICULUM_LEVELS.map((level) => {
-    const levelUnlocked = level.exerciseIds.some((id) =>
-      isExerciseUnlocked(id, records),
-    );
-    const exercises = level.exerciseIds
-      .map((id) => renderExerciseCard(id, records))
-      .join("");
-
-    return `
-      <section class="curriculum-level" aria-labelledby="level-${level.level}-heading">
-        <div class="curriculum-level-header">
-          <h2 id="level-${level.level}-heading" class="curriculum-level-title">
-            <span class="curriculum-level-badge">Level ${level.level}</span>
-            ${level.label}
-          </h2>
-          ${
-            levelUnlocked
-              ? ""
-              : '<span class="curriculum-level-locked">Locked</span>'
-          }
-        </div>
-        <div class="curriculum-exercise-list">
-          ${exercises}
-        </div>
-      </section>
-    `;
-  }).join("");
+function scrollCurrentPathNodeIntoView(root: HTMLElement): void {
+  const current = root.querySelector('[data-path-node="current"]');
+  if (!(current instanceof HTMLElement)) {
+    return;
+  }
+  const reducedMotion = globalThis.matchMedia?.(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+  current.scrollIntoView({
+    block: "nearest",
+    behavior: reducedMotion ? "auto" : "smooth",
+  });
 }
 
 export async function mountHome(
@@ -170,7 +81,6 @@ export async function mountHome(
 ): Promise<void> {
   const history = deps.history ?? createDefaultHistoryPort();
   const records = await history.getAllAttempts();
-  const continueId = getContinueExercise(records);
 
   root.innerHTML = `
     <main class="app">
@@ -179,12 +89,7 @@ export async function mountHome(
         <p class="subtitle">Guided path from single notes to intervals</p>
       </header>
 
-      ${renderContinueSection(continueId)}
-
-      <section class="home-curriculum" aria-label="Curriculum levels">
-        <h2 class="home-section-title">Levels</h2>
-        ${renderCurriculumLevels(records)}
-      </section>
+      ${renderGuidedPath(records)}
 
       <nav class="test-list" aria-label="More">
         <a href="/stats/" class="test-card test-card-stats">
@@ -194,4 +99,6 @@ export async function mountHome(
       </nav>
     </main>
   `;
+
+  scrollCurrentPathNodeIntoView(root);
 }

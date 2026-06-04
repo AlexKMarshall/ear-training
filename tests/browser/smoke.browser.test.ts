@@ -18,8 +18,8 @@ test("mountHome renders heading and first exercise link", async () => {
   await expect
     .element(
       page
-        .getByRole("region", { name: /Level 1/i })
-        .getByRole("link", { name: /Sing a single note/i }),
+        .getByRole("region", { name: /^Guided path$/i })
+        .getByRole("link", { name: /Single note/i }),
     )
     .toBeVisible();
 });

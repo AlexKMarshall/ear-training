@@ -151,6 +151,88 @@ body {
   background: color-mix(in srgb, var(--accent) 18%, var(--surface));
 }
 
+.guided-path {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.guided-path-complete {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.guided-path-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.path-node {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+a.path-node:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+
+.path-node-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.path-node-subtitle {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.path-node-status {
+  margin-top: 0.1rem;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.path-node-passed .path-node-status {
+  color: var(--muted);
+}
+
+.path-node-current {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  /* scrollIntoView() respects this — keeps the current node off the viewport edge */
+  scroll-margin-block: 1.25rem 4rem;
+}
+
+.path-node-current .path-node-status {
+  color: var(--accent);
+}
+
+.path-node-locked {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.path-node-locked .path-node-status {
+  color: var(--muted);
+}
+
 .home-curriculum {
   display: flex;
   flex-direction: column;

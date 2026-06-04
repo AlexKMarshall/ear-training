@@ -204,11 +204,11 @@ Free practice (`chord-middle`) uses the same planner within the selected **mode*
 | **Tier 2a:** perfect 4th, 5th, octave — all four interval modes | Per-tag tier gates before next tier |
 | **Tier 2b:** all diatonic major intervals within one octave — all four interval modes | Tier 2c+ (chromatic, compound, descending) |
 | **Session planner** — weak + maintenance mix; no user interval picker | Richer home copy from planner (“practicing weak minor 6ths”) |
-| **Step-level unlock** + Continue on first incomplete step; cross-mode 2a → melodic 2b gates | **Tier 2c+** (chromatic, compound, descending) |
+| **Step-level unlock** + current path node; cross-mode 2a → melodic 2b gates | **Tier 2c+** (chromatic, compound, descending) |
 | Voice range only (`voice-ranges.ts`) | Configurable unlock thresholds in UI |
 | Guided path: cross-mode **2a** → cross-mode **2b** → scale-degree sing → chord-middle (`chord-1a`) | Mixed-level rounds across exercises |
-| Home curriculum UI + page guard on locked routes | Flat guided-path home (no level bands / free-practice section) — see parent #53 |
-| **Step links** (`?step=`) + guided session default | Home path nodes emit step URLs; replay keeps URL tier (not highest unlocked) |
+| **Flat guided-path home** (path nodes per step; stats entry) + page guard on locked routes | Targeted practice picker — see parent #53 |
+| **Step links** (`?step=`) + guided session default; replay keeps URL tier | — |
 | **Step-level exercise lock page** | Route guard uses parsed/default step; locked CTAs link to predecessor step URL |
 
 **Interval tier ladder (target):** see [content tiers example](#content-tiers-example-interval-exercises) in Progressive difficulty model.
