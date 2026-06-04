@@ -15,7 +15,9 @@ The issue tracker and triage label vocabulary should have been provided to you â
 
 Check with the user that these seams match their expectations.
 
-3. Write the PRD using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.
+3. **Glossary on `main`:** If `/grill-with-docs` (or this session) updated `CONTEXT.md`, ensure a **documentation PR** landing those glossary changes is opened and merged on `main` **before** implementation work starts. If glossary edits are still uncommitted, note in the PRD **Further Notes** that a glossary docs PR must merge first (see [`docs/agents/domain.md`](../../../docs/agents/domain.md#glossary-pr-before-implementation)). Prefer opening that docs PR yourself when the user asks to publish the PRD.
+
+4. Write the PRD using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.
 
 <prd-template>
 
@@ -70,5 +72,10 @@ A description of the things that are out of scope for this PRD.
 ## Further Notes
 
 Any further notes about the feature.
+
+### Domain glossary (required when terms were resolved in planning)
+
+- [ ] `CONTEXT.md` updates are on `main` via a merged **glossary documentation PR** before the first implementation PR (parent: link PR number here when known).
+- Terms for this initiative are defined in repository `CONTEXT.md` (UI layer or relevant section).
 
 </prd-template>

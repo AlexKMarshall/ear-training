@@ -75,6 +75,10 @@ When a term is resolved, update `CONTEXT.md` right there. Don't batch these up â
 
 `CONTEXT.md` should be totally devoid of implementation details. Do not treat `CONTEXT.md` as a spec, a scratch pad, or a repository for implementation decisions. It is a glossary and nothing else.
 
+### After the session
+
+If `CONTEXT.md` (or ADRs) changed, tell the user to open a **glossary documentation PR on `main` before** `/to-prd`, `/to-issues`, or implementation PRs â€” agents rely on the committed glossary. See [`docs/agents/domain.md`](../../../docs/agents/domain.md#glossary-pr-before-implementation). Do not leave glossary updates only in the working tree when publishing a PRD or slice issues.
+
 ### Offer ADRs sparingly
 
 Only offer to create an ADR when all three are true:

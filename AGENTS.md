@@ -52,4 +52,4 @@ Five state roles use default label strings (`needs-triage`, `needs-info`, `ready
 
 ### Domain docs
 
-Single-context — `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+Single-context — `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md` (land glossary changes on `main` in a docs PR **before** implementation slices when planning updates `CONTEXT.md`).

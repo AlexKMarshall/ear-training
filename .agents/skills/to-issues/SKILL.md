@@ -49,7 +49,16 @@ Ask the user:
 
 Iterate until the user approves the breakdown.
 
-### 5. Publish the issues to the issue tracker
+### 5. Glossary documentation PR (before implementation slices)
+
+If planning updated **`CONTEXT.md`**, land glossary changes on **`main` in a documentation PR before** the first implementation slice issue is picked up. Either:
+
+- Open that docs PR yourself (recommended title: `Document <initiative> glossary (CONTEXT.md)`), or
+- Publish a **slice 0** issue whose only deliverable is merging `CONTEXT.md` (and any ADRs) with the agent-workflow note in `docs/agents/domain.md`.
+
+Implementation slice issues should reference the merged glossary PR or slice 0 in **Blocked by** when glossary terms are required. See [`docs/agents/domain.md`](../../../docs/agents/domain.md#glossary-pr-before-implementation).
+
+### 6. Publish the issues to the issue tracker
 
 For each approved slice, publish a new issue to the issue tracker. Use the issue body template below. These issues are considered ready for AFK agents, so publish them with the correct triage label unless instructed otherwise.
 
@@ -86,7 +95,10 @@ Do NOT close or modify any parent issue.
 
 Child issues are for **planning and grabbing**; GitHub does not know they belong to a parent unless a PR closes them explicitly. Do not rely on *Implements #46–#50* or *Parent #45* — those do not auto-close.
 
-When publishing, add a **parent issue comment** that states the closing rule (copy from [`docs/agents/pull-requests.md`](../../../docs/agents/pull-requests.md#closing-github-issues-from-a-pr)):
+When publishing, add a **parent issue comment** that states:
+
+1. **Glossary first** — merge the glossary documentation PR (or slice 0) on `main` before starting implementation slices, when `CONTEXT.md` was updated during planning.
+2. **Closing rule** (copy from [`docs/agents/pull-requests.md`](../../../docs/agents/pull-requests.md#closing-github-issues-from-a-pr)):
 
 | Delivery | PR `Closes` lines |
 |----------|-------------------|

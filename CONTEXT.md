@@ -15,7 +15,7 @@ Rules that determine outcomes: scoring, curriculum and unlock checks, session pl
 _Avoid_: Domain (without scope), backend (this app has no server)
 
 **Exercise screen state**:
-The phase machine for one exercise attempt inside a practice-mode mount (e.g. idle → playing → ready → recording → result → lesson summary on sing exercises). Lives **outside** the presentation component tree: imperative TypeScript updates a snapshot; components render the snapshot and invoke callbacks. Duplicated across sing and identify mounts; should move toward a shared, testable exercise controller separate from markup. Distinct from **lesson run** (ten-exercise lesson rules).
+The phase machine for one exercise attempt inside a practice-mode mount (e.g. idle → playing → ready → recording → result → lesson summary on sing exercises). Lives **outside** the presentation component tree: imperative TypeScript updates a snapshot exposed to Solid via signals or a store; components render the snapshot and invoke callbacks — not `querySelector` or `innerHTML`. Duplicated across sing and identify mounts; should move toward a shared, testable exercise controller separate from markup. Distinct from **lesson run** (ten-exercise lesson rules).
 _Avoid_: Test state, UI state (when meaning curriculum or unlock state)
 
 **Lesson run**:
@@ -27,16 +27,20 @@ Hook fired when the learner completes a scored try on the current exercise. The 
 _Avoid_: Save attempt (when meaning the callback event), score event
 
 **Presentation implementation**:
-How the presentation layer is built and assembled in code — distinct from lesson run and business rules. Shipped site stays a **multi-page static app** (one URL per practice mode); a single SPA or framework router is optional later. Near-term direction: **component-based presentation** (JSX) inside **page mounts**; exercise playback/recording orchestration stays imperative TypeScript outside the view tree, with the UI reading snapshots rather than owning audio lifecycle in view effects. **Home** ships as **Solid JSX** inside `mountHome`; further mounts migrate incrementally. Not blocked on exercise-definition or shared exercise-controller debt. Each mount may ship as one large JSX view plus props before shared UI pieces are extracted. Styling stays in the **shared global stylesheet** with existing class names until a later pass.
+How the presentation layer is built and assembled in code — distinct from lesson run and business rules. Shipped site stays a **multi-page static app** (one URL per practice mode); a single SPA or framework router is optional later. Near-term direction: **component-based presentation** (JSX) inside **page mounts**; exercise playback/recording orchestration stays imperative TypeScript outside the view tree, with the UI reading snapshots rather than owning audio lifecycle in view effects. **Home** ships as **Solid JSX** inside `mountHome`; further mounts migrate incrementally. A **migrated mount** has no string-built markup in that file — only Solid JSX for presentation; partial `innerHTML` in the same file is not left behind. Not blocked on exercise-definition or shared exercise-controller debt. Interval, chord, and degree **content pickers** are removed as **sing** and **identify** migrate (session planner is the sole draw path); **voice picker** stays until a shared settings surface exists. **Home** and simple mounts may stay one file; **sing** and **identify** share exercise chrome (nav, header, lesson progress, actions) extracted when **identify** migrates, then reused for **sing**. Mode-specific regions (choice grid, recording, live pitch) stay in each mount’s presentation. Styling stays in the **shared global stylesheet** with existing class names until a later pass.
 _Avoid_: UI framework (when naming a library), front-end stack, SPA (as the near-term default), component library (until a later pass)
 
 **Page mount**:
-The entry adapter each HTML page uses: receives a root element and optional deps (e.g. history port), wires business logic to presentation, and is what browser tests invoke. Stays the public integration boundary when presentation moves from template strings to components; a future router can call the same mounts or replace them in one place.
+The entry adapter each HTML page uses: receives a root element and optional deps (e.g. history port), wires business logic to presentation, and is what browser tests invoke. Stays the public integration boundary when presentation moves from template strings to components; a future router can call the same mounts or replace them in one place. Migrated exercise mounts split **orchestrator** (`.ts` — signals, exercise screen state, ports, `render`) from **view** (`.tsx` — Solid tree only).
 _Avoid_: Bootstrap (without “page”), init (when meaning mount)
 
 **Lesson run extraction**:
 Refactor that introduces the unified lesson run and rewires practice-mode mounts to use it while leaving presentation authoring unchanged. Delivered as separate pull requests: lesson run with unit tests first, then one PR per mount (identify, then sing) for reviewability.
 _Avoid_: UI rewrite, framework migration
+
+**Presentation migration**:
+Moving remaining **page mounts** from string-built markup to Solid JSX inside each mount. Rewires presentation only — not shared exercise screen state (TD-002), exercise-definition unification (TD-001), or a SPA router. Delivers **migrated mount** criteria and retires interval/chord/degree content pickers on sing/identify as those files convert. Each PR is verified by existing **browser tests** (plus typecheck/unit/build as today), not a new JSX test harness.
+_Avoid_: Framework migration (when meaning TD-002 controller extract), UI rewrite (when meaning business-rule changes)
 
 ### Practice flow (Duolingo-aligned)
 
