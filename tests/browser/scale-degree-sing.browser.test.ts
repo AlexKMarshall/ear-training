@@ -24,6 +24,7 @@ test("play tonic, show degree prompt, pass recording, and saveAttempt", async ()
   await expect
     .element(page.getByRole("heading", { name: /Sing scale degrees/i }))
     .toBeVisible();
+  await expect.element(page.getByText("Major key")).toBeVisible();
 
   await userEvent.click(page.getByRole("button", { name: /Play tonic/i }));
 
@@ -47,7 +48,7 @@ test("play tonic, show degree prompt, pass recording, and saveAttempt", async ()
     degreeId: "fifth",
     tonicMidi: 60,
     targetMidi: 67,
-    contentTierId: "degree-3a",
+    contentTierId: "degree-major-intro",
     exerciseIndex: 0,
   });
 });

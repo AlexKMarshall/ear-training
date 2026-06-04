@@ -428,6 +428,7 @@ export function mountSingTest(
         ui,
         title: config.title,
         subtitle: config.subtitle,
+        lessonBanner: config.lessonBanner,
         playButtonLabel: config.playButtonLabel,
         showVoicePicker: config.showVoicePicker,
         onPlay: () => {

@@ -32,7 +32,7 @@ export function passingSingleNoteHistory(): AttemptRecord[] {
   );
 }
 
-/** Passing history through every Level 2 path exercise. */
+/** Passing history through interval tier 2a (four presentation modes). */
 export function passingLevel2History(): AttemptRecord[] {
   const records: AttemptRecord[] = [...passingSingleNoteHistory()];
   for (const practiceModeId of [
@@ -72,10 +72,21 @@ export function passingStepHistory(step: CurriculumLesson): AttemptRecord[] {
   );
 }
 
-/** Level 2 at 2a plus melodic sing at 2b (identify 2b still locked). */
-export function passingMelodicSing2bHistory(): AttemptRecord[] {
+/** Intro scale degrees complete; interval 2b block unlockable. */
+export function passingIntroScaleDegreeHistory(): AttemptRecord[] {
   return [
     ...passingLevel2History(),
+    ...passingStepHistory({
+      practiceModeId: "scale-degree-sing",
+      contentTierId: "degree-major-intro",
+    }),
+  ];
+}
+
+/** Level 2a plus intro scale degrees (melodic sing at 2b still locked). */
+export function passingMelodicSing2bHistory(): AttemptRecord[] {
+  return [
+    ...passingIntroScaleDegreeHistory(),
     ...passingStepHistory({
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2b",
@@ -94,7 +105,7 @@ export function passingThroughMelodic2bHistory(): AttemptRecord[] {
   ];
 }
 
-/** Full interval tier 2b (all four presentation modes); scale-degree step unlockable. */
+/** Full interval tier 2b (all four presentation modes); chord-middle unlockable. */
 export function passingThroughHarmonic2bHistory(): AttemptRecord[] {
   return [
     ...passingThroughMelodic2bHistory(),
@@ -109,21 +120,15 @@ export function passingThroughHarmonic2bHistory(): AttemptRecord[] {
   ];
 }
 
-/** Scale degrees complete; chord-middle step unlockable. */
+/** @deprecated Use passingIntroScaleDegreeHistory — intro tier only until major/minor tiers ship. */
 export function passingScaleDegreeHistory(): AttemptRecord[] {
-  return [
-    ...passingThroughHarmonic2bHistory(),
-    ...passingStepHistory({
-      practiceModeId: "scale-degree-sing",
-      contentTierId: "degree-3a",
-    }),
-  ];
+  return passingIntroScaleDegreeHistory();
 }
 
 /** Every shipped curriculum step meets unlock thresholds. */
 export function passingFullGuidedPathHistory(): AttemptRecord[] {
   return [
-    ...passingScaleDegreeHistory(),
+    ...passingThroughHarmonic2bHistory(),
     ...passingStepHistory({
       practiceModeId: "chord-middle",
       contentTierId: "chord-1a",

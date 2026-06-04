@@ -1,4 +1,5 @@
 import { playTargetNote } from "../audio/playback.ts";
+import { getScaleDegreeKeyQualityLabel } from "../curriculum/scale-degree-tiers.ts";
 import { getScaleDegreeById } from "../scale-degree-config.ts";
 import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts";
 import {
@@ -49,11 +50,16 @@ export function mountScaleDegreeSingTest(
 ): void {
   const { cache, planner } = resolveScaleDegreeSession(deps);
   let lessonTonicMidi: number | null = null;
+  const lessonBanner =
+    getScaleDegreeKeyQualityLabel(
+      deps?.sessionCurriculumLesson?.contentTierId ?? "degree-major-intro",
+    ) ?? undefined;
 
   mountSingTest(
     root,
     {
       ...scaleDegreeSingBase,
+      lessonBanner,
       onLessonReset: () => {
         lessonTonicMidi = null;
       },

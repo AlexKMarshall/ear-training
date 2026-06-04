@@ -6,9 +6,9 @@ import {
   resolveSessionCurriculumLesson,
 } from "../src/curriculum/session-step.ts";
 import {
+  passingIntroScaleDegreeHistory,
   passingLevel2History,
   passingMelodicSing2bHistory,
-  passingScaleDegreeHistory,
   passingSingleNoteHistory,
   passingStepHistory,
   passingThroughHarmonic2bHistory,
@@ -27,7 +27,7 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
   });
 
   it("returns interval-2b for melodic exercises when that tier is unlocked", () => {
-    const records = passingLevel2History();
+    const records = passingIntroScaleDegreeHistory();
     expect(
       getSessionCurriculumLessonForPracticeMode("interval-melodic-sing", records),
     ).toEqual({
@@ -100,24 +100,24 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
     });
   });
 
-  it("returns degree-3a for scale-degree sing when interval 2b path is complete", () => {
-    const records = passingThroughHarmonic2bHistory();
+  it("returns degree-major-intro for scale-degree sing when interval 2a path is complete", () => {
+    const records = passingLevel2History();
     expect(
       getSessionCurriculumLessonForPracticeMode("scale-degree-sing", records),
     ).toEqual({
       practiceModeId: "scale-degree-sing",
-      contentTierId: "degree-3a",
+      contentTierId: "degree-major-intro",
     });
   });
 
   it("returns chord-1a for chord-middle when that step is unlocked", () => {
-    expect(getSessionCurriculumLessonForPracticeMode("chord-middle", passingScaleDegreeHistory())).toEqual(
+    expect(getSessionCurriculumLessonForPracticeMode("chord-middle", passingThroughHarmonic2bHistory())).toEqual(
       CHORD_MIDDLE_CURRICULUM_LESSON,
     );
   });
 
   it("uses guided default (first incomplete tier) instead of highest unlocked", () => {
-    const records = passingLevel2History();
+    const records = passingIntroScaleDegreeHistory();
     expect(getGuidedCurriculumLessonForPracticeMode("interval-melodic-id", records)).toEqual({
       practiceModeId: "interval-melodic-id",
       contentTierId: "interval-2a",
@@ -129,7 +129,7 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
   });
 
   it("uses URL step for guided replay when tier is below highest unlocked", () => {
-    const records = passingLevel2History();
+    const records = passingIntroScaleDegreeHistory();
     const replay2a = {
       practiceModeId: "interval-melodic-sing" as const,
       contentTierId: "interval-2a" as const,

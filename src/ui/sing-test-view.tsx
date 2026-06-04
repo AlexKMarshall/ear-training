@@ -133,6 +133,7 @@ export function SingTestView(props: {
   ui: SingUiState;
   title: string;
   subtitle: string;
+  lessonBanner?: string;
   playButtonLabel: string;
   showVoicePicker: boolean;
   onPlay: () => void;
@@ -148,6 +149,7 @@ export function SingTestView(props: {
       <ExerciseHeader
         title={props.title}
         subtitle={props.subtitle}
+        lessonBanner={props.lessonBanner}
         lessonProgressHidden={props.ui.lessonProgressHidden}
         lessonProgressText={props.ui.lessonProgressText}
       />

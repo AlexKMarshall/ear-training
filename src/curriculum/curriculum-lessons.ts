@@ -7,12 +7,13 @@ import {
   INTERVAL_2A_IDS,
 } from "../interval-config.ts";
 import { SCALE_DEGREES } from "../scale-degree-config.ts";
+import { DEGREE_TIER_POOL_LABEL } from "./scale-degree-tiers.ts";
 
 export type ContentTierId =
   | "tier-1"
   | "interval-2a"
   | "interval-2b"
-  | "degree-3a"
+  | "degree-major-intro"
   | "chord-1a";
 
 export interface CurriculumLesson {
@@ -26,11 +27,11 @@ export const CURRICULUM_LESSONS: readonly CurriculumLesson[] = [
   { practiceModeId: "interval-melodic-id", contentTierId: "interval-2a" },
   { practiceModeId: "interval-harmonic-sing", contentTierId: "interval-2a" },
   { practiceModeId: "interval-harmonic-id", contentTierId: "interval-2a" },
+  { practiceModeId: "scale-degree-sing", contentTierId: "degree-major-intro" },
   { practiceModeId: "interval-melodic-sing", contentTierId: "interval-2b" },
   { practiceModeId: "interval-melodic-id", contentTierId: "interval-2b" },
   { practiceModeId: "interval-harmonic-sing", contentTierId: "interval-2b" },
   { practiceModeId: "interval-harmonic-id", contentTierId: "interval-2b" },
-  { practiceModeId: "scale-degree-sing", contentTierId: "degree-3a" },
   { practiceModeId: "chord-middle", contentTierId: "chord-1a" },
 ] as const;
 
@@ -59,9 +60,9 @@ export function getEligibleIntervalIds(
 }
 
 export function getEligibleDegreeIds(
-  tierId: "degree-3a",
+  tierId: "degree-major-intro",
 ): readonly string[] {
-  if (tierId !== "degree-3a") {
+  if (tierId !== "degree-major-intro") {
     return [];
   }
   return SCALE_DEGREES.filter((d) => d.enabled).map((d) => d.id);
@@ -115,6 +116,12 @@ export function getCurriculumLessonLabel(step: CurriculumLesson): string {
   if (step.contentTierId === "interval-2a" || step.contentTierId === "interval-2b") {
     return `${title} (${INTERVAL_TIER_POOL_LABEL[step.contentTierId]})`;
   }
+  if (step.practiceModeId === "scale-degree-sing") {
+    const pool = DEGREE_TIER_POOL_LABEL[step.contentTierId as keyof typeof DEGREE_TIER_POOL_LABEL];
+    if (pool) {
+      return `${title} (${pool})`;
+    }
+  }
   return title;
 }
 
@@ -125,7 +132,7 @@ export function getEligibleTagIds(step: CurriculumLesson): readonly string[] {
     case "interval-2a":
     case "interval-2b":
       return getEligibleIntervalIds(step.contentTierId);
-    case "degree-3a":
+    case "degree-major-intro":
       return getEligibleDegreeIds(step.contentTierId);
     case "chord-1a":
       return getEligibleChordTypeIds(step.contentTierId);

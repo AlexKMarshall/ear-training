@@ -22,8 +22,8 @@ describe("prepareScaleDegreeExercise", () => {
     );
 
     expect(exercise.degreeId).toBe("fifth");
-    expect(exercise.contentTierId).toBe("degree-3a");
-    expect(exercise.eligibleTagIds).toEqual(getEligibleDegreeIds("degree-3a"));
+    expect(exercise.contentTierId).toBe("degree-major-intro");
+    expect(exercise.eligibleTagIds).toEqual(getEligibleDegreeIds("degree-major-intro"));
     expect(exercise.scaleDegree?.tonic.midi).toBe(lessonTonicMidi);
     expect(exercise.target.midi).toBe(lessonTonicMidi + 7);
   });
@@ -45,7 +45,7 @@ describe("prepareScaleDegreeExercise", () => {
         attempt({
           practiceModeId: "scale-degree-sing",
           degreeId: "fourth",
-          contentTierId: "degree-3a",
+          contentTierId: "degree-major-intro",
           passed: true,
           attemptNumber: 1,
           centsOff: 5,
@@ -89,7 +89,7 @@ describe("prepareScaleDegreeExercise", () => {
 
 describe("scaleDegreeQuestionForTag", () => {
   it("builds a question for each tier degree", () => {
-    for (const id of getEligibleDegreeIds("degree-3a")) {
+    for (const id of getEligibleDegreeIds("degree-major-intro")) {
       const degree = getScaleDegreeById(id)!;
       const { exercise } = prepareScaleDegreeExercise(
         unlockedHistory,

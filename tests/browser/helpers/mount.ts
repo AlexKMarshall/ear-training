@@ -12,6 +12,7 @@ import {
   intervalToLessonExercise,
 } from "../../../src/interval-exercises.ts";
 import { INTERVAL_2A_IDS } from "../../../src/interval-config.ts";
+import { getScaleDegreeKeyQualityLabel } from "../../../src/curriculum/scale-degree-tiers.ts";
 import { getScaleDegreeById } from "../../../src/scale-degree-config.ts";
 import {
   buildScaleDegreeExercise,
@@ -221,11 +222,12 @@ function createSingTestConfigFor(
     case "scale-degree-sing":
       return {
         ...scaleDegreeSingConfig,
+        lessonBanner: getScaleDegreeKeyQualityLabel("degree-major-intro") ?? undefined,
         prepareExercise: () => ({
           ...scaleDegreeToLessonExercise(
             buildScaleDegreeExercise(scaleDegreeFifth, 60),
           ),
-          contentTierId: "degree-3a",
+          contentTierId: "degree-major-intro",
           eligibleTagIds: ["fourth", "fifth", "octave"],
         }),
         playReference: async () => {},

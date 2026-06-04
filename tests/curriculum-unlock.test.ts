@@ -14,9 +14,9 @@ import type { AttemptRecord } from "../src/history/types.ts";
 import {
   attempt,
   passingFullGuidedPathHistory,
+  passingIntroScaleDegreeHistory,
   passingLevel2History,
   passingMelodicSing2bHistory,
-  passingScaleDegreeHistory,
   passingSingleNoteHistory,
   passingStepHistory,
   passingThroughHarmonic2bHistory,
@@ -28,14 +28,14 @@ describe("isPracticeModeUnlocked", () => {
     expect(isPracticeModeUnlocked("single-note", [])).toBe(true);
   });
 
-  it("locks chord-middle until scale-degree sing passes", () => {
+  it("locks chord-middle until interval 2b passes", () => {
     expect(isPracticeModeUnlocked("chord-middle", [])).toBe(false);
-    expect(isPracticeModeUnlocked("chord-middle", passingThroughHarmonic2bHistory())).toBe(
+    expect(isPracticeModeUnlocked("chord-middle", passingLevel2History())).toBe(
       false,
     );
-    expect(isPracticeModeUnlocked("chord-middle", passingScaleDegreeHistory())).toBe(
-      true,
-    );
+    expect(
+      isPracticeModeUnlocked("chord-middle", passingThroughHarmonic2bHistory()),
+    ).toBe(true);
   });
 
   it("locks path successors until the predecessor meets thresholds", () => {
@@ -48,15 +48,15 @@ describe("isPracticeModeUnlocked", () => {
     expect(isPracticeModeUnlocked("interval-melodic-sing", records)).toBe(true);
   });
 
-  it("locks scale-degree-sing until harmonic identify at 2b passes", () => {
-    expect(isPracticeModeUnlocked("scale-degree-sing", passingLevel2History())).toBe(
+  it("locks scale-degree-sing until harmonic identify at 2a passes", () => {
+    expect(isPracticeModeUnlocked("scale-degree-sing", passingSingleNoteHistory())).toBe(
       false,
+    );
+    expect(isPracticeModeUnlocked("scale-degree-sing", passingLevel2History())).toBe(
+      true,
     );
     expect(
       isPracticeModeUnlocked("scale-degree-sing", passingThroughMelodic2bHistory()),
-    ).toBe(false);
-    expect(
-      isPracticeModeUnlocked("scale-degree-sing", passingThroughHarmonic2bHistory()),
     ).toBe(true);
   });
 
@@ -95,13 +95,9 @@ describe("isLevelUnlocked", () => {
     expect(isLevelUnlocked(2, passingSingleNoteHistory())).toBe(true);
   });
 
-  it("locks level 3 until harmonic 2b path completes", () => {
+  it("locks level 3 until harmonic identify at 2a passes", () => {
     expect(isLevelUnlocked(3, passingSingleNoteHistory())).toBe(false);
-    expect(isLevelUnlocked(3, passingLevel2History())).toBe(false);
-    expect(isLevelUnlocked(3, passingThroughMelodic2bHistory())).toBe(false);
-    expect(
-      isLevelUnlocked(3, passingThroughHarmonic2bHistory()),
-    ).toBe(true);
+    expect(isLevelUnlocked(3, passingLevel2History())).toBe(true);
   });
 });
 
@@ -153,17 +149,16 @@ describe("isCurriculumLessonUnlocked", () => {
     ).toBe(true);
   });
 
-  it("locks melodic 2b until all four interval modes at 2a pass", () => {
+  it("locks melodic 2b until intro scale degrees pass", () => {
     const sing2b = {
       practiceModeId: "interval-melodic-sing" as const,
       contentTierId: "interval-2b" as const,
     };
     expect(isCurriculumLessonUnlocked(sing2b, passingSingleNoteHistory())).toBe(false);
-    const withoutHarmonicId = passingLevel2History().filter(
-      (r) => r.practiceModeId !== "interval-harmonic-id",
+    expect(isCurriculumLessonUnlocked(sing2b, passingLevel2History())).toBe(false);
+    expect(isCurriculumLessonUnlocked(sing2b, passingIntroScaleDegreeHistory())).toBe(
+      true,
     );
-    expect(isCurriculumLessonUnlocked(sing2b, withoutHarmonicId)).toBe(false);
-    expect(isCurriculumLessonUnlocked(sing2b, passingLevel2History())).toBe(true);
   });
 
   it("locks melodic identify at 2b until melodic sing at 2b passes", () => {
@@ -210,11 +205,19 @@ describe("getContinueCurriculumLesson", () => {
     });
   });
 
-  it("advances to melodic sing at 2b after level 2 at 2a completes", () => {
-    expect(getContinuePracticeMode(passingLevel2History())).toBe(
+  it("advances to intro scale degrees after interval 2a completes", () => {
+    expect(getContinuePracticeMode(passingLevel2History())).toBe("scale-degree-sing");
+    expect(getContinueCurriculumLesson(passingLevel2History())).toEqual({
+      practiceModeId: "scale-degree-sing",
+      contentTierId: "degree-major-intro",
+    });
+  });
+
+  it("advances to melodic sing at 2b after intro scale degrees complete", () => {
+    expect(getContinuePracticeMode(passingIntroScaleDegreeHistory())).toBe(
       "interval-melodic-sing",
     );
-    expect(getContinueCurriculumLesson(passingLevel2History())).toEqual({
+    expect(getContinueCurriculumLesson(passingIntroScaleDegreeHistory())).toEqual({
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2b",
     });
@@ -230,15 +233,9 @@ describe("getContinueCurriculumLesson", () => {
     });
   });
 
-  it("advances to scale degrees after harmonic 2b completes", () => {
-    expect(getContinuePracticeMode(passingThroughHarmonic2bHistory())).toBe(
-      "scale-degree-sing",
-    );
-  });
-
-  it("advances to chord middle after scale degrees complete", () => {
-    expect(getContinuePracticeMode(passingScaleDegreeHistory())).toBe("chord-middle");
-    expect(getContinueCurriculumLesson(passingScaleDegreeHistory())).toEqual({
+  it("advances to chord middle after interval 2b completes", () => {
+    expect(getContinuePracticeMode(passingThroughHarmonic2bHistory())).toBe("chord-middle");
+    expect(getContinueCurriculumLesson(passingThroughHarmonic2bHistory())).toEqual({
       practiceModeId: "chord-middle",
       contentTierId: "chord-1a",
     });
@@ -279,16 +276,17 @@ describe("getUnlockRequirement", () => {
     expect(getUnlockRequirement("scale-degree-sing")).toEqual({
       predecessorPracticeModeId: "interval-harmonic-id",
       predecessorLabel:
-        "Identify harmonic intervals (diatonic intervals within one octave)",
+        "Identify harmonic intervals (perfect 4th, 5th, octave)",
       minExercisesForUnlock: MIN_EXERCISES_FOR_UNLOCK,
       minPassRatePercent: MIN_EXERCISE_PASS_RATE,
     });
   });
 
-  it("requires scale-degree sing before chord middle", () => {
+  it("requires harmonic identify at 2b before chord middle", () => {
     expect(getUnlockRequirement("chord-middle")).toEqual({
-      predecessorPracticeModeId: "scale-degree-sing",
-      predecessorLabel: "Sing scale degrees",
+      predecessorPracticeModeId: "interval-harmonic-id",
+      predecessorLabel:
+        "Identify harmonic intervals (diatonic intervals within one octave)",
       minExercisesForUnlock: MIN_EXERCISES_FOR_UNLOCK,
       minPassRatePercent: MIN_EXERCISE_PASS_RATE,
     });

@@ -57,6 +57,8 @@ export interface SingTestConfig {
   subtitle: string;
   playButtonLabel: string;
   showVoicePicker: boolean;
+  /** Persistent banner for lesson context (e.g. key quality on scale-degree sing). */
+  lessonBanner?: string;
   exercisePrompt?: (exercise: LessonExercise) => string;
   status: {
     idle: string;
