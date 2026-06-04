@@ -1,3 +1,4 @@
+import type { ContentTierId } from "../curriculum/steps.ts";
 import type { InversionId } from "../chord-inversions.ts";
 
 export type ExerciseId =
@@ -43,8 +44,11 @@ export interface AttemptRecord {
   intervalSemitones?: number;
   presentation?: "melodic" | "harmonic";
   referenceMidi?: number;
+  /** @deprecated Replaced by eligibleTagIds when interval pickers are off. */
   activeIntervalIds?: string[];
   selectedIntervalId?: string;
+  contentTierId?: ContentTierId;
+  eligibleTagIds?: readonly string[];
   degreeId?: string;
   tonicMidi?: number;
   activeDegreeIds?: string[];

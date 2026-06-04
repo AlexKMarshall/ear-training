@@ -1,10 +1,5 @@
 import { page, userEvent } from "vitest/browser";
 import { beforeEach, expect, test } from "vitest";
-import { INTERVALS } from "../../src/interval-config.ts";
-import {
-  resetIntervalPreference,
-  setIntervalSelected,
-} from "../../src/interval-preference.ts";
 import { EXERCISES } from "../../src/exercises/registry.ts";
 import type { ExerciseId } from "../../src/history/types.ts";
 import {
@@ -27,15 +22,10 @@ for (const exerciseId of SMOKE_IDS) {
   const entry = EXERCISES.find((e) => e.id === exerciseId)!;
 
   test(`${exerciseId}: mounts and scores one question`, async () => {
-    if (exerciseId === "interval-harmonic-id") {
-      resetIntervalPreference();
-      setIntervalSelected(INTERVALS.map((i) => i.id));
-    }
-
     const mountOptions =
       entry.responseMode === "sing"
         ? { samplesHz: defaultPassSamplesHzFor(exerciseId) }
-        : { resetPreferences: false };
+        : undefined;
 
     const { history } = mountExerciseInBrowser(exerciseId, mountOptions);
 

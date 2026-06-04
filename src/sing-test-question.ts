@@ -1,3 +1,4 @@
+import type { ContentTierId } from "./curriculum/steps.ts";
 import type { InversionId } from "./chord-inversions.ts";
 import type { ChordQuestion } from "./chords.ts";
 import type { IntervalQuestion } from "./interval-questions.ts";
@@ -12,6 +13,8 @@ export interface SingTestQuestion {
   inversionId?: InversionId;
   interval?: IntervalQuestion;
   intervalId?: string;
+  contentTierId?: ContentTierId;
+  eligibleTagIds?: readonly string[];
   scaleDegree?: ScaleDegreeQuestion;
   degreeId?: string;
 }

@@ -261,7 +261,13 @@ export function mountIdentifyTest(
 
   function renderChoices(): void {
     if (!currentQuestion?.intervalId) return;
-    currentChoices = buildIntervalChoices(currentQuestion.intervalId);
+    const eligibleIds =
+      currentQuestion.eligibleTagIds ??
+      (currentQuestion.intervalId ? [currentQuestion.intervalId] : []);
+    currentChoices = buildIntervalChoices(
+      currentQuestion.intervalId,
+      eligibleIds,
+    );
     choicesEl.innerHTML = currentChoices
       .map(
         (choice) => `
