@@ -1,6 +1,6 @@
 # Agent guide — Ear Training
 
-Browser-based ear training (static site, TypeScript, Vite, Vitest). Product direction: [`docs/roadmap.md`](docs/roadmap.md). Testing direction: [`docs/testing-roadmap.md`](docs/testing-roadmap.md).
+Browser-based ear training (static site, TypeScript, Vite, Vitest). Product direction: [`docs/roadmap.md`](docs/roadmap.md). Open **testing debt** (shipped behavior only): [`docs/testing-roadmap.md`](docs/testing-roadmap.md). How to write tests: [`docs/agents/testing.md`](docs/agents/testing.md).
 
 ## Documentation for agents
 
@@ -9,9 +9,9 @@ Browser-based ear training (static site, TypeScript, Vite, Vitest). Product dire
 | **Opening pull requests** | [`docs/agents/pull-requests.md`](docs/agents/pull-requests.md) |
 | **Multi-PR plans** | [`docs/agents/multi-pr-plans.md`](docs/agents/multi-pr-plans.md) |
 | **Testing (agent guides)** | [`docs/agents/testing.md`](docs/agents/testing.md) |
-| **Testing strategy & phases** | [`docs/testing-roadmap.md`](docs/testing-roadmap.md) |
+| **Testing debt (gaps on `main`)** | [`docs/testing-roadmap.md`](docs/testing-roadmap.md) |
 
-Read the pull-request guide before creating or updating a PR description, especially the **test plan** sections, **roadmap updates** (both [`docs/roadmap.md`](docs/roadmap.md) and [`docs/testing-roadmap.md`](docs/testing-roadmap.md) when applicable), and naming for unchanged-behavior checks.
+Read the pull-request guide before creating or updating a PR description, especially the **test plan** sections and **roadmap updates** ([`docs/roadmap.md`](docs/roadmap.md) for product; [`docs/testing-roadmap.md`](docs/testing-roadmap.md) only when closing or adding testing debt).
 
 ## Quick commands
 

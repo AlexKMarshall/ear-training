@@ -40,4 +40,4 @@ If effective tests would require mocking a global, vendor, or private module imp
 ## Related
 
 - [`testing.md`](testing.md) — hub and commands
-- [`docs/testing-roadmap.md`](../testing-roadmap.md) — port definitions and phased rollout
+- [`docs/testing-roadmap.md`](../testing-roadmap.md) — open coverage debt (ports baseline is done)
