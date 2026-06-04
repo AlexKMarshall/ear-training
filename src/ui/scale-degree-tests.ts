@@ -64,6 +64,8 @@ export function mountScaleDegreeSingTest(
           cache.getRecords(),
           roundTonicMidi,
           planner,
+          undefined,
+          deps?.sessionStep,
         );
         roundTonicMidi = result.roundTonicMidi;
         return result.question;

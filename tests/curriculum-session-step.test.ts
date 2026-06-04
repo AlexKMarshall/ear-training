@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { CHORD_MIDDLE_STEP, getSessionStepForExercise } from "../src/curriculum/session-step.ts";
+import {
+  CHORD_MIDDLE_STEP,
+  getGuidedStepForExercise,
+  getSessionStepForExercise,
+  resolveSessionStep,
+} from "../src/curriculum/session-step.ts";
 import {
   passingLevel2History,
   passingMelodicSing2bHistory,
@@ -109,5 +114,47 @@ describe("getSessionStepForExercise", () => {
     expect(getSessionStepForExercise("chord-middle", passingScaleDegreeHistory())).toEqual(
       CHORD_MIDDLE_STEP,
     );
+  });
+
+  it("uses guided default (first incomplete tier) instead of highest unlocked", () => {
+    const records = passingLevel2History();
+    expect(getGuidedStepForExercise("interval-melodic-id", records)).toEqual({
+      exerciseId: "interval-melodic-id",
+      contentTierId: "interval-2a",
+    });
+    expect(getGuidedStepForExercise("interval-melodic-sing", records)).toEqual({
+      exerciseId: "interval-melodic-sing",
+      contentTierId: "interval-2b",
+    });
+  });
+
+  it("uses URL step for guided replay when tier is below highest unlocked", () => {
+    const records = passingLevel2History();
+    const replay2a = {
+      exerciseId: "interval-melodic-sing" as const,
+      contentTierId: "interval-2a" as const,
+    };
+    expect(
+      resolveSessionStep("interval-melodic-sing", records, { urlStep: replay2a }),
+    ).toEqual(replay2a);
+    expect(getSessionStepForExercise("interval-melodic-sing", records)).toEqual({
+      exerciseId: "interval-melodic-sing",
+      contentTierId: "interval-2b",
+    });
+  });
+
+  it("ignores URL steps for a different exercise id", () => {
+    const records = passingSingleNoteHistory();
+    expect(
+      resolveSessionStep("interval-melodic-sing", records, {
+        urlStep: {
+          exerciseId: "interval-harmonic-id",
+          contentTierId: "interval-2a",
+        },
+      }),
+    ).toEqual({
+      exerciseId: "interval-melodic-sing",
+      contentTierId: "interval-2a",
+    });
   });
 });

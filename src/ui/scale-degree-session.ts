@@ -1,4 +1,5 @@
-import { getSessionStepForExercise } from "../curriculum/session-step.ts";
+import { resolveSessionStep } from "../curriculum/session-step.ts";
+import type { CurriculumStep } from "../curriculum/steps.ts";
 import { getEligibleTagIds } from "../curriculum/steps.ts";
 import {
   createDefaultHistoryPort,
@@ -21,6 +22,7 @@ import { getActiveNoteRange } from "../voice-ranges.ts";
 export interface ScaleDegreeSessionDeps {
   history?: HistoryPort;
   sessionPlanner?: SessionPlanner;
+  sessionStep?: CurriculumStep;
 }
 
 export interface ScaleDegreeHistoryCache {
@@ -58,8 +60,11 @@ export function prepareScaleDegreeQuestion(
   roundTonicMidi: number | null,
   planner: SessionPlanner = createDefaultSessionPlanner(),
   range = getActiveNoteRange(),
+  sessionStep?: CurriculumStep,
 ): ScaleDegreeQuestionResult {
-  const step = getSessionStepForExercise("scale-degree-sing", records);
+  const step = resolveSessionStep("scale-degree-sing", records, {
+    urlStep: sessionStep,
+  });
   const eligibleTagIds = getEligibleTagIds(step);
   const degrees = eligibleTagIds
     .map((id) => getScaleDegreeById(id))

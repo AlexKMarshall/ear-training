@@ -1,3 +1,4 @@
+import type { MountDeps } from "../history/port.ts";
 import type { ExerciseId } from "../history/types.ts";
 import {
   mountChordMiddleTest,
@@ -19,7 +20,7 @@ export interface ExerciseEntry {
   route: string;
   title: string;
   subtitle: string;
-  mount: (root: HTMLElement) => void;
+  mount: (root: HTMLElement, deps?: MountDeps) => void;
 }
 
 const EXERCISE_ENTRIES: readonly ExerciseEntry[] = [
@@ -92,6 +93,10 @@ export function getExercise(id: ExerciseId): ExerciseEntry {
   return entry;
 }
 
-export function mountExercise(root: HTMLElement, id: ExerciseId): void {
-  getExercise(id).mount(root);
+export async function mountExercise(
+  root: HTMLElement,
+  id: ExerciseId,
+  deps?: MountDeps,
+): Promise<void> {
+  getExercise(id).mount(root, deps);
 }

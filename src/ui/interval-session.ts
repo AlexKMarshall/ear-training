@@ -1,4 +1,5 @@
-import { getSessionStepForExercise } from "../curriculum/session-step.ts";
+import { resolveSessionStep } from "../curriculum/session-step.ts";
+import type { CurriculumStep } from "../curriculum/steps.ts";
 import { getEligibleTagIds } from "../curriculum/steps.ts";
 import {
   createDefaultHistoryPort,
@@ -20,6 +21,7 @@ import { getActiveNoteRange } from "../voice-ranges.ts";
 export interface IntervalSessionDeps {
   history?: HistoryPort;
   sessionPlanner?: SessionPlanner;
+  sessionStep?: CurriculumStep;
 }
 
 export interface IntervalHistoryCache {
@@ -53,8 +55,11 @@ export function prepareIntervalQuestion(
   records: readonly AttemptRecord[],
   planner: SessionPlanner = createDefaultSessionPlanner(),
   range = getActiveNoteRange(),
+  sessionStep?: CurriculumStep,
 ): SingTestQuestion {
-  const step = getSessionStepForExercise(exerciseId, records);
+  const step = resolveSessionStep(exerciseId, records, {
+    urlStep: sessionStep,
+  });
   const eligibleTagIds = getEligibleTagIds(step);
   const tagId = planner.planNextQuestionTag(step, records);
   const intervalQuestion = randomIntervalQuestionForTag(

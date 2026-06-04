@@ -51,7 +51,7 @@ import { mountStats } from "../../../src/ui/stats.ts";
 import { resetVoiceTypePreference } from "../../../src/voice-ranges.ts";
 import "../../../src/ui/styles.css";
 
-function createAppRoot(): HTMLElement {
+export function createAppRoot(): HTMLElement {
   document.body.innerHTML = '<div id="app"></div>';
   const root = document.querySelector<HTMLElement>("#app");
   if (!root) {
@@ -71,6 +71,29 @@ export function setUnlockAllSearch(enabled: boolean): void {
   window.history.replaceState({}, "", `${url.pathname}${url.search}`);
 }
 
+/** Sets the guided-path `step` query param (and clears unlock-all unless provided). */
+export function setStepSearch(
+  step: { exerciseId: ExerciseId; contentTierId: string } | null,
+  options?: { unlockAll?: boolean },
+): void {
+  const url = new URL(window.location.href);
+  if (step) {
+    url.searchParams.set("step", `${step.exerciseId}:${step.contentTierId}`);
+  } else {
+    url.searchParams.delete("step");
+  }
+  if (options?.unlockAll) {
+    url.searchParams.set("unlock", "all");
+  } else {
+    url.searchParams.delete("unlock");
+  }
+  window.history.replaceState({}, "", `${url.pathname}${url.search}`);
+}
+
+export function getLocationSearch(): string {
+  return window.location.search;
+}
+
 export async function mountHomeWithHistory(
   records: AttemptRecord[],
 ): Promise<void> {
@@ -81,11 +104,15 @@ export async function mountHomeWithHistory(
 export async function mountExercisePageWithHistory(
   exerciseId: ExerciseId,
   records: AttemptRecord[],
-): Promise<void> {
+  options?: { locationSearch?: string; history?: HistoryPort },
+): Promise<{ history: HistoryPort }> {
   const root = createAppRoot();
+  const history = options?.history ?? createMemoryHistoryPort(records);
   await mountExercisePage(root, exerciseId, {
-    history: createMemoryHistoryPort(records),
+    history,
+    locationSearch: options?.locationSearch ?? getLocationSearch(),
   });
+  return { history };
 }
 
 export async function mountStatsWithHistory(
