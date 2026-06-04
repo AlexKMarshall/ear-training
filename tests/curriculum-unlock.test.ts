@@ -17,6 +17,7 @@ import {
   passingMelodicSing2bHistory,
   passingSingleNoteHistory,
   passingStepHistory,
+  passingThroughHarmonic2bHistory,
   passingThroughMelodic2bHistory,
 } from "./fixtures/attempts.ts";
 
@@ -39,12 +40,15 @@ describe("isExerciseUnlocked", () => {
     expect(isExerciseUnlocked("interval-melodic-sing", records)).toBe(true);
   });
 
-  it("locks scale-degree-sing until melodic identify at 2b passes", () => {
+  it("locks scale-degree-sing until harmonic identify at 2b passes", () => {
     expect(isExerciseUnlocked("scale-degree-sing", passingLevel2History())).toBe(
       false,
     );
     expect(
       isExerciseUnlocked("scale-degree-sing", passingThroughMelodic2bHistory()),
+    ).toBe(false);
+    expect(
+      isExerciseUnlocked("scale-degree-sing", passingThroughHarmonic2bHistory()),
     ).toBe(true);
   });
 
@@ -83,11 +87,12 @@ describe("isLevelUnlocked", () => {
     expect(isLevelUnlocked(2, passingSingleNoteHistory())).toBe(true);
   });
 
-  it("locks level 3 until melodic 2b path completes", () => {
+  it("locks level 3 until harmonic 2b path completes", () => {
     expect(isLevelUnlocked(3, passingSingleNoteHistory())).toBe(false);
     expect(isLevelUnlocked(3, passingLevel2History())).toBe(false);
+    expect(isLevelUnlocked(3, passingThroughMelodic2bHistory())).toBe(false);
     expect(
-      isLevelUnlocked(3, passingThroughMelodic2bHistory()),
+      isLevelUnlocked(3, passingThroughHarmonic2bHistory()),
     ).toBe(true);
   });
 });
@@ -114,6 +119,32 @@ describe("isStepUnlocked", () => {
     expect(isStepUnlocked(id2b, passingLevel2History())).toBe(false);
     expect(isStepUnlocked(id2b, passingMelodicSing2bHistory())).toBe(true);
   });
+
+  it("locks harmonic sing at 2b until melodic identify at 2b passes", () => {
+    const sing2b = {
+      exerciseId: "interval-harmonic-sing" as const,
+      contentTierId: "interval-2b" as const,
+    };
+    expect(isStepUnlocked(sing2b, passingMelodicSing2bHistory())).toBe(false);
+    expect(isStepUnlocked(sing2b, passingThroughMelodic2bHistory())).toBe(true);
+  });
+
+  it("locks harmonic identify at 2b until harmonic sing at 2b passes", () => {
+    const id2b = {
+      exerciseId: "interval-harmonic-id" as const,
+      contentTierId: "interval-2b" as const,
+    };
+    expect(isStepUnlocked(id2b, passingThroughMelodic2bHistory())).toBe(false);
+    expect(
+      isStepUnlocked(id2b, [
+        ...passingThroughMelodic2bHistory(),
+        ...passingStepHistory({
+          exerciseId: "interval-harmonic-sing",
+          contentTierId: "interval-2b",
+        }),
+      ]),
+    ).toBe(true);
+  });
 });
 
 describe("getContinueStep", () => {
@@ -134,8 +165,18 @@ describe("getContinueStep", () => {
     });
   });
 
-  it("advances to scale degrees after melodic 2b completes", () => {
+  it("advances to harmonic sing at 2b after melodic 2b completes", () => {
     expect(getContinueExercise(passingThroughMelodic2bHistory())).toBe(
+      "interval-harmonic-sing",
+    );
+    expect(getContinueStep(passingThroughMelodic2bHistory())).toEqual({
+      exerciseId: "interval-harmonic-sing",
+      contentTierId: "interval-2b",
+    });
+  });
+
+  it("advances to scale degrees after harmonic 2b completes", () => {
+    expect(getContinueExercise(passingThroughHarmonic2bHistory())).toBe(
       "scale-degree-sing",
     );
   });
@@ -154,7 +195,7 @@ describe("getContinueExercise", () => {
 
   it("returns null when every curriculum step meets thresholds", () => {
     const records: AttemptRecord[] = [
-      ...passingThroughMelodic2bHistory(),
+      ...passingThroughHarmonic2bHistory(),
       ...passingStepHistory({
         exerciseId: "scale-degree-sing",
         contentTierId: "degree-3a",
@@ -181,9 +222,9 @@ describe("getUnlockRequirement", () => {
 
   it("includes tier pool in predecessor label for scale-degree sing", () => {
     expect(getUnlockRequirement("scale-degree-sing")).toEqual({
-      predecessorId: "interval-melodic-id",
+      predecessorId: "interval-harmonic-id",
       predecessorLabel:
-        "Identify melodic intervals (diatonic intervals within one octave)",
+        "Identify harmonic intervals (diatonic intervals within one octave)",
       minQuestions: MIN_QUESTIONS,
       minPassRatePercent: MIN_QUESTION_PASS_RATE,
     });

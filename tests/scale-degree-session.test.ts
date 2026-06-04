@@ -4,10 +4,10 @@ import { getScaleDegreeById } from "../src/scale-degree-config.ts";
 import {
   prepareScaleDegreeQuestion,
 } from "../src/ui/scale-degree-session.ts";
-import { attempt, passingThroughMelodic2bHistory } from "./fixtures/attempts.ts";
+import { attempt, passingThroughHarmonic2bHistory } from "./fixtures/attempts.ts";
 import type { SessionPlanner } from "../src/session/planner.ts";
 
-const unlockedHistory = passingThroughMelodic2bHistory();
+const unlockedHistory = passingThroughHarmonic2bHistory();
 
 describe("prepareScaleDegreeQuestion", () => {
   it("uses planner tag and attaches tier metadata", () => {

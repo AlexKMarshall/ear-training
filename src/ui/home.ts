@@ -17,16 +17,18 @@ import {
 import { computeExerciseProgress } from "../history/stats.ts";
 import type { AttemptRecord, ExerciseId } from "../history/types.ts";
 
-const MELODIC_INTERVAL_IDS = [
+const INTERVAL_EXERCISE_IDS = [
   "interval-melodic-sing",
+  "interval-harmonic-sing",
   "interval-melodic-id",
+  "interval-harmonic-id",
 ] as const satisfies readonly ExerciseId[];
 
-function isMelodic2bActive(
+function isInterval2bActive(
   exerciseId: ExerciseId,
   records: readonly AttemptRecord[],
 ): boolean {
-  if (!(MELODIC_INTERVAL_IDS as readonly ExerciseId[]).includes(exerciseId)) {
+  if (!(INTERVAL_EXERCISE_IDS as readonly ExerciseId[]).includes(exerciseId)) {
     return false;
   }
   const step = getHighestUnlockedStepForExercise(exerciseId, records);
@@ -56,7 +58,7 @@ function progressHint(
       questionPassRatePercent >= MIN_QUESTION_PASS_RATE;
 
   if (complete) {
-    const suffix = isMelodic2bActive(exerciseId, records)
+    const suffix = isInterval2bActive(exerciseId, records)
       ? " · + diatonic intervals"
       : "";
     return questionCount > 0
@@ -64,7 +66,7 @@ function progressHint(
       : `Complete${suffix}`;
   }
 
-  const tierNote = isMelodic2bActive(exerciseId, records)
+  const tierNote = isInterval2bActive(exerciseId, records)
     ? " · diatonic intervals"
     : "";
   return `${questionCount} / ${MIN_QUESTIONS} questions · ${questionPassRatePercent}% pass (need ${MIN_QUESTION_PASS_RATE}%)${tierNote}`;

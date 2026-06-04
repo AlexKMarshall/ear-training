@@ -14,7 +14,7 @@ import {
 } from "../src/interval-config.ts";
 
 describe("curriculum steps", () => {
-  it("defines guided steps in unlock order through melodic 2b", () => {
+  it("defines guided steps in unlock order through harmonic 2b", () => {
     expect(CURRICULUM_STEPS.map((s) => `${s.exerciseId}@${s.contentTierId}`)).toEqual([
       "single-note@tier-1",
       "interval-melodic-sing@interval-2a",
@@ -23,6 +23,8 @@ describe("curriculum steps", () => {
       "interval-harmonic-id@interval-2a",
       "interval-melodic-sing@interval-2b",
       "interval-melodic-id@interval-2b",
+      "interval-harmonic-sing@interval-2b",
+      "interval-harmonic-id@interval-2b",
       "scale-degree-sing@degree-3a",
     ]);
   });
@@ -38,13 +40,13 @@ describe("curriculum steps", () => {
     expect(twoB).toEqual([...DIATONIC_MAJOR_INTERVAL_IDS]);
   });
 
-  it("exposes twelve tags for melodic interval 2b steps", () => {
-    const sing2b = CURRICULUM_STEPS.find(
+  it("exposes twelve tags for interval 2b steps", () => {
+    const harmonicSing2b = CURRICULUM_STEPS.find(
       (s) =>
-        s.exerciseId === "interval-melodic-sing" &&
+        s.exerciseId === "interval-harmonic-sing" &&
         s.contentTierId === "interval-2b",
     )!;
-    expect(getEligibleTagIds(sing2b)).toHaveLength(12);
+    expect(getEligibleTagIds(harmonicSing2b)).toHaveLength(12);
   });
 
   it("orders 2b steps after all four interval modes at 2a", () => {
@@ -60,11 +62,27 @@ describe("curriculum steps", () => {
       exerciseId: "interval-melodic-id",
       contentTierId: "interval-2b",
     });
+    const harmonicSing2b = getStepIndex({
+      exerciseId: "interval-harmonic-sing",
+      contentTierId: "interval-2b",
+    });
+    const harmonicId2b = getStepIndex({
+      exerciseId: "interval-harmonic-id",
+      contentTierId: "interval-2b",
+    });
+    const scaleDegree = getStepIndex({
+      exerciseId: "scale-degree-sing",
+      contentTierId: "degree-3a",
+    });
     expect(harmonicId2a).toBe(4);
     expect(melodicSing2b).toBe(5);
     expect(melodicId2b).toBe(6);
+    expect(harmonicSing2b).toBe(7);
+    expect(harmonicId2b).toBe(8);
+    expect(scaleDegree).toBe(9);
     expect(melodicSing2b).toBeGreaterThan(harmonicId2a);
-    expect(melodicId2b).toBeGreaterThan(melodicSing2b);
+    expect(harmonicSing2b).toBeGreaterThan(melodicId2b);
+    expect(harmonicId2b).toBeGreaterThan(harmonicSing2b);
   });
 
   it("returns ordered steps per exercise for tier progression", () => {
@@ -74,6 +92,7 @@ describe("curriculum steps", () => {
     ]);
     expect(stepsForExercise("interval-harmonic-sing").map((s) => s.contentTierId)).toEqual([
       "interval-2a",
+      "interval-2b",
     ]);
     expect(stepsForExercise("scale-degree-sing").map((s) => s.contentTierId)).toEqual([
       "degree-3a",

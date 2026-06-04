@@ -19,6 +19,7 @@ function mountLockedExercise(
     throw new Error(`Locked exercise missing unlock requirement: ${exerciseId}`);
   }
   const predecessor = getExercise(requirement.predecessorId);
+  const predecessorName = requirement.predecessorLabel;
 
   root.innerHTML = `
     <main class="app">
@@ -34,7 +35,7 @@ function mountLockedExercise(
       <section class="exercise-locked" aria-labelledby="exercise-locked-heading">
         <h2 id="exercise-locked-heading" class="exercise-locked-title">Locked</h2>
         <p class="exercise-locked-desc">
-          Complete <strong>${predecessor.title}</strong> first: answer at least
+          Complete <strong>${predecessorName}</strong> first: answer at least
           ${requirement.minQuestions} questions with
           ${requirement.minPassRatePercent}% or higher question pass rate.
         </p>

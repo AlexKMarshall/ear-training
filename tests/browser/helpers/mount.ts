@@ -311,6 +311,18 @@ export function createMelodicIdTestConfig(
   return createIdentifyTestConfigFor("interval-melodic-id", overrides);
 }
 
+export function createHarmonicSingTestConfig(
+  overrides?: Partial<SingTestConfig>,
+): SingTestConfig {
+  return createSingTestConfigFor("interval-harmonic-sing", overrides);
+}
+
+export function createHarmonicIdTestConfig(
+  overrides?: Partial<IdentifyTestConfig>,
+): IdentifyTestConfig {
+  return createIdentifyTestConfigFor("interval-harmonic-id", overrides);
+}
+
 export function createSingleNoteTestConfig(
   overrides?: Partial<SingTestConfig>,
 ): SingTestConfig {

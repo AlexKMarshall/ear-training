@@ -4,6 +4,8 @@ import {
   passingLevel2History,
   passingMelodicSing2bHistory,
   passingSingleNoteHistory,
+  passingStepHistory,
+  passingThroughHarmonic2bHistory,
   passingThroughMelodic2bHistory,
 } from "./fixtures/attempts.ts";
 
@@ -44,7 +46,7 @@ describe("getSessionStepForExercise", () => {
     });
   });
 
-  it("returns interval-2a for harmonic exercises even when melodic 2b is active", () => {
+  it("returns interval-2a for harmonic exercises until harmonic sing at 2b unlocks", () => {
     const records = passingMelodicSing2bHistory();
     expect(
       getSessionStepForExercise("interval-harmonic-sing", records),
@@ -60,8 +62,40 @@ describe("getSessionStepForExercise", () => {
     });
   });
 
-  it("returns degree-3a for scale-degree sing when unlocked", () => {
+  it("returns interval-2b for harmonic exercises when that tier is unlocked", () => {
     const records = passingThroughMelodic2bHistory();
+    expect(
+      getSessionStepForExercise("interval-harmonic-sing", records),
+    ).toEqual({
+      exerciseId: "interval-harmonic-sing",
+      contentTierId: "interval-2b",
+    });
+    expect(
+      getSessionStepForExercise("interval-harmonic-id", records),
+    ).toEqual({
+      exerciseId: "interval-harmonic-id",
+      contentTierId: "interval-2a",
+    });
+  });
+
+  it("returns interval-2b for harmonic identify after harmonic sing at 2b passes", () => {
+    const records = [
+      ...passingThroughMelodic2bHistory(),
+      ...passingStepHistory({
+        exerciseId: "interval-harmonic-sing",
+        contentTierId: "interval-2b",
+      }),
+    ];
+    expect(
+      getSessionStepForExercise("interval-harmonic-id", records),
+    ).toEqual({
+      exerciseId: "interval-harmonic-id",
+      contentTierId: "interval-2b",
+    });
+  });
+
+  it("returns degree-3a for scale-degree sing when interval 2b path is complete", () => {
+    const records = passingThroughHarmonic2bHistory();
     expect(
       getSessionStepForExercise("scale-degree-sing", records),
     ).toEqual({
