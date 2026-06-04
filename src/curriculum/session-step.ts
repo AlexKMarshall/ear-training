@@ -83,6 +83,35 @@ export function resolveSessionStep(
 }
 
 /**
+ * Step the learner is trying to open: explicit URL step, or guided default for the
+ * exercise route when the param is omitted.
+ */
+export function resolveAccessStep(
+  exerciseId: ExerciseId,
+  records: readonly AttemptRecord[],
+  urlStep: CurriculumStep | null,
+): CurriculumStep {
+  if (urlStep) {
+    return urlStep;
+  }
+
+  const steps = stepsForExercise(exerciseId);
+  if (steps.length === 0) {
+    throw new Error(`No curriculum steps for exercise: ${exerciseId}`);
+  }
+
+  if (exerciseId === "single-note") {
+    return steps[0]!;
+  }
+
+  try {
+    return getGuidedStepForExercise(exerciseId, records);
+  } catch {
+    return steps[0]!;
+  }
+}
+
+/**
  * @deprecated Prefer {@link resolveSessionStep} with explicit `urlStep`.
  * Resolves using guided-path default only (highest-tier behavior superseded).
  */
