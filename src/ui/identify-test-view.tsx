@@ -124,10 +124,10 @@ function IdentifyResultContent(props: { result: IdentifyResultView }) {
 
 function IdentifyResultPanel(props: { ui: IdentifyUiState }) {
   return (
-    <Show when={props.ui.result}>
+    <Show when={props.ui.result} keyed>
       {(result) => (
         <div class={props.ui.resultClassName}>
-          <IdentifyResultContent result={result()} />
+          <IdentifyResultContent result={result} />
         </div>
       )}
     </Show>
