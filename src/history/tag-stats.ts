@@ -1,5 +1,6 @@
 import { getChordTypeById } from "../chord-config.ts";
 import { getPracticeMode } from "../practice-modes/registry.ts";
+import { isPracticeModeId } from "./normalize.ts";
 import { getIntervalById } from "../interval-config.ts";
 import { getScaleDegreeById } from "../scale-degree-config.ts";
 import type { AttemptRecord, PracticeModeId } from "./types.ts";
@@ -140,7 +141,9 @@ export function singAttemptsMedianAbsCents(
   records: readonly AttemptRecord[],
 ): number {
   const singRecords = records.filter(
-    (r) => getPracticeMode(r.practiceModeId).responseMode === "sing",
+    (r) =>
+      isPracticeModeId(r.practiceModeId) &&
+      getPracticeMode(r.practiceModeId).responseMode === "sing",
   );
   return computeMedianAbsCents(singRecords);
 }

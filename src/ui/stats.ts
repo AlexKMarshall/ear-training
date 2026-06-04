@@ -1,4 +1,5 @@
 import { getPracticeMode } from "../practice-modes/registry.ts";
+import { isPracticeModeId } from "../history/normalize.ts";
 import {
   createDefaultHistoryPort,
   type MountDeps,
@@ -115,7 +116,9 @@ export async function mountStats(
   const stats = computeDashboardStats(records);
   const hasData = stats.totalAttempts > 0;
   const hasSingAttempts = records.some(
-    (r) => getPracticeMode(r.practiceModeId).responseMode === "sing",
+    (r) =>
+      isPracticeModeId(r.practiceModeId) &&
+      getPracticeMode(r.practiceModeId).responseMode === "sing",
   );
 
   root.innerHTML = `

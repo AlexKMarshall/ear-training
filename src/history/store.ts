@@ -1,3 +1,4 @@
+import { normalizeAttemptRecord } from "./normalize.ts";
 import type { AttemptInput, AttemptRecord } from "./types.ts";
 
 const DB_NAME = "ear-training";
@@ -63,10 +64,13 @@ export function saveAttempt(record: AttemptInput): Promise<void> {
   return runTransaction("readwrite", (store) => store.add(record)).then(() => {});
 }
 
-/** All attempts, oldest first. */
+/** All attempts, oldest first (legacy IndexedDB rows are normalized on read). */
 export function getAllAttempts(): Promise<AttemptRecord[]> {
   return runTransaction<AttemptRecord[]>("readonly", (store) => store.getAll()).then(
-    (rows) => rows ?? [],
+    (rows) =>
+      (rows ?? [])
+        .map((row) => normalizeAttemptRecord(row))
+        .filter((row): row is AttemptRecord => row !== null),
   );
 }
 
