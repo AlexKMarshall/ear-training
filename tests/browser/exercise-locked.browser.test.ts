@@ -33,7 +33,7 @@ test("locked scale-degree exercise shows locked heading", async () => {
     .toBeVisible();
   await expect
     .element(
-      page.getByRole("link", { name: /Go to Identify harmonic intervals/i }),
+      page.getByRole("link", { name: /Go to Identify melodic intervals/i }),
     )
     .toBeVisible();
 });

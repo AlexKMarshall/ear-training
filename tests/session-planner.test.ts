@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { MIN_QUESTIONS } from "../src/curriculum/unlock.ts";
 import type { ContentTierId } from "../src/curriculum/steps.ts";
+import { filterRecordsForStep } from "../src/curriculum/steps.ts";
 import {
-  filterRecordsForStep,
   planNextQuestionTag,
   WEAK_AREA_PROBABILITY,
 } from "../src/session/planner.ts";
@@ -90,6 +90,23 @@ describe("filterRecordsForStep", () => {
       "perfect-fourth",
     );
   });
+
+  it("does not count legacy untagged attempts toward interval-2b", () => {
+    const step = {
+      exerciseId: "interval-melodic-sing" as const,
+      contentTierId: "interval-2b" as const,
+    };
+    const records = [
+      attempt({
+        exerciseId: "interval-melodic-sing",
+        intervalId: "perfect-fourth",
+        passed: true,
+        attemptNumber: 1,
+        centsOff: 0,
+      }),
+    ];
+    expect(filterRecordsForStep(records, step)).toHaveLength(0);
+  });
 });
 
 describe("planNextQuestionTag", () => {
@@ -150,10 +167,12 @@ describe("planNextQuestionTag", () => {
       ...intervalHistory("interval-melodic-sing", "minor-sixth", {
         questions: MIN_QUESTIONS,
         passRate: 10,
+        contentTierId: "interval-2b",
       }),
       ...intervalHistory("interval-melodic-sing", "perfect-fifth", {
         questions: MIN_QUESTIONS,
         passRate: 100,
+        contentTierId: "interval-2b",
       }),
     ];
     const tag = planNextQuestionTag(

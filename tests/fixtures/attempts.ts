@@ -1,3 +1,4 @@
+import type { CurriculumStep } from "../../src/curriculum/steps.ts";
 import { MIN_QUESTIONS } from "../../src/curriculum/unlock.ts";
 import type { AttemptRecord } from "../../src/history/types.ts";
 
@@ -54,4 +55,41 @@ export function passingLevel2History(): AttemptRecord[] {
     );
   }
   return records;
+}
+
+/** Passing history for one curriculum step (tier tagged when provided). */
+export function passingStepHistory(step: CurriculumStep): AttemptRecord[] {
+  return Array.from({ length: MIN_QUESTIONS }, (_, i) =>
+    attempt({
+      exerciseId: step.exerciseId,
+      contentTierId: step.contentTierId,
+      passed: true,
+      attemptNumber: 1,
+      centsOff: 0,
+      questionIndex: i,
+      roundId: `${step.exerciseId}-${step.contentTierId}-${i}`,
+    }),
+  );
+}
+
+/** Level 2 at 2a plus melodic sing at 2b (identify 2b still locked). */
+export function passingMelodicSing2bHistory(): AttemptRecord[] {
+  return [
+    ...passingLevel2History(),
+    ...passingStepHistory({
+      exerciseId: "interval-melodic-sing",
+      contentTierId: "interval-2b",
+    }),
+  ];
+}
+
+/** Full guided path through melodic 2b (scale-degree step still available). */
+export function passingThroughMelodic2bHistory(): AttemptRecord[] {
+  return [
+    ...passingMelodicSing2bHistory(),
+    ...passingStepHistory({
+      exerciseId: "interval-melodic-id",
+      contentTierId: "interval-2b",
+    }),
+  ];
 }

@@ -1,5 +1,8 @@
-import type { CurriculumStep, ContentTierId } from "../curriculum/steps.ts";
-import { getEligibleTagIds } from "../curriculum/steps.ts";
+import type { CurriculumStep } from "../curriculum/steps.ts";
+import {
+  filterRecordsForStep,
+  getEligibleTagIds,
+} from "../curriculum/steps.ts";
 import {
   MIN_QUESTION_PASS_RATE,
   MIN_QUESTIONS,
@@ -10,8 +13,6 @@ import type { AttemptRecord } from "../history/types.ts";
 
 /** Share of draws that target weak (under-threshold) tags vs maintenance. */
 export const WEAK_AREA_PROBABILITY = 0.7;
-
-type AttemptWithTier = AttemptRecord & { contentTierId?: ContentTierId };
 
 export interface SessionPlanner {
   planNextQuestionTag(
@@ -40,22 +41,6 @@ export function createSessionPlanner(
 
 export function createDefaultSessionPlanner(): SessionPlanner {
   return createSessionPlanner();
-}
-
-export function filterRecordsForStep(
-  records: readonly AttemptRecord[],
-  step: CurriculumStep,
-): AttemptRecord[] {
-  return records.filter((record) => {
-    if (record.exerciseId !== step.exerciseId) {
-      return false;
-    }
-    const tier = (record as AttemptWithTier).contentTierId;
-    if (tier !== undefined && tier !== step.contentTierId) {
-      return false;
-    }
-    return true;
-  });
 }
 
 function isWeakTag(questionCount: number, questionPassRatePercent: number): boolean {

@@ -1,8 +1,11 @@
 import { CURRICULUM_LEVELS, FREE_PRACTICE_IDS } from "../curriculum/levels.ts";
 import {
+  computeStepProgress,
   getContinueExercise,
+  getHighestUnlockedStepForExercise,
   getUnlockRequirement,
   isExerciseUnlocked,
+  meetsStepThreshold,
   MIN_QUESTION_PASS_RATE,
   MIN_QUESTIONS,
 } from "../curriculum/unlock.ts";
@@ -14,18 +17,20 @@ import {
 import { computeExerciseProgress } from "../history/stats.ts";
 import type { AttemptRecord, ExerciseId } from "../history/types.ts";
 
-function meetsProgressThreshold(
+const MELODIC_INTERVAL_IDS = [
+  "interval-melodic-sing",
+  "interval-melodic-id",
+] as const satisfies readonly ExerciseId[];
+
+function isMelodic2bActive(
   exerciseId: ExerciseId,
   records: readonly AttemptRecord[],
 ): boolean {
-  const { questionCount, questionPassRatePercent } = computeExerciseProgress(
-    exerciseId,
-    records,
-  );
-  return (
-    questionCount >= MIN_QUESTIONS &&
-    questionPassRatePercent >= MIN_QUESTION_PASS_RATE
-  );
+  if (!(MELODIC_INTERVAL_IDS as readonly ExerciseId[]).includes(exerciseId)) {
+    return false;
+  }
+  const step = getHighestUnlockedStepForExercise(exerciseId, records);
+  return step?.contentTierId === "interval-2b";
 }
 
 function progressHint(
@@ -40,18 +45,29 @@ function progressHint(
     return `Locked · complete ${requirement.predecessorLabel} first`;
   }
 
-  const { questionCount, questionPassRatePercent } = computeExerciseProgress(
-    exerciseId,
-    records,
-  );
+  const step = getHighestUnlockedStepForExercise(exerciseId, records);
+  const progress = step
+    ? computeStepProgress(step, records)
+    : computeExerciseProgress(exerciseId, records);
+  const { questionCount, questionPassRatePercent } = progress;
+  const complete = step
+    ? meetsStepThreshold(step, records)
+    : questionCount >= MIN_QUESTIONS &&
+      questionPassRatePercent >= MIN_QUESTION_PASS_RATE;
 
-  if (meetsProgressThreshold(exerciseId, records)) {
+  if (complete) {
+    const suffix = isMelodic2bActive(exerciseId, records)
+      ? " · + diatonic intervals"
+      : "";
     return questionCount > 0
-      ? `Complete · ${questionCount} questions`
-      : "Complete";
+      ? `Complete · ${questionCount} questions${suffix}`
+      : `Complete${suffix}`;
   }
 
-  return `${questionCount} / ${MIN_QUESTIONS} questions · ${questionPassRatePercent}% pass (need ${MIN_QUESTION_PASS_RATE}%)`;
+  const tierNote = isMelodic2bActive(exerciseId, records)
+    ? " · diatonic intervals"
+    : "";
+  return `${questionCount} / ${MIN_QUESTIONS} questions · ${questionPassRatePercent}% pass (need ${MIN_QUESTION_PASS_RATE}%)${tierNote}`;
 }
 
 function renderExerciseCard(
@@ -60,7 +76,17 @@ function renderExerciseCard(
 ): string {
   const entry = getExercise(exerciseId);
   const unlocked = isExerciseUnlocked(exerciseId, records);
-  const complete = meetsProgressThreshold(exerciseId, records);
+  const step = getHighestUnlockedStepForExercise(exerciseId, records);
+  const complete = step
+    ? meetsStepThreshold(step, records)
+    : (() => {
+        const { questionCount, questionPassRatePercent } =
+          computeExerciseProgress(exerciseId, records);
+        return (
+          questionCount >= MIN_QUESTIONS &&
+          questionPassRatePercent >= MIN_QUESTION_PASS_RATE
+        );
+      })();
   const hint = progressHint(exerciseId, records);
 
   const statusClass = !unlocked

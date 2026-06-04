@@ -1,12 +1,18 @@
-import { computeExerciseProgress } from "../history/stats.ts";
+import { computeQuestionStats } from "../history/stats.ts";
 import type { AttemptRecord, ExerciseId } from "../history/types.ts";
-import { EXERCISE_LABELS } from "../history/types.ts";
 import { isUnlockAllEnabled } from "./dev-unlock.ts";
 import {
   CURRICULUM_LEVELS,
-  CURRICULUM_PATH,
   FREE_PRACTICE_IDS,
 } from "./levels.ts";
+import type { CurriculumStep } from "./steps.ts";
+import {
+  CURRICULUM_STEPS,
+  filterRecordsForStep,
+  getStepIndex,
+  getStepLabel,
+  stepsForExercise,
+} from "./steps.ts";
 
 export const MIN_QUESTIONS = 10;
 export const MIN_QUESTION_PASS_RATE = 70;
@@ -18,12 +24,22 @@ export interface UnlockRequirement {
   minPassRatePercent: number;
 }
 
-function meetsProgressThreshold(
-  exerciseId: ExerciseId,
+export function computeStepProgress(
+  step: CurriculumStep,
+  records: readonly AttemptRecord[],
+): { questionCount: number; questionPassRatePercent: number } {
+  const filtered = filterRecordsForStep(records, step);
+  const { questionCount, questionPassRatePercent } =
+    computeQuestionStats(filtered);
+  return { questionCount, questionPassRatePercent };
+}
+
+export function meetsStepThreshold(
+  step: CurriculumStep,
   records: readonly AttemptRecord[],
 ): boolean {
-  const { questionCount, questionPassRatePercent } = computeExerciseProgress(
-    exerciseId,
+  const { questionCount, questionPassRatePercent } = computeStepProgress(
+    step,
     records,
   );
   return (
@@ -32,8 +48,36 @@ function meetsProgressThreshold(
   );
 }
 
-function pathIndex(exerciseId: ExerciseId): number {
-  return CURRICULUM_PATH.indexOf(exerciseId);
+export function isStepUnlocked(
+  step: CurriculumStep,
+  records: readonly AttemptRecord[],
+): boolean {
+  if (isUnlockAllEnabled()) {
+    return true;
+  }
+  const index = getStepIndex(step);
+  if (index < 0) {
+    return false;
+  }
+  if (index === 0) {
+    return true;
+  }
+  const predecessor = CURRICULUM_STEPS[index - 1]!;
+  return meetsStepThreshold(predecessor, records);
+}
+
+/** Highest unlocked step for an exercise (last tier in path order), or null. */
+export function getHighestUnlockedStepForExercise(
+  exerciseId: ExerciseId,
+  records: readonly AttemptRecord[],
+): CurriculumStep | null {
+  let highest: CurriculumStep | null = null;
+  for (const step of stepsForExercise(exerciseId)) {
+    if (isStepUnlocked(step, records)) {
+      highest = step;
+    }
+  }
+  return highest;
 }
 
 export function isExerciseUnlocked(
@@ -46,15 +90,11 @@ export function isExerciseUnlocked(
   if ((FREE_PRACTICE_IDS as readonly ExerciseId[]).includes(exerciseId)) {
     return true;
   }
-  const index = pathIndex(exerciseId);
-  if (index < 0) {
+  const firstStep = stepsForExercise(exerciseId)[0];
+  if (!firstStep) {
     return false;
   }
-  if (index === 0) {
-    return true;
-  }
-  const predecessor = CURRICULUM_PATH[index - 1]!;
-  return meetsProgressThreshold(predecessor, records);
+  return isStepUnlocked(firstStep, records);
 }
 
 export function isLevelUnlocked(
@@ -68,19 +108,26 @@ export function isLevelUnlocked(
   return isExerciseUnlocked(def.exerciseIds[0]!, records);
 }
 
+/** First unlocked curriculum step that still needs practice, or null when complete. */
+export function getContinueStep(
+  records: readonly AttemptRecord[],
+): CurriculumStep | null {
+  for (const step of CURRICULUM_STEPS) {
+    if (!isStepUnlocked(step, records)) {
+      break;
+    }
+    if (!meetsStepThreshold(step, records)) {
+      return step;
+    }
+  }
+  return null;
+}
+
 /** First guided exercise to work on, or null when the path is complete. */
 export function getContinueExercise(
   records: readonly AttemptRecord[],
 ): ExerciseId | null {
-  for (const id of CURRICULUM_PATH) {
-    if (!isExerciseUnlocked(id, records)) {
-      break;
-    }
-    if (!meetsProgressThreshold(id, records)) {
-      return id;
-    }
-  }
-  return null;
+  return getContinueStep(records)?.exerciseId ?? null;
 }
 
 /** Static unlock copy for a path exercise (null if always available). */
@@ -90,14 +137,18 @@ export function getUnlockRequirement(
   if ((FREE_PRACTICE_IDS as readonly ExerciseId[]).includes(exerciseId)) {
     return null;
   }
-  const index = pathIndex(exerciseId);
+  const firstStep = stepsForExercise(exerciseId)[0];
+  if (!firstStep) {
+    return null;
+  }
+  const index = getStepIndex(firstStep);
   if (index <= 0) {
     return null;
   }
-  const predecessorId = CURRICULUM_PATH[index - 1]!;
+  const predecessor = CURRICULUM_STEPS[index - 1]!;
   return {
-    predecessorId,
-    predecessorLabel: EXERCISE_LABELS[predecessorId],
+    predecessorId: predecessor.exerciseId,
+    predecessorLabel: getStepLabel(predecessor),
     minQuestions: MIN_QUESTIONS,
     minPassRatePercent: MIN_QUESTION_PASS_RATE,
   };
