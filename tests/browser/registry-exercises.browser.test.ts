@@ -1,10 +1,10 @@
 import { page, userEvent } from "vitest/browser";
 import { beforeEach, expect, test } from "vitest";
-import { EXERCISES } from "../../src/exercises/registry.ts";
-import type { ExerciseId } from "../../src/history/types.ts";
+import { PRACTICE_MODES } from "../../src/practice-modes/registry.ts";
+import type { PracticeModeId } from "../../src/history/types.ts";
 import {
   defaultPassSamplesHzFor,
-  mountExerciseInBrowser,
+  mountPracticeModeInBrowser,
 } from "./helpers/mount.ts";
 
 const SMOKE_IDS = [
@@ -12,29 +12,29 @@ const SMOKE_IDS = [
   "interval-melodic-sing",
   "interval-harmonic-sing",
   "interval-harmonic-id",
-] as const satisfies readonly ExerciseId[];
+] as const satisfies readonly PracticeModeId[];
 
 beforeEach(() => {
   document.body.innerHTML = "";
 });
 
-for (const exerciseId of SMOKE_IDS) {
-  const entry = EXERCISES.find((e) => e.id === exerciseId)!;
+for (const practiceModeId of SMOKE_IDS) {
+  const entry = PRACTICE_MODES.find((e) => e.id === practiceModeId)!;
 
-  test(`${exerciseId}: mounts and scores one question`, async () => {
+  test(`${practiceModeId}: mounts and scores one question`, async () => {
     const mountOptions =
       entry.responseMode === "sing"
-        ? { samplesHz: defaultPassSamplesHzFor(exerciseId) }
+        ? { samplesHz: defaultPassSamplesHzFor(practiceModeId) }
         : undefined;
 
-    const { history } = mountExerciseInBrowser(exerciseId, mountOptions);
+    const { history } = mountPracticeModeInBrowser(practiceModeId, mountOptions);
 
     await expect
       .element(page.getByRole("heading", { name: entry.title }))
       .toBeVisible();
 
     const playLabel =
-      exerciseId === "chord-middle" ? /Play chord/i : /Play interval/i;
+      practiceModeId === "chord-middle" ? /Play chord/i : /Play interval/i;
     await userEvent.click(page.getByRole("button", { name: playLabel }));
 
     if (entry.responseMode === "select") {
@@ -55,7 +55,7 @@ for (const exerciseId of SMOKE_IDS) {
     const records = await history.getAllAttempts();
     expect(records).toHaveLength(1);
     expect(records[0]).toMatchObject({
-      exerciseId,
+      practiceModeId,
       passed: true,
       attemptNumber: 1,
     });

@@ -7,11 +7,11 @@ import {
   type HistoryPort,
 } from "../history/port.ts";
 import {
-  MAX_ATTEMPTS_PER_QUESTION,
-  QUESTIONS_PER_ROUND,
+  MAX_ATTEMPTS_PER_EXERCISE,
+  EXERCISES_PER_LESSON,
 } from "../config.ts";
 import { buildAttemptRecord } from "../history/serialize.ts";
-import type { ExerciseId } from "../history/types.ts";
+import type { PracticeModeId } from "../history/types.ts";
 import {
   getActiveIntervals,
   getSelectableIntervals,
@@ -21,14 +21,14 @@ import {
 import {
   buildIntervalChoices,
   type IntervalChoice,
-} from "../interval-questions.ts";
+} from "../interval-exercises.ts";
 import {
-  classifyQuestionOutcome,
+  classifyExerciseOutcome,
   percentOf,
-  summarizeRound,
-  type RoundQuestionResult,
-} from "../round.ts";
-import type { SingTestQuestion } from "../sing-test-question.ts";
+  summarizeLesson,
+  type LessonExerciseResult,
+} from "../lesson.ts";
+import type { LessonExercise } from "../lesson-exercise.ts";
 import {
   getVoiceType,
   setVoiceType,
@@ -43,10 +43,10 @@ type TestState =
   | "playing"
   | "ready"
   | "result"
-  | "roundSummary";
+  | "lessonSummary";
 
 export interface IdentifyTestConfig {
-  exerciseId: ExerciseId;
+  practiceModeId: PracticeModeId;
   title: string;
   subtitle: string;
   playButtonLabel: string;
@@ -62,8 +62,8 @@ export interface IdentifyTestConfig {
     fail: string;
     failExhausted?: string;
   };
-  prepareQuestion: () => SingTestQuestion;
-  playReference: (question: SingTestQuestion) => Promise<void>;
+  prepareExercise: () => LessonExercise;
+  playReference: (exercise: LessonExercise) => Promise<void>;
 }
 
 export interface IdentifyMountDeps {
@@ -137,8 +137,8 @@ export function mountIdentifyTest(
       <div class="actions">
         <button type="button" id="btn-play" class="btn btn-primary">${config.playButtonLabel}</button>
         <button type="button" id="btn-retry" class="btn" hidden>Try again</button>
-        <button type="button" id="btn-next" class="btn btn-primary" hidden>Next question</button>
-        <button type="button" id="btn-next-round" class="btn btn-primary" hidden>Start next round</button>
+        <button type="button" id="btn-next" class="btn btn-primary" hidden>Next exercise</button>
+        <button type="button" id="btn-next-round" class="btn btn-primary" hidden>Start next lesson</button>
       </div>
       <p class="hint">Use headphones if you can. Tap Play to hear the reference (no microphone needed).</p>
     </main>
@@ -151,7 +151,7 @@ export function mountIdentifyTest(
   const btnRetry = root.querySelector<HTMLButtonElement>("#btn-retry")!;
   const btnNext = root.querySelector<HTMLButtonElement>("#btn-next")!;
   const btnNextRound = root.querySelector<HTMLButtonElement>("#btn-next-round")!;
-  const roundProgressEl = root.querySelector<HTMLElement>("#round-progress")!;
+  const lessonProgressEl = root.querySelector<HTMLElement>("#round-progress")!;
   const voicePickerEl = root.querySelector<HTMLFieldSetElement>("#voice-picker");
   const voiceRangeHintEl = root.querySelector<HTMLElement>("#voice-range-hint");
   const voiceInputs = root.querySelectorAll<HTMLInputElement>(".voice-option-input");
@@ -162,17 +162,17 @@ export function mountIdentifyTest(
   );
 
   let state: TestState = "idle";
-  let currentQuestion: SingTestQuestion | null = null;
+  let currentExercise: LessonExercise | null = null;
   let currentChoices: IntervalChoice[] = [];
   let scoredAttempts = 0;
   let lastPassed = false;
-  let roundResults: RoundQuestionResult[] = [];
-  let roundId = crypto.randomUUID();
+  let lessonExerciseResults: LessonExerciseResult[] = [];
+  let lessonId = crypto.randomUUID();
 
-  function resetRound(): void {
-    roundId = crypto.randomUUID();
-    roundResults = [];
-    currentQuestion = null;
+  function resetLesson(): void {
+    lessonId = crypto.randomUUID();
+    lessonExerciseResults = [];
+    currentExercise = null;
     scoredAttempts = 0;
     lastPassed = false;
     resultEl.hidden = true;
@@ -200,30 +200,30 @@ export function mountIdentifyTest(
     return config.status.idle;
   }
 
-  function currentQuestionNumber(): number {
-    return roundResults.length + 1;
+  function currentExerciseNumber(): number {
+    return lessonExerciseResults.length + 1;
   }
 
-  function isLastQuestionInRound(): boolean {
-    return roundResults.length >= QUESTIONS_PER_ROUND - 1;
+  function isLastExerciseInLesson(): boolean {
+    return lessonExerciseResults.length >= EXERCISES_PER_LESSON - 1;
   }
 
   function nextStepButtonLabel(): string {
-    return isLastQuestionInRound() ? "Finish round" : "Next question";
+    return isLastExerciseInLesson() ? "Finish lesson" : "Next exercise";
   }
 
-  function syncRoundProgress(): void {
-    if (state === "roundSummary") {
-      roundProgressEl.hidden = true;
+  function syncLessonProgress(): void {
+    if (state === "lessonSummary") {
+      lessonProgressEl.hidden = true;
       return;
     }
-    roundProgressEl.hidden = false;
-    roundProgressEl.textContent = `Round — question ${currentQuestionNumber()} of ${QUESTIONS_PER_ROUND}`;
+    lessonProgressEl.hidden = false;
+    lessonProgressEl.textContent = `Lesson — exercise ${currentExerciseNumber()} of ${EXERCISES_PER_LESSON}`;
   }
 
   function setState(next: TestState): void {
     state = next;
-    syncRoundProgress();
+    syncLessonProgress();
     updateUi();
   }
 
@@ -240,7 +240,7 @@ export function mountIdentifyTest(
     if (!config.showVoicePicker || voice === getVoiceType()) return;
     setVoiceType(voice);
     syncVoicePicker();
-    resetRound();
+    resetLesson();
     setState("idle");
   }
 
@@ -255,17 +255,17 @@ export function mountIdentifyTest(
     if (!config.showIntervalPicker) return;
     setIntervalSelected(id, selected);
     syncIntervalPicker();
-    resetRound();
+    resetLesson();
     setState("idle");
   }
 
   function renderChoices(): void {
-    if (!currentQuestion?.intervalId) return;
+    if (!currentExercise?.intervalId) return;
     const eligibleIds =
-      currentQuestion.eligibleTagIds ??
-      (currentQuestion.intervalId ? [currentQuestion.intervalId] : []);
+      currentExercise.eligibleTagIds ??
+      (currentExercise.intervalId ? [currentExercise.intervalId] : []);
     currentChoices = buildIntervalChoices(
-      currentQuestion.intervalId,
+      currentExercise.intervalId,
       eligibleIds,
     );
     choicesEl.innerHTML = currentChoices
@@ -287,9 +287,9 @@ export function mountIdentifyTest(
   }
 
   function updateUi(): void {
-    const inRoundSummary = state === "roundSummary";
+    const inLessonSummary = state === "lessonSummary";
     const settingsLocked =
-      state === "playing" || state === "result" || inRoundSummary;
+      state === "playing" || state === "result" || inLessonSummary;
     const incomplete = settingsIncomplete();
 
     if (voicePickerEl) {
@@ -302,24 +302,24 @@ export function mountIdentifyTest(
     }
 
     btnPlay.disabled =
-      inRoundSummary || state === "playing" || incomplete;
-    btnPlay.hidden = state === "result" || inRoundSummary;
+      inLessonSummary || state === "playing" || incomplete;
+    btnPlay.hidden = state === "result" || inLessonSummary;
 
     const showResultActions = state === "result";
     const canRetry =
       showResultActions &&
       !lastPassed &&
-      scoredAttempts < MAX_ATTEMPTS_PER_QUESTION;
+      scoredAttempts < MAX_ATTEMPTS_PER_EXERCISE;
     const canNext =
       showResultActions &&
-      (lastPassed || scoredAttempts >= MAX_ATTEMPTS_PER_QUESTION);
+      (lastPassed || scoredAttempts >= MAX_ATTEMPTS_PER_EXERCISE);
 
-    btnRetry.hidden = !canRetry || inRoundSummary;
-    btnNext.hidden = !canNext || inRoundSummary;
-    if (canNext && !inRoundSummary) {
+    btnRetry.hidden = !canRetry || inLessonSummary;
+    btnNext.hidden = !canNext || inLessonSummary;
+    if (canNext && !inLessonSummary) {
       btnNext.textContent = nextStepButtonLabel();
     }
-    btnNextRound.hidden = !inRoundSummary;
+    btnNextRound.hidden = !inLessonSummary;
 
     choicesEl.hidden = state !== "ready";
     if (state === "ready") {
@@ -331,7 +331,7 @@ export function mountIdentifyTest(
     }
 
     switch (state) {
-      case "roundSummary":
+      case "lessonSummary":
         break;
       case "idle":
         statusEl.textContent = settingsIdleMessage();
@@ -357,18 +357,18 @@ export function mountIdentifyTest(
     passed: boolean,
     selectedIntervalId: string,
   ): void {
-    if (!currentQuestion) return;
+    if (!currentExercise) return;
     const record = buildAttemptRecord(
       {
-        exerciseId: config.exerciseId,
-        roundId,
-        questionIndex: roundResults.length,
+        practiceModeId: config.practiceModeId,
+        lessonId,
+        exerciseIndex: lessonExerciseResults.length,
         showVoicePicker: config.showVoicePicker,
         showChordFilters: false,
         showIntervalFilters: config.showIntervalPicker,
         showDegreeFilters: false,
       },
-      currentQuestion,
+      currentExercise,
       0,
       passed,
       scoredAttempts + 1,
@@ -381,12 +381,12 @@ export function mountIdentifyTest(
     scoredAttempts += 1;
     lastPassed = passed;
 
-    const triesLeft = MAX_ATTEMPTS_PER_QUESTION - scoredAttempts;
+    const triesLeft = MAX_ATTEMPTS_PER_EXERCISE - scoredAttempts;
     const nextLabel = nextStepButtonLabel();
     let attemptNote = "";
     if (!passed) {
       if (triesLeft > 0) {
-        attemptNote = `<p class="result-attempts">${triesLeft} ${triesLeft === 1 ? "try" : "tries"} left on this question.</p>`;
+        attemptNote = `<p class="result-attempts">${triesLeft} ${triesLeft === 1 ? "try" : "tries"} left on this exercise.</p>`;
       } else {
         attemptNote = `<p class="result-attempts">No tries left — tap ${nextLabel} when you are ready.</p>`;
       }
@@ -406,7 +406,7 @@ export function mountIdentifyTest(
       ${attemptNote}
     `;
 
-    const onLastQuestion = isLastQuestionInRound();
+    const onLastQuestion = isLastExerciseInLesson();
     statusEl.textContent = passed
       ? onLastQuestion
         ? `Correct — tap ${nextLabel} when you are ready.`
@@ -414,13 +414,13 @@ export function mountIdentifyTest(
       : triesLeft > 0
         ? config.status.fail
         : onLastQuestion
-          ? `Out of tries — tap ${nextLabel} to see your round score.`
+          ? `Out of tries — tap ${nextLabel} to see your lesson score.`
           : (config.status.failExhausted ?? config.status.fail);
     setState("result");
   }
 
   async function handleChoice(selectedId: string): Promise<void> {
-    if (state !== "ready" || !currentQuestion?.intervalId) return;
+    if (state !== "ready" || !currentExercise?.intervalId) return;
 
     for (const btn of choicesEl.querySelectorAll<HTMLButtonElement>(
       ".choice-btn",
@@ -428,7 +428,7 @@ export function mountIdentifyTest(
       btn.disabled = true;
     }
 
-    const passed = selectedId === currentQuestion.intervalId;
+    const passed = selectedId === currentExercise.intervalId;
     const label =
       currentChoices.find((c) => c.id === selectedId)?.label ?? selectedId;
     persistAttempt(passed, selectedId);
@@ -440,13 +440,13 @@ export function mountIdentifyTest(
 
     try {
       await audio.ensureReady();
-      if (state === "idle" || !currentQuestion) {
-        currentQuestion = config.prepareQuestion();
+      if (state === "idle" || !currentExercise) {
+        currentExercise = config.prepareExercise();
         scoredAttempts = 0;
         lastPassed = false;
       }
       setState("playing");
-      await config.playReference(currentQuestion);
+      await config.playReference(currentExercise);
       renderChoices();
       setState("ready");
     } catch {
@@ -465,8 +465,8 @@ export function mountIdentifyTest(
     void handlePlay();
   }
 
-  function showRoundSummary(): void {
-    const summary = summarizeRound(roundResults);
+  function showLessonSummary(): void {
+    const summary = summarizeLesson(lessonExerciseResults);
     const correctPct = percentOf(summary.correctCount, summary.total);
     const firstTryPct = percentOf(summary.firstTryCount, summary.total);
     const retryPct = percentOf(summary.retryCount, summary.total);
@@ -487,25 +487,25 @@ export function mountIdentifyTest(
       </ul>
     `;
     statusEl.textContent =
-      "Round finished — review your score, then start the next round.";
-    setState("roundSummary");
+      "Lesson finished — review your score, then start the next lesson.";
+    setState("lessonSummary");
   }
 
-  function recordQuestionOutcome(): void {
-    roundResults.push({
-      questionIndex: roundResults.length,
-      outcome: classifyQuestionOutcome(lastPassed, scoredAttempts),
-      question: currentQuestion ?? undefined,
+  function recordExerciseOutcome(): void {
+    lessonExerciseResults.push({
+      exerciseIndex: lessonExerciseResults.length,
+      outcome: classifyExerciseOutcome(lastPassed, scoredAttempts),
+      exercise: currentExercise ?? undefined,
     });
   }
 
   function handleNextQuestion(): void {
-    recordQuestionOutcome();
-    if (roundResults.length >= QUESTIONS_PER_ROUND) {
-      showRoundSummary();
+    recordExerciseOutcome();
+    if (lessonExerciseResults.length >= EXERCISES_PER_LESSON) {
+      showLessonSummary();
       return;
     }
-    currentQuestion = null;
+    currentExercise = null;
     scoredAttempts = 0;
     lastPassed = false;
     resultEl.hidden = true;
@@ -515,7 +515,7 @@ export function mountIdentifyTest(
   }
 
   function handleNextRound(): void {
-    resetRound();
+    resetLesson();
     setState("idle");
   }
 
@@ -542,6 +542,6 @@ export function mountIdentifyTest(
 
   syncVoicePicker();
   syncIntervalPicker();
-  syncRoundProgress();
+  syncLessonProgress();
   updateUi();
 }

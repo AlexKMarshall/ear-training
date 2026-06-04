@@ -17,7 +17,7 @@ describe("getPathNodeLabels", () => {
   it("uses family title and mode subtitle for interval steps", () => {
     expect(
       getPathNodeLabels({
-        exerciseId: "interval-melodic-sing",
+        practiceModeId: "interval-melodic-sing",
         contentTierId: "interval-2a",
       }),
     ).toEqual({
@@ -29,11 +29,11 @@ describe("getPathNodeLabels", () => {
 
 describe("getPathNodeState", () => {
   it("marks the first step current on a fresh profile", () => {
-    const step = { exerciseId: "single-note" as const, contentTierId: "tier-1" as const };
+    const step = { practiceModeId: "single-note" as const, contentTierId: "tier-1" as const };
     expect(getPathNodeState(step, [])).toBe("current");
     expect(
       getPathNodeState(
-        { exerciseId: "interval-melodic-sing", contentTierId: "interval-2a" },
+        { practiceModeId: "interval-melodic-sing", contentTierId: "interval-2a" },
         [],
       ),
     ).toBe("locked");
@@ -43,13 +43,13 @@ describe("getPathNodeState", () => {
     const records = passingSingleNoteHistory();
     expect(
       getPathNodeState(
-        { exerciseId: "single-note", contentTierId: "tier-1" },
+        { practiceModeId: "single-note", contentTierId: "tier-1" },
         records,
       ),
     ).toBe("passed");
     expect(
       getPathNodeState(
-        { exerciseId: "interval-melodic-sing", contentTierId: "interval-2a" },
+        { practiceModeId: "interval-melodic-sing", contentTierId: "interval-2a" },
         records,
       ),
     ).toBe("current");
@@ -59,7 +59,7 @@ describe("getPathNodeState", () => {
 describe("getNextLockedPathNode", () => {
   it("returns the step after the current node when practice is in progress", () => {
     expect(getNextLockedPathNode(passingSingleNoteHistory())).toEqual({
-      exerciseId: "interval-melodic-id",
+      practiceModeId: "interval-melodic-id",
       contentTierId: "interval-2a",
     });
   });
@@ -74,19 +74,19 @@ describe("formatPathNodeStatus", () => {
     const records = passingSingleNoteHistory();
     expect(
       formatPathNodeStatus(
-        { exerciseId: "interval-melodic-sing", contentTierId: "interval-2a" },
+        { practiceModeId: "interval-melodic-sing", contentTierId: "interval-2a" },
         records,
       ),
-    ).toContain("questions");
+    ).toContain("exercises");
     expect(
       formatPathNodeStatus(
-        { exerciseId: "interval-melodic-id", contentTierId: "interval-2a" },
+        { practiceModeId: "interval-melodic-id", contentTierId: "interval-2a" },
         records,
       ),
     ).toContain("Sing melodic intervals");
     expect(
       formatPathNodeStatus(
-        { exerciseId: "interval-harmonic-sing", contentTierId: "interval-2a" },
+        { practiceModeId: "interval-harmonic-sing", contentTierId: "interval-2a" },
         records,
       ),
     ).toBe("Locked");

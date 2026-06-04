@@ -32,27 +32,27 @@ If a behavior cannot be asserted with role/label/text without brittle hacks, **i
 
 ## Examples (curriculum guards)
 
-Exercise **titles** in assertions must match [`src/exercises/registry.ts`](../../src/exercises/registry.ts) (`title` field), which drives visible card text.
+Exercise **titles** in assertions must match [`src/practice-modes/registry.ts`](../../src/practice-modes/registry.ts) (`title` field), which drives visible card text.
 
 | Behavior | Accessible approach |
 |----------|---------------------|
 | Unlocked exercise on home | `getByRole('link', { name: /Sing a single note/i })` visible |
 | Locked exercise on home | **No** `getByRole('link', { name: /Sing melodic intervals/i })`; optional `getByText(/Locked · complete/i)` for status copy |
-| Locked exercise page | `getByRole('heading', { name: 'Locked' })`; CTA `getByRole('link', { name: /Go to Sing a single note/i })` |
+| Locked practice page | `getByRole('heading', { name: 'Locked' })`; CTA `getByRole('link', { name: /Go to Sing a single note/i })` |
 | Stats empty state | `getByText(/No practice history yet/i)` |
 | Unlocked guard (no locked UI) | `expect.element(page.getByRole('heading', { name: 'Locked' })).not.toBeInTheDocument()` (or equivalent not-visible assertion) |
 | Identify exercise — play + answer | `getByRole('button', { name: /Play interval/i })` then `getByRole('button', { name: /Perfect 5th/i })` (label from active interval set) |
 | Identify — correct result | `getByText('Correct', { exact: true })` (avoids matching status line “Correct — tap Next…”) |
-| Identify — round progress | `getByText(/question 1 of 10/i)`; after Next question, `question 2 of 10` |
+| Identify — lesson progress | `getByText(/exercise 1 of 10/i)`; after Next exercise, `exercise 2 of 10` |
 | Identify — interval picker idle | `getByText(/Select at least one interval to begin/i)`; Play button `toBeDisabled()` |
 | Sing — play + record | `getByRole('button', { name: /Play note/i })` → `Start singing` → `Done` |
 | Sing — correct result | `getByText('Correct', { exact: true })` |
 | Sing — fail + retry | `getByText('Not quite', { exact: true })`; `getByRole('button', { name: /Try again/i })` |
-| Sing — round progress | `getByText(/question 1 of 10/i)`; after Next question, `question 2 of 10` |
+| Sing — lesson progress | `getByText(/exercise 1 of 10/i)`; after Next exercise, `exercise 2 of 10` |
 | Sing — not enough pitch | `getByText(/Not enough clear pitch detected/i)` |
 
 ## Related
 
 - [`testing.md`](testing.md) — hub and commands
 - [`mocking.md`](mocking.md) — inject `HistoryPort` etc. at mount boundaries
-- [`docs/testing-roadmap.md`](../testing-roadmap.md) — open browser/UI debt (e.g. stats with history, round summary)
+- [`docs/testing-roadmap.md`](../testing-roadmap.md) — open browser/UI debt (e.g. stats with history, lesson summary)

@@ -5,7 +5,7 @@ import {
   getPathNodeState,
   isGuidedPathComplete,
 } from "../curriculum/path-node.ts";
-import { CURRICULUM_STEPS } from "../curriculum/steps.ts";
+import { CURRICULUM_LESSONS } from "../curriculum/curriculum-lessons.ts";
 import {
   createDefaultHistoryPort,
   type MountDeps,
@@ -13,7 +13,7 @@ import {
 import type { AttemptRecord } from "../history/types.ts";
 
 function renderPathNode(
-  step: (typeof CURRICULUM_STEPS)[number],
+  step: (typeof CURRICULUM_LESSONS)[number],
   records: readonly AttemptRecord[],
 ): string {
   const { title, subtitle } = getPathNodeLabels(step);
@@ -47,7 +47,7 @@ function renderGuidedPath(records: readonly AttemptRecord[]): string {
     ? `<p class="guided-path-complete">You have completed the guided path. Replay any step below.</p>`
     : "";
 
-  const nodes = CURRICULUM_STEPS.map((step) =>
+  const nodes = CURRICULUM_LESSONS.map((step) =>
     renderPathNode(step, records),
   ).join("");
 

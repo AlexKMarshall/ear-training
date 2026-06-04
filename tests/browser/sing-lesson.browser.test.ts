@@ -36,26 +36,26 @@ test("play, pass recording, and saveAttempt via HistoryPort", async () => {
   const records = await history.getAllAttempts();
   expect(records).toHaveLength(1);
   expect(records[0]).toMatchObject({
-    exerciseId: "single-note",
+    practiceModeId: "single-note",
     passed: true,
     attemptNumber: 1,
-    questionIndex: 0,
+    exerciseIndex: 0,
   });
-  expect(records[0]!.roundId).toBeTruthy();
+  expect(records[0]!.lessonId).toBeTruthy();
   expect(Math.abs(records[0]!.centsOff)).toBeLessThanOrEqual(40);
 });
 
-test("shows round progress and advances to question 2", async () => {
+test("shows lesson progress and advances to exercise 2", async () => {
   mountSingleNoteSingTest({ samplesHz: PASS_SAMPLES });
 
-  await expect.element(page.getByText(/question 1 of 10/i)).toBeVisible();
+  await expect.element(page.getByText(/exercise 1 of 10/i)).toBeVisible();
 
   await playAndRecord();
   await userEvent.click(
-    page.getByRole("button", { name: /Next question/i }),
+    page.getByRole("button", { name: /Next exercise/i }),
   );
 
-  await expect.element(page.getByText(/question 2 of 10/i)).toBeVisible();
+  await expect.element(page.getByText(/exercise 2 of 10/i)).toBeVisible();
 });
 
 test("fail shows retry and records failed attempt", async () => {
@@ -75,7 +75,7 @@ test("fail shows retry and records failed attempt", async () => {
   expect(records[0]!.passed).toBe(false);
 });
 
-test("exhausts attempts and shows next question", async () => {
+test("exhausts attempts and shows next exercise", async () => {
   mountSingleNoteSingTest({ samplesHz: FAIL_SAMPLES });
 
   for (let attempt = 0; attempt < 3; attempt++) {
@@ -91,7 +91,7 @@ test("exhausts attempts and shows next question", async () => {
   }
 
   await expect
-    .element(page.getByRole("button", { name: /Next question/i }))
+    .element(page.getByRole("button", { name: /Next exercise/i }))
     .toBeVisible();
   await expect
     .element(page.getByRole("button", { name: /Try again/i }))

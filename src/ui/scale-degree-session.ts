@@ -1,6 +1,6 @@
-import { resolveSessionStep } from "../curriculum/session-step.ts";
-import type { CurriculumStep } from "../curriculum/steps.ts";
-import { getEligibleTagIds } from "../curriculum/steps.ts";
+import { resolveSessionCurriculumLesson } from "../curriculum/session-step.ts";
+import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
+import { getEligibleTagIds } from "../curriculum/curriculum-lessons.ts";
 import {
   createDefaultHistoryPort,
   type HistoryPort,
@@ -8,21 +8,21 @@ import {
 import type { AttemptInput, AttemptRecord } from "../history/types.ts";
 import { getScaleDegreeById } from "../scale-degree-config.ts";
 import {
-  buildScaleDegreeQuestion,
-  pickRandomRoundTonic,
-  scaleDegreeToSingTestQuestion,
-} from "../scale-degree-questions.ts";
+  buildScaleDegreeExercise,
+  pickRandomLessonTonic,
+  scaleDegreeToLessonExercise,
+} from "../scale-degree-exercises.ts";
 import {
   createDefaultSessionPlanner,
   type SessionPlanner,
 } from "../session/planner.ts";
-import type { SingTestQuestion } from "../sing-test-question.ts";
+import type { LessonExercise } from "../lesson-exercise.ts";
 import { getActiveNoteRange } from "../voice-ranges.ts";
 
 export interface ScaleDegreeSessionDeps {
   history?: HistoryPort;
   sessionPlanner?: SessionPlanner;
-  sessionStep?: CurriculumStep;
+  sessionCurriculumLesson?: CurriculumLesson;
 }
 
 export interface ScaleDegreeHistoryCache {
@@ -30,9 +30,9 @@ export interface ScaleDegreeHistoryCache {
   historyPort: HistoryPort;
 }
 
-export interface ScaleDegreeQuestionResult {
-  question: SingTestQuestion;
-  roundTonicMidi: number;
+export interface ScaleDegreeExerciseResult {
+  exercise: LessonExercise;
+  lessonTonicMidi: number;
 }
 
 export function createScaleDegreeHistoryCache(
@@ -55,41 +55,41 @@ export function createScaleDegreeHistoryCache(
   };
 }
 
-export function prepareScaleDegreeQuestion(
+export function prepareScaleDegreeExercise(
   records: readonly AttemptRecord[],
-  roundTonicMidi: number | null,
+  lessonTonicMidi: number | null,
   planner: SessionPlanner = createDefaultSessionPlanner(),
   range = getActiveNoteRange(),
-  sessionStep?: CurriculumStep,
-): ScaleDegreeQuestionResult {
-  const step = resolveSessionStep("scale-degree-sing", records, {
-    urlStep: sessionStep,
+  sessionCurriculumLesson?: CurriculumLesson,
+): ScaleDegreeExerciseResult {
+  const step = resolveSessionCurriculumLesson("scale-degree-sing", records, {
+    urlCurriculumLesson: sessionCurriculumLesson,
   });
   const eligibleTagIds = getEligibleTagIds(step);
   const degrees = eligibleTagIds
     .map((id) => getScaleDegreeById(id))
     .filter((entry) => entry !== undefined);
 
-  let tonic = roundTonicMidi;
+  let tonic = lessonTonicMidi;
   if (tonic === null) {
-    tonic = pickRandomRoundTonic(range, degrees);
+    tonic = pickRandomLessonTonic(range, degrees);
   }
 
-  const tagId = planner.planNextQuestionTag(step, records);
+  const tagId = planner.planNextExerciseTag(step, records);
   const degree = getScaleDegreeById(tagId);
   if (!degree) {
     throw new Error(`Unknown scale degree id: ${tagId}`);
   }
 
   return {
-    question: {
-      ...scaleDegreeToSingTestQuestion(
-        buildScaleDegreeQuestion(degree, tonic),
+    exercise: {
+      ...scaleDegreeToLessonExercise(
+        buildScaleDegreeExercise(degree, tonic),
       ),
       contentTierId: step.contentTierId,
       eligibleTagIds,
     },
-    roundTonicMidi: tonic,
+    lessonTonicMidi: tonic,
   };
 }
 

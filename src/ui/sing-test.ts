@@ -7,17 +7,17 @@ import {
   type RecordingPort,
 } from "../audio/recording-port.ts";
 import {
-  MAX_ATTEMPTS_PER_QUESTION,
+  MAX_ATTEMPTS_PER_EXERCISE,
   MIN_VALID_SAMPLES,
-  QUESTIONS_PER_ROUND,
+  EXERCISES_PER_LESSON,
 } from "../config.ts";
 import {
-  classifyQuestionOutcome,
+  classifyExerciseOutcome,
   percentOf,
-  summarizeRound,
-  type RoundQuestionResult,
-} from "../round.ts";
-import type { SingTestQuestion } from "../sing-test-question.ts";
+  summarizeLesson,
+  type LessonExerciseResult,
+} from "../lesson.ts";
+import type { LessonExercise } from "../lesson-exercise.ts";
 import {
   getVoiceType,
   setVoiceType,
@@ -56,7 +56,7 @@ import {
   type HistoryPort,
 } from "../history/port.ts";
 import { buildAttemptRecord } from "../history/serialize.ts";
-import type { ExerciseId } from "../history/types.ts";
+import type { PracticeModeId } from "../history/types.ts";
 import { scoreFromSamples } from "../pitch/score.ts";
 import type { ScoreResult } from "../pitch/score.ts";
 
@@ -66,12 +66,12 @@ type TestState =
   | "ready"
   | "recording"
   | "result"
-  | "roundSummary";
+  | "lessonSummary";
 
-export type { SingTestQuestion } from "../sing-test-question.ts";
+export type { LessonExercise } from "../lesson-exercise.ts";
 
 export interface SingTestConfig {
-  exerciseId: ExerciseId;
+  practiceModeId: PracticeModeId;
   title: string;
   subtitle: string;
   playButtonLabel: string;
@@ -80,7 +80,7 @@ export interface SingTestConfig {
   showInversionPicker?: boolean;
   showIntervalPicker?: boolean;
   showDegreePicker?: boolean;
-  questionPrompt?: (question: SingTestQuestion) => string;
+  exercisePrompt?: (exercise: LessonExercise) => string;
   status: {
     idle: string;
     playing: string;
@@ -88,7 +88,7 @@ export interface SingTestConfig {
     recording: string;
     pass: string;
     fail: string;
-    /** When the user has used all attempts on the current question without passing. */
+    /** When the user has used all attempts on the current exercise without passing. */
     failExhausted?: string;
     /** Shown in idle state when chord type picker is on but nothing is selected. */
     noChordTypes?: string;
@@ -99,10 +99,10 @@ export interface SingTestConfig {
     /** Shown in idle state when degree picker is on but nothing is selected. */
     noDegrees?: string;
   };
-  prepareQuestion: () => SingTestQuestion;
-  playReference: (question: SingTestQuestion) => Promise<void>;
-  /** Called when a round is cleared (new round, preference change, voice change). */
-  onRoundReset?: () => void;
+  prepareExercise: () => LessonExercise;
+  playReference: (exercise: LessonExercise) => Promise<void>;
+  /** Called when a lesson is cleared (new lesson run, preference change, voice change). */
+  onLessonReset?: () => void;
 }
 
 export interface SingMountDeps {
@@ -268,8 +268,8 @@ export function mountSingTest(
         <button type="button" id="btn-play" class="btn btn-primary">${config.playButtonLabel}</button>
         <button type="button" id="btn-record" class="btn" disabled>Start singing</button>
         <button type="button" id="btn-retry" class="btn" hidden>Try again</button>
-        <button type="button" id="btn-next" class="btn btn-primary" hidden>Next question</button>
-        <button type="button" id="btn-next-round" class="btn btn-primary" hidden>Start next round</button>
+        <button type="button" id="btn-next" class="btn btn-primary" hidden>Next exercise</button>
+        <button type="button" id="btn-next-round" class="btn btn-primary" hidden>Start next lesson</button>
       </div>
 
       <p class="hint">
@@ -288,7 +288,7 @@ export function mountSingTest(
   const btnRetry = root.querySelector<HTMLButtonElement>("#btn-retry")!;
   const btnNext = root.querySelector<HTMLButtonElement>("#btn-next")!;
   const btnNextRound = root.querySelector<HTMLButtonElement>("#btn-next-round")!;
-  const roundProgressEl = root.querySelector<HTMLElement>("#round-progress")!;
+  const lessonProgressEl = root.querySelector<HTMLElement>("#round-progress")!;
   const voicePickerEl = root.querySelector<HTMLFieldSetElement>("#voice-picker");
   const voiceRangeHintEl = root.querySelector<HTMLElement>("#voice-range-hint");
   const voiceInputs = root.querySelectorAll<HTMLInputElement>(
@@ -318,46 +318,46 @@ export function mountSingTest(
 
   let state: TestState = "idle";
   let recordingSession: { stop: () => void } | null = null;
-  let currentQuestion: SingTestQuestion | null = null;
+  let currentExercise: LessonExercise | null = null;
   let scoredAttempts = 0;
   let lastPassed = false;
-  let roundResults: RoundQuestionResult[] = [];
-  let roundId = crypto.randomUUID();
+  let lessonExerciseResults: LessonExerciseResult[] = [];
+  let lessonId = crypto.randomUUID();
 
-  function resetRound(): void {
-    roundId = crypto.randomUUID();
-    roundResults = [];
-    currentQuestion = null;
+  function resetLesson(): void {
+    lessonId = crypto.randomUUID();
+    lessonExerciseResults = [];
+    currentExercise = null;
     scoredAttempts = 0;
     lastPassed = false;
     resultEl.hidden = true;
-    config.onRoundReset?.();
+    config.onLessonReset?.();
   }
 
-  function currentQuestionNumber(): number {
-    return roundResults.length + 1;
+  function currentExerciseNumber(): number {
+    return lessonExerciseResults.length + 1;
   }
 
-  function isLastQuestionInRound(): boolean {
-    return roundResults.length >= QUESTIONS_PER_ROUND - 1;
+  function isLastExerciseInLesson(): boolean {
+    return lessonExerciseResults.length >= EXERCISES_PER_LESSON - 1;
   }
 
   function nextStepButtonLabel(): string {
-    return isLastQuestionInRound() ? "Finish round" : "Next question";
+    return isLastExerciseInLesson() ? "Finish lesson" : "Next exercise";
   }
 
-  function syncRoundProgress(): void {
-    if (state === "roundSummary") {
-      roundProgressEl.hidden = true;
+  function syncLessonProgress(): void {
+    if (state === "lessonSummary") {
+      lessonProgressEl.hidden = true;
       return;
     }
-    roundProgressEl.hidden = false;
-    roundProgressEl.textContent = `Round — question ${currentQuestionNumber()} of ${QUESTIONS_PER_ROUND}`;
+    lessonProgressEl.hidden = false;
+    lessonProgressEl.textContent = `Lesson — exercise ${currentExerciseNumber()} of ${EXERCISES_PER_LESSON}`;
   }
 
   function setState(next: TestState): void {
     state = next;
-    syncRoundProgress();
+    syncLessonProgress();
     updateUi();
   }
 
@@ -374,13 +374,13 @@ export function mountSingTest(
     if (!config.showVoicePicker || voice === getVoiceType()) return;
     setVoiceType(voice);
     syncVoicePicker();
-    resetRound();
-    if (state === "result" || state === "roundSummary") {
+    resetLesson();
+    if (state === "result" || state === "lessonSummary") {
       setState("idle");
     } else if (state === "ready") {
       setState("idle");
     } else {
-      syncRoundProgress();
+      syncLessonProgress();
       updateUi();
     }
   }
@@ -392,14 +392,14 @@ export function mountSingTest(
     }
   }
 
-  function resetQuestionForPreferenceChange(): void {
-    resetRound();
-    if (state === "result" || state === "roundSummary") {
+  function resetExerciseForPreferenceChange(): void {
+    resetLesson();
+    if (state === "result" || state === "lessonSummary") {
       setState("idle");
     } else if (state === "ready") {
       setState("idle");
     } else {
-      syncRoundProgress();
+      syncLessonProgress();
       updateUi();
     }
   }
@@ -408,7 +408,7 @@ export function mountSingTest(
     if (!config.showChordTypePicker) return;
     setChordTypeSelected(id, selected);
     syncChordTypePicker();
-    resetQuestionForPreferenceChange();
+    resetExerciseForPreferenceChange();
     updateUi();
   }
 
@@ -428,7 +428,7 @@ export function mountSingTest(
     if (!config.showInversionPicker) return;
     setInversionSelected(id, selected);
     syncInversionPicker();
-    resetQuestionForPreferenceChange();
+    resetExerciseForPreferenceChange();
     updateUi();
   }
 
@@ -443,7 +443,7 @@ export function mountSingTest(
     if (!config.showIntervalPicker) return;
     setIntervalSelected(id, selected);
     syncIntervalPicker();
-    resetQuestionForPreferenceChange();
+    resetExerciseForPreferenceChange();
     updateUi();
   }
 
@@ -458,26 +458,26 @@ export function mountSingTest(
     if (!config.showDegreePicker) return;
     setScaleDegreeSelected(id, selected);
     syncDegreePicker();
-    resetQuestionForPreferenceChange();
+    resetExerciseForPreferenceChange();
     updateUi();
   }
 
-  function questionPromptText(question: SingTestQuestion | null): string | null {
-    if (!question) return null;
-    if (config.questionPrompt) {
-      return config.questionPrompt(question);
+  function exercisePromptText(exercise: LessonExercise | null): string | null {
+    if (!exercise) return null;
+    if (config.exercisePrompt) {
+      return config.exercisePrompt(exercise);
     }
-    if (question.scaleDegree) {
+    if (exercise.scaleDegree) {
       const label =
-        getScaleDegreeById(question.degreeId ?? "")?.label ??
-        question.degreeId;
+        getScaleDegreeById(exercise.degreeId ?? "")?.label ??
+        exercise.degreeId;
       return label ? `Sing the ${label}` : null;
     }
     return null;
   }
 
-  function syncQuestionPrompt(): void {
-    const prompt = questionPromptText(currentQuestion);
+  function syncExercisePrompt(): void {
+    const prompt = exercisePromptText(currentExercise);
     if (state === "ready" && prompt) {
       questionPromptEl.textContent = prompt;
       questionPromptEl.hidden = false;
@@ -488,9 +488,9 @@ export function mountSingTest(
   }
 
   function updateUi(): void {
-    const inRoundSummary = state === "roundSummary";
+    const inLessonSummary = state === "lessonSummary";
     const settingsLocked =
-      state === "playing" || state === "recording" || inRoundSummary;
+      state === "playing" || state === "recording" || inLessonSummary;
     const noChordTypesSelected =
       config.showChordTypePicker && getActiveChordTypes().length === 0;
     const noInversionsSelected =
@@ -537,7 +537,7 @@ export function mountSingTest(
     }
 
     btnPlay.disabled =
-      inRoundSummary ||
+      inLessonSummary ||
       state === "playing" ||
       state === "recording" ||
       settingsIncomplete;
@@ -547,22 +547,22 @@ export function mountSingTest(
     const canRetrySameQuestion =
       showResultActions &&
       !lastPassed &&
-      scoredAttempts < MAX_ATTEMPTS_PER_QUESTION;
+      scoredAttempts < MAX_ATTEMPTS_PER_EXERCISE;
     const canGoToNextQuestion =
       showResultActions &&
-      (lastPassed || scoredAttempts >= MAX_ATTEMPTS_PER_QUESTION);
+      (lastPassed || scoredAttempts >= MAX_ATTEMPTS_PER_EXERCISE);
 
-    btnRetry.hidden = !canRetrySameQuestion || inRoundSummary;
-    btnNext.hidden = !canGoToNextQuestion || inRoundSummary;
-    if (canGoToNextQuestion && !inRoundSummary) {
+    btnRetry.hidden = !canRetrySameQuestion || inLessonSummary;
+    btnNext.hidden = !canGoToNextQuestion || inLessonSummary;
+    if (canGoToNextQuestion && !inLessonSummary) {
       btnNext.textContent = nextStepButtonLabel();
     }
-    btnNextRound.hidden = !inRoundSummary;
-    btnPlay.hidden = showResultActions || inRoundSummary;
-    btnRecord.hidden = showResultActions || inRoundSummary;
+    btnNextRound.hidden = !inLessonSummary;
+    btnPlay.hidden = showResultActions || inLessonSummary;
+    btnRecord.hidden = showResultActions || inLessonSummary;
 
     switch (state) {
-      case "roundSummary":
+      case "lessonSummary":
         break;
       case "idle":
         statusEl.textContent =
@@ -598,16 +598,16 @@ export function mountSingTest(
         break;
     }
 
-    syncQuestionPrompt();
+    syncExercisePrompt();
   }
 
   function persistAttempt(score: ScoreResult): void {
-    if (!currentQuestion) return;
+    if (!currentExercise) return;
     const record = buildAttemptRecord(
       {
-        exerciseId: config.exerciseId,
-        roundId,
-        questionIndex: roundResults.length,
+        practiceModeId: config.practiceModeId,
+        lessonId,
+        exerciseIndex: lessonExerciseResults.length,
         showVoicePicker: config.showVoicePicker,
         showChordFilters: Boolean(
           config.showChordTypePicker || config.showInversionPicker,
@@ -615,7 +615,7 @@ export function mountSingTest(
         showIntervalFilters: Boolean(config.showIntervalPicker),
         showDegreeFilters: Boolean(config.showDegreePicker),
       },
-      currentQuestion,
+      currentExercise,
       score.centsOff,
       score.passed,
       scoredAttempts + 1,
@@ -628,12 +628,12 @@ export function mountSingTest(
     persistAttempt(score);
     scoredAttempts += 1;
 
-    const triesLeft = MAX_ATTEMPTS_PER_QUESTION - scoredAttempts;
+    const triesLeft = MAX_ATTEMPTS_PER_EXERCISE - scoredAttempts;
     const nextLabel = nextStepButtonLabel();
     let attemptNote = "";
     if (!score.passed) {
       if (triesLeft > 0) {
-        attemptNote = `<p class="result-attempts">${triesLeft} ${triesLeft === 1 ? "try" : "tries"} left on this question.</p>`;
+        attemptNote = `<p class="result-attempts">${triesLeft} ${triesLeft === 1 ? "try" : "tries"} left on this exercise.</p>`;
       } else {
         attemptNote = `<p class="result-attempts">No tries left — tap ${nextLabel} when you are ready.</p>`;
       }
@@ -644,10 +644,10 @@ export function mountSingTest(
     resultEl.innerHTML = `
       <p class="result-verdict">${score.passed ? "Correct" : "Not quite"}</p>
       <p class="result-detail">${score.message}</p>
-      <p class="result-meta">Detected ${score.detectedHz.toFixed(1)} Hz (target ${score.targetHz.toFixed(1)} Hz — ${currentQuestion?.target.name ?? "?"})</p>
+      <p class="result-meta">Detected ${score.detectedHz.toFixed(1)} Hz (target ${score.targetHz.toFixed(1)} Hz — ${currentExercise?.target.name ?? "?"})</p>
       ${attemptNote}
     `;
-    const onLastQuestion = isLastQuestionInRound();
+    const onLastQuestion = isLastExerciseInLesson();
     statusEl.textContent = score.passed
       ? onLastQuestion
         ? `Correct — tap ${nextLabel} when you are ready.`
@@ -655,7 +655,7 @@ export function mountSingTest(
       : triesLeft > 0
         ? config.status.fail
         : onLastQuestion
-          ? `Out of tries — tap ${nextLabel} to see your round score.`
+          ? `Out of tries — tap ${nextLabel} to see your lesson score.`
           : (config.status.failExhausted ?? config.status.fail);
   }
 
@@ -675,13 +675,13 @@ export function mountSingTest(
 
     try {
       await audio.ensureReady();
-      if (state === "idle" || !currentQuestion) {
-        currentQuestion = config.prepareQuestion();
+      if (state === "idle" || !currentExercise) {
+        currentExercise = config.prepareExercise();
         scoredAttempts = 0;
         lastPassed = false;
       }
       setState("playing");
-      await config.playReference(currentQuestion);
+      await config.playReference(currentExercise);
       setState("ready");
     } catch {
       showError("Could not play audio. Tap Play again after interacting with the page.");
@@ -698,7 +698,7 @@ export function mountSingTest(
       livePitchEl.textContent = "Listening…";
 
       recordingSession = await recording.start({
-        targetHz: currentQuestion?.target.hz,
+        targetHz: currentExercise?.target.hz,
         onPitch: (hz, clarity) => {
           livePitchEl.textContent = `~${hz.toFixed(0)} Hz (clarity ${(clarity * 100).toFixed(0)}%)`;
         },
@@ -724,12 +724,12 @@ export function mountSingTest(
       return;
     }
 
-    if (!currentQuestion) {
+    if (!currentExercise) {
       showError("No reference — press Play first.");
       return;
     }
 
-    const outcome = scoreFromSamples(samplesHz, currentQuestion.target.hz);
+    const outcome = scoreFromSamples(samplesHz, currentExercise.target.hz);
     if ("error" in outcome) {
       showError(outcome.error);
       return;
@@ -750,8 +750,8 @@ export function mountSingTest(
     void handlePlay();
   }
 
-  function showRoundSummary(): void {
-    const summary = summarizeRound(roundResults);
+  function showLessonSummary(): void {
+    const summary = summarizeLesson(lessonExerciseResults);
     const correctPct = percentOf(summary.correctCount, summary.total);
     const firstTryPct = percentOf(summary.firstTryCount, summary.total);
     const retryPct = percentOf(summary.retryCount, summary.total);
@@ -771,28 +771,28 @@ export function mountSingTest(
         <li><span class="round-summary-label">Wrong</span> ${summary.wrongCount} (${wrongPct}%)</li>
       </ul>
     `;
-    statusEl.textContent = "Round finished — review your score, then start the next round.";
-    setState("roundSummary");
+    statusEl.textContent = "Lesson finished — review your score, then start the next lesson.";
+    setState("lessonSummary");
   }
 
-  function recordQuestionOutcome(): void {
-    roundResults.push({
-      questionIndex: roundResults.length,
-      outcome: classifyQuestionOutcome(lastPassed, scoredAttempts),
-      question: currentQuestion ?? undefined,
+  function recordExerciseOutcome(): void {
+    lessonExerciseResults.push({
+      exerciseIndex: lessonExerciseResults.length,
+      outcome: classifyExerciseOutcome(lastPassed, scoredAttempts),
+      exercise: currentExercise ?? undefined,
     });
   }
 
   function handleNextQuestion(): void {
     recording.stopStream();
-    recordQuestionOutcome();
+    recordExerciseOutcome();
 
-    if (roundResults.length >= QUESTIONS_PER_ROUND) {
-      showRoundSummary();
+    if (lessonExerciseResults.length >= EXERCISES_PER_LESSON) {
+      showLessonSummary();
       return;
     }
 
-    currentQuestion = null;
+    currentExercise = null;
     scoredAttempts = 0;
     lastPassed = false;
     resultEl.hidden = true;
@@ -802,7 +802,7 @@ export function mountSingTest(
 
   function handleNextRound(): void {
     recording.stopStream();
-    resetRound();
+    resetLesson();
     setState("idle");
   }
 
@@ -861,6 +861,6 @@ export function mountSingTest(
   syncInversionPicker();
   syncIntervalPicker();
   syncDegreePicker();
-  syncRoundProgress();
+  syncLessonProgress();
   updateUi();
 }

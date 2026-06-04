@@ -6,12 +6,12 @@ import {
 } from "../src/interval-config.ts";
 import {
   buildIntervalChoices,
-  buildIntervalQuestion,
-  intervalToSingTestQuestion,
-  randomIntervalQuestion,
-  randomIntervalQuestionForTag,
+  buildIntervalExercise,
+  intervalToLessonExercise,
+  randomIntervalExercise,
+  randomIntervalExerciseForTag,
   validLowerMidis,
-} from "../src/interval-questions.ts";
+} from "../src/interval-exercises.ts";
 
 describe("validLowerMidis", () => {
   it("fits perfect fifth within a tenor-like range", () => {
@@ -31,14 +31,14 @@ describe("validLowerMidis", () => {
   });
 });
 
-describe("buildIntervalQuestion", () => {
+describe("buildIntervalExercise", () => {
   it("sets upper note as sing target", () => {
     const fifth = getIntervalById("perfect-fifth")!;
-    const question = buildIntervalQuestion(fifth, "melodic", 60);
-    const sing = intervalToSingTestQuestion(question);
+    const exercise = buildIntervalExercise(fifth, "melodic", 60);
+    const sing = intervalToLessonExercise(exercise);
     expect(sing.target.midi).toBe(67);
-    expect(question.lower.midi).toBe(60);
-    expect(question.intervalId).toBe("perfect-fifth");
+    expect(exercise.lower.midi).toBe(60);
+    expect(exercise.intervalId).toBe("perfect-fifth");
   });
 
   it.each([
@@ -50,32 +50,32 @@ describe("buildIntervalQuestion", () => {
     "builds diatonic interval %s from root 60",
     (intervalId, upperMidi) => {
       const interval = getIntervalById(intervalId)!;
-      const question = buildIntervalQuestion(interval, "melodic", 60);
-      expect(question.intervalId).toBe(intervalId);
-      expect(question.upper.midi).toBe(upperMidi);
+      const exercise = buildIntervalExercise(interval, "melodic", 60);
+      expect(exercise.intervalId).toBe(intervalId);
+      expect(exercise.upper.midi).toBe(upperMidi);
     },
   );
 });
 
-describe("randomIntervalQuestionForTag", () => {
+describe("randomIntervalExerciseForTag", () => {
   it("generates from an explicit tag id", () => {
-    const question = randomIntervalQuestionForTag(
+    const exercise = randomIntervalExerciseForTag(
       "perfect-fourth",
       "melodic",
       { lowMidi: 48, highMidi: 72 },
     );
-    expect(question.intervalId).toBe("perfect-fourth");
+    expect(exercise.intervalId).toBe("perfect-fourth");
   });
 });
 
-describe("randomIntervalQuestion", () => {
+describe("randomIntervalExercise", () => {
   it("generates a question for each diatonic id in a tenor range", () => {
     const range = { lowMidi: 48, highMidi: 72 };
     for (const intervalId of DIATONIC_MAJOR_INTERVAL_IDS) {
       const interval = getIntervalById(intervalId)!;
-      const question = randomIntervalQuestion("melodic", range, interval);
-      expect(question.intervalId).toBe(intervalId);
-      expect(question.upper.midi - question.lower.midi).toBe(
+      const exercise = randomIntervalExercise("melodic", range, interval);
+      expect(exercise.intervalId).toBe(intervalId);
+      expect(exercise.upper.midi - exercise.lower.midi).toBe(
         interval.semitones,
       );
     }
@@ -84,7 +84,7 @@ describe("randomIntervalQuestion", () => {
   it("throws when the interval does not fit the voice range", () => {
     const octave = getIntervalById("perfect-octave")!;
     expect(() =>
-      randomIntervalQuestion("melodic", { lowMidi: 60, highMidi: 65 }, octave),
+      randomIntervalExercise("melodic", { lowMidi: 60, highMidi: 65 }, octave),
     ).toThrow(/No valid root/);
   });
 });

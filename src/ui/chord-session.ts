@@ -1,13 +1,13 @@
 import { getChordTypeById } from "../chord-config.ts";
 import type { InversionId } from "../chord-inversions.ts";
-import { randomChordQuestion } from "../chord-types.ts";
+import { randomChordExercise } from "../chord-types.ts";
 import { chordTarget } from "../chords.ts";
-import { resolveSessionStep } from "../curriculum/session-step.ts";
-import type { CurriculumStep } from "../curriculum/steps.ts";
+import { resolveSessionCurriculumLesson } from "../curriculum/session-step.ts";
+import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
 import {
   getEligibleInversionIds,
   getEligibleTagIds,
-} from "../curriculum/steps.ts";
+} from "../curriculum/curriculum-lessons.ts";
 import {
   createDefaultHistoryPort,
   type HistoryPort,
@@ -17,14 +17,14 @@ import {
   createDefaultSessionPlanner,
   type SessionPlanner,
 } from "../session/planner.ts";
-import type { SingTestQuestion } from "../sing-test-question.ts";
+import type { LessonExercise } from "../lesson-exercise.ts";
 import { getActiveNoteRange } from "../voice-ranges.ts";
 
 export interface ChordSessionDeps {
   history?: HistoryPort;
   sessionPlanner?: SessionPlanner;
   rng?: () => number;
-  sessionStep?: CurriculumStep;
+  sessionCurriculumLesson?: CurriculumLesson;
 }
 
 export interface ChordHistoryCache {
@@ -59,24 +59,24 @@ export function pickRandomInversionFromTier(
   return eligible[Math.floor(rng() * eligible.length)]!;
 }
 
-export function prepareChordQuestion(
+export function prepareChordExercise(
   records: readonly AttemptRecord[],
   planner: SessionPlanner = createDefaultSessionPlanner(),
   range = getActiveNoteRange(),
   rng: () => number = Math.random,
-  sessionStep?: CurriculumStep,
-): SingTestQuestion {
-  const step = resolveSessionStep("chord-middle", records, {
-    urlStep: sessionStep,
+  sessionCurriculumLesson?: CurriculumLesson,
+): LessonExercise {
+  const step = resolveSessionCurriculumLesson("chord-middle", records, {
+    urlCurriculumLesson: sessionCurriculumLesson,
   });
   const eligibleTagIds = getEligibleTagIds(step);
-  const tagId = planner.planNextQuestionTag(step, records);
+  const tagId = planner.planNextExerciseTag(step, records);
   const type = getChordTypeById(tagId);
   if (!type) {
     throw new Error(`Unknown chord type id: ${tagId}`);
   }
   const inversion = pickRandomInversionFromTier(rng);
-  const chord = randomChordQuestion(type, inversion, range);
+  const chord = randomChordExercise(type, inversion, range);
   return {
     target: chordTarget(chord),
     chord,

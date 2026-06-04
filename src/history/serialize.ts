@@ -1,14 +1,14 @@
 import { getActiveInversions } from "../chord-inversion-preference.ts";
 import { getSelectedChordTypeIds } from "../chord-type-preference.ts";
 import { getSelectedScaleDegreeIds } from "../scale-degree-preference.ts";
-import type { SingTestQuestion } from "../sing-test-question.ts";
+import type { LessonExercise } from "../lesson-exercise.ts";
 import { getVoiceType } from "../voice-ranges.ts";
-import type { AttemptInput, ExerciseId } from "./types.ts";
+import type { AttemptInput, PracticeModeId } from "./types.ts";
 
 export interface AttemptContext {
-  exerciseId: ExerciseId;
-  roundId: string;
-  questionIndex: number;
+  practiceModeId: PracticeModeId;
+  lessonId: string;
+  exerciseIndex: number;
   showVoicePicker: boolean;
   showChordFilters: boolean;
   showIntervalFilters: boolean;
@@ -17,29 +17,29 @@ export interface AttemptContext {
 
 export function buildAttemptRecord(
   context: AttemptContext,
-  question: SingTestQuestion,
+  exercise: LessonExercise,
   centsOff: number,
   passed: boolean,
   attemptNumber: number,
   selectedIntervalId?: string,
 ): AttemptInput {
-  const chordNotes = question.chord?.notes.map((n) => ({
+  const chordNotes = exercise.chord?.notes.map((n) => ({
     midi: n.midi,
     name: n.name,
   }));
 
   return {
-    exerciseId: context.exerciseId,
+    practiceModeId: context.practiceModeId,
     timestamp: Date.now(),
     centsOff,
     passed,
     attemptNumber,
-    targetMidi: question.target.midi,
-    targetHz: question.target.hz,
-    targetName: question.target.name,
+    targetMidi: exercise.target.midi,
+    targetHz: exercise.target.hz,
+    targetName: exercise.target.name,
     chordNotes,
-    chordTypeId: question.chordTypeId,
-    inversionId: question.inversionId,
+    chordTypeId: exercise.chordTypeId,
+    inversionId: exercise.inversionId,
     voiceType: context.showVoicePicker ? getVoiceType() : undefined,
     activeChordTypeIds: context.showChordFilters
       ? getSelectedChordTypeIds()
@@ -47,20 +47,20 @@ export function buildAttemptRecord(
     activeInversionIds: context.showChordFilters
       ? getActiveInversions().map((inv) => inv.id)
       : undefined,
-    intervalId: question.intervalId,
-    intervalSemitones: question.interval?.semitones,
-    presentation: question.interval?.presentation,
-    referenceMidi: question.interval?.lower.midi,
+    intervalId: exercise.intervalId,
+    intervalSemitones: exercise.interval?.semitones,
+    presentation: exercise.interval?.presentation,
+    referenceMidi: exercise.interval?.lower.midi,
     activeIntervalIds: undefined,
-    contentTierId: question.contentTierId,
-    eligibleTagIds: question.eligibleTagIds,
+    contentTierId: exercise.contentTierId,
+    eligibleTagIds: exercise.eligibleTagIds,
     selectedIntervalId,
-    degreeId: question.degreeId,
-    tonicMidi: question.scaleDegree?.tonic.midi,
+    degreeId: exercise.degreeId,
+    tonicMidi: exercise.scaleDegree?.tonic.midi,
     activeDegreeIds: context.showDegreeFilters
       ? getSelectedScaleDegreeIds()
       : undefined,
-    roundId: context.roundId,
-    questionIndex: context.questionIndex,
+    lessonId: context.lessonId,
+    exerciseIndex: context.exerciseIndex,
   };
 }

@@ -41,14 +41,14 @@ test("play tonic, show degree prompt, pass recording, and saveAttempt", async ()
   const records = await history.getAllAttempts();
   expect(records).toHaveLength(1);
   expect(records[0]).toMatchObject({
-    exerciseId: "scale-degree-sing",
+    practiceModeId: "scale-degree-sing",
     passed: true,
     attemptNumber: 1,
     degreeId: "fifth",
     tonicMidi: 60,
     targetMidi: 67,
     contentTierId: "degree-3a",
-    questionIndex: 0,
+    exerciseIndex: 0,
   });
 });
 

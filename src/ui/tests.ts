@@ -5,13 +5,13 @@ import { getActiveNoteRange } from "../voice-ranges.ts";
 import type { MountDeps } from "../history/port.ts";
 import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts";
 import {
-  prepareChordQuestion,
+  prepareChordExercise,
   resolveChordSession,
   type ChordSessionDeps,
 } from "./chord-session.ts";
 
 export const singleNoteTestConfig: SingTestConfig = {
-  exerciseId: "single-note",
+  practiceModeId: "single-note",
   title: "Sing a single note",
   subtitle: "Sing back the note you hear",
   playButtonLabel: "Play note",
@@ -22,18 +22,18 @@ export const singleNoteTestConfig: SingTestConfig = {
     ready: "Sing the note you heard, then tap Start singing when ready.",
     recording:
       "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
-    pass: "Correct — tap Next question when you are ready.",
-    fail: "Try again on this question (up to 3 tries).",
-    failExhausted: "Out of tries — tap Next question to continue the round.",
+    pass: "Correct — tap Next exercise when you are ready.",
+    fail: "Try again on this exercise (up to 3 tries).",
+    failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
   },
-  prepareQuestion: () => ({
+  prepareExercise: () => ({
     target: randomNoteInRange(getActiveNoteRange()),
   }),
-  playReference: (question) => playTargetNote(question.target.midi),
+  playReference: (exercise) => playTargetNote(exercise.target.midi),
 };
 
 const chordMiddleBase = {
-  exerciseId: "chord-middle" as const,
+  practiceModeId: "chord-middle" as const,
   title: "Sing the middle note",
   subtitle: "Hear a chord and sing the middle note",
   playButtonLabel: "Play chord",
@@ -48,21 +48,21 @@ const chordMiddleBase = {
     ready: "Sing the middle note of the chord, then tap Start singing when ready.",
     recording:
       "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
-    pass: "Correct — tap Next question when you are ready.",
-    fail: "Try again on this question (up to 3 tries).",
-    failExhausted: "Out of tries — tap Next question to continue the round.",
+    pass: "Correct — tap Next exercise when you are ready.",
+    fail: "Try again on this exercise (up to 3 tries).",
+    failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
   },
-  playReference: (question: Parameters<SingTestConfig["playReference"]>[0]) => {
-    if (!question.chord) {
+  playReference: (exercise: Parameters<SingTestConfig["playReference"]>[0]) => {
+    if (!exercise.chord) {
       throw new Error("Missing chord for playback");
     }
-    return playChord(chordMidis(question.chord));
+    return playChord(chordMidis(exercise.chord));
   },
 };
 
 export const chordMiddleTestConfig: SingTestConfig = {
   ...chordMiddleBase,
-  prepareQuestion: () => prepareChordQuestion([]),
+  prepareExercise: () => prepareChordExercise([]),
 };
 
 export function mountSingleNoteTest(
@@ -81,13 +81,13 @@ export function mountChordMiddleTest(
     root,
     {
       ...chordMiddleBase,
-      prepareQuestion: () =>
-        prepareChordQuestion(
+      prepareExercise: () =>
+        prepareChordExercise(
           cache.getRecords(),
           planner,
           undefined,
           rng,
-          deps?.sessionStep,
+          deps?.sessionCurriculumLesson,
         ),
     },
     { ...deps, history: cache.historyPort },

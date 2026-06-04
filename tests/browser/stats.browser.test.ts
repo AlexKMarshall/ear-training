@@ -20,7 +20,7 @@ test("shows interval weakness breakdown for sing history", async () => {
 test("identify-only history explains singing median", async () => {
   await mountStatsWithHistory([
     {
-      exerciseId: "interval-melodic-id",
+      practiceModeId: "interval-melodic-id",
       timestamp: 1,
       centsOff: 0,
       passed: true,
@@ -28,8 +28,8 @@ test("identify-only history explains singing median", async () => {
       targetMidi: 60,
       targetHz: 261.63,
       targetName: "C4",
-      roundId: "round-1",
-      questionIndex: 0,
+      lessonId: "lesson-1",
+      exerciseIndex: 0,
       intervalId: "perfect-fifth",
     },
   ]);

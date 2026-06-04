@@ -2,47 +2,47 @@ import { playTargetNote } from "../audio/playback.ts";
 import { getScaleDegreeById } from "../scale-degree-config.ts";
 import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts";
 import {
-  prepareScaleDegreeQuestion,
+  prepareScaleDegreeExercise,
   resolveScaleDegreeSession,
   type ScaleDegreeSessionDeps,
 } from "./scale-degree-session.ts";
 
 const scaleDegreeSingBase = {
-  exerciseId: "scale-degree-sing" as const,
+  practiceModeId: "scale-degree-sing" as const,
   title: "Sing scale degrees",
   subtitle:
-    "One key per round — hear the tonic, then sing each requested scale degree",
+    "One key per lesson — hear the tonic, then sing each requested scale degree",
   playButtonLabel: "Play tonic",
   showVoicePicker: true,
   showDegreePicker: false,
   status: {
-    idle: "Press Play to hear the tonic for this round.",
+    idle: "Press Play to hear the tonic for this lesson.",
     noDegrees: "",
     playing: "Listen to the tonic…",
     ready: "Sing the degree shown below, then tap Start singing when ready.",
     recording:
       "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
-    pass: "Correct — tap Next question when you are ready.",
-    fail: "Try again on this question (up to 3 tries).",
-    failExhausted: "Out of tries — tap Next question to continue the round.",
+    pass: "Correct — tap Next exercise when you are ready.",
+    fail: "Try again on this exercise (up to 3 tries).",
+    failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
   },
-  playReference: (question: Parameters<SingTestConfig["playReference"]>[0]) => {
-    if (!question.scaleDegree) {
+  playReference: (exercise: Parameters<SingTestConfig["playReference"]>[0]) => {
+    if (!exercise.scaleDegree) {
       throw new Error("Missing scale degree for playback");
     }
-    return playTargetNote(question.scaleDegree.tonic.midi);
+    return playTargetNote(exercise.scaleDegree.tonic.midi);
   },
-  questionPrompt: (question: Parameters<NonNullable<SingTestConfig["questionPrompt"]>>[0]) => {
+  exercisePrompt: (exercise: Parameters<NonNullable<SingTestConfig["exercisePrompt"]>>[0]) => {
     const label =
-      getScaleDegreeById(question.degreeId ?? "")?.label ?? question.degreeId;
+      getScaleDegreeById(exercise.degreeId ?? "")?.label ?? exercise.degreeId;
     return `Sing the ${label}`;
   },
 };
 
 export const scaleDegreeSingConfig: SingTestConfig = {
   ...scaleDegreeSingBase,
-  prepareQuestion: () =>
-    prepareScaleDegreeQuestion([], null).question,
+  prepareExercise: () =>
+    prepareScaleDegreeExercise([], null).exercise,
 };
 
 export function mountScaleDegreeSingTest(
@@ -50,25 +50,25 @@ export function mountScaleDegreeSingTest(
   deps?: ScaleDegreeSessionDeps & SingMountDeps,
 ): void {
   const { cache, planner } = resolveScaleDegreeSession(deps);
-  let roundTonicMidi: number | null = null;
+  let lessonTonicMidi: number | null = null;
 
   mountSingTest(
     root,
     {
       ...scaleDegreeSingBase,
-      onRoundReset: () => {
-        roundTonicMidi = null;
+      onLessonReset: () => {
+        lessonTonicMidi = null;
       },
-      prepareQuestion: () => {
-        const result = prepareScaleDegreeQuestion(
+      prepareExercise: () => {
+        const result = prepareScaleDegreeExercise(
           cache.getRecords(),
-          roundTonicMidi,
+          lessonTonicMidi,
           planner,
           undefined,
-          deps?.sessionStep,
+          deps?.sessionCurriculumLesson,
         );
-        roundTonicMidi = result.roundTonicMidi;
-        return result.question;
+        lessonTonicMidi = result.lessonTonicMidi;
+        return result.exercise;
       },
     },
     { ...deps, history: cache.historyPort },

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { MIN_QUESTIONS } from "../src/curriculum/unlock.ts";
-import type { ContentTierId } from "../src/curriculum/steps.ts";
-import { filterRecordsForStep } from "../src/curriculum/steps.ts";
+import { MIN_EXERCISES_FOR_UNLOCK } from "../src/curriculum/unlock.ts";
+import type { ContentTierId } from "../src/curriculum/curriculum-lessons.ts";
+import { filterRecordsForCurriculumLesson } from "../src/curriculum/curriculum-lessons.ts";
 import {
-  planNextQuestionTag,
+  planNextExerciseTag,
   WEAK_AREA_PROBABILITY,
 } from "../src/session/planner.ts";
 import { DIATONIC_MAJOR_INTERVAL_IDS } from "../src/interval-config.ts";
@@ -18,26 +18,26 @@ function withTier(
 }
 
 function intervalHistory(
-  exerciseId: AttemptRecord["exerciseId"],
+  practiceModeId: AttemptRecord["practiceModeId"],
   tagId: string,
   options: {
-    questions: number;
+    lessonExercises: number;
     passRate: number;
     contentTierId?: ContentTierId;
   },
 ): AttemptRecord[] {
-  const passedCount = Math.round((options.questions * options.passRate) / 100);
+  const passedCount = Math.round((options.lessonExercises * options.passRate) / 100);
   const records: AttemptRecord[] = [];
-  for (let i = 0; i < options.questions; i++) {
+  for (let i = 0; i < options.lessonExercises; i++) {
     const passed = i < passedCount;
     const base = attempt({
-      exerciseId,
+      practiceModeId,
       passed,
       attemptNumber: 1,
       centsOff: passed ? 5 : 40,
       intervalId: tagId,
-      questionIndex: i,
-      roundId: `${tagId}-${i}`,
+      exerciseIndex: i,
+      lessonId: `${tagId}-${i}`,
     });
     records.push(
       options.contentTierId
@@ -48,28 +48,28 @@ function intervalHistory(
   return records;
 }
 
-describe("filterRecordsForStep", () => {
-  it("keeps only matching exerciseId", () => {
+describe("filterRecordsForCurriculumLesson", () => {
+  it("keeps only matching practiceModeId", () => {
     const step = {
-      exerciseId: "interval-melodic-sing" as const,
+      practiceModeId: "interval-melodic-sing" as const,
       contentTierId: "interval-2a" as const,
     };
     const records = [
-      attempt({ exerciseId: "interval-melodic-sing", intervalId: "perfect-fourth" }),
-      attempt({ exerciseId: "interval-harmonic-sing", intervalId: "perfect-fifth" }),
+      attempt({ practiceModeId: "interval-melodic-sing", intervalId: "perfect-fourth" }),
+      attempt({ practiceModeId: "interval-harmonic-sing", intervalId: "perfect-fifth" }),
     ];
-    expect(filterRecordsForStep(records, step)).toHaveLength(1);
+    expect(filterRecordsForCurriculumLesson(records, step)).toHaveLength(1);
   });
 
   it("excludes other content tiers when contentTierId is on records", () => {
     const step = {
-      exerciseId: "interval-melodic-sing" as const,
+      practiceModeId: "interval-melodic-sing" as const,
       contentTierId: "interval-2a" as const,
     };
     const records = [
       withTier(
         attempt({
-          exerciseId: "interval-melodic-sing",
+          practiceModeId: "interval-melodic-sing",
           intervalId: "minor-second",
           passed: false,
           attemptNumber: 1,
@@ -78,52 +78,52 @@ describe("filterRecordsForStep", () => {
         "interval-2b",
       ),
       attempt({
-        exerciseId: "interval-melodic-sing",
+        practiceModeId: "interval-melodic-sing",
         intervalId: "perfect-fourth",
         passed: true,
         attemptNumber: 1,
         centsOff: 5,
       }),
     ];
-    expect(filterRecordsForStep(records, step)).toHaveLength(1);
-    expect(filterRecordsForStep(records, step)[0]!.intervalId).toBe(
+    expect(filterRecordsForCurriculumLesson(records, step)).toHaveLength(1);
+    expect(filterRecordsForCurriculumLesson(records, step)[0]!.intervalId).toBe(
       "perfect-fourth",
     );
   });
 
   it("does not count legacy untagged attempts toward interval-2b", () => {
     const step = {
-      exerciseId: "interval-melodic-sing" as const,
+      practiceModeId: "interval-melodic-sing" as const,
       contentTierId: "interval-2b" as const,
     };
     const records = [
       attempt({
-        exerciseId: "interval-melodic-sing",
+        practiceModeId: "interval-melodic-sing",
         intervalId: "perfect-fourth",
         passed: true,
         attemptNumber: 1,
         centsOff: 0,
       }),
     ];
-    expect(filterRecordsForStep(records, step)).toHaveLength(0);
+    expect(filterRecordsForCurriculumLesson(records, step)).toHaveLength(0);
   });
 });
 
-describe("planNextQuestionTag", () => {
+describe("planNextExerciseTag", () => {
   const melodicSing2b = {
-    exerciseId: "interval-melodic-sing" as const,
+    practiceModeId: "interval-melodic-sing" as const,
     contentTierId: "interval-2b" as const,
   };
 
   it("draws only from the step eligible pool", () => {
-    const tag = planNextQuestionTag(melodicSing2b, []);
+    const tag = planNextExerciseTag(melodicSing2b, []);
     expect(DIATONIC_MAJOR_INTERVAL_IDS).toContain(tag);
   });
 
   it("treats untested tags as weak and picks uniformly when all are untested", () => {
     const counts = new Map<string, number>();
     for (let i = 0; i < 600; i++) {
-      const tag = planNextQuestionTag(melodicSing2b, [], () => Math.random());
+      const tag = planNextExerciseTag(melodicSing2b, [], () => Math.random());
       counts.set(tag, (counts.get(tag) ?? 0) + 1);
     }
     for (const id of DIATONIC_MAJOR_INTERVAL_IDS) {
@@ -139,7 +139,7 @@ describe("planNextQuestionTag", () => {
     for (const tagId of strongTags) {
       records.push(
         ...intervalHistory("interval-melodic-sing", tagId, {
-          questions: MIN_QUESTIONS,
+          lessonExercises: MIN_EXERCISES_FOR_UNLOCK,
           passRate: 100,
           contentTierId: "interval-2b",
         }),
@@ -147,7 +147,7 @@ describe("planNextQuestionTag", () => {
     }
     records.push(
       ...intervalHistory("interval-melodic-sing", "minor-sixth", {
-        questions: MIN_QUESTIONS,
+        lessonExercises: MIN_EXERCISES_FOR_UNLOCK,
         passRate: 20,
         contentTierId: "interval-2b",
       }),
@@ -155,7 +155,7 @@ describe("planNextQuestionTag", () => {
 
     let weakPicks = 0;
     for (let i = 0; i < 400; i++) {
-      if (planNextQuestionTag(melodicSing2b, records) === "minor-sixth") {
+      if (planNextExerciseTag(melodicSing2b, records) === "minor-sixth") {
         weakPicks += 1;
       }
     }
@@ -165,17 +165,17 @@ describe("planNextQuestionTag", () => {
   it("uses maintenance pool when rng exceeds weak probability", () => {
     const records = [
       ...intervalHistory("interval-melodic-sing", "minor-sixth", {
-        questions: MIN_QUESTIONS,
+        lessonExercises: MIN_EXERCISES_FOR_UNLOCK,
         passRate: 10,
         contentTierId: "interval-2b",
       }),
       ...intervalHistory("interval-melodic-sing", "perfect-fifth", {
-        questions: MIN_QUESTIONS,
+        lessonExercises: MIN_EXERCISES_FOR_UNLOCK,
         passRate: 100,
         contentTierId: "interval-2b",
       }),
     ];
-    const tag = planNextQuestionTag(
+    const tag = planNextExerciseTag(
       melodicSing2b,
       records,
       () => WEAK_AREA_PROBABILITY + 0.01,
@@ -189,7 +189,7 @@ describe("planNextQuestionTag", () => {
       if (tagId === "major-second") {
         records.push(
           ...intervalHistory("interval-melodic-sing", tagId, {
-            questions: MIN_QUESTIONS,
+            lessonExercises: MIN_EXERCISES_FOR_UNLOCK,
             passRate: 60,
             contentTierId: "interval-2b",
           }),
@@ -197,7 +197,7 @@ describe("planNextQuestionTag", () => {
       } else {
         records.push(
           ...intervalHistory("interval-melodic-sing", tagId, {
-            questions: MIN_QUESTIONS,
+            lessonExercises: MIN_EXERCISES_FOR_UNLOCK,
             passRate: 100,
             contentTierId: "interval-2b",
           }),
@@ -206,7 +206,7 @@ describe("planNextQuestionTag", () => {
     }
     let picks = 0;
     for (let i = 0; i < 200; i++) {
-      if (planNextQuestionTag(melodicSing2b, records) === "major-second") {
+      if (planNextExerciseTag(melodicSing2b, records) === "major-second") {
         picks += 1;
       }
     }
@@ -215,17 +215,17 @@ describe("planNextQuestionTag", () => {
 
   it("ignores 2b history when planning a 2a step", () => {
     const step2a = {
-      exerciseId: "interval-melodic-sing" as const,
+      practiceModeId: "interval-melodic-sing" as const,
       contentTierId: "interval-2a" as const,
     };
     const records = intervalHistory("interval-melodic-sing", "minor-second", {
-      questions: MIN_QUESTIONS,
+      lessonExercises: MIN_EXERCISES_FOR_UNLOCK,
       passRate: 0,
       contentTierId: "interval-2b",
     });
     const counts = new Set<string>();
     for (let i = 0; i < 30; i++) {
-      counts.add(planNextQuestionTag(step2a, records));
+      counts.add(planNextExerciseTag(step2a, records));
     }
     expect(counts.has("minor-second")).toBe(false);
     expect([...counts].every((id) =>
@@ -235,12 +235,12 @@ describe("planNextQuestionTag", () => {
 
   it("draws scale degrees from the degree-3a pool", () => {
     const step = {
-      exerciseId: "scale-degree-sing" as const,
+      practiceModeId: "scale-degree-sing" as const,
       contentTierId: "degree-3a" as const,
     };
     const counts = new Set<string>();
     for (let i = 0; i < 30; i++) {
-      counts.add(planNextQuestionTag(step, []));
+      counts.add(planNextExerciseTag(step, []));
     }
     expect([...counts].every((id) =>
       ["fourth", "fifth", "octave"].includes(id),
@@ -249,12 +249,12 @@ describe("planNextQuestionTag", () => {
 
   it("draws chord types from the chord-1a pool", () => {
     const step = {
-      exerciseId: "chord-middle" as const,
+      practiceModeId: "chord-middle" as const,
       contentTierId: "chord-1a" as const,
     };
     const counts = new Set<string>();
     for (let i = 0; i < 30; i++) {
-      counts.add(planNextQuestionTag(step, []));
+      counts.add(planNextExerciseTag(step, []));
     }
     expect([...counts].every((id) =>
       [

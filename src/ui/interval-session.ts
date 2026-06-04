@@ -1,27 +1,27 @@
-import { resolveSessionStep } from "../curriculum/session-step.ts";
-import type { CurriculumStep } from "../curriculum/steps.ts";
-import { getEligibleTagIds } from "../curriculum/steps.ts";
+import { resolveSessionCurriculumLesson } from "../curriculum/session-step.ts";
+import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
+import { getEligibleTagIds } from "../curriculum/curriculum-lessons.ts";
 import {
   createDefaultHistoryPort,
   type HistoryPort,
 } from "../history/port.ts";
-import type { AttemptInput, AttemptRecord, ExerciseId } from "../history/types.ts";
+import type { AttemptInput, AttemptRecord, PracticeModeId } from "../history/types.ts";
 import {
-  intervalToSingTestQuestion,
-  randomIntervalQuestionForTag,
+  intervalToLessonExercise,
+  randomIntervalExerciseForTag,
   type IntervalPresentation,
-} from "../interval-questions.ts";
+} from "../interval-exercises.ts";
 import {
   createDefaultSessionPlanner,
   type SessionPlanner,
 } from "../session/planner.ts";
-import type { SingTestQuestion } from "../sing-test-question.ts";
+import type { LessonExercise } from "../lesson-exercise.ts";
 import { getActiveNoteRange } from "../voice-ranges.ts";
 
 export interface IntervalSessionDeps {
   history?: HistoryPort;
   sessionPlanner?: SessionPlanner;
-  sessionStep?: CurriculumStep;
+  sessionCurriculumLesson?: CurriculumLesson;
 }
 
 export interface IntervalHistoryCache {
@@ -49,26 +49,26 @@ export function createIntervalHistoryCache(
   };
 }
 
-export function prepareIntervalQuestion(
-  exerciseId: ExerciseId,
+export function prepareIntervalExercise(
+  practiceModeId: PracticeModeId,
   presentation: IntervalPresentation,
   records: readonly AttemptRecord[],
   planner: SessionPlanner = createDefaultSessionPlanner(),
   range = getActiveNoteRange(),
-  sessionStep?: CurriculumStep,
-): SingTestQuestion {
-  const step = resolveSessionStep(exerciseId, records, {
-    urlStep: sessionStep,
+  sessionCurriculumLesson?: CurriculumLesson,
+): LessonExercise {
+  const step = resolveSessionCurriculumLesson(practiceModeId, records, {
+    urlCurriculumLesson: sessionCurriculumLesson,
   });
   const eligibleTagIds = getEligibleTagIds(step);
-  const tagId = planner.planNextQuestionTag(step, records);
-  const intervalQuestion = randomIntervalQuestionForTag(
+  const tagId = planner.planNextExerciseTag(step, records);
+  const intervalExercise = randomIntervalExerciseForTag(
     tagId,
     presentation,
     range,
   );
   return {
-    ...intervalToSingTestQuestion(intervalQuestion),
+    ...intervalToLessonExercise(intervalExercise),
     contentTierId: step.contentTierId,
     eligibleTagIds,
   };

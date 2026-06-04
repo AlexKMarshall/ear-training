@@ -1,49 +1,49 @@
 import { describe, expect, it } from "vitest";
-import { getEligibleDegreeIds } from "../src/curriculum/steps.ts";
+import { getEligibleDegreeIds } from "../src/curriculum/curriculum-lessons.ts";
 import { getScaleDegreeById } from "../src/scale-degree-config.ts";
 import {
-  prepareScaleDegreeQuestion,
+  prepareScaleDegreeExercise,
 } from "../src/ui/scale-degree-session.ts";
 import { attempt, passingThroughHarmonic2bHistory } from "./fixtures/attempts.ts";
 import type { SessionPlanner } from "../src/session/planner.ts";
 
 const unlockedHistory = passingThroughHarmonic2bHistory();
 
-describe("prepareScaleDegreeQuestion", () => {
+describe("prepareScaleDegreeExercise", () => {
   it("uses planner tag and attaches tier metadata", () => {
     const planner: SessionPlanner = {
-      planNextQuestionTag: () => "fifth",
+      planNextExerciseTag: () => "fifth",
     };
-    const { question, roundTonicMidi } = prepareScaleDegreeQuestion(
+    const { exercise, lessonTonicMidi } = prepareScaleDegreeExercise(
       unlockedHistory,
       null,
       planner,
       { lowMidi: 48, highMidi: 67 },
     );
 
-    expect(question.degreeId).toBe("fifth");
-    expect(question.contentTierId).toBe("degree-3a");
-    expect(question.eligibleTagIds).toEqual(getEligibleDegreeIds("degree-3a"));
-    expect(question.scaleDegree?.tonic.midi).toBe(roundTonicMidi);
-    expect(question.target.midi).toBe(roundTonicMidi + 7);
+    expect(exercise.degreeId).toBe("fifth");
+    expect(exercise.contentTierId).toBe("degree-3a");
+    expect(exercise.eligibleTagIds).toEqual(getEligibleDegreeIds("degree-3a"));
+    expect(exercise.scaleDegree?.tonic.midi).toBe(lessonTonicMidi);
+    expect(exercise.target.midi).toBe(lessonTonicMidi + 7);
   });
 
   it("keeps the same round tonic across questions", () => {
     const planner: SessionPlanner = {
-      planNextQuestionTag: (_step, records) =>
+      planNextExerciseTag: (_step, records) =>
         records.length === 0 ? "fourth" : "fifth",
     };
-    const first = prepareScaleDegreeQuestion(
+    const first = prepareScaleDegreeExercise(
       unlockedHistory,
       null,
       planner,
       { lowMidi: 48, highMidi: 67 },
     );
-    const second = prepareScaleDegreeQuestion(
+    const second = prepareScaleDegreeExercise(
       [
         ...unlockedHistory,
         attempt({
-          exerciseId: "scale-degree-sing",
+          practiceModeId: "scale-degree-sing",
           degreeId: "fourth",
           contentTierId: "degree-3a",
           passed: true,
@@ -51,39 +51,39 @@ describe("prepareScaleDegreeQuestion", () => {
           centsOff: 5,
         }),
       ],
-      first.roundTonicMidi,
+      first.lessonTonicMidi,
       planner,
       { lowMidi: 48, highMidi: 67 },
     );
 
-    expect(second.roundTonicMidi).toBe(first.roundTonicMidi);
-    expect(second.question.degreeId).toBe("fifth");
-    expect(second.question.scaleDegree?.tonic.midi).toBe(first.roundTonicMidi);
+    expect(second.lessonTonicMidi).toBe(first.lessonTonicMidi);
+    expect(second.exercise.degreeId).toBe("fifth");
+    expect(second.exercise.scaleDegree?.tonic.midi).toBe(first.lessonTonicMidi);
   });
 
   it("resets tonic when round state is cleared", () => {
     const planner: SessionPlanner = {
-      planNextQuestionTag: () => "fifth",
+      planNextExerciseTag: () => "fifth",
     };
 
-    let roundTonicMidi: number | null = null;
-    const first = prepareScaleDegreeQuestion(
+    let lessonTonicMidi: number | null = null;
+    const first = prepareScaleDegreeExercise(
       unlockedHistory,
-      roundTonicMidi,
+      lessonTonicMidi,
       planner,
       { lowMidi: 48, highMidi: 67 },
     );
-    roundTonicMidi = first.roundTonicMidi;
+    lessonTonicMidi = first.lessonTonicMidi;
 
-    roundTonicMidi = null;
-    const second = prepareScaleDegreeQuestion(
+    lessonTonicMidi = null;
+    const second = prepareScaleDegreeExercise(
       unlockedHistory,
-      roundTonicMidi,
+      lessonTonicMidi,
       planner,
       { lowMidi: 48, highMidi: 67 },
     );
 
-    expect(second.roundTonicMidi).toBeTypeOf("number");
+    expect(second.lessonTonicMidi).toBeTypeOf("number");
   });
 });
 
@@ -91,13 +91,13 @@ describe("scaleDegreeQuestionForTag", () => {
   it("builds a question for each tier degree", () => {
     for (const id of getEligibleDegreeIds("degree-3a")) {
       const degree = getScaleDegreeById(id)!;
-      const { question } = prepareScaleDegreeQuestion(
+      const { exercise } = prepareScaleDegreeExercise(
         unlockedHistory,
         60,
-        { planNextQuestionTag: () => id },
+        { planNextExerciseTag: () => id },
       );
-      expect(question.degreeId).toBe(id);
-      expect(question.target.midi).toBe(60 + degree.semitonesFromTonic);
+      expect(exercise.degreeId).toBe(id);
+      expect(exercise.target.midi).toBe(60 + degree.semitonesFromTonic);
     }
   });
 });

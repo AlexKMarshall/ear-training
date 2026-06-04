@@ -15,7 +15,7 @@ describe("curriculum levels", () => {
   });
 
   it("covers every path exercise in a level", () => {
-    const fromLevels = CURRICULUM_LEVELS.flatMap((l) => l.exerciseIds);
+    const fromLevels = CURRICULUM_LEVELS.flatMap((l) => l.practiceModeIds);
     expect(fromLevels).toEqual([...CURRICULUM_PATH]);
   });
 });

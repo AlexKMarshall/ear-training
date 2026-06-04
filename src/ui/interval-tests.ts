@@ -1,16 +1,16 @@
 import { playDyad, playMelodicSequence } from "../audio/playback.ts";
-import type { ExerciseId } from "../history/types.ts";
-import type { SingTestQuestion } from "../sing-test-question.ts";
+import type { PracticeModeId } from "../history/types.ts";
+import type { LessonExercise } from "../lesson-exercise.ts";
 import { mountIdentifyTest, type IdentifyMountDeps, type IdentifyTestConfig } from "./identify-test.ts";
 import {
-  prepareIntervalQuestion,
+  prepareIntervalExercise,
   resolveIntervalSession,
   type IntervalSessionDeps,
 } from "./interval-session.ts";
 import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts";
 
 const intervalMelodicSingBase = {
-  exerciseId: "interval-melodic-sing" as const,
+  practiceModeId: "interval-melodic-sing" as const,
   title: "Sing melodic intervals",
   subtitle: "Hear two notes in sequence, then sing the top note",
   playButtonLabel: "Play interval",
@@ -23,27 +23,27 @@ const intervalMelodicSingBase = {
       "Sing the top note of the interval, then tap Start singing when ready.",
     recording:
       "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
-    pass: "Correct — tap Next question when you are ready.",
-    fail: "Try again on this question (up to 3 tries).",
-    failExhausted: "Out of tries — tap Next question to continue the round.",
+    pass: "Correct — tap Next exercise when you are ready.",
+    fail: "Try again on this exercise (up to 3 tries).",
+    failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
   },
-  playReference: (question: SingTestQuestion) => {
-    if (!question.interval) {
+  playReference: (exercise: LessonExercise) => {
+    if (!exercise.interval) {
       throw new Error("Missing interval for playback");
     }
-    const { lower, upper } = question.interval;
+    const { lower, upper } = exercise.interval;
     return playMelodicSequence([lower.midi, upper.midi]);
   },
 };
 
 export const intervalMelodicSingConfig: SingTestConfig = {
   ...intervalMelodicSingBase,
-  prepareQuestion: () =>
-    prepareIntervalQuestion("interval-melodic-sing", "melodic", []),
+  prepareExercise: () =>
+    prepareIntervalExercise("interval-melodic-sing", "melodic", []),
 };
 
 const intervalHarmonicSingBase = {
-  exerciseId: "interval-harmonic-sing" as const,
+  practiceModeId: "interval-harmonic-sing" as const,
   title: "Sing harmonic intervals",
   subtitle: "Hear two notes together, then sing the top note",
   playButtonLabel: "Play interval",
@@ -56,33 +56,33 @@ const intervalHarmonicSingBase = {
       "Sing the top note of the interval, then tap Start singing when ready.",
     recording:
       "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
-    pass: "Correct — tap Next question when you are ready.",
-    fail: "Try again on this question (up to 3 tries).",
-    failExhausted: "Out of tries — tap Next question to continue the round.",
+    pass: "Correct — tap Next exercise when you are ready.",
+    fail: "Try again on this exercise (up to 3 tries).",
+    failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
   },
-  playReference: (question: SingTestQuestion) => {
-    if (!question.interval) {
+  playReference: (exercise: LessonExercise) => {
+    if (!exercise.interval) {
       throw new Error("Missing interval for playback");
     }
-    const { lower, upper } = question.interval;
+    const { lower, upper } = exercise.interval;
     return playDyad([lower.midi, upper.midi]);
   },
 };
 
 export const intervalHarmonicSingConfig: SingTestConfig = {
   ...intervalHarmonicSingBase,
-  prepareQuestion: () =>
-    prepareIntervalQuestion("interval-harmonic-sing", "harmonic", []),
+  prepareExercise: () =>
+    prepareIntervalExercise("interval-harmonic-sing", "harmonic", []),
 };
 
 function mountIntervalSingTest(
   root: HTMLElement,
-  exerciseId: Extract<
-    ExerciseId,
+  practiceModeId: Extract<
+    PracticeModeId,
     "interval-melodic-sing" | "interval-harmonic-sing"
   >,
   presentation: "melodic" | "harmonic",
-  base: Omit<SingTestConfig, "prepareQuestion">,
+  base: Omit<SingTestConfig, "prepareExercise">,
   deps?: IntervalSessionDeps & SingMountDeps,
 ): void {
   const { cache, planner } = resolveIntervalSession(deps);
@@ -90,14 +90,14 @@ function mountIntervalSingTest(
     root,
     {
       ...base,
-      prepareQuestion: () =>
-        prepareIntervalQuestion(
-          exerciseId,
+      prepareExercise: () =>
+        prepareIntervalExercise(
+          practiceModeId,
           presentation,
           cache.getRecords(),
           planner,
           undefined,
-          deps?.sessionStep,
+          deps?.sessionCurriculumLesson,
         ),
     },
     { ...deps, history: cache.historyPort },
@@ -131,7 +131,7 @@ export function mountIntervalHarmonicSingTest(
 }
 
 const intervalMelodicIdBase = {
-  exerciseId: "interval-melodic-id" as const,
+  practiceModeId: "interval-melodic-id" as const,
   title: "Identify melodic intervals",
   subtitle: "Hear two notes in sequence, then choose the interval",
   playButtonLabel: "Play interval",
@@ -143,25 +143,25 @@ const intervalMelodicIdBase = {
     tooFewIntervals: "",
     playing: "Listen to both notes…",
     ready: "Choose the interval you heard.",
-    pass: "Correct — tap Next question when you are ready.",
-    fail: "Try again on this question (up to 3 tries).",
-    failExhausted: "Out of tries — tap Next question to continue the round.",
+    pass: "Correct — tap Next exercise when you are ready.",
+    fail: "Try again on this exercise (up to 3 tries).",
+    failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
   },
-  playReference: (question: SingTestQuestion) => {
-    if (!question.interval) throw new Error("Missing interval for playback");
-    const { lower, upper } = question.interval;
+  playReference: (exercise: LessonExercise) => {
+    if (!exercise.interval) throw new Error("Missing interval for playback");
+    const { lower, upper } = exercise.interval;
     return playMelodicSequence([lower.midi, upper.midi]);
   },
 };
 
 export const intervalMelodicIdConfig: IdentifyTestConfig = {
   ...intervalMelodicIdBase,
-  prepareQuestion: () =>
-    prepareIntervalQuestion("interval-melodic-id", "melodic", []),
+  prepareExercise: () =>
+    prepareIntervalExercise("interval-melodic-id", "melodic", []),
 };
 
 const intervalHarmonicIdBase = {
-  exerciseId: "interval-harmonic-id" as const,
+  practiceModeId: "interval-harmonic-id" as const,
   title: "Identify harmonic intervals",
   subtitle: "Hear two notes together, then choose the interval",
   playButtonLabel: "Play interval",
@@ -173,31 +173,31 @@ const intervalHarmonicIdBase = {
     tooFewIntervals: "",
     playing: "Listen to both notes…",
     ready: "Choose the interval you heard.",
-    pass: "Correct — tap Next question when you are ready.",
-    fail: "Try again on this question (up to 3 tries).",
-    failExhausted: "Out of tries — tap Next question to continue the round.",
+    pass: "Correct — tap Next exercise when you are ready.",
+    fail: "Try again on this exercise (up to 3 tries).",
+    failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
   },
-  playReference: (question: SingTestQuestion) => {
-    if (!question.interval) throw new Error("Missing interval for playback");
-    const { lower, upper } = question.interval;
+  playReference: (exercise: LessonExercise) => {
+    if (!exercise.interval) throw new Error("Missing interval for playback");
+    const { lower, upper } = exercise.interval;
     return playDyad([lower.midi, upper.midi]);
   },
 };
 
 export const intervalHarmonicIdConfig: IdentifyTestConfig = {
   ...intervalHarmonicIdBase,
-  prepareQuestion: () =>
-    prepareIntervalQuestion("interval-harmonic-id", "harmonic", []),
+  prepareExercise: () =>
+    prepareIntervalExercise("interval-harmonic-id", "harmonic", []),
 };
 
 function mountIntervalIdentifyTest(
   root: HTMLElement,
-  exerciseId: Extract<
-    ExerciseId,
+  practiceModeId: Extract<
+    PracticeModeId,
     "interval-melodic-id" | "interval-harmonic-id"
   >,
   presentation: "melodic" | "harmonic",
-  base: Omit<IdentifyTestConfig, "prepareQuestion">,
+  base: Omit<IdentifyTestConfig, "prepareExercise">,
   deps?: IntervalSessionDeps & IdentifyMountDeps,
 ): void {
   const { cache, planner } = resolveIntervalSession(deps);
@@ -205,14 +205,14 @@ function mountIntervalIdentifyTest(
     root,
     {
       ...base,
-      prepareQuestion: () =>
-        prepareIntervalQuestion(
-          exerciseId,
+      prepareExercise: () =>
+        prepareIntervalExercise(
+          practiceModeId,
           presentation,
           cache.getRecords(),
           planner,
           undefined,
-          deps?.sessionStep,
+          deps?.sessionCurriculumLesson,
         ),
     },
     { ...deps, history: cache.historyPort },

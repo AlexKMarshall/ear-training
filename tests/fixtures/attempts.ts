@@ -1,5 +1,5 @@
-import type { CurriculumStep } from "../../src/curriculum/steps.ts";
-import { MIN_QUESTIONS } from "../../src/curriculum/unlock.ts";
+import type { CurriculumLesson } from "../../src/curriculum/curriculum-lessons.ts";
+import { MIN_EXERCISES_FOR_UNLOCK } from "../../src/curriculum/unlock.ts";
 import type { AttemptRecord } from "../../src/history/types.ts";
 
 export function attempt(
@@ -7,27 +7,27 @@ export function attempt(
     Pick<AttemptRecord, "passed" | "attemptNumber" | "centsOff">,
 ): AttemptRecord {
   return {
-    exerciseId: "single-note",
+    practiceModeId: "single-note",
     timestamp: 1,
     targetMidi: 60,
     targetHz: 261.63,
     targetName: "C4",
-    roundId: "round-1",
-    questionIndex: 0,
+    lessonId: "lesson-1",
+    exerciseIndex: 0,
     ...overrides,
   };
 }
 
-/** Ten distinct questions, all passed on first try. */
+/** Ten distinct lesson exercises, all passed on first try. */
 export function passingSingleNoteHistory(): AttemptRecord[] {
-  return Array.from({ length: MIN_QUESTIONS }, (_, i) =>
+  return Array.from({ length: MIN_EXERCISES_FOR_UNLOCK }, (_, i) =>
     attempt({
-      exerciseId: "single-note",
+      practiceModeId: "single-note",
       passed: true,
       attemptNumber: 1,
       centsOff: 0,
-      questionIndex: i,
-      roundId: `round-${i}`,
+      exerciseIndex: i,
+      lessonId: `lesson-${i}`,
     }),
   );
 }
@@ -35,21 +35,21 @@ export function passingSingleNoteHistory(): AttemptRecord[] {
 /** Passing history through every Level 2 path exercise. */
 export function passingLevel2History(): AttemptRecord[] {
   const records: AttemptRecord[] = [...passingSingleNoteHistory()];
-  for (const exerciseId of [
+  for (const practiceModeId of [
     "interval-melodic-sing",
     "interval-harmonic-sing",
     "interval-melodic-id",
     "interval-harmonic-id",
   ] as const) {
     records.push(
-      ...Array.from({ length: MIN_QUESTIONS }, (_, i) =>
+      ...Array.from({ length: MIN_EXERCISES_FOR_UNLOCK }, (_, i) =>
         attempt({
-          exerciseId,
+          practiceModeId,
           passed: true,
           attemptNumber: 1,
           centsOff: 0,
-          questionIndex: i,
-          roundId: `${exerciseId}-${i}`,
+          exerciseIndex: i,
+          lessonId: `${practiceModeId}-${i}`,
         }),
       ),
     );
@@ -58,16 +58,16 @@ export function passingLevel2History(): AttemptRecord[] {
 }
 
 /** Passing history for one curriculum step (tier tagged when provided). */
-export function passingStepHistory(step: CurriculumStep): AttemptRecord[] {
-  return Array.from({ length: MIN_QUESTIONS }, (_, i) =>
+export function passingStepHistory(step: CurriculumLesson): AttemptRecord[] {
+  return Array.from({ length: MIN_EXERCISES_FOR_UNLOCK }, (_, i) =>
     attempt({
-      exerciseId: step.exerciseId,
+      practiceModeId: step.practiceModeId,
       contentTierId: step.contentTierId,
       passed: true,
       attemptNumber: 1,
       centsOff: 0,
-      questionIndex: i,
-      roundId: `${step.exerciseId}-${step.contentTierId}-${i}`,
+      exerciseIndex: i,
+      lessonId: `${step.practiceModeId}-${step.contentTierId}-${i}`,
     }),
   );
 }
@@ -77,7 +77,7 @@ export function passingMelodicSing2bHistory(): AttemptRecord[] {
   return [
     ...passingLevel2History(),
     ...passingStepHistory({
-      exerciseId: "interval-melodic-sing",
+      practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2b",
     }),
   ];
@@ -88,7 +88,7 @@ export function passingThroughMelodic2bHistory(): AttemptRecord[] {
   return [
     ...passingMelodicSing2bHistory(),
     ...passingStepHistory({
-      exerciseId: "interval-melodic-id",
+      practiceModeId: "interval-melodic-id",
       contentTierId: "interval-2b",
     }),
   ];
@@ -99,11 +99,11 @@ export function passingThroughHarmonic2bHistory(): AttemptRecord[] {
   return [
     ...passingThroughMelodic2bHistory(),
     ...passingStepHistory({
-      exerciseId: "interval-harmonic-sing",
+      practiceModeId: "interval-harmonic-sing",
       contentTierId: "interval-2b",
     }),
     ...passingStepHistory({
-      exerciseId: "interval-harmonic-id",
+      practiceModeId: "interval-harmonic-id",
       contentTierId: "interval-2b",
     }),
   ];
@@ -114,7 +114,7 @@ export function passingScaleDegreeHistory(): AttemptRecord[] {
   return [
     ...passingThroughHarmonic2bHistory(),
     ...passingStepHistory({
-      exerciseId: "scale-degree-sing",
+      practiceModeId: "scale-degree-sing",
       contentTierId: "degree-3a",
     }),
   ];
@@ -125,7 +125,7 @@ export function passingFullGuidedPathHistory(): AttemptRecord[] {
   return [
     ...passingScaleDegreeHistory(),
     ...passingStepHistory({
-      exerciseId: "chord-middle",
+      practiceModeId: "chord-middle",
       contentTierId: "chord-1a",
     }),
   ];

@@ -1,11 +1,11 @@
 import { page, userEvent } from "vitest/browser";
 import { beforeEach, expect, test } from "vitest";
-import { getEligibleTagIds } from "../../src/curriculum/steps.ts";
+import { getEligibleTagIds } from "../../src/curriculum/curriculum-lessons.ts";
 import { getIntervalById } from "../../src/interval-config.ts";
 import {
-  buildIntervalQuestion,
-  intervalToSingTestQuestion,
-} from "../../src/interval-questions.ts";
+  buildIntervalExercise,
+  intervalToLessonExercise,
+} from "../../src/interval-exercises.ts";
 import { createTestAudioPort } from "../../src/audio/port.ts";
 import { createMemoryHistoryPort } from "../../src/history/port.ts";
 import { mountIntervalHarmonicIdTest } from "../../src/ui/interval-tests.ts";
@@ -16,13 +16,13 @@ import {
 import {
   createHarmonicSingTestConfig,
   defaultPassSamplesHzFor,
-  mountExerciseInBrowser,
+  mountPracticeModeInBrowser,
 } from "./helpers/mount.ts";
 import "../../src/ui/styles.css";
 
 const perfectFifth = getIntervalById("perfect-fifth")!;
 const harmonicSing2bStep = {
-  exerciseId: "interval-harmonic-sing" as const,
+  practiceModeId: "interval-harmonic-sing" as const,
   contentTierId: "interval-2b" as const,
 };
 
@@ -31,11 +31,11 @@ beforeEach(() => {
 });
 
 test("harmonic sing at interval-2b saves attempt with 2b tier metadata", async () => {
-  const { history } = mountExerciseInBrowser("interval-harmonic-sing", {
+  const { history } = mountPracticeModeInBrowser("interval-harmonic-sing", {
     config: createHarmonicSingTestConfig({
-      prepareQuestion: () => ({
-        ...intervalToSingTestQuestion(
-          buildIntervalQuestion(perfectFifth, "harmonic", 60),
+      prepareExercise: () => ({
+        ...intervalToLessonExercise(
+          buildIntervalExercise(perfectFifth, "harmonic", 60),
         ),
         contentTierId: harmonicSing2bStep.contentTierId,
         eligibleTagIds: getEligibleTagIds(harmonicSing2bStep),
@@ -55,7 +55,7 @@ test("harmonic sing at interval-2b saves attempt with 2b tier metadata", async (
   const records = await history.getAllAttempts();
   expect(records).toHaveLength(1);
   expect(records[0]).toMatchObject({
-    exerciseId: "interval-harmonic-sing",
+    practiceModeId: "interval-harmonic-sing",
     passed: true,
     contentTierId: "interval-2b",
   });
@@ -66,7 +66,7 @@ test("harmonic identify at interval-2b saves attempt with 2b tier metadata", asy
   const history = createMemoryHistoryPort([
     ...passingThroughMelodic2bHistory(),
     ...passingStepHistory({
-      exerciseId: "interval-harmonic-sing",
+      practiceModeId: "interval-harmonic-sing",
       contentTierId: "interval-2b",
     }),
   ]);
@@ -75,7 +75,7 @@ test("harmonic identify at interval-2b saves attempt with 2b tier metadata", asy
     history,
     audio: createTestAudioPort(),
     sessionPlanner: {
-      planNextQuestionTag: () => "perfect-fifth",
+      planNextExerciseTag: () => "perfect-fifth",
     },
   });
 
@@ -89,7 +89,7 @@ test("harmonic identify at interval-2b saves attempt with 2b tier metadata", asy
   const records = await history.getAllAttempts();
   const attempt = records[records.length - 1]!;
   expect(attempt).toMatchObject({
-    exerciseId: "interval-harmonic-id",
+    practiceModeId: "interval-harmonic-id",
     contentTierId: "interval-2b",
     intervalId: "perfect-fifth",
     passed: true,

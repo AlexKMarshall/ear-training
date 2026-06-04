@@ -1,23 +1,23 @@
 import { page } from "vitest/browser";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
-import { formatExerciseUrl } from "../../src/curriculum/step-link.ts";
-import { getPredecessorStep } from "../../src/curriculum/unlock.ts";
-import { getExercise } from "../../src/exercises/registry.ts";
+import { formatLessonLinkUrl } from "../../src/curriculum/lesson-link.ts";
+import { getPredecessorCurriculumLesson } from "../../src/curriculum/unlock.ts";
+import { getPracticeMode } from "../../src/practice-modes/registry.ts";
 import { passingSingleNoteHistory } from "../fixtures/attempts.ts";
 import {
-  mountExercisePageWithHistory,
-  setStepSearch,
+  mountPracticeModePageWithHistory,
+  setCurriculumLessonSearch,
   setUnlockAllSearch,
 } from "./helpers/mount.ts";
 
-test("locked default step shows predecessor curriculum label and step link", async () => {
-  await mountExercisePageWithHistory("interval-melodic-sing", []);
-  const predecessor = getPredecessorStep({
-    exerciseId: "interval-melodic-sing",
+test("locked default step shows predecessor curriculum label and lesson link", async () => {
+  await mountPracticeModePageWithHistory("interval-melodic-sing", []);
+  const predecessor = getPredecessorCurriculumLesson({
+    practiceModeId: "interval-melodic-sing",
     contentTierId: "interval-2a",
   })!;
-  const expectedHref = formatExerciseUrl(
-    getExercise(predecessor.exerciseId).route,
+  const expectedHref = formatLessonLinkUrl(
+    getPracticeMode(predecessor.practiceModeId).route,
     predecessor,
   );
 
@@ -28,7 +28,7 @@ test("locked default step shows predecessor curriculum label and step link", asy
 });
 
 test("unlocked default step mounts the exercise", async () => {
-  await mountExercisePageWithHistory(
+  await mountPracticeModePageWithHistory(
     "interval-melodic-sing",
     passingSingleNoteHistory(),
   );
@@ -40,22 +40,22 @@ test("unlocked default step mounts the exercise", async () => {
     .toBeVisible();
 });
 
-test("locked deep link shows predecessor step label and step link CTA", async () => {
-  setStepSearch({
-    exerciseId: "interval-melodic-sing",
+test("locked deep link shows predecessor step label and lesson link CTA", async () => {
+  setCurriculumLessonSearch({
+    practiceModeId: "interval-melodic-sing",
     contentTierId: "interval-2b",
   });
   const lockedStep = {
-    exerciseId: "interval-melodic-sing" as const,
+    practiceModeId: "interval-melodic-sing" as const,
     contentTierId: "interval-2b" as const,
   };
-  const predecessor = getPredecessorStep(lockedStep)!;
-  const expectedHref = formatExerciseUrl(
-    getExercise(predecessor.exerciseId).route,
+  const predecessor = getPredecessorCurriculumLesson(lockedStep)!;
+  const expectedHref = formatLessonLinkUrl(
+    getPracticeMode(predecessor.practiceModeId).route,
     predecessor,
   );
 
-  await mountExercisePageWithHistory("interval-melodic-sing", passingSingleNoteHistory(), {
+  await mountPracticeModePageWithHistory("interval-melodic-sing", passingSingleNoteHistory(), {
     locationSearch: window.location.search,
   });
 
@@ -65,21 +65,21 @@ test("locked deep link shows predecessor step label and step link CTA", async ()
   });
   await expect.element(cta).toBeVisible();
   await expect.element(cta).toHaveAttribute("href", expectedHref);
-  setStepSearch(null);
+  setCurriculumLessonSearch(null);
 });
 
-test("locked scale-degree default step uses predecessor step link", async () => {
+test("locked scale-degree default step uses predecessor lesson link", async () => {
   const lockedStep = {
-    exerciseId: "scale-degree-sing" as const,
+    practiceModeId: "scale-degree-sing" as const,
     contentTierId: "degree-3a" as const,
   };
-  const predecessor = getPredecessorStep(lockedStep)!;
-  const expectedHref = formatExerciseUrl(
-    getExercise(predecessor.exerciseId).route,
+  const predecessor = getPredecessorCurriculumLesson(lockedStep)!;
+  const expectedHref = formatLessonLinkUrl(
+    getPracticeMode(predecessor.practiceModeId).route,
     predecessor,
   );
 
-  await mountExercisePageWithHistory("scale-degree-sing", []);
+  await mountPracticeModePageWithHistory("scale-degree-sing", []);
   await expect.element(page.getByRole("heading", { name: "Locked" })).toBeVisible();
   const cta = page.getByRole("link", {
     name: /Go to Identify harmonic intervals \(diatonic intervals within one octave\)/i,
@@ -88,11 +88,11 @@ test("locked scale-degree default step uses predecessor step link", async () => 
 });
 
 test("unlocked step deep link mounts the exercise", async () => {
-  setStepSearch({
-    exerciseId: "interval-melodic-sing",
+  setCurriculumLessonSearch({
+    practiceModeId: "interval-melodic-sing",
     contentTierId: "interval-2a",
   });
-  await mountExercisePageWithHistory("interval-melodic-sing", passingSingleNoteHistory(), {
+  await mountPracticeModePageWithHistory("interval-melodic-sing", passingSingleNoteHistory(), {
     locationSearch: window.location.search,
   });
   await expect
@@ -101,7 +101,7 @@ test("unlocked step deep link mounts the exercise", async () => {
   await expect
     .element(page.getByRole("heading", { name: "Locked" }))
     .not.toBeInTheDocument();
-  setStepSearch(null);
+  setCurriculumLessonSearch(null);
 });
 
 describe("?unlock=all", () => {
@@ -114,14 +114,14 @@ describe("?unlock=all", () => {
   });
 
   test("locked step URL mounts exercise without faking progress", async () => {
-    setStepSearch(
+    setCurriculumLessonSearch(
       {
-        exerciseId: "scale-degree-sing",
+        practiceModeId: "scale-degree-sing",
         contentTierId: "degree-3a",
       },
       { unlockAll: true },
     );
-    await mountExercisePageWithHistory("scale-degree-sing", [], {
+    await mountPracticeModePageWithHistory("scale-degree-sing", [], {
       locationSearch: window.location.search,
     });
     await expect
@@ -130,6 +130,6 @@ describe("?unlock=all", () => {
     await expect
       .element(page.getByRole("heading", { name: "Locked" }))
       .not.toBeInTheDocument();
-    setStepSearch(null);
+    setCurriculumLessonSearch(null);
   });
 });

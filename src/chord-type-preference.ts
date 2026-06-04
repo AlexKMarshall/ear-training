@@ -1,8 +1,8 @@
 import { CHORD_TYPES, type ChordTypeEntry } from "./chord-config.ts";
 import { pickRandomInversion } from "./chord-inversion-preference.ts";
-import { randomChordQuestion } from "./chord-types.ts";
+import { randomChordExercise } from "./chord-types.ts";
 import type { ChordType } from "./chord-types.ts";
-import type { ChordQuestion } from "./chords.ts";
+import type { ChordExercise } from "./chords.ts";
 import type { NoteRange } from "./notes.ts";
 
 const STORAGE_KEY = "ear-training-chord-types";
@@ -92,8 +92,8 @@ export function pickRandomChordType(): ChordType {
 }
 
 /** Random chord question using user-selected chord types and inversions. */
-export function randomEnabledChordQuestion(range: NoteRange): ChordQuestion {
-  return randomChordQuestion(
+export function randomEnabledChordExercise(range: NoteRange): ChordExercise {
+  return randomChordExercise(
     pickRandomChordType(),
     pickRandomInversion(),
     range,

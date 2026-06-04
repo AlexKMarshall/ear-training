@@ -1,25 +1,25 @@
-import { EXERCISES, getExercise } from "../exercises/registry.ts";
-import { percentOf } from "../round.ts";
+import { PRACTICE_MODES, getPracticeMode } from "../practice-modes/registry.ts";
+import { percentOf } from "../lesson.ts";
 import {
   computeTagBreakdownForExercise,
   singAttemptsMedianAbsCents,
   type TagStats,
 } from "./tag-stats.ts";
 import {
-  EXERCISE_LABELS,
+  PRACTICE_MODE_LABELS,
   type AttemptRecord,
-  type ExerciseId,
+  type PracticeModeId,
 } from "./types.ts";
 
-export interface ExerciseStats {
-  exerciseId: ExerciseId;
+export interface PracticeModeStats {
+  practiceModeId: PracticeModeId;
   label: string;
   attemptCount: number;
-  questionCount: number;
+  lessonExerciseCount: number;
   /** Share of scored attempts that passed. */
   attemptPassRatePercent: number;
   /** Share of questions with at least one passing attempt. */
-  questionPassRatePercent: number;
+  lessonExercisePassRatePercent: number;
   /** Null for identify-only exercise sections (cents not meaningful). */
   medianAbsCents: number | null;
   firstTryRatePercent: number;
@@ -28,17 +28,17 @@ export interface ExerciseStats {
 
 export interface DashboardStats {
   totalAttempts: number;
-  totalQuestions: number;
+  totalLessonExercises: number;
   attemptPassRatePercent: number;
-  questionPassRatePercent: number;
+  lessonExercisePassRatePercent: number;
   /** Median abs cents over sing attempts only. */
   medianAbsCents: number;
   firstTryRatePercent: number;
-  byExercise: ExerciseStats[];
+  byPracticeMode: PracticeModeStats[];
 }
 
-function questionKey(record: AttemptRecord): string {
-  return `${record.roundId}:${record.questionIndex}`;
+function lessonExerciseKey(record: AttemptRecord): string {
+  return `${record.lessonId}:${record.exerciseIndex}`;
 }
 
 function median(values: number[]): number {
@@ -51,43 +51,43 @@ function median(values: number[]): number {
   return sorted[mid]!;
 }
 
-export function computeQuestionStats(records: readonly AttemptRecord[]): {
-  questionCount: number;
-  questionPassRatePercent: number;
+export function computeLessonExerciseStats(records: readonly AttemptRecord[]): {
+  lessonExerciseCount: number;
+  lessonExercisePassRatePercent: number;
   firstTryRatePercent: number;
 } {
-  const byQuestion = new Map<string, AttemptRecord[]>();
+  const byLessonExercise = new Map<string, AttemptRecord[]>();
   for (const record of records) {
-    const key = questionKey(record);
-    const group = byQuestion.get(key) ?? [];
+    const key = lessonExerciseKey(record);
+    const group = byLessonExercise.get(key) ?? [];
     group.push(record);
-    byQuestion.set(key, group);
+    byLessonExercise.set(key, group);
   }
 
-  const questionCount = byQuestion.size;
-  if (questionCount === 0) {
+  const lessonExerciseCount = byLessonExercise.size;
+  if (lessonExerciseCount === 0) {
     return {
-      questionCount: 0,
-      questionPassRatePercent: 0,
+      lessonExerciseCount: 0,
+      lessonExercisePassRatePercent: 0,
       firstTryRatePercent: 0,
     };
   }
 
-  let questionsPassed = 0;
+  let lessonExercisesPassed = 0;
   let firstTryPassed = 0;
 
-  for (const attempts of byQuestion.values()) {
+  for (const attempts of byLessonExercise.values()) {
     const passed = attempts.some((a) => a.passed);
-    if (passed) questionsPassed += 1;
+    if (passed) lessonExercisesPassed += 1;
 
     const first = attempts.find((a) => a.attemptNumber === 1);
     if (first?.passed) firstTryPassed += 1;
   }
 
   return {
-    questionCount,
-    questionPassRatePercent: percentOf(questionsPassed, questionCount),
-    firstTryRatePercent: percentOf(firstTryPassed, questionCount),
+    lessonExerciseCount,
+    lessonExercisePassRatePercent: percentOf(lessonExercisesPassed, lessonExerciseCount),
+    firstTryRatePercent: percentOf(firstTryPassed, lessonExerciseCount),
   };
 }
 
@@ -105,65 +105,65 @@ export function computeMedianAbsCents(records: readonly AttemptRecord[]): number
 }
 
 function statsForExercise(
-  exerciseId: ExerciseId,
+  practiceModeId: PracticeModeId,
   records: readonly AttemptRecord[],
-): ExerciseStats {
-  const questionStats = computeQuestionStats(records);
-  const isIdentify = getExercise(exerciseId).responseMode === "select";
+): PracticeModeStats {
+  const lessonExerciseStats = computeLessonExerciseStats(records);
+  const isIdentify = getPracticeMode(practiceModeId).responseMode === "select";
   return {
-    exerciseId,
-    label: EXERCISE_LABELS[exerciseId],
+    practiceModeId,
+    label: PRACTICE_MODE_LABELS[practiceModeId],
     attemptCount: records.length,
-    ...questionStats,
+    ...lessonExerciseStats,
     attemptPassRatePercent: computeAttemptPassRate(records),
     medianAbsCents: isIdentify ? null : computeMedianAbsCents(records),
-    byTag: computeTagBreakdownForExercise(exerciseId, records),
+    byTag: computeTagBreakdownForExercise(practiceModeId, records),
   };
 }
 
 export interface ExerciseProgress {
-  questionCount: number;
-  questionPassRatePercent: number;
+  lessonExerciseCount: number;
+  lessonExercisePassRatePercent: number;
 }
 
-export function computeExerciseStats(
-  exerciseId: ExerciseId,
+export function computePracticeModeStats(
+  practiceModeId: PracticeModeId,
   records: readonly AttemptRecord[],
-): ExerciseStats {
+): PracticeModeStats {
   return statsForExercise(
-    exerciseId,
-    records.filter((r) => r.exerciseId === exerciseId),
+    practiceModeId,
+    records.filter((r) => r.practiceModeId === practiceModeId),
   );
 }
 
 /** Per-exercise question progress for unlock rules (same grouping as dashboard). */
-export function computeExerciseProgress(
-  exerciseId: ExerciseId,
+export function computePracticeModeProgress(
+  practiceModeId: PracticeModeId,
   records: readonly AttemptRecord[],
 ): ExerciseProgress {
-  const filtered = records.filter((r) => r.exerciseId === exerciseId);
-  const { questionCount, questionPassRatePercent } =
-    computeQuestionStats(filtered);
-  return { questionCount, questionPassRatePercent };
+  const filtered = records.filter((r) => r.practiceModeId === practiceModeId);
+  const { lessonExerciseCount, lessonExercisePassRatePercent } =
+    computeLessonExerciseStats(filtered);
+  return { lessonExerciseCount, lessonExercisePassRatePercent };
 }
 
 export function computeDashboardStats(
   records: readonly AttemptRecord[],
 ): DashboardStats {
-  const questionStats = computeQuestionStats(records);
-  const exerciseIds = EXERCISES.map((e) => e.id);
+  const lessonExerciseStats = computeLessonExerciseStats(records);
+  const practiceModeIds = PRACTICE_MODES.map((e) => e.id);
 
   return {
     totalAttempts: records.length,
-    totalQuestions: questionStats.questionCount,
-    questionPassRatePercent: questionStats.questionPassRatePercent,
-    firstTryRatePercent: questionStats.firstTryRatePercent,
+    totalLessonExercises: lessonExerciseStats.lessonExerciseCount,
+    lessonExercisePassRatePercent: lessonExerciseStats.lessonExercisePassRatePercent,
+    firstTryRatePercent: lessonExerciseStats.firstTryRatePercent,
     attemptPassRatePercent: computeAttemptPassRate(records),
     medianAbsCents: singAttemptsMedianAbsCents(records),
-    byExercise: exerciseIds.map((id) =>
+    byPracticeMode: practiceModeIds.map((id) =>
       statsForExercise(
         id,
-        records.filter((r) => r.exerciseId === id),
+        records.filter((r) => r.practiceModeId === id),
       ),
     ),
   };
