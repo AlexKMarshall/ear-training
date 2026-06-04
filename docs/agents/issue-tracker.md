@@ -21,7 +21,9 @@ Create a GitHub issue with the approved title and body. Apply `ready-for-agent` 
 
 ## Closing issues from merged PRs
 
-Only `Closes` / `Fixes` / `Resolves` (etc.) in the **PR body or commit message** auto-close linked issues. A parent closing does **not** close child issues. See [Closing GitHub issues from a PR](pull-requests.md#closing-github-issues-from-a-pr).
+Only `Closes` / `Fixes` / `Resolves` (etc.) in the **PR body or commit message** auto-close linked issues. Closing a parent epic does **not** close child slice issues (and the reverse). See [Closing GitHub issues from a PR](pull-requests.md#closing-github-issues-from-a-pr).
+
+**Epic + slice issues** (from `/to-issues`): the **final slice PR must `Closes` the parent epic** as well as its slice issue. Earlier slice PRs close only their slice.
 
 ## When a skill says "fetch the relevant ticket"
 

@@ -11,5 +11,6 @@ Mechanical defaults when opening a PR:
 
 - Use `gh`; gather state with `git status`, `git diff`, branch tracking, and `git log` / `git diff [base]...HEAD`.
 - Push with `git push -u origin HEAD`; create with `gh pr create` and a HEREDOC body.
-- In the PR summary, list **`Closes #N`** for every issue this merge completes (parent and child issues). Only closing keywords auto-close issues—not *implements* or *addresses*.
+- In the PR summary, list **`Closes #N`** for every issue this merge completes. Only closing keywords auto-close issues—not *implements* or *addresses*.
+- **Epic + slice issues** (`/to-issues`): each PR `Closes` its slice issue; the **final slice PR must also `Closes` the parent epic** (required). See [`docs/agents/pull-requests.md`](docs/agents/pull-requests.md#closing-github-issues-from-a-pr).
 - Return the PR URL. Do not push or merge unless the user asks.
