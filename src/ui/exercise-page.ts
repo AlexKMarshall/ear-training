@@ -9,12 +9,14 @@ import {
   getUnlockRequirementForCurriculumLesson,
   isCurriculumLessonAccessible,
 } from "../curriculum/unlock.ts";
+import { render } from "solid-js/web";
 import { getPracticeMode, mountPracticeMode } from "../practice-modes/registry.ts";
 import {
   createDefaultHistoryPort,
   type MountDeps,
 } from "../history/port.ts";
 import type { PracticeModeId } from "../history/types.ts";
+import { LockedCurriculumLessonView } from "./exercise-locked-view.tsx";
 
 function getSearchString(deps: MountDeps): string {
   return deps.locationSearch ?? globalThis.location?.search ?? "";
@@ -37,31 +39,18 @@ function mountLockedCurriculumLesson(
     predecessorStep,
   );
 
-  root.innerHTML = `
-    <main class="app">
-      <nav class="nav">
-        <a href="/" class="nav-back">← All tests</a>
-      </nav>
-
-      <header class="header">
-        <h1>${entry.title}</h1>
-        <p class="subtitle">${entry.subtitle}</p>
-      </header>
-
-      <section class="exercise-locked" aria-labelledby="exercise-locked-heading">
-        <h2 id="exercise-locked-heading" class="exercise-locked-title">Locked</h2>
-        <p class="exercise-locked-desc">
-          Complete <strong>${predecessorName}</strong> first: answer at least
-          ${requirement.minExercisesForUnlock} questions with
-          ${requirement.minPassRatePercent}% or higher question pass rate.
-        </p>
-        <a href="${predecessorHref}" class="test-card exercise-locked-cta">
-          <span class="test-card-title">Go to ${predecessorName}</span>
-          <span class="test-card-desc">Continue the guided path</span>
-        </a>
-      </section>
-    </main>
-  `;
+  render(
+    () =>
+      LockedCurriculumLessonView({
+        title: entry.title,
+        subtitle: entry.subtitle,
+        predecessorName,
+        minExercisesForUnlock: requirement.minExercisesForUnlock,
+        minPassRatePercent: requirement.minPassRatePercent,
+        predecessorHref,
+      }),
+    root,
+  );
 }
 
 export async function mountPracticeModePage(
