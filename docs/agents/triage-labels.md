@@ -1,6 +1,6 @@
 # Triage Labels
 
-The skills speak in terms of canonical triage roles. This file maps those roles to label strings in **Linear**.
+The skills speak in terms of canonical triage roles. This file maps those roles to label strings in **GitHub Issues**.
 
 ## State roles
 
@@ -14,7 +14,7 @@ The skills speak in terms of canonical triage roles. This file maps those roles 
 
 When a skill mentions a state role (e.g. "apply the AFK-ready triage label"), use the corresponding label string from this table.
 
-Every triaged issue should carry **exactly one** state role label. Create these labels in the Linear workspace if they do not exist yet.
+Every triaged issue should carry **exactly one** state role label. Create these labels in the repo if they do not exist yet.
 
 ## Category roles
 
@@ -25,4 +25,4 @@ Every triaged issue should carry **exactly one** state role label. Create these 
 
 Every triaged issue should carry **exactly one** category role label in addition to its state role.
 
-Edit the right-hand column if you rename labels in Linear; keep the left column as the skill vocabulary.
+Edit the right-hand column if you rename labels in GitHub; keep the left column as the skill vocabulary.
