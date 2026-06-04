@@ -10,17 +10,17 @@ For work split across several merge-gated PRs (status table, merge gates, final 
 2. **Scope** — One logical change per PR. Do not bundle unrelated refactors or sneak ahead on a multi-step plan unless the user asks to combine.
 3. **Verify** — Run `npm test` (and `npm run build` if the change touches build, routes, or static assets). When browser tests exist, run `npm run test:browser` for PRs that touch `src/ui/` or mount/orchestration code — see [`docs/agents/testing.md`](testing.md). Confirm GitHub Actions **CI** is green on the PR. Do not claim tests pass without running them locally and without a green CI check.
 4. **Commits** — Only commit when the user asks. Use clear messages focused on *why* (1–2 sentences).
-5. **Roadmaps** — Update [`docs/roadmap.md`](../roadmap.md) when product milestones or current-state tables change. Update [`docs/tech-debt.md`](../tech-debt.md) when the PR **closes or adds tech debt** (see [Tech debt registry](#tech-debt-registry)). New features include their own tests in the feature PR (see [`testing.md`](testing.md)).
+5. **Roadmaps** — Update [`docs/roadmap.md`](../roadmap.md) when planned product work is added, removed, or reprioritized. Update [`docs/tech-debt.md`](../tech-debt.md) when the PR **closes or adds tech debt** (see [Tech debt registry](#tech-debt-registry)). New features include their own tests in the feature PR (see [`testing.md`](testing.md)).
 
 ## Roadmap updates
 
 | Document | Path | When to update |
 |----------|------|----------------|
-| **Product** | [`docs/roadmap.md`](../roadmap.md) | Feature shipped, milestone done, or current-state table no longer accurate |
+| **Product** | [`docs/roadmap.md`](../roadmap.md) | A shipped item should be **removed** from the backlog; new scope is added or reprioritized |
 | Situation | Product roadmap |
 |-----------|-----------------|
-| **Feature PR** | Update if the feature changes “current state” |
-| **Tests-only PR** | Usually omit unless product “current state” mentions coverage |
+| **Feature PR** | Update when the PR completes or changes a listed roadmap item (drop shipped rows; add follow-ups if needed) |
+| **Tests-only PR** | Usually omit |
 | **Multi-PR plan** | Last PR syncs product roadmap to `main`; see [`multi-pr-plans.md`](multi-pr-plans.md) |
 
 Tests for new or changed behavior ship with the feature PR ([`testing.md`](testing.md)).
@@ -35,7 +35,7 @@ Workflow detail: [`tech-debt.md`](tech-debt.md).
 
 | Situation | Product roadmap | Tech debt doc |
 |-----------|-----------------|---------------|
-| **Feature PR** | Update if the feature changes “current state” | Add row if the PR reveals debt out of scope; close row if paying debt in this PR; note related TD IDs in **Downstream** |
+| **Feature PR** | Update if the PR completes or changes a listed roadmap item | Add row if the PR reveals debt out of scope; close row if paying debt in this PR; note related TD IDs in **Downstream** |
 | **Refactor / tooling PR** | Usually omit | Mark TD IDs done; adjust open table |
 | **Multi-PR plan** | Last PR syncs product roadmap to `main` | Last debt-closing PR syncs tech debt table; see [`multi-pr-plans.md`](multi-pr-plans.md) |
 
@@ -53,7 +53,7 @@ Use a short prefix and slug, for example:
 ## PR title
 
 - One line, imperative mood: what the PR *does*.
-- Examples: `Add curriculum unlock rules from attempt history`, `Update roadmap for curriculum v1 shell`.
+- Examples: `Add curriculum unlock rules from attempt history`, `Remove interval 2c from product roadmap`.
 
 ## PR body template
 

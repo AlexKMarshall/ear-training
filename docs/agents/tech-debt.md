@@ -51,7 +51,7 @@ On every PR that **closes** tech debt:
 
 1. Update [`docs/tech-debt.md`](../tech-debt.md): remove the row from **Open tech debt** or move it to **Closed tech debt** with PR link and brief note.
 2. Mention the closed **TD-###** ID(s) in the PR summary.
-3. If the fix changes architectural direction on the product roadmap, also update [`docs/roadmap.md`](../roadmap.md) (e.g. "Unified ExerciseDefinition — still TODO" → done).
+3. If closing debt removes a **Technical enablers** blocker listed on the roadmap, ensure that roadmap row is still accurate (usually no change — enablers stay in tech debt until paid).
 
 Multi-PR plans: sync the tech debt table in the **last** PR that closes debt for that plan, same as [testing debt sync](multi-pr-plans.md#final-step-roadmap-sync-required). See [`multi-pr-plans.md`](multi-pr-plans.md).
 
