@@ -1,17 +1,27 @@
 # Testing — agent guide
 
-How to write and run tests in this repo. For **phased rollout** (T0–T3, CI, ports), see [`docs/testing-roadmap.md`](../testing-roadmap.md).
+How to write and run tests in this repo.
+
+## Testing debt vs product work
+
+| Question | Where to look |
+|----------|----------------|
+| How do I write tests? | This page and leaf guides below |
+| What shipped behavior still lacks tests? | [`docs/testing-roadmap.md`](../testing-roadmap.md) — **open debt table only** |
+| What should we build next? | [`docs/roadmap.md`](../roadmap.md) |
+
+**Rule:** Tests for new or changed behavior belong in the **same PR** as that behavior. Do not add rows to the testing roadmap for features that are not on `main` yet.
+
+The testing roadmap is a **debt register**, not a forward plan. It should get smaller as gaps close and can be retired when the open-debt table is empty. Ongoing conventions live here and in the leaf guides.
 
 ## When to read what
 
 | Situation | Read |
 |-----------|------|
-| Planning test work or CI phases | [`docs/testing-roadmap.md`](../testing-roadmap.md) |
+| Closing a known coverage gap | [`docs/testing-roadmap.md`](../testing-roadmap.md) — pick a debt ID, implement, mark done |
 | Browser/UI tests (`*.browser.test.ts`, `src/ui/`) | [`ui-testing.md`](ui-testing.md) |
 | Mocking, ports, dependency injection | [`mocking.md`](mocking.md) |
 | Opening a PR with test changes | [`pull-requests.md`](pull-requests.md) — cite relevant leaf guide(s) in the test plan |
-
-More leaf guides may be added later (e.g. fixtures, manual QA). This page stays the index.
 
 ## Quick commands
 

@@ -30,7 +30,7 @@ Use Vitest Browser Mode locators from `@vitest/browser/context` (`page.getBy*` �
 
 If a behavior cannot be asserted with role/label/text without brittle hacks, **improve accessibility in `src/ui/`** (e.g. ensure locked items are not links, headings have clear names, sections use `aria-labelledby`) rather than adding `data-testid`.
 
-## Examples for T0 surfaces
+## Examples (curriculum guards)
 
 Exercise **titles** in assertions must match [`src/exercises/registry.ts`](../../src/exercises/registry.ts) (`title` field), which drives visible card text.
 
@@ -55,4 +55,4 @@ Exercise **titles** in assertions must match [`src/exercises/registry.ts`](../..
 
 - [`testing.md`](testing.md) — hub and commands
 - [`mocking.md`](mocking.md) — inject `HistoryPort` etc. at mount boundaries
-- [`docs/testing-roadmap.md`](../testing-roadmap.md) — T0 curriculum guard scenarios
+- [`docs/testing-roadmap.md`](../testing-roadmap.md) — open browser/UI debt (e.g. stats with history, round summary)
