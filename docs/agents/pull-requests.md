@@ -39,7 +39,7 @@ Workflow detail: [`tech-debt.md`](tech-debt.md).
 | **Refactor / tooling PR** | Usually omit | Remove paid-down TD rows; add rows if new debt found |
 | **Multi-PR plan** | Last PR syncs product roadmap to `main` | Last debt-closing PR syncs tech debt table; see [`multi-pr-plans.md`](multi-pr-plans.md) |
 
-When implementing features, check the open tech debt table for **P0** items in the same area. If clearing them reduces risk for the feature, bring them into scope; otherwise link the TD ID for a follow-up.
+When implementing features, check the outstanding tech debt table for **P0** items in the same area. If clearing them reduces risk for the feature, bring them into scope; otherwise link the TD ID for a follow-up.
 
 ## Branch naming
 
