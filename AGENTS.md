@@ -19,6 +19,7 @@ Read the pull-request guide before creating or updating a PR description, especi
 ```bash
 npm test              # Vitest Node — unit tests
 npm run test:browser  # Vitest browser — UI orchestration (Playwright)
+npm run typecheck     # tsc on src (same config as the IDE)
 npm run dev           # local dev server
 npm run build         # production build
 ```
@@ -27,7 +28,7 @@ Run `npm run test:browser` when changing `src/ui/`, mount functions, or browser 
 
 ## CI
 
-Every push to `main` and every pull request runs [GitHub Actions](.github/workflows/ci.yml): `npm test`, `npm run test:browser`, and `npm run build` on Node 22.
+Every push to `main` and every pull request runs [GitHub Actions](.github/workflows/ci.yml): `npm run typecheck`, `npm test`, `npm run test:browser`, and `npm run build` on Node 22.
 
 Do not claim tests pass on a PR without a green **CI** check on that PR.
 

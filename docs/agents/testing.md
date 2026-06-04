@@ -51,7 +51,7 @@ After `npm ci`, `postinstall` runs `playwright install chromium` into the projec
 PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install chromium
 ```
 
-CI runs `npm test`, `npm run test:browser`, and `npm run build` on every PR and `main`.
+CI runs `npm run typecheck`, `npm test`, `npm run test:browser`, and `npm run build` on every PR and `main`.
 
 ## Manual QA
 
