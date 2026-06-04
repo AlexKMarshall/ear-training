@@ -208,6 +208,7 @@ Free practice (`chord-middle`) uses the same planner within the selected **mode*
 | Voice range only (`voice-ranges.ts`) | Configurable unlock thresholds in UI |
 | Guided path: cross-mode **2a** → cross-mode **2b** → scale-degree sing → chord-middle (`chord-1a`) | Mixed-level rounds across exercises |
 | Home curriculum UI + page guard on locked routes | Flat guided-path home (no level bands / free-practice section) — see parent #53 |
+| **Step links** (`?step=`) + guided session default | Home path nodes emit step URLs; replay keeps URL tier (not highest unlocked) |
 
 **Interval tier ladder (target):** see [content tiers example](#content-tiers-example-interval-exercises) in Progressive difficulty model.
 

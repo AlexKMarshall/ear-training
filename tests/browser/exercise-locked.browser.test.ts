@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { passingSingleNoteHistory } from "../fixtures/attempts.ts";
 import {
   mountExercisePageWithHistory,
+  setStepSearch,
   setUnlockAllSearch,
 } from "./helpers/mount.ts";
 
@@ -24,6 +25,18 @@ test("unlocked interval exercise does not show locked heading", async () => {
   await expect
     .element(page.getByRole("heading", { name: "Locked" }))
     .not.toBeInTheDocument();
+});
+
+test("locked step in URL shows locked heading", async () => {
+  setStepSearch({
+    exerciseId: "interval-melodic-sing",
+    contentTierId: "interval-2b",
+  });
+  await mountExercisePageWithHistory("interval-melodic-sing", passingSingleNoteHistory(), {
+    locationSearch: window.location.search,
+  });
+  await expect.element(page.getByRole("heading", { name: "Locked" })).toBeVisible();
+  setStepSearch(null);
 });
 
 test("locked scale-degree exercise shows tier-aware predecessor copy", async () => {

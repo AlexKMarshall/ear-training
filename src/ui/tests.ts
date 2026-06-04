@@ -2,6 +2,7 @@ import { chordMidis } from "../chords.ts";
 import { playChord, playTargetNote } from "../audio/playback.ts";
 import { randomNoteInRange } from "../notes.ts";
 import { getActiveNoteRange } from "../voice-ranges.ts";
+import type { MountDeps } from "../history/port.ts";
 import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts";
 import {
   prepareChordQuestion,
@@ -64,7 +65,10 @@ export const chordMiddleTestConfig: SingTestConfig = {
   prepareQuestion: () => prepareChordQuestion([]),
 };
 
-export function mountSingleNoteTest(root: HTMLElement): void {
+export function mountSingleNoteTest(
+  root: HTMLElement,
+  _deps?: MountDeps & SingMountDeps,
+): void {
   mountSingTest(root, singleNoteTestConfig);
 }
 
@@ -78,7 +82,13 @@ export function mountChordMiddleTest(
     {
       ...chordMiddleBase,
       prepareQuestion: () =>
-        prepareChordQuestion(cache.getRecords(), planner, undefined, rng),
+        prepareChordQuestion(
+          cache.getRecords(),
+          planner,
+          undefined,
+          rng,
+          deps?.sessionStep,
+        ),
     },
     { ...deps, history: cache.historyPort },
   );

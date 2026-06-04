@@ -2,7 +2,8 @@ import { getChordTypeById } from "../chord-config.ts";
 import type { InversionId } from "../chord-inversions.ts";
 import { randomChordQuestion } from "../chord-types.ts";
 import { chordTarget } from "../chords.ts";
-import { getSessionStepForExercise } from "../curriculum/session-step.ts";
+import { resolveSessionStep } from "../curriculum/session-step.ts";
+import type { CurriculumStep } from "../curriculum/steps.ts";
 import {
   getEligibleInversionIds,
   getEligibleTagIds,
@@ -23,6 +24,7 @@ export interface ChordSessionDeps {
   history?: HistoryPort;
   sessionPlanner?: SessionPlanner;
   rng?: () => number;
+  sessionStep?: CurriculumStep;
 }
 
 export interface ChordHistoryCache {
@@ -62,8 +64,11 @@ export function prepareChordQuestion(
   planner: SessionPlanner = createDefaultSessionPlanner(),
   range = getActiveNoteRange(),
   rng: () => number = Math.random,
+  sessionStep?: CurriculumStep,
 ): SingTestQuestion {
-  const step = getSessionStepForExercise("chord-middle", records);
+  const step = resolveSessionStep("chord-middle", records, {
+    urlStep: sessionStep,
+  });
   const eligibleTagIds = getEligibleTagIds(step);
   const tagId = planner.planNextQuestionTag(step, records);
   const type = getChordTypeById(tagId);

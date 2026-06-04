@@ -124,6 +124,35 @@ export function getContinueExercise(
   return getContinueStep(records)?.exerciseId ?? null;
 }
 
+/** Static unlock copy for a specific curriculum step (null for the first step). */
+export function getUnlockRequirementForStep(
+  step: CurriculumStep,
+): UnlockRequirement | null {
+  const index = getStepIndex(step);
+  if (index <= 0) {
+    return null;
+  }
+  const predecessor = CURRICULUM_STEPS[index - 1]!;
+  return {
+    predecessorId: predecessor.exerciseId,
+    predecessorLabel: getStepLabel(predecessor),
+    minQuestions: MIN_QUESTIONS,
+    minPassRatePercent: MIN_QUESTION_PASS_RATE,
+  };
+}
+
+/** Whether the learner may open a session for this step (progress or `?unlock=all`). */
+export function isStepAccessible(
+  step: CurriculumStep,
+  records: readonly AttemptRecord[],
+  search = globalThis.location?.search ?? "",
+): boolean {
+  if (isUnlockAllEnabled(search)) {
+    return true;
+  }
+  return isStepUnlocked(step, records);
+}
+
 /** Static unlock copy for a path exercise (null if always available). */
 export function getUnlockRequirement(
   exerciseId: ExerciseId,
