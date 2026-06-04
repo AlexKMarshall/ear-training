@@ -13,6 +13,10 @@
     "moduleDetection": "force",
     "noEmit": true,
 
+    /* Solid JSX (home.tsx and future UI) */
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
