@@ -216,6 +216,8 @@ a.path-node:hover {
 .path-node-current {
   border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
   background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  /* scrollIntoView() respects this — keeps the current node off the viewport edge */
+  scroll-margin-block: 1.25rem 4rem;
 }
 
 .path-node-current .path-node-status {
