@@ -209,6 +209,7 @@ Free practice (`chord-middle`) uses the same planner within the selected **mode*
 | Guided path: cross-mode **2a** → cross-mode **2b** → scale-degree sing → chord-middle (`chord-1a`) | Mixed-level rounds across exercises |
 | Home curriculum UI + page guard on locked routes | Flat guided-path home (no level bands / free-practice section) — see parent #53 |
 | **Step links** (`?step=`) + guided session default | Home path nodes emit step URLs; replay keeps URL tier (not highest unlocked) |
+| **Step-level exercise lock page** | Route guard uses parsed/default step; locked CTAs link to predecessor step URL |
 
 **Interval tier ladder (target):** see [content tiers example](#content-tiers-example-interval-exercises) in Progressive difficulty model.
 

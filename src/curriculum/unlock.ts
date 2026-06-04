@@ -124,15 +124,23 @@ export function getContinueExercise(
   return getContinueStep(records)?.exerciseId ?? null;
 }
 
-/** Static unlock copy for a specific curriculum step (null for the first step). */
-export function getUnlockRequirementForStep(
-  step: CurriculumStep,
-): UnlockRequirement | null {
+/** Curriculum step immediately before this one on the guided path, if any. */
+export function getPredecessorStep(step: CurriculumStep): CurriculumStep | null {
   const index = getStepIndex(step);
   if (index <= 0) {
     return null;
   }
-  const predecessor = CURRICULUM_STEPS[index - 1]!;
+  return CURRICULUM_STEPS[index - 1]!;
+}
+
+/** Static unlock copy for a specific curriculum step (null for the first step). */
+export function getUnlockRequirementForStep(
+  step: CurriculumStep,
+): UnlockRequirement | null {
+  const predecessor = getPredecessorStep(step);
+  if (!predecessor) {
+    return null;
+  }
   return {
     predecessorId: predecessor.exerciseId,
     predecessorLabel: getStepLabel(predecessor),
