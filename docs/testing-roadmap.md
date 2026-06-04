@@ -42,7 +42,7 @@ These are **not** open debt; they define what “covered” builds on.
 | CI on PRs and `main` | **Done** | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — `npm test`, `npm run test:browser`, `npm run build` (Node 22, Chromium) |
 | Domain unit tests | **Done** | Scoring, chords, intervals, scale degrees, rounds, history stats + tag breakdown, curriculum unlock/levels/steps, **session planner** (incl. large 2b pool weak-tag overweighting), **session-step resolution**, interval/scale-degree/chord session wiring, registry contract |
 | Ports + browser project | **Done** | `HistoryPort`, `AudioPort`, `RecordingPort`; `tests/browser/**/*.browser.test.ts` |
-| Curriculum guards | **Done** | Home unlock states, locked exercise page, `?unlock=all` (access only), step-level Continue |
+| Curriculum guards | **Done** | Guided-path home (path node link vs locked, current step, path-complete), locked exercise page, `?unlock=all` (access only) |
 | Identify orchestration | **Done** | Melodic interval ID — pass, Q2 progress, no interval picker; tier pool drives MC |
 | Sing orchestration | **Done** | Single note + scale-degree sing — pass, fail/retry, short recording error |
 | Per-exercise smokes | **Done** | `registry-exercises.browser.test.ts` — one pass path for chord-middle, interval melodic/harmonic sing, interval harmonic ID |
@@ -54,7 +54,7 @@ These are **not** open debt; they define what “covered” builds on.
 
 ## Coverage map (shipped behavior today)
 
-Seven registry exercises; curriculum path + free practice. Use this table to see **where** debt sits.
+Seven registry exercises on the guided curriculum path. Use this table to see **where** debt sits.
 
 | Shipped surface | Node unit | Browser orchestration | Notes |
 |-----------------|-----------|------------------------|--------|
@@ -66,7 +66,7 @@ Seven registry exercises; curriculum path + free practice. Use this table to see
 | Round scoring math (`summarizeRound`) | Yes | — | |
 | History stats + unlock + tag breakdown | Yes | — | Step unlock + `getContinueStep` in Node; `tag-stats` + dashboard weakness |
 | Exercise registry + configs | Yes | — | |
-| Home curriculum cards + Continue | Partial | Yes | Step-level unlock progression, Continue link, interval-2b tier hints on all four interval modes, `?unlock=all` |
+| Home guided path | Partial | Yes | [`home-curriculum.browser.test.ts`](../tests/browser/home-curriculum.browser.test.ts) — path node states, step-link URLs, path-complete banner, `?unlock=all`; no scroll-into-view assertion |
 | Locked exercise page | — | Yes | |
 | Stats dashboard `/stats/` | Yes | Partial | Tag weakness + identify copy in browser ([`stats.browser.test.ts`](../tests/browser/stats.browser.test.ts)); optional deeper exercise-summary assertions |
 | **single-note** sing | — | Yes | Dedicated round test; not in registry smoke list |
@@ -75,9 +75,8 @@ Seven registry exercises; curriculum path + free practice. Use this table to see
 | **interval-harmonic-sing** | — | Smoke only | Pass path; no fail/retry browser test |
 | **interval-harmonic-id** | — | Smoke + round-style in identify file | No interval picker; tier pool drives choices |
 | **scale-degree-sing** | Yes | Yes | Session module + pass/fail browser; no full-round browser test |
-| **chord-middle** (free practice) | Yes | Smoke only | Session module + pass path; no fail/retry browser test |
+| **chord-middle** (path node) | Yes | Smoke only | Session module + pass path; no fail/retry browser test |
 | 10-question round **completion / summary UI** | — | No | Browser tests stop at Q1→Q2 or single question |
-| Free practice section on home | — | No | Chord-middle always available; home region not asserted |
 | Real IndexedDB in browser tests | — | N/A | Intentional: `createMemoryHistoryPort()` |
 | Mic, timbre, Safari audio unlock | — | Manual | See [Manual QA](#manual-qa-always-required) |
 
@@ -92,12 +91,11 @@ Prioritized gaps for **current** functionality. Close a row by merging tests on 
 | D1 | **Round completion UI** | After question 10, round summary (`firstTry` / `retry` / `wrong`) | Browser test on one sing + one identify exercise: advance through mocked/fixed questions or inject config to shorten round; assert summary region copy. |
 | D2 | **Sing fail/retry beyond single-note** | Interval sing + chord-middle share 3-attempt flow with single-note | Reuse `sing-round` patterns: wrong `samplesHz`, “Not quite”, attempt cap — at least one interval sing + chord-middle. |
 | D3 | **Registry smoke parity** | All seven `exerciseId`s should stay guarded against mount/regression breaks | Add **single-note** and **interval-melodic-id** one-question smokes to `registry-exercises.browser.test.ts` *or* document in [`testing.md`](agents/testing.md) that dedicated round files satisfy the contract (prefer smokes for uniformity). |
-| D5 | **Home — free practice** | “Free practice” region links to chord-middle on fresh profile | Browser test: region visible + link to chord-middle exercise. |
-
 **Closed on `main`**
 
 | ID | Resolution |
 |----|------------|
+| D5 | **Done (obsolete)** — free-practice home section removed; `chord-middle` is a guided-path node. Covered by guided-path home browser tests + registry smoke. |
 | D4 | **Done (obsolete)** — interval / scale-degree / chord-type / inversion pickers removed from UI; only voice type persists. No reload round-trip needed for retired pickers. Optional follow-up: voice-type `localStorage` browser test only. |
 | D6 | **Done (obsolete)** — `scale-degree-preference.ts` no longer drives question draw; dedicated unit file not needed unless module is kept for cleanup. |
 
@@ -117,7 +115,7 @@ Prioritized gaps for **current** functionality. Close a row by merging tests on 
 
 Automation does not replace:
 
-- **`?unlock=all`** — Access-only bypass; Continue/progress still use real history ([`dev-unlock.ts`](../src/curriculum/dev-unlock.ts)).
+- **`?unlock=all`** — Access-only bypass; current-node progress copy still uses real history ([`dev-unlock.ts`](../src/curriculum/dev-unlock.ts)).
 - Microphone permission and hardware variation
 - Headphone vs speaker bleed, piano sample feel  
 - iOS Safari audio unlock (gesture timing)  

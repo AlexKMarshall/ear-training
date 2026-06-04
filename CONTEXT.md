@@ -53,8 +53,8 @@ Every curriculum step on the shipped guided path meets the unlock requirement. H
 _Avoid_: Hiding the path after completion, auto-suggested next step
 
 **Current node focus**:
-On home load, the path scrolls the current node into view so the learner always sees where they are on a long path.
-_Avoid_: Manual scroll only, scroll on pass only
+On home load, the path scrolls the current node into view so the learner always sees where they are on a long path. CSS `scroll-margin` on the current node keeps it off the viewport edge; motion respects `prefers-reduced-motion`.
+_Avoid_: Manual scroll only, scroll on pass only, JS scroll offsets
 
 **Targeted practice** (planned):
 A separate home area for choosing what to work on outside the guided path sequence — not the same as tapping a passed path node to repeat that step.
