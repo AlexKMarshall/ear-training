@@ -2,6 +2,7 @@ import { page } from "vitest/browser";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import {
   passingFullGuidedPathHistory,
+  passingIntroScaleDegreeHistory,
   passingLevel2History,
   passingSingleNoteHistory,
   passingThroughHarmonic2bHistory,
@@ -51,42 +52,59 @@ test("after single-note complete: melodic 2a step is the current link", async ()
     .toBeVisible();
 });
 
-test("after level 2 at 2a complete: scale-degree step stays locked", async () => {
+test("after interval 2a complete: scale-degree intro is the current link", async () => {
   await mountHomeWithHistory(passingLevel2History());
   await expect
     .element(
-      guidedPath().getByRole("link", { name: /Scale degrees/i }),
+      guidedPath().getByRole("link", {
+        name: /Scale degrees.*Melodic reproduction.*major key.*4th, 5th, octave/i,
+      }),
     )
-    .not.toBeInTheDocument();
-  await expect
-    .element(guidedPath().getByText("Scale degrees", { exact: true }))
     .toBeVisible();
-});
-
-test("after melodic 2b complete: scale-degree step stays locked until harmonic 2b", async () => {
-  await mountHomeWithHistory(passingThroughMelodic2bHistory());
-  await expect
-    .element(guidedPath().getByRole("link", { name: /Scale degrees/i }))
-    .not.toBeInTheDocument();
-});
-
-test("after harmonic 2b complete: scale-degree step is a link", async () => {
-  await mountHomeWithHistory(passingThroughHarmonic2bHistory());
   await expect
     .element(
       guidedPath().getByRole("link", {
-        name: /Scale degrees.*Melodic reproduction.*major scale degrees/i,
+        name: /Intervals.*Melodic reproduction.*diatonic intervals/i,
+      }),
+    )
+    .not.toBeInTheDocument();
+});
+
+test("after intro scale degrees complete: melodic 2b step is the current link", async () => {
+  await mountHomeWithHistory(passingIntroScaleDegreeHistory());
+  await expect
+    .element(
+      guidedPath().getByRole("link", {
+        name: /Intervals.*Melodic reproduction.*diatonic intervals/i,
       }),
     )
     .toBeVisible();
 });
 
-test("after level 2 at 2a: current node is melodic sing at 2b tier", async () => {
-  await mountHomeWithHistory(passingLevel2History());
+test("after melodic 2b complete: harmonic sing at 2b is current; intro scale degrees passed", async () => {
+  await mountHomeWithHistory(passingThroughMelodic2bHistory());
   await expect
     .element(
       guidedPath().getByRole("link", {
-        name: /Intervals.*Melodic reproduction.*diatonic intervals/i,
+        name: /Scale degrees.*Complete/i,
+      }),
+    )
+    .toBeVisible();
+  await expect
+    .element(
+      guidedPath().getByRole("link", {
+        name: /Intervals.*Harmonic reproduction.*diatonic intervals/i,
+      }),
+    )
+    .toBeVisible();
+});
+
+test("after harmonic 2b complete: chord step is a link", async () => {
+  await mountHomeWithHistory(passingThroughHarmonic2bHistory());
+  await expect
+    .element(
+      guidedPath().getByRole("link", {
+        name: /Chords.*major vs minor/i,
       }),
     )
     .toBeVisible();
@@ -130,7 +148,7 @@ describe("?unlock=all", () => {
     await expect
       .element(
         guidedPath().getByRole("link", {
-          name: /Scale degrees.*major scale degrees/i,
+          name: /Scale degrees.*major key.*4th, 5th, octave/i,
         }),
       )
       .toBeVisible();

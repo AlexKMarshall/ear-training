@@ -233,10 +233,10 @@ describe("planNextExerciseTag", () => {
     )).toBe(true);
   });
 
-  it("draws scale degrees from the degree-3a pool", () => {
+  it("draws scale degrees from the degree-major-intro pool", () => {
     const step = {
       practiceModeId: "scale-degree-sing" as const,
-      contentTierId: "degree-3a" as const,
+      contentTierId: "degree-major-intro" as const,
     };
     const counts = new Set<string>();
     for (let i = 0; i < 30; i++) {

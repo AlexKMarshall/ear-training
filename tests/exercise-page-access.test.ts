@@ -24,7 +24,13 @@ describe("resolveAccessCurriculumLesson", () => {
       resolveAccessCurriculumLesson("interval-melodic-sing", passingLevel2History(), null),
     ).toEqual({
       practiceModeId: "interval-melodic-sing",
-      contentTierId: "interval-2b",
+      contentTierId: "interval-2a",
+    });
+    expect(
+      resolveAccessCurriculumLesson("scale-degree-sing", passingLevel2History(), null),
+    ).toEqual({
+      practiceModeId: "scale-degree-sing",
+      contentTierId: "degree-major-intro",
     });
   });
 
@@ -42,15 +48,15 @@ describe("getPredecessorCurriculumLesson", () => {
   it("returns the previous curriculum step for step-level lock CTAs", () => {
     const step = {
       practiceModeId: "scale-degree-sing" as const,
-      contentTierId: "degree-3a" as const,
+      contentTierId: "degree-major-intro" as const,
     };
     const predecessor = getPredecessorCurriculumLesson(step);
     expect(predecessor).toEqual({
       practiceModeId: "interval-harmonic-id",
-      contentTierId: "interval-2b",
+      contentTierId: "interval-2a",
     });
     expect(formatLessonLinkUrl(getPracticeMode(predecessor!.practiceModeId).route, predecessor!)).toBe(
-      "/interval-harmonic-id/?step=interval-harmonic-id%3Ainterval-2b",
+      "/interval-harmonic-id/?step=interval-harmonic-id%3Ainterval-2a",
     );
   });
 });

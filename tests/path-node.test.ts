@@ -25,6 +25,18 @@ describe("getPathNodeLabels", () => {
       subtitle: "Melodic reproduction · perfect 4th, 5th, octave",
     });
   });
+
+  it("uses family title and key-quality subtitle for intro scale degrees", () => {
+    expect(
+      getPathNodeLabels({
+        practiceModeId: "scale-degree-sing",
+        contentTierId: "degree-major-intro",
+      }),
+    ).toEqual({
+      title: "Scale degrees",
+      subtitle: "Melodic reproduction · major key · 4th, 5th, octave",
+    });
+  });
 });
 
 describe("getPathNodeState", () => {

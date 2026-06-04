@@ -13,6 +13,7 @@ export function ExerciseNav() {
 export function ExerciseHeader(props: {
   title: string;
   subtitle: string;
+  lessonBanner?: string;
   lessonProgressHidden: boolean;
   lessonProgressText: string;
 }) {
@@ -20,6 +21,9 @@ export function ExerciseHeader(props: {
     <header class="header">
       <h1>{props.title}</h1>
       <p class="subtitle">{props.subtitle}</p>
+      {props.lessonBanner ? (
+        <p class="lesson-banner">{props.lessonBanner}</p>
+      ) : null}
       <p
         class="round-progress"
         hidden={props.lessonProgressHidden}

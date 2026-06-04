@@ -3,7 +3,7 @@ import { INTERVAL_2A_IDS } from "../src/interval-config.ts";
 import { DIATONIC_MAJOR_INTERVAL_IDS } from "../src/interval-config.ts";
 import { prepareIntervalExercise } from "../src/ui/interval-session.ts";
 import type { SessionPlanner } from "../src/session/planner.ts";
-import { passingLevel2History } from "./fixtures/attempts.ts";
+import { passingIntroScaleDegreeHistory, passingLevel2History } from "./fixtures/attempts.ts";
 
 const fixedPlanner: SessionPlanner = {
   planNextExerciseTag: () => "perfect-fifth",
@@ -14,7 +14,7 @@ describe("prepareIntervalExercise session step", () => {
     const exercise = prepareIntervalExercise(
       "interval-melodic-sing",
       "melodic",
-      passingLevel2History(),
+      passingIntroScaleDegreeHistory(),
       fixedPlanner,
     );
     expect(exercise.contentTierId).toBe("interval-2b");

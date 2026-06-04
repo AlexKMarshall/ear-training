@@ -21,11 +21,11 @@ describe("curriculum steps", () => {
       "interval-melodic-id@interval-2a",
       "interval-harmonic-sing@interval-2a",
       "interval-harmonic-id@interval-2a",
+      "scale-degree-sing@degree-major-intro",
       "interval-melodic-sing@interval-2b",
       "interval-melodic-id@interval-2b",
       "interval-harmonic-sing@interval-2b",
       "interval-harmonic-id@interval-2b",
-      "scale-degree-sing@degree-3a",
       "chord-middle@chord-1a",
     ]);
   });
@@ -50,7 +50,7 @@ describe("curriculum steps", () => {
     expect(getEligibleTagIds(harmonicSing2b)).toHaveLength(12);
   });
 
-  it("orders interval 2a in cross-mode sequence before the 2b block", () => {
+  it("orders interval 2a in cross-mode sequence before intro scale degrees", () => {
     const melodicSing2a = getCurriculumLessonIndex({
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2a",
@@ -67,6 +67,10 @@ describe("curriculum steps", () => {
       practiceModeId: "interval-harmonic-id",
       contentTierId: "interval-2a",
     });
+    const introDegrees = getCurriculumLessonIndex({
+      practiceModeId: "scale-degree-sing",
+      contentTierId: "degree-major-intro",
+    });
     const melodicSing2b = getCurriculumLessonIndex({
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2b",
@@ -75,17 +79,19 @@ describe("curriculum steps", () => {
     expect(melodicId2a).toBe(2);
     expect(harmonicSing2a).toBe(3);
     expect(harmonicId2a).toBe(4);
-    expect(melodicSing2b).toBe(5);
+    expect(introDegrees).toBe(5);
+    expect(melodicSing2b).toBe(6);
     expect(melodicId2a).toBeGreaterThan(melodicSing2a);
     expect(harmonicSing2a).toBeGreaterThan(melodicId2a);
     expect(harmonicId2a).toBeGreaterThan(harmonicSing2a);
-    expect(melodicSing2b).toBeGreaterThan(harmonicId2a);
+    expect(introDegrees).toBeGreaterThan(harmonicId2a);
+    expect(melodicSing2b).toBeGreaterThan(introDegrees);
   });
 
-  it("orders 2b steps in cross-mode sequence after all four modes at 2a", () => {
-    const harmonicId2a = getCurriculumLessonIndex({
-      practiceModeId: "interval-harmonic-id",
-      contentTierId: "interval-2a",
+  it("orders 2b steps in cross-mode sequence after intro scale degrees", () => {
+    const introDegrees = getCurriculumLessonIndex({
+      practiceModeId: "scale-degree-sing",
+      contentTierId: "degree-major-intro",
     });
     const melodicSing2b = getCurriculumLessonIndex({
       practiceModeId: "interval-melodic-sing",
@@ -103,25 +109,20 @@ describe("curriculum steps", () => {
       practiceModeId: "interval-harmonic-id",
       contentTierId: "interval-2b",
     });
-    const scaleDegree = getCurriculumLessonIndex({
-      practiceModeId: "scale-degree-sing",
-      contentTierId: "degree-3a",
-    });
     const chordMiddle = getCurriculumLessonIndex({
       practiceModeId: "chord-middle",
       contentTierId: "chord-1a",
     });
-    expect(harmonicId2a).toBe(4);
-    expect(melodicSing2b).toBe(5);
-    expect(melodicId2b).toBe(6);
-    expect(harmonicSing2b).toBe(7);
-    expect(harmonicId2b).toBe(8);
-    expect(scaleDegree).toBe(9);
+    expect(introDegrees).toBe(5);
+    expect(melodicSing2b).toBe(6);
+    expect(melodicId2b).toBe(7);
+    expect(harmonicSing2b).toBe(8);
+    expect(harmonicId2b).toBe(9);
     expect(chordMiddle).toBe(10);
-    expect(melodicSing2b).toBeGreaterThan(harmonicId2a);
+    expect(melodicSing2b).toBeGreaterThan(introDegrees);
     expect(harmonicSing2b).toBeGreaterThan(melodicId2b);
     expect(harmonicId2b).toBeGreaterThan(harmonicSing2b);
-    expect(chordMiddle).toBeGreaterThan(scaleDegree);
+    expect(chordMiddle).toBeGreaterThan(harmonicId2b);
   });
 
   it("returns ordered steps per exercise for tier progression", () => {
@@ -134,15 +135,15 @@ describe("curriculum steps", () => {
       "interval-2b",
     ]);
     expect(curriculumLessonsForPracticeMode("scale-degree-sing").map((s) => s.contentTierId)).toEqual([
-      "degree-3a",
+      "degree-major-intro",
     ]);
     expect(curriculumLessonsForPracticeMode("chord-middle").map((s) => s.contentTierId)).toEqual([
       "chord-1a",
     ]);
   });
 
-  it("presets degree-3a tags from enabled scale degrees", () => {
-    const step = CURRICULUM_LESSONS.find((s) => s.contentTierId === "degree-3a")!;
+  it("presets degree-major-intro tags from enabled scale degrees", () => {
+    const step = CURRICULUM_LESSONS.find((s) => s.contentTierId === "degree-major-intro")!;
     expect(getEligibleTagIds(step)).toEqual(["fourth", "fifth", "octave"]);
   });
 

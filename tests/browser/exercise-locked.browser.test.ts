@@ -61,7 +61,7 @@ test("locked deep link shows predecessor step label and lesson link CTA", async 
 
   await expect.element(page.getByRole("heading", { name: "Locked" })).toBeVisible();
   const cta = page.getByRole("link", {
-    name: /Go to Identify harmonic intervals \(perfect 4th, 5th, octave\)/i,
+    name: /Go to Sing scale degrees \(major key · 4th, 5th, octave\)/i,
   });
   await expect.element(cta).toBeVisible();
   await expect.element(cta).toHaveAttribute("href", expectedHref);
@@ -71,7 +71,7 @@ test("locked deep link shows predecessor step label and lesson link CTA", async 
 test("locked scale-degree default step uses predecessor lesson link", async () => {
   const lockedStep = {
     practiceModeId: "scale-degree-sing" as const,
-    contentTierId: "degree-3a" as const,
+    contentTierId: "degree-major-intro" as const,
   };
   const predecessor = getPredecessorCurriculumLesson(lockedStep)!;
   const expectedHref = formatLessonLinkUrl(
@@ -82,7 +82,7 @@ test("locked scale-degree default step uses predecessor lesson link", async () =
   await mountPracticeModePageWithHistory("scale-degree-sing", []);
   await expect.element(page.getByRole("heading", { name: "Locked" })).toBeVisible();
   const cta = page.getByRole("link", {
-    name: /Go to Identify harmonic intervals \(diatonic intervals within one octave\)/i,
+    name: /Go to Identify harmonic intervals \(perfect 4th, 5th, octave\)/i,
   });
   await expect.element(cta).toHaveAttribute("href", expectedHref);
 });
@@ -117,7 +117,7 @@ describe("?unlock=all", () => {
     setCurriculumLessonSearch(
       {
         practiceModeId: "scale-degree-sing",
-        contentTierId: "degree-3a",
+        contentTierId: "degree-major-intro",
       },
       { unlockAll: true },
     );

@@ -43,7 +43,7 @@ const TIER_POOL_LABEL: Record<
   "tier-1": "sing back one note",
   "interval-2a": "perfect 4th, 5th, octave",
   "interval-2b": "diatonic intervals within one octave",
-  "degree-3a": "major scale degrees",
+  "degree-major-intro": "major key · 4th, 5th, octave",
   "chord-1a": "major vs minor · root position",
 };
 
