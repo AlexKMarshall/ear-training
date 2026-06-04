@@ -2,13 +2,14 @@ import { describe, expect, it } from "vitest";
 import {
   DIATONIC_MAJOR_INTERVAL_IDS,
   getIntervalById,
+  INTERVAL_2A_IDS,
 } from "../src/interval-config.ts";
-import { resetIntervalPreference } from "../src/interval-preference.ts";
 import {
   buildIntervalChoices,
   buildIntervalQuestion,
   intervalToSingTestQuestion,
   randomIntervalQuestion,
+  randomIntervalQuestionForTag,
   validLowerMidis,
 } from "../src/interval-questions.ts";
 
@@ -56,6 +57,17 @@ describe("buildIntervalQuestion", () => {
   );
 });
 
+describe("randomIntervalQuestionForTag", () => {
+  it("generates from an explicit tag id", () => {
+    const question = randomIntervalQuestionForTag(
+      "perfect-fourth",
+      "melodic",
+      { lowMidi: 48, highMidi: 72 },
+    );
+    expect(question.intervalId).toBe("perfect-fourth");
+  });
+});
+
 describe("randomIntervalQuestion", () => {
   it("generates a question for each diatonic id in a tenor range", () => {
     const range = { lowMidi: 48, highMidi: 72 };
@@ -79,11 +91,22 @@ describe("randomIntervalQuestion", () => {
 
 describe("buildIntervalChoices", () => {
   it("includes the correct interval and excludes duplicates", () => {
-    resetIntervalPreference();
-    const choices = buildIntervalChoices("perfect-fifth");
+    const choices = buildIntervalChoices("perfect-fifth", INTERVAL_2A_IDS);
     const ids = choices.map((c) => c.id);
     expect(ids).toContain("perfect-fifth");
     expect(new Set(ids).size).toBe(ids.length);
     expect(choices.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("draws distractors only from the eligible pool", () => {
+    const choices = buildIntervalChoices("minor-second", [
+      "minor-second",
+      "major-second",
+      "minor-third",
+    ]);
+    const ids = choices.map((c) => c.id);
+    for (const id of ids) {
+      expect(["minor-second", "major-second", "minor-third"]).toContain(id);
+    }
   });
 });

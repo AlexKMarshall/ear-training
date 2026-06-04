@@ -1,6 +1,5 @@
 import { getActiveInversions } from "../chord-inversion-preference.ts";
 import { getSelectedChordTypeIds } from "../chord-type-preference.ts";
-import { getSelectedIntervalIds } from "../interval-preference.ts";
 import { getSelectedScaleDegreeIds } from "../scale-degree-preference.ts";
 import type { SingTestQuestion } from "../sing-test-question.ts";
 import { getVoiceType } from "../voice-ranges.ts";
@@ -52,9 +51,9 @@ export function buildAttemptRecord(
     intervalSemitones: question.interval?.semitones,
     presentation: question.interval?.presentation,
     referenceMidi: question.interval?.lower.midi,
-    activeIntervalIds: context.showIntervalFilters
-      ? getSelectedIntervalIds()
-      : undefined,
+    activeIntervalIds: undefined,
+    contentTierId: question.contentTierId,
+    eligibleTagIds: question.eligibleTagIds,
     selectedIntervalId,
     degreeId: question.degreeId,
     tonicMidi: question.scaleDegree?.tonic.midi,

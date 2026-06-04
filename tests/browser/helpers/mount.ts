@@ -11,7 +11,7 @@ import {
   buildIntervalQuestion,
   intervalToSingTestQuestion,
 } from "../../../src/interval-questions.ts";
-import { resetIntervalPreference } from "../../../src/interval-preference.ts";
+import { INTERVAL_2A_IDS } from "../../../src/interval-config.ts";
 import { getScaleDegreeById } from "../../../src/scale-degree-config.ts";
 import {
   buildScaleDegreeQuestion,
@@ -126,7 +126,6 @@ function resetPreferencesFor(exerciseId: ExerciseId): void {
     case "interval-harmonic-sing":
     case "interval-melodic-id":
     case "interval-harmonic-id":
-      resetIntervalPreference();
       break;
     case "scale-degree-sing":
       resetScaleDegreePreference();
@@ -163,20 +162,26 @@ function createSingTestConfigFor(
     case "interval-melodic-sing":
       return {
         ...intervalMelodicSingConfig,
-        prepareQuestion: () =>
-          intervalToSingTestQuestion(
+        prepareQuestion: () => ({
+          ...intervalToSingTestQuestion(
             buildIntervalQuestion(perfectFifth, "melodic", 60),
           ),
+          contentTierId: "interval-2a",
+          eligibleTagIds: INTERVAL_2A_IDS,
+        }),
         playReference: async () => {},
         ...overrides,
       };
     case "interval-harmonic-sing":
       return {
         ...intervalHarmonicSingConfig,
-        prepareQuestion: () =>
-          intervalToSingTestQuestion(
+        prepareQuestion: () => ({
+          ...intervalToSingTestQuestion(
             buildIntervalQuestion(perfectFifth, "harmonic", 60),
           ),
+          contentTierId: "interval-2a",
+          eligibleTagIds: INTERVAL_2A_IDS,
+        }),
         playReference: async () => {},
         ...overrides,
       };
@@ -203,16 +208,17 @@ function createIdentifyTestConfigFor(
     exerciseId === "interval-harmonic-id"
       ? intervalHarmonicIdConfig
       : intervalMelodicIdConfig;
+  const presentation =
+    exerciseId === "interval-harmonic-id" ? "harmonic" : "melodic";
   return {
     ...base,
-    prepareQuestion: () =>
-      intervalToSingTestQuestion(
-        buildIntervalQuestion(
-          perfectFifth,
-          exerciseId === "interval-harmonic-id" ? "harmonic" : "melodic",
-          60,
-        ),
+    prepareQuestion: () => ({
+      ...intervalToSingTestQuestion(
+        buildIntervalQuestion(perfectFifth, presentation, 60),
       ),
+      contentTierId: "interval-2a",
+      eligibleTagIds: INTERVAL_2A_IDS,
+    }),
     playReference: async () => {},
     ...overrides,
   };
@@ -260,14 +266,15 @@ export function mountExerciseInBrowser(
     options.deps?.history ?? createMemoryHistoryPort();
   const root = createAppRoot();
   const audio = options.deps?.audio ?? createTestAudioPort();
+  const configOverrides = options.config as
+    | Partial<SingTestConfig>
+    | Partial<IdentifyTestConfig>
+    | undefined;
 
   if (responseMode === "select") {
     mountIdentifyTest(
       root,
-      createIdentifyTestConfigFor(
-        exerciseId,
-        options.config as Partial<IdentifyTestConfig> | undefined,
-      ),
+      createIdentifyTestConfigFor(exerciseId, configOverrides),
       { history, audio },
     );
     return { history };
@@ -277,10 +284,7 @@ export function mountExerciseInBrowser(
     options.samplesHz ?? defaultPassSamplesHzFor(exerciseId);
   mountSingTest(
     root,
-    createSingTestConfigFor(
-      exerciseId,
-      options.config as Partial<SingTestConfig> | undefined,
-    ),
+    createSingTestConfigFor(exerciseId, configOverrides),
     {
       history,
       audio,

@@ -1,18 +1,19 @@
 import { page, userEvent } from "vitest/browser";
 import { beforeEach, expect, test } from "vitest";
-import { INTERVALS } from "../../src/interval-config.ts";
+import { getEligibleTagIds } from "../../src/curriculum/steps.ts";
+import { getIntervalById } from "../../src/interval-config.ts";
 import {
-  resetIntervalPreference,
-  setIntervalSelected,
-} from "../../src/interval-preference.ts";
-import { intervalMelodicIdConfig } from "../../src/ui/interval-tests.ts";
+  intervalToSingTestQuestion,
+  randomIntervalQuestionForTag,
+} from "../../src/interval-questions.ts";
+import { getActiveNoteRange } from "../../src/voice-ranges.ts";
 import {
   createMelodicIdTestConfig,
   mountMelodicIntervalIdTest,
 } from "./helpers/mount.ts";
 
 beforeEach(() => {
-  resetIntervalPreference();
+  document.body.innerHTML = "";
 });
 
 test("play, correct choice, and saveAttempt via HistoryPort", async () => {
@@ -42,6 +43,8 @@ test("play, correct choice, and saveAttempt via HistoryPort", async () => {
     passed: true,
     intervalId: "perfect-fifth",
     selectedIntervalId: "perfect-fifth",
+    contentTierId: "interval-2a",
+    eligibleTagIds: ["perfect-fourth", "perfect-fifth", "perfect-octave"],
     centsOff: 0,
     attemptNumber: 1,
     questionIndex: 0,
@@ -63,42 +66,47 @@ test("shows round progress and advances to question 2", async () => {
   await expect.element(page.getByText(/question 2 of 10/i)).toBeVisible();
 });
 
-test("interval picker: no intervals selected blocks play", async () => {
-  resetIntervalPreference();
-  for (const entry of INTERVALS) {
-    setIntervalSelected(entry.id, false);
-  }
-
-  mountMelodicIntervalIdTest({
-    config: intervalMelodicIdConfig,
-    resetPreferences: false,
-  });
+test("does not render interval picker", async () => {
+  mountMelodicIntervalIdTest();
 
   await expect
-    .element(page.getByText(/Select at least one interval to begin/i))
-    .toBeVisible();
-
-  const playBtn = page.getByRole("button", { name: /Play interval/i });
-  await expect.element(playBtn).toBeDisabled();
+    .element(page.getByRole("group", { name: /Intervals/i }))
+    .not.toBeInTheDocument();
 });
 
-test("interval picker: two intervals enables play", async () => {
-  resetIntervalPreference();
-  for (const entry of INTERVALS) {
-    setIntervalSelected(entry.id, false);
-  }
-  setIntervalSelected("perfect-fourth", true);
-  setIntervalSelected("perfect-fifth", true);
-
+test("eligible tier pool drives multiple choice without interval picker", async () => {
+  const step = {
+    exerciseId: "interval-melodic-id" as const,
+    contentTierId: "interval-2b" as const,
+  };
+  const eligibleTagIds = getEligibleTagIds(step);
   mountMelodicIntervalIdTest({
-    config: createMelodicIdTestConfig(),
-    resetPreferences: false,
+    config: createMelodicIdTestConfig({
+      showIntervalPicker: false,
+      prepareQuestion: () => {
+        const intervalQuestion = randomIntervalQuestionForTag(
+          "minor-sixth",
+          "melodic",
+          getActiveNoteRange(),
+        );
+        return {
+          ...intervalToSingTestQuestion(intervalQuestion),
+          contentTierId: step.contentTierId,
+          eligibleTagIds,
+        };
+      },
+    }),
   });
 
-  await expect
-    .element(page.getByText(/Press Play to hear the interval/i))
-    .toBeVisible();
+  await userEvent.click(page.getByRole("button", { name: /Play interval/i }));
 
-  const playBtn = page.getByRole("button", { name: /Play interval/i });
-  await expect.element(playBtn).toBeEnabled();
+  const label = getIntervalById("minor-sixth")!.label;
+  await expect
+    .element(page.getByRole("button", { name: label }))
+    .toBeVisible();
+  await userEvent.click(page.getByRole("button", { name: label }));
+
+  await expect
+    .element(page.getByText("Correct", { exact: true }))
+    .toBeVisible();
 });

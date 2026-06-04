@@ -1,8 +1,8 @@
-import { getIntervalById, type IntervalEntry } from "./interval-config.ts";
 import {
-  getActiveIntervals,
-  pickRandomInterval,
-} from "./interval-preference.ts";
+  getIntervalById,
+  getIntervalsByIds,
+  type IntervalEntry,
+} from "./interval-config.ts";
 import {
   midiToHz,
   midiToNoteName,
@@ -57,10 +57,22 @@ export function buildIntervalQuestion(
   };
 }
 
+export function randomIntervalQuestionForTag(
+  intervalId: string,
+  presentation: IntervalPresentation,
+  range: NoteRange,
+): IntervalQuestion {
+  const interval = getIntervalById(intervalId);
+  if (!interval) {
+    throw new Error(`Unknown interval id: ${intervalId}`);
+  }
+  return randomIntervalQuestion(presentation, range, interval);
+}
+
 export function randomIntervalQuestion(
   presentation: IntervalPresentation,
   range: NoteRange,
-  interval: IntervalEntry = pickRandomInterval(),
+  interval: IntervalEntry,
 ): IntervalQuestion {
   const lowers = validLowerMidis(range, interval.semitones);
   if (lowers.length === 0) {
@@ -82,15 +94,6 @@ export function intervalToSingTestQuestion(
   };
 }
 
-export function randomIntervalSingQuestion(
-  presentation: IntervalPresentation,
-  range: NoteRange,
-): SingTestQuestion {
-  return intervalToSingTestQuestion(
-    randomIntervalQuestion(presentation, range),
-  );
-}
-
 export interface IntervalChoice {
   id: string;
   label: string;
@@ -106,14 +109,18 @@ function shuffle<T>(items: T[]): T[] {
 }
 
 /** Multiple-choice options for interval recognition (correct + distractors). */
-export function buildIntervalChoices(correctId: string): IntervalChoice[] {
-  const active = getActiveIntervals();
-  const correct = getIntervalById(correctId);
+export function buildIntervalChoices(
+  correctId: string,
+  eligibleIds: readonly string[],
+): IntervalChoice[] {
+  const pool = getIntervalsByIds(eligibleIds);
+  const correct =
+    pool.find((entry) => entry.id === correctId) ?? getIntervalById(correctId);
   if (!correct) {
     throw new Error(`Unknown interval id: ${correctId}`);
   }
 
-  const others = active.filter((entry) => entry.id !== correctId);
+  const others = pool.filter((entry) => entry.id !== correctId);
   const distractorCount = Math.min(3, others.length);
   const distractors = shuffle(others).slice(0, distractorCount);
   let options: IntervalChoice[] = [
@@ -121,8 +128,8 @@ export function buildIntervalChoices(correctId: string): IntervalChoice[] {
     ...distractors.map((entry) => ({ id: entry.id, label: entry.label })),
   ];
 
-  if (options.length < 4 && active.length > options.length) {
-    options = active.map((entry) => ({ id: entry.id, label: entry.label }));
+  if (options.length < 4 && pool.length > options.length) {
+    options = pool.map((entry) => ({ id: entry.id, label: entry.label }));
   }
 
   return shuffle(options);
