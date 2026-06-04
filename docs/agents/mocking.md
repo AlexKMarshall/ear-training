@@ -28,7 +28,7 @@ If effective tests would require mocking a global, vendor, or private module imp
 
 **T1 example:** `IdentifyMountDeps` on `mountIdentifyTest` — `history` from `createMemoryHistoryPort()`, `audio` from `createTestAudioPort()`; override `prepareExercise` / `playReference` in test config (noop playback, fixed interval question). **Not** `vi.mock` on `smplr` or `context.ts`.
 
-**T2 example:** `SingMountDeps` on `mountSingTest` — `history` from `createMemoryHistoryPort()`, `audio` from `createTestAudioPort()`, `recording` from `createTestRecordingPort({ samplesHz })` (delivers samples on session `stop()` / **Done**); fixed `prepareExercise` + noop `playReference` in test config. Real `scoreFromSamples`; **not** mocked `getUserMedia` or `pitchy` / `smplr`.
+**T2 example:** `SingMountDeps` on `mountSingTest` — `history` from `createMemoryHistoryPort()`, `audio` from `createTestAudioPort()`, `recording` from `createTestRecordingPort({ samplesHz })` (delivers samples on session `stop()` / **Done**); optional `exercisesPerLesson` for shortened lesson browser tests; fixed `prepareExercise` + noop `playReference` in test config. Real `scoreFromSamples`; **not** mocked `getUserMedia` or `pitchy` / `smplr`.
 
 ## Node vs browser
 
@@ -40,4 +40,4 @@ If effective tests would require mocking a global, vendor, or private module imp
 ## Related
 
 - [`testing.md`](testing.md) — hub and commands
-- [`docs/testing-roadmap.md`](../testing-roadmap.md) — open coverage debt (ports baseline is done)
+- [`testing.md`](testing.md) — ports, registry smokes, shortened-lesson mount deps

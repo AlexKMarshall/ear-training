@@ -26,7 +26,6 @@ Keep the table accurate. Update status only after the user confirms a PR is **me
 1. **Implementation PR(s)** — Code, config, tests, or agent docs that enable later steps. Order dependencies explicitly (e.g. process guide before CI workflow). **Tests for new behavior ship in the same PR as that behavior** — not as forward entries in the testing debt doc.
 2. **Roadmap sync (required)** — Before the plan is complete, sync docs to `main`:
    - [`docs/roadmap.md`](../roadmap.md) — product / current-state table, gap matrix, build order
-   - [`docs/testing-roadmap.md`](../testing-roadmap.md) — **only if** the plan changed testing debt (closed gaps, new gaps on shipped behavior)
    - [`docs/tech-debt.md`](../tech-debt.md) — **only if** the plan changed tech debt (closed items, newly discovered boundary/tooling debt on `main`)
    - Any additional `*roadmap*` files named in the plan
 
@@ -73,7 +72,6 @@ After the **last** PR in the plan is merged:
 | Check | Action |
 |-------|--------|
 | **Product roadmap** | [`docs/roadmap.md`](../roadmap.md) matches shipped product on `main`. |
-| **Testing debt** | [`docs/testing-roadmap.md`](../testing-roadmap.md) updated if the plan closed or added debt rows; omit if test coverage unchanged. |
 | **Tech debt** | [`docs/tech-debt.md`](../tech-debt.md) updated if the plan closed or added TD rows; omit if architecture/tooling unchanged. |
 | **Obsolete** | Remove wording that is no longer true (e.g. “no browser tests”). |
 | **Plan table** | Mark all PR rows `merged`; archive or close the plan if appropriate. |
@@ -82,6 +80,6 @@ After the **last** PR in the plan is merged:
 
 - Single PRs: [`pull-requests.md`](pull-requests.md)
 - Product roadmap: [`docs/roadmap.md`](../roadmap.md)
-- Testing debt: [`docs/testing-roadmap.md`](../testing-roadmap.md)
+- Testing: [`testing.md`](testing.md)
 - Tech debt: [`docs/tech-debt.md`](../tech-debt.md)
 - Agent entry point: [`AGENTS.md`](../../AGENTS.md)
