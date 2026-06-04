@@ -1,37 +1,37 @@
-import type { CurriculumStep } from "./steps.ts";
-import { stepsForExercise } from "./steps.ts";
+import type { CurriculumLesson } from "./curriculum-lessons.ts";
+import { curriculumLessonsForPracticeMode } from "./curriculum-lessons.ts";
 import {
-  getHighestUnlockedStepForExercise,
-  isStepUnlocked,
-  meetsStepThreshold,
+  getHighestUnlockedCurriculumLessonForPracticeMode,
+  isCurriculumLessonUnlocked,
+  meetsCurriculumLessonThreshold,
 } from "./unlock.ts";
-import type { AttemptRecord, ExerciseId } from "../history/types.ts";
+import type { AttemptRecord, PracticeModeId } from "../history/types.ts";
 
-export const CHORD_MIDDLE_STEP: CurriculumStep = {
-  exerciseId: "chord-middle",
+export const CHORD_MIDDLE_CURRICULUM_LESSON: CurriculumLesson = {
+  practiceModeId: "chord-middle",
   contentTierId: "chord-1a",
 };
 
-const INTERVAL_EXERCISE_IDS = [
+const INTERVAL_PRACTICE_MODE_IDS = [
   "interval-melodic-sing",
   "interval-harmonic-sing",
   "interval-melodic-id",
   "interval-harmonic-id",
-] as const satisfies readonly ExerciseId[];
+] as const satisfies readonly PracticeModeId[];
 
-function isIntervalExercise(
-  exerciseId: ExerciseId,
-): exerciseId is (typeof INTERVAL_EXERCISE_IDS)[number] {
-  return (INTERVAL_EXERCISE_IDS as readonly ExerciseId[]).includes(exerciseId);
+function isIntervalPracticeMode(
+  practiceModeId: PracticeModeId,
+): practiceModeId is (typeof INTERVAL_PRACTICE_MODE_IDS)[number] {
+  return (INTERVAL_PRACTICE_MODE_IDS as readonly PracticeModeId[]).includes(practiceModeId);
 }
 
-function assertSessionExercise(exerciseId: ExerciseId): void {
+function assertSessionPracticeMode(practiceModeId: PracticeModeId): void {
   if (
-    !isIntervalExercise(exerciseId) &&
-    exerciseId !== "scale-degree-sing" &&
-    exerciseId !== "chord-middle"
+    !isIntervalPracticeMode(practiceModeId) &&
+    practiceModeId !== "scale-degree-sing" &&
+    practiceModeId !== "chord-middle"
   ) {
-    throw new Error(`No session step for exercise: ${exerciseId}`);
+    throw new Error(`No session curriculum lesson for practice mode: ${practiceModeId}`);
   }
 }
 
@@ -39,86 +39,86 @@ function assertSessionExercise(exerciseId: ExerciseId): void {
  * Guided-path default for an exercise: first unlocked step on that exercise that
  * still needs practice, or the highest unlocked tier when every step is complete.
  */
-export function getGuidedStepForExercise(
-  exerciseId: ExerciseId,
+export function getGuidedCurriculumLessonForPracticeMode(
+  practiceModeId: PracticeModeId,
   records: readonly AttemptRecord[],
-): CurriculumStep {
-  assertSessionExercise(exerciseId);
+): CurriculumLesson {
+  assertSessionPracticeMode(practiceModeId);
 
-  for (const step of stepsForExercise(exerciseId)) {
-    if (isStepUnlocked(step, records) && !meetsStepThreshold(step, records)) {
+  for (const step of curriculumLessonsForPracticeMode(practiceModeId)) {
+    if (isCurriculumLessonUnlocked(step, records) && !meetsCurriculumLessonThreshold(step, records)) {
       return step;
     }
   }
 
-  const highest = getHighestUnlockedStepForExercise(exerciseId, records);
+  const highest = getHighestUnlockedCurriculumLessonForPracticeMode(practiceModeId, records);
   if (!highest) {
-    throw new Error(`No unlocked step for ${exerciseId}`);
+    throw new Error(`No unlocked curriculum lesson for ${practiceModeId}`);
   }
   return highest;
 }
 
-export interface ResolveSessionStepOptions {
+export interface ResolveSessionCurriculumLessonOptions {
   /** Step from the URL; when set and valid for the route, used for the session. */
-  urlStep?: CurriculumStep | null;
+  urlCurriculumLesson?: CurriculumLesson | null;
 }
 
 /**
  * Resolves the curriculum step for the current session. URL step wins for guided
  * replay; otherwise uses the guided-path default for that exercise.
  */
-export function resolveSessionStep(
-  exerciseId: ExerciseId,
+export function resolveSessionCurriculumLesson(
+  practiceModeId: PracticeModeId,
   records: readonly AttemptRecord[],
-  options: ResolveSessionStepOptions = {},
-): CurriculumStep {
-  assertSessionExercise(exerciseId);
+  options: ResolveSessionCurriculumLessonOptions = {},
+): CurriculumLesson {
+  assertSessionPracticeMode(practiceModeId);
 
-  const { urlStep } = options;
-  if (urlStep && urlStep.exerciseId === exerciseId) {
-    return urlStep;
+  const { urlCurriculumLesson } = options;
+  if (urlCurriculumLesson && urlCurriculumLesson.practiceModeId === practiceModeId) {
+    return urlCurriculumLesson;
   }
 
-  return getGuidedStepForExercise(exerciseId, records);
+  return getGuidedCurriculumLessonForPracticeMode(practiceModeId, records);
 }
 
 /**
  * Step the learner is trying to open: explicit URL step, or guided default for the
- * exercise route when the param is omitted.
+ * practice mode route when the param is omitted.
  */
-export function resolveAccessStep(
-  exerciseId: ExerciseId,
+export function resolveAccessCurriculumLesson(
+  practiceModeId: PracticeModeId,
   records: readonly AttemptRecord[],
-  urlStep: CurriculumStep | null,
-): CurriculumStep {
-  if (urlStep) {
-    return urlStep;
+  urlCurriculumLesson: CurriculumLesson | null,
+): CurriculumLesson {
+  if (urlCurriculumLesson) {
+    return urlCurriculumLesson;
   }
 
-  const steps = stepsForExercise(exerciseId);
+  const steps = curriculumLessonsForPracticeMode(practiceModeId);
   if (steps.length === 0) {
-    throw new Error(`No curriculum steps for exercise: ${exerciseId}`);
+    throw new Error(`No curriculum lessons for practice mode: ${practiceModeId}`);
   }
 
-  if (exerciseId === "single-note") {
+  if (practiceModeId === "single-note") {
     return steps[0]!;
   }
 
   try {
-    return getGuidedStepForExercise(exerciseId, records);
+    return getGuidedCurriculumLessonForPracticeMode(practiceModeId, records);
   } catch {
     return steps[0]!;
   }
 }
 
 /**
- * @deprecated Prefer {@link resolveSessionStep} with explicit `urlStep`.
+ * @deprecated Prefer {@link resolveSessionCurriculumLesson} with explicit `urlCurriculumLesson`.
  * Resolves using guided-path default only (highest-tier behavior superseded).
  */
-export function getSessionStepForExercise(
-  exerciseId: ExerciseId,
+export function getSessionCurriculumLessonForPracticeMode(
+  practiceModeId: PracticeModeId,
   records: readonly AttemptRecord[],
-  options: ResolveSessionStepOptions = {},
-): CurriculumStep {
-  return resolveSessionStep(exerciseId, records, options);
+  options: ResolveSessionCurriculumLessonOptions = {},
+): CurriculumLesson {
+  return resolveSessionCurriculumLesson(practiceModeId, records, options);
 }

@@ -1,5 +1,5 @@
 import type { MountDeps } from "../history/port.ts";
-import type { ExerciseId } from "../history/types.ts";
+import type { PracticeModeId } from "../history/types.ts";
 import {
   mountChordMiddleTest,
   mountSingleNoteTest,
@@ -14,8 +14,8 @@ import { mountScaleDegreeSingTest } from "../ui/scale-degree-tests.ts";
 
 export type ResponseMode = "sing" | "select";
 
-export interface ExerciseEntry {
-  id: ExerciseId;
+export interface PracticeModeEntry {
+  id: PracticeModeId;
   responseMode: ResponseMode;
   route: string;
   title: string;
@@ -23,7 +23,7 @@ export interface ExerciseEntry {
   mount: (root: HTMLElement, deps?: MountDeps) => void;
 }
 
-const EXERCISE_ENTRIES: readonly ExerciseEntry[] = [
+const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
   {
     id: "single-note",
     responseMode: "sing",
@@ -78,25 +78,25 @@ const EXERCISE_ENTRIES: readonly ExerciseEntry[] = [
     route: "/scale-degree-sing/",
     title: "Sing scale degrees",
     subtitle:
-      "One key per round — hear the tonic, then sing each requested scale degree",
+      "One key per lesson — hear the tonic, then sing each requested scale degree",
     mount: mountScaleDegreeSingTest,
   },
 ];
 
-export const EXERCISES: readonly ExerciseEntry[] = EXERCISE_ENTRIES;
+export const PRACTICE_MODES: readonly PracticeModeEntry[] = PRACTICE_MODE_ENTRIES;
 
-export function getExercise(id: ExerciseId): ExerciseEntry {
-  const entry = EXERCISES.find((e) => e.id === id);
+export function getPracticeMode(id: PracticeModeId): PracticeModeEntry {
+  const entry = PRACTICE_MODES.find((e) => e.id === id);
   if (!entry) {
-    throw new Error(`Unknown exercise: ${id}`);
+    throw new Error(`Unknown practice mode: ${id}`);
   }
   return entry;
 }
 
-export async function mountExercise(
+export async function mountPracticeMode(
   root: HTMLElement,
-  id: ExerciseId,
+  id: PracticeModeId,
   deps?: MountDeps,
 ): Promise<void> {
-  getExercise(id).mount(root, deps);
+  getPracticeMode(id).mount(root, deps);
 }

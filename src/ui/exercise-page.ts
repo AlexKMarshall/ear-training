@@ -1,38 +1,38 @@
 import {
-  formatExerciseUrl,
-  parseStepFromSearchParams,
-} from "../curriculum/step-link.ts";
-import { resolveAccessStep } from "../curriculum/session-step.ts";
-import type { CurriculumStep } from "../curriculum/steps.ts";
+  formatLessonLinkUrl,
+  parseCurriculumLessonFromSearchParams,
+} from "../curriculum/lesson-link.ts";
+import { resolveAccessCurriculumLesson } from "../curriculum/session-step.ts";
+import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
 import {
-  getPredecessorStep,
-  getUnlockRequirementForStep,
-  isStepAccessible,
+  getPredecessorCurriculumLesson,
+  getUnlockRequirementForCurriculumLesson,
+  isCurriculumLessonAccessible,
 } from "../curriculum/unlock.ts";
-import { getExercise, mountExercise } from "../exercises/registry.ts";
+import { getPracticeMode, mountPracticeMode } from "../practice-modes/registry.ts";
 import {
   createDefaultHistoryPort,
   type MountDeps,
 } from "../history/port.ts";
-import type { ExerciseId } from "../history/types.ts";
+import type { PracticeModeId } from "../history/types.ts";
 
 function getSearchString(deps: MountDeps): string {
   return deps.locationSearch ?? globalThis.location?.search ?? "";
 }
 
-function mountLockedStep(
+function mountLockedCurriculumLesson(
   root: HTMLElement,
-  step: CurriculumStep,
-  requirement: NonNullable<ReturnType<typeof getUnlockRequirementForStep>>,
+  step: CurriculumLesson,
+  requirement: NonNullable<ReturnType<typeof getUnlockRequirementForCurriculumLesson>>,
 ): void {
-  const entry = getExercise(step.exerciseId);
-  const predecessorStep = getPredecessorStep(step);
+  const entry = getPracticeMode(step.practiceModeId);
+  const predecessorStep = getPredecessorCurriculumLesson(step);
   if (!predecessorStep) {
-    throw new Error(`Locked step missing predecessor: ${step.exerciseId}`);
+    throw new Error(`Locked step missing predecessor: ${step.practiceModeId}`);
   }
-  const predecessorEntry = getExercise(predecessorStep.exerciseId);
+  const predecessorEntry = getPracticeMode(predecessorStep.practiceModeId);
   const predecessorName = requirement.predecessorLabel;
-  const predecessorHref = formatExerciseUrl(
+  const predecessorHref = formatLessonLinkUrl(
     predecessorEntry.route,
     predecessorStep,
   );
@@ -52,7 +52,7 @@ function mountLockedStep(
         <h2 id="exercise-locked-heading" class="exercise-locked-title">Locked</h2>
         <p class="exercise-locked-desc">
           Complete <strong>${predecessorName}</strong> first: answer at least
-          ${requirement.minQuestions} questions with
+          ${requirement.minExercisesForUnlock} questions with
           ${requirement.minPassRatePercent}% or higher question pass rate.
         </p>
         <a href="${predecessorHref}" class="test-card exercise-locked-cta">
@@ -64,28 +64,28 @@ function mountLockedStep(
   `;
 }
 
-export async function mountExercisePage(
+export async function mountPracticeModePage(
   root: HTMLElement,
-  exerciseId: ExerciseId,
+  practiceModeId: PracticeModeId,
   deps: MountDeps = {},
 ): Promise<void> {
   const history = deps.history ?? createDefaultHistoryPort();
   const records = await history.getAllAttempts();
   const search = getSearchString(deps);
-  const urlStep = parseStepFromSearchParams(search, exerciseId);
-  const accessStep = resolveAccessStep(exerciseId, records, urlStep);
+  const urlCurriculumLesson = parseCurriculumLessonFromSearchParams(search, practiceModeId);
+  const accessStep = resolveAccessCurriculumLesson(practiceModeId, records, urlCurriculumLesson);
 
-  if (!isStepAccessible(accessStep, records, search)) {
-    const requirement = getUnlockRequirementForStep(accessStep);
+  if (!isCurriculumLessonAccessible(accessStep, records, search)) {
+    const requirement = getUnlockRequirementForCurriculumLesson(accessStep);
     if (!requirement) {
-      throw new Error(`Locked step missing unlock requirement: ${exerciseId}`);
+      throw new Error(`Locked step missing unlock requirement: ${practiceModeId}`);
     }
-    mountLockedStep(root, accessStep, requirement);
+    mountLockedCurriculumLesson(root, accessStep, requirement);
     return;
   }
 
-  await mountExercise(root, exerciseId, {
+  await mountPracticeMode(root, practiceModeId, {
     ...deps,
-    sessionStep: accessStep,
+    sessionCurriculumLesson: accessStep,
   });
 }

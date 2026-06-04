@@ -1,9 +1,9 @@
-import { getExercise } from "../exercises/registry.ts";
+import { getPracticeMode } from "../practice-modes/registry.ts";
 import {
   createDefaultHistoryPort,
   type MountDeps,
 } from "../history/port.ts";
-import { computeDashboardStats, type ExerciseStats } from "../history/stats.ts";
+import { computeDashboardStats, type PracticeModeStats } from "../history/stats.ts";
 import {
   getTagBreakdownConfig,
   tagBreakdownHeading,
@@ -21,7 +21,7 @@ function renderTagRow(tag: TagStats, showMedian: boolean): string {
       <dl class="stats-grid stats-grid-compact">
         <div class="stats-item">
           <dt>Questions correct</dt>
-          <dd>${tag.questionPassRatePercent}%</dd>
+          <dd>${tag.lessonExercisePassRatePercent}%</dd>
         </div>
         <div class="stats-item">
           <dt>First try</dt>
@@ -42,8 +42,8 @@ function renderTagRow(tag: TagStats, showMedian: boolean): string {
   `;
 }
 
-function renderTagBreakdown(stats: ExerciseStats): string {
-  const config = getTagBreakdownConfig(stats.exerciseId);
+function renderTagBreakdown(stats: PracticeModeStats): string {
+  const config = getTagBreakdownConfig(stats.practiceModeId);
   if (!config || !stats.byTag?.length) return "";
 
   const showMedian = config.includeMedianCents;
@@ -58,7 +58,7 @@ function renderTagBreakdown(stats: ExerciseStats): string {
   `;
 }
 
-function renderExerciseSection(stats: ExerciseStats): string {
+function renderExerciseSection(stats: PracticeModeStats): string {
   if (stats.attemptCount === 0) {
     return `
       <section class="stats-section">
@@ -84,7 +84,7 @@ function renderExerciseSection(stats: ExerciseStats): string {
         </div>
         <div class="stats-item">
           <dt>Questions correct</dt>
-          <dd>${stats.questionPassRatePercent}%</dd>
+          <dd>${stats.lessonExercisePassRatePercent}%</dd>
         </div>
         <div class="stats-item">
           <dt>First try</dt>
@@ -115,7 +115,7 @@ export async function mountStats(
   const stats = computeDashboardStats(records);
   const hasData = stats.totalAttempts > 0;
   const hasSingAttempts = records.some(
-    (r) => getExercise(r.exerciseId).responseMode === "sing",
+    (r) => getPracticeMode(r.practiceModeId).responseMode === "sing",
   );
 
   root.innerHTML = `
@@ -141,7 +141,7 @@ export async function mountStats(
             </div>
             <div class="stats-item">
               <dt>Questions practiced</dt>
-              <dd>${stats.totalQuestions}</dd>
+              <dd>${stats.totalLessonExercises}</dd>
             </div>
             <div class="stats-item">
               <dt>Attempt pass rate</dt>
@@ -149,7 +149,7 @@ export async function mountStats(
             </div>
             <div class="stats-item">
               <dt>Questions correct</dt>
-              <dd>${stats.questionPassRatePercent}%</dd>
+              <dd>${stats.lessonExercisePassRatePercent}%</dd>
             </div>
             <div class="stats-item">
               <dt>First try</dt>
@@ -172,7 +172,7 @@ export async function mountStats(
               : `<p class="stats-hint">Median error applies to singing exercises only.</p>`
           }
         </section>
-        ${stats.byExercise.map(renderExerciseSection).join("")}
+        ${stats.byPracticeMode.map(renderExerciseSection).join("")}
       `
           : `
         <section class="card">

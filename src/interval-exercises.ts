@@ -9,11 +9,11 @@ import {
   type NoteRange,
   type TargetNote,
 } from "./notes.ts";
-import type { SingTestQuestion } from "./sing-test-question.ts";
+import type { LessonExercise } from "./lesson-exercise.ts";
 
 export type IntervalPresentation = "melodic" | "harmonic";
 
-export interface IntervalQuestion {
+export interface IntervalExercise {
   intervalId: string;
   semitones: number;
   presentation: IntervalPresentation;
@@ -42,11 +42,11 @@ export function validLowerMidis(
   return midis;
 }
 
-export function buildIntervalQuestion(
+export function buildIntervalExercise(
   interval: IntervalEntry,
   presentation: IntervalPresentation,
   lowerMidi: number,
-): IntervalQuestion {
+): IntervalExercise {
   const upperMidi = lowerMidi + interval.semitones;
   return {
     intervalId: interval.id,
@@ -57,23 +57,23 @@ export function buildIntervalQuestion(
   };
 }
 
-export function randomIntervalQuestionForTag(
+export function randomIntervalExerciseForTag(
   intervalId: string,
   presentation: IntervalPresentation,
   range: NoteRange,
-): IntervalQuestion {
+): IntervalExercise {
   const interval = getIntervalById(intervalId);
   if (!interval) {
     throw new Error(`Unknown interval id: ${intervalId}`);
   }
-  return randomIntervalQuestion(presentation, range, interval);
+  return randomIntervalExercise(presentation, range, interval);
 }
 
-export function randomIntervalQuestion(
+export function randomIntervalExercise(
   presentation: IntervalPresentation,
   range: NoteRange,
   interval: IntervalEntry,
-): IntervalQuestion {
+): IntervalExercise {
   const lowers = validLowerMidis(range, interval.semitones);
   if (lowers.length === 0) {
     throw new Error(
@@ -81,16 +81,16 @@ export function randomIntervalQuestion(
     );
   }
   const lowerMidi = lowers[Math.floor(Math.random() * lowers.length)]!;
-  return buildIntervalQuestion(interval, presentation, lowerMidi);
+  return buildIntervalExercise(interval, presentation, lowerMidi);
 }
 
-export function intervalToSingTestQuestion(
-  intervalQuestion: IntervalQuestion,
-): SingTestQuestion {
+export function intervalToLessonExercise(
+  intervalExercise: IntervalExercise,
+): LessonExercise {
   return {
-    target: intervalQuestion.upper,
-    interval: intervalQuestion,
-    intervalId: intervalQuestion.intervalId,
+    target: intervalExercise.upper,
+    interval: intervalExercise,
+    intervalId: intervalExercise.intervalId,
   };
 }
 

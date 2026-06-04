@@ -1,6 +1,6 @@
 import { CHORD_TYPES } from "../chord-config.ts";
 import { CHORD_INVERSIONS, type InversionId } from "../chord-inversions.ts";
-import { EXERCISE_LABELS, type ExerciseId } from "../history/types.ts";
+import { PRACTICE_MODE_LABELS, type PracticeModeId } from "../history/types.ts";
 import type { AttemptRecord } from "../history/types.ts";
 import {
   DIATONIC_MAJOR_INTERVAL_IDS,
@@ -15,38 +15,38 @@ export type ContentTierId =
   | "degree-3a"
   | "chord-1a";
 
-export interface CurriculumStep {
-  exerciseId: ExerciseId;
+export interface CurriculumLesson {
+  practiceModeId: PracticeModeId;
   contentTierId: ContentTierId;
 }
 
-export const CURRICULUM_STEPS: readonly CurriculumStep[] = [
-  { exerciseId: "single-note", contentTierId: "tier-1" },
-  { exerciseId: "interval-melodic-sing", contentTierId: "interval-2a" },
-  { exerciseId: "interval-melodic-id", contentTierId: "interval-2a" },
-  { exerciseId: "interval-harmonic-sing", contentTierId: "interval-2a" },
-  { exerciseId: "interval-harmonic-id", contentTierId: "interval-2a" },
-  { exerciseId: "interval-melodic-sing", contentTierId: "interval-2b" },
-  { exerciseId: "interval-melodic-id", contentTierId: "interval-2b" },
-  { exerciseId: "interval-harmonic-sing", contentTierId: "interval-2b" },
-  { exerciseId: "interval-harmonic-id", contentTierId: "interval-2b" },
-  { exerciseId: "scale-degree-sing", contentTierId: "degree-3a" },
-  { exerciseId: "chord-middle", contentTierId: "chord-1a" },
+export const CURRICULUM_LESSONS: readonly CurriculumLesson[] = [
+  { practiceModeId: "single-note", contentTierId: "tier-1" },
+  { practiceModeId: "interval-melodic-sing", contentTierId: "interval-2a" },
+  { practiceModeId: "interval-melodic-id", contentTierId: "interval-2a" },
+  { practiceModeId: "interval-harmonic-sing", contentTierId: "interval-2a" },
+  { practiceModeId: "interval-harmonic-id", contentTierId: "interval-2a" },
+  { practiceModeId: "interval-melodic-sing", contentTierId: "interval-2b" },
+  { practiceModeId: "interval-melodic-id", contentTierId: "interval-2b" },
+  { practiceModeId: "interval-harmonic-sing", contentTierId: "interval-2b" },
+  { practiceModeId: "interval-harmonic-id", contentTierId: "interval-2b" },
+  { practiceModeId: "scale-degree-sing", contentTierId: "degree-3a" },
+  { practiceModeId: "chord-middle", contentTierId: "chord-1a" },
 ] as const;
 
-export function stepKey(step: CurriculumStep): string {
-  return `${step.exerciseId}:${step.contentTierId}`;
+export function curriculumLessonKey(step: CurriculumLesson): string {
+  return `${step.practiceModeId}:${step.contentTierId}`;
 }
 
-export function getStepIndex(step: CurriculumStep): number {
-  const key = stepKey(step);
-  return CURRICULUM_STEPS.findIndex((s) => stepKey(s) === key);
+export function getCurriculumLessonIndex(step: CurriculumLesson): number {
+  const key = curriculumLessonKey(step);
+  return CURRICULUM_LESSONS.findIndex((s) => curriculumLessonKey(s) === key);
 }
 
-export function stepsForExercise(
-  exerciseId: ExerciseId,
-): readonly CurriculumStep[] {
-  return CURRICULUM_STEPS.filter((s) => s.exerciseId === exerciseId);
+export function curriculumLessonsForPracticeMode(
+  practiceModeId: PracticeModeId,
+): readonly CurriculumLesson[] {
+  return CURRICULUM_LESSONS.filter((s) => s.practiceModeId === practiceModeId);
 }
 
 export function getEligibleIntervalIds(
@@ -87,13 +87,13 @@ export function getEligibleInversionIds(
 
 /** Tag ids the session planner may draw for this step (interval, degree, or chord type). */
 /** Attempts that count toward progress for this step (tier filter when set on records). */
-export function filterRecordsForStep(
+export function filterRecordsForCurriculumLesson(
   records: readonly AttemptRecord[],
-  step: CurriculumStep,
+  step: CurriculumLesson,
 ): AttemptRecord[] {
-  const firstTierId = stepsForExercise(step.exerciseId)[0]?.contentTierId;
+  const firstTierId = curriculumLessonsForPracticeMode(step.practiceModeId)[0]?.contentTierId;
   return records.filter((record) => {
-    if (record.exerciseId !== step.exerciseId) {
+    if (record.practiceModeId !== step.practiceModeId) {
       return false;
     }
     const tier = record.contentTierId;
@@ -110,15 +110,15 @@ const INTERVAL_TIER_POOL_LABEL: Record<"interval-2a" | "interval-2b", string> = 
 };
 
 /** Human-readable step label for unlock copy (includes tier pool when relevant). */
-export function getStepLabel(step: CurriculumStep): string {
-  const title = EXERCISE_LABELS[step.exerciseId];
+export function getCurriculumLessonLabel(step: CurriculumLesson): string {
+  const title = PRACTICE_MODE_LABELS[step.practiceModeId];
   if (step.contentTierId === "interval-2a" || step.contentTierId === "interval-2b") {
     return `${title} (${INTERVAL_TIER_POOL_LABEL[step.contentTierId]})`;
   }
   return title;
 }
 
-export function getEligibleTagIds(step: CurriculumStep): readonly string[] {
+export function getEligibleTagIds(step: CurriculumLesson): readonly string[] {
   switch (step.contentTierId) {
     case "tier-1":
       return [];

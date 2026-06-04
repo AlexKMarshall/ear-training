@@ -12,8 +12,8 @@ See also: [`testing.md`](testing.md) (hub), [`ui-testing.md`](ui-testing.md) (br
 
 ## Allowed
 
-- **`vi.fn()` (and similar) on arguments** passed into the function under test — only when the parameter has a **defined interface** (e.g. `HistoryPort`, `prepareQuestion`, `playReference`).
-- **Concrete fakes** that implement those interfaces (e.g. `createMemoryHistoryPort()`, config hooks with deterministic `prepareQuestion` in tests).
+- **`vi.fn()` (and similar) on arguments** passed into the function under test — only when the parameter has a **defined interface** (e.g. `HistoryPort`, `prepareExercise`, `playReference`).
+- **Concrete fakes** that implement those interfaces (e.g. `createMemoryHistoryPort()`, config hooks with deterministic `prepareExercise` in tests).
 - **Direct use of real domain code** in Node tests (scoring, unlock math) — no mocks needed when logic is pure.
 
 ## Refactor-first rule
@@ -24,11 +24,11 @@ If effective tests would require mocking a global, vendor, or private module imp
 2. Production default wires the real implementation once (entrypoint or `createDefault*()`).
 3. Tests pass a fake via `vi.fn()` or a small in-memory implementation.
 
-**T0 example:** `HistoryPort` + `deps.history` on `mountHome` / `mountExercisePage` / `mountStats` — the canonical pattern; **not** `vi.mock("../history/store")`.
+**T0 example:** `HistoryPort` + `deps.history` on `mountHome` / `mountPracticeModePage` / `mountStats` — the canonical pattern; **not** `vi.mock("../history/store")`.
 
-**T1 example:** `IdentifyMountDeps` on `mountIdentifyTest` — `history` from `createMemoryHistoryPort()`, `audio` from `createTestAudioPort()`; override `prepareQuestion` / `playReference` in test config (noop playback, fixed interval question). **Not** `vi.mock` on `smplr` or `context.ts`.
+**T1 example:** `IdentifyMountDeps` on `mountIdentifyTest` — `history` from `createMemoryHistoryPort()`, `audio` from `createTestAudioPort()`; override `prepareExercise` / `playReference` in test config (noop playback, fixed interval question). **Not** `vi.mock` on `smplr` or `context.ts`.
 
-**T2 example:** `SingMountDeps` on `mountSingTest` — `history` from `createMemoryHistoryPort()`, `audio` from `createTestAudioPort()`, `recording` from `createTestRecordingPort({ samplesHz })` (delivers samples on session `stop()` / **Done**); fixed `prepareQuestion` + noop `playReference` in test config. Real `scoreFromSamples`; **not** mocked `getUserMedia` or `pitchy` / `smplr`.
+**T2 example:** `SingMountDeps` on `mountSingTest` — `history` from `createMemoryHistoryPort()`, `audio` from `createTestAudioPort()`, `recording` from `createTestRecordingPort({ samplesHz })` (delivers samples on session `stop()` / **Done**); fixed `prepareExercise` + noop `playReference` in test config. Real `scoreFromSamples`; **not** mocked `getUserMedia` or `pitchy` / `smplr`.
 
 ## Node vs browser
 

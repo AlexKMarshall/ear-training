@@ -1,31 +1,31 @@
 import { describe, expect, it } from "vitest";
-import { getEligibleChordTypeIds } from "../src/curriculum/steps.ts";
+import { getEligibleChordTypeIds } from "../src/curriculum/curriculum-lessons.ts";
 import {
   pickRandomInversionFromTier,
-  prepareChordQuestion,
+  prepareChordExercise,
 } from "../src/ui/chord-session.ts";
 import type { SessionPlanner } from "../src/session/planner.ts";
 import { passingScaleDegreeHistory } from "./fixtures/attempts.ts";
 
-describe("prepareChordQuestion", () => {
+describe("prepareChordExercise", () => {
   it("uses planner chord type and attaches tier metadata", () => {
     const planner: SessionPlanner = {
-      planNextQuestionTag: () => "major-triad-sing-middle",
+      planNextExerciseTag: () => "major-triad-sing-middle",
     };
-    const question = prepareChordQuestion(
+    const exercise = prepareChordExercise(
       passingScaleDegreeHistory(),
       planner,
       { lowMidi: 48, highMidi: 67 },
       () => 0,
     );
 
-    expect(question.chordTypeId).toBe("major-triad-sing-middle");
-    expect(question.contentTierId).toBe("chord-1a");
-    expect(question.eligibleTagIds).toEqual(getEligibleChordTypeIds("chord-1a"));
-    expect(question.inversionId).toBe("root");
-    expect(question.chord).toBeDefined();
-    expect(question.target.midi).toBeGreaterThanOrEqual(48);
-    expect(question.target.midi).toBeLessThanOrEqual(67);
+    expect(exercise.chordTypeId).toBe("major-triad-sing-middle");
+    expect(exercise.contentTierId).toBe("chord-1a");
+    expect(exercise.eligibleTagIds).toEqual(getEligibleChordTypeIds("chord-1a"));
+    expect(exercise.inversionId).toBe("root");
+    expect(exercise.chord).toBeDefined();
+    expect(exercise.target.midi).toBeGreaterThanOrEqual(48);
+    expect(exercise.target.midi).toBeLessThanOrEqual(67);
   });
 
   it("draws inversion from the chord-1a tier pool", () => {

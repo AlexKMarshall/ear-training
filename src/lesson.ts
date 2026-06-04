@@ -1,21 +1,21 @@
-import { QUESTIONS_PER_ROUND } from "./config.ts";
-import type { SingTestQuestion } from "./sing-test-question.ts";
+import { EXERCISES_PER_LESSON } from "./config.ts";
+import type { LessonExercise } from "./lesson-exercise.ts";
 
-export { QUESTIONS_PER_ROUND };
+export { EXERCISES_PER_LESSON };
 
-/** How the user finished a single question within a round. */
-export type QuestionOutcome = "firstTry" | "retry" | "wrong";
+/** How the user finished a single exercise within a lesson. */
+export type ExerciseOutcome = "firstTry" | "retry" | "wrong";
 
-export interface RoundQuestionResult {
-  /** Position in the round (0-based). */
-  questionIndex: number;
-  outcome: QuestionOutcome;
+export interface LessonExerciseResult {
+  /** Position in the lesson (0-based) (0-based). */
+  exerciseIndex: number;
+  outcome: ExerciseOutcome;
   /** Snapshot for future review UI (which notes were missed, etc.). */
-  question?: SingTestQuestion;
+  exercise?: LessonExercise;
 }
 
-export interface RoundSummary {
-  results: readonly RoundQuestionResult[];
+export interface LessonSummary {
+  results: readonly LessonExerciseResult[];
   firstTryCount: number;
   retryCount: number;
   wrongCount: number;
@@ -24,18 +24,18 @@ export interface RoundSummary {
   total: number;
 }
 
-export function classifyQuestionOutcome(
+export function classifyExerciseOutcome(
   passed: boolean,
   scoredAttempts: number,
-): QuestionOutcome {
+): ExerciseOutcome {
   if (passed && scoredAttempts === 1) return "firstTry";
   if (passed) return "retry";
   return "wrong";
 }
 
-export function summarizeRound(
-  results: readonly RoundQuestionResult[],
-): RoundSummary {
+export function summarizeLesson(
+  results: readonly LessonExerciseResult[],
+): LessonSummary {
   let firstTryCount = 0;
   let retryCount = 0;
   let wrongCount = 0;

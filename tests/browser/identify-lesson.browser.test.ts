@@ -1,11 +1,11 @@
 import { page, userEvent } from "vitest/browser";
 import { beforeEach, expect, test } from "vitest";
-import { getEligibleTagIds } from "../../src/curriculum/steps.ts";
+import { getEligibleTagIds } from "../../src/curriculum/curriculum-lessons.ts";
 import { getIntervalById } from "../../src/interval-config.ts";
 import {
-  intervalToSingTestQuestion,
-  randomIntervalQuestionForTag,
-} from "../../src/interval-questions.ts";
+  intervalToLessonExercise,
+  randomIntervalExerciseForTag,
+} from "../../src/interval-exercises.ts";
 import { getActiveNoteRange } from "../../src/voice-ranges.ts";
 import {
   createMelodicIdTestConfig,
@@ -39,7 +39,7 @@ test("play, correct choice, and saveAttempt via HistoryPort", async () => {
   const records = await history.getAllAttempts();
   expect(records).toHaveLength(1);
   expect(records[0]).toMatchObject({
-    exerciseId: "interval-melodic-id",
+    practiceModeId: "interval-melodic-id",
     passed: true,
     intervalId: "perfect-fifth",
     selectedIntervalId: "perfect-fifth",
@@ -47,23 +47,23 @@ test("play, correct choice, and saveAttempt via HistoryPort", async () => {
     eligibleTagIds: ["perfect-fourth", "perfect-fifth", "perfect-octave"],
     centsOff: 0,
     attemptNumber: 1,
-    questionIndex: 0,
+    exerciseIndex: 0,
   });
-  expect(records[0]!.roundId).toBeTruthy();
+  expect(records[0]!.lessonId).toBeTruthy();
 });
 
-test("shows round progress and advances to question 2", async () => {
+test("shows lesson progress and advances to exercise 2", async () => {
   mountMelodicIntervalIdTest();
 
-  await expect.element(page.getByText(/question 1 of 10/i)).toBeVisible();
+  await expect.element(page.getByText(/exercise 1 of 10/i)).toBeVisible();
 
   await userEvent.click(page.getByRole("button", { name: /Play interval/i }));
   await userEvent.click(page.getByRole("button", { name: /Perfect 5th/i }));
   await userEvent.click(
-    page.getByRole("button", { name: /Next question/i }),
+    page.getByRole("button", { name: /Next exercise/i }),
   );
 
-  await expect.element(page.getByText(/question 2 of 10/i)).toBeVisible();
+  await expect.element(page.getByText(/exercise 2 of 10/i)).toBeVisible();
 });
 
 test("does not render interval picker", async () => {
@@ -76,21 +76,21 @@ test("does not render interval picker", async () => {
 
 test("eligible tier pool drives multiple choice without interval picker", async () => {
   const step = {
-    exerciseId: "interval-melodic-id" as const,
+    practiceModeId: "interval-melodic-id" as const,
     contentTierId: "interval-2b" as const,
   };
   const eligibleTagIds = getEligibleTagIds(step);
   mountMelodicIntervalIdTest({
     config: createMelodicIdTestConfig({
       showIntervalPicker: false,
-      prepareQuestion: () => {
-        const intervalQuestion = randomIntervalQuestionForTag(
+      prepareExercise: () => {
+        const intervalQuestion = randomIntervalExerciseForTag(
           "minor-sixth",
           "melodic",
           getActiveNoteRange(),
         );
         return {
-          ...intervalToSingTestQuestion(intervalQuestion),
+          ...intervalToLessonExercise(intervalQuestion),
           contentTierId: step.contentTierId,
           eligibleTagIds,
         };

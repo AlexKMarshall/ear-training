@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CURRICULUM_PATH } from "../src/curriculum/levels.ts";
-import { EXERCISES, type ResponseMode } from "../src/exercises/registry.ts";
-import { EXERCISE_LABELS, type ExerciseId } from "../src/history/types.ts";
+import { PRACTICE_MODES, type ResponseMode } from "../src/practice-modes/registry.ts";
+import { PRACTICE_MODE_LABELS, type PracticeModeId } from "../src/history/types.ts";
 import {
   intervalHarmonicIdConfig,
   intervalHarmonicSingConfig,
@@ -17,7 +17,7 @@ import {
 } from "../src/ui/tests.ts";
 
 const SING_CONFIGS: Record<
-  ExerciseId,
+  PracticeModeId,
   SingTestConfig | undefined
 > = {
   "single-note": singleNoteTestConfig,
@@ -30,7 +30,7 @@ const SING_CONFIGS: Record<
 };
 
 const IDENTIFY_CONFIGS: Record<
-  ExerciseId,
+  PracticeModeId,
   IdentifyTestConfig | undefined
 > = {
   "single-note": undefined,
@@ -43,7 +43,7 @@ const IDENTIFY_CONFIGS: Record<
 };
 
 function configFor(
-  id: ExerciseId,
+  id: PracticeModeId,
   mode: ResponseMode,
 ): SingTestConfig | IdentifyTestConfig {
   if (mode === "sing") {
@@ -61,19 +61,19 @@ function configFor(
 }
 
 describe("exercise registry contract", () => {
-  const registryIds = EXERCISES.map((e) => e.id);
-  const labelIds = Object.keys(EXERCISE_LABELS) as ExerciseId[];
+  const registryIds = PRACTICE_MODES.map((e) => e.id);
+  const labelIds = Object.keys(PRACTICE_MODE_LABELS) as PracticeModeId[];
 
-  it("covers every ExerciseId label and registry entry", () => {
+  it("covers every PracticeModeId label and registry entry", () => {
     expect(registryIds.sort()).toEqual(labelIds.sort());
-    expect(EXERCISES).toHaveLength(labelIds.length);
+    expect(PRACTICE_MODES).toHaveLength(labelIds.length);
   });
 
   it("has unique ids and routes", () => {
     expect(new Set(registryIds).size).toBe(registryIds.length);
-    const routes = EXERCISES.map((e) => e.route);
+    const routes = PRACTICE_MODES.map((e) => e.route);
     expect(new Set(routes).size).toBe(routes.length);
-    for (const entry of EXERCISES) {
+    for (const entry of PRACTICE_MODES) {
       expect(entry.route).toMatch(/^\/[a-z0-9-]+\/$/);
     }
   });
@@ -82,11 +82,11 @@ describe("exercise registry contract", () => {
     expect([...registryIds].sort()).toEqual([...CURRICULUM_PATH].sort());
   });
 
-  it.each(EXERCISES.map((e) => [e.id, e.responseMode, e.title, e.subtitle] as const))(
-    "%s matches UI config exerciseId, titles, and response mode",
+  it.each(PRACTICE_MODES.map((e) => [e.id, e.responseMode, e.title, e.subtitle] as const))(
+    "%s matches UI config practiceModeId, titles, and response mode",
     (id, responseMode, title, subtitle) => {
       const config = configFor(id, responseMode);
-      expect(config.exerciseId).toBe(id);
+      expect(config.practiceModeId).toBe(id);
       expect(config.title).toBe(title);
       expect(config.subtitle).toBe(subtitle);
       if (responseMode === "sing") {

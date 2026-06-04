@@ -1,7 +1,7 @@
-import type { ContentTierId } from "../curriculum/steps.ts";
+import type { ContentTierId } from "../curriculum/curriculum-lessons.ts";
 import type { InversionId } from "../chord-inversions.ts";
 
-export type ExerciseId =
+export type PracticeModeId =
   | "single-note"
   | "chord-middle"
   | "interval-melodic-sing"
@@ -10,7 +10,7 @@ export type ExerciseId =
   | "interval-harmonic-id"
   | "scale-degree-sing";
 
-export const EXERCISE_LABELS: Record<ExerciseId, string> = {
+export const PRACTICE_MODE_LABELS: Record<PracticeModeId, string> = {
   "single-note": "Sing a single note",
   "chord-middle": "Sing the middle note of a chord",
   "interval-melodic-sing": "Sing melodic intervals",
@@ -23,11 +23,11 @@ export const EXERCISE_LABELS: Record<ExerciseId, string> = {
 /** One scored mic attempt, persisted for stats and future drill weighting. */
 export interface AttemptRecord {
   id?: number;
-  exerciseId: ExerciseId;
+  practiceModeId: PracticeModeId;
   timestamp: number;
   centsOff: number;
   passed: boolean;
-  /** 1-based attempt within the current question (max 3). */
+  /** 1-based attempt within the current exercise (max 3). */
   attemptNumber: number;
   targetMidi: number;
   targetHz: number;
@@ -52,9 +52,9 @@ export interface AttemptRecord {
   degreeId?: string;
   tonicMidi?: number;
   activeDegreeIds?: string[];
-  roundId: string;
-  /** Position in the round (0-based) when this attempt was scored. */
-  questionIndex: number;
+  lessonId: string;
+  /** Position in the lesson (0-based) when this attempt was scored. */
+  exerciseIndex: number;
 }
 
 export type AttemptInput = Omit<AttemptRecord, "id">;

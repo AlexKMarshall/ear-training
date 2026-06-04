@@ -1,4 +1,4 @@
-import type { CurriculumStep } from "../curriculum/steps.ts";
+import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
 import { getAllAttempts, saveAttempt } from "./store.ts";
 import type { AttemptInput, AttemptRecord } from "./types.ts";
 
@@ -10,7 +10,7 @@ export interface HistoryPort {
 export interface MountDeps {
   history?: HistoryPort;
   /** Resolved curriculum step for this mount (from URL or guided default). */
-  sessionStep?: CurriculumStep;
+  sessionCurriculumLesson?: CurriculumLesson;
   /** Override `location.search` (tests). */
   locationSearch?: string;
 }

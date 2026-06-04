@@ -22,7 +22,7 @@ function openDatabase(): Promise<IDBDatabase | null> {
           autoIncrement: true,
         });
         store.createIndex("by_timestamp", "timestamp", { unique: false });
-        store.createIndex("by_exercise", "exerciseId", { unique: false });
+        store.createIndex("by_exercise", "practiceModeId", { unique: false });
       }
     };
 

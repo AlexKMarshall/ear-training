@@ -5,21 +5,21 @@ import { attempt } from "./attempts.ts";
 export function intervalWeaknessHistory(): AttemptRecord[] {
   return [
     attempt({
-      exerciseId: "interval-melodic-sing",
+      practiceModeId: "interval-melodic-sing",
       passed: true,
       attemptNumber: 1,
       centsOff: 5,
       intervalId: "perfect-fifth",
-      questionIndex: 0,
+      exerciseIndex: 0,
     }),
     attempt({
-      exerciseId: "interval-melodic-sing",
+      practiceModeId: "interval-melodic-sing",
       passed: false,
       attemptNumber: 1,
       centsOff: 40,
       intervalId: "perfect-fourth",
-      questionIndex: 1,
-      roundId: "round-1",
+      exerciseIndex: 1,
+      lessonId: "lesson-1",
     }),
   ];
 }

@@ -1,7 +1,7 @@
 import type { InversionId } from "./chord-inversions.ts";
 import { voicingOffsetsForInversion } from "./chord-inversions.ts";
 import type { ChordQualityIntervals } from "./chord-inversions.ts";
-import type { ChordQuestion } from "./chords.ts";
+import type { ChordExercise } from "./chords.ts";
 import {
   midiToHz,
   midiToNoteName,
@@ -33,11 +33,11 @@ function targetNote(midi: number): TargetNote {
 }
 
 /** Build a chord question from a type, inversion, and middle-note MIDI. */
-export function buildChordQuestion(
+export function buildChordExercise(
   type: ChordType,
   inversion: InversionId,
   middleMidi: number,
-): ChordQuestion {
+): ChordExercise {
   const voicing = voicingFor(type, inversion);
   const midis = voicing.map(
     (offset) => middleMidi + offset,
@@ -49,11 +49,11 @@ export function buildChordQuestion(
 }
 
 /** Randomize the middle note within `range`, then build a chord question. */
-export function randomChordQuestion(
+export function randomChordExercise(
   type: ChordType,
   inversion: InversionId,
   range: NoteRange,
-): ChordQuestion {
+): ChordExercise {
   const middle = randomNoteInRange(range);
-  return buildChordQuestion(type, inversion, middle.midi);
+  return buildChordExercise(type, inversion, middle.midi);
 }

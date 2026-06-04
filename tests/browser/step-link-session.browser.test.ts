@@ -1,40 +1,40 @@
 import { page } from "vitest/browser";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
-import { parseStepFromSearchParams } from "../../src/curriculum/step-link.ts";
+import { parseCurriculumLessonFromSearchParams } from "../../src/curriculum/lesson-link.ts";
 import { createMemoryHistoryPort } from "../../src/history/port.ts";
 import { passingLevel2History } from "../fixtures/attempts.ts";
-import { mountExercisePageWithHistory, setStepSearch } from "./helpers/mount.ts";
+import { mountPracticeModePageWithHistory, setCurriculumLessonSearch } from "./helpers/mount.ts";
 
-describe("step query param on exercise page", () => {
+describe("curriculum lesson query param on practice page", () => {
   beforeEach(() => {
     document.body.innerHTML = "";
-    setStepSearch(null);
+    setCurriculumLessonSearch(null);
   });
 
   afterEach(() => {
-    setStepSearch(null);
+    setCurriculumLessonSearch(null);
   });
 
   test("parses step from URL for the route exercise", () => {
-    setStepSearch({
-      exerciseId: "interval-melodic-sing",
+    setCurriculumLessonSearch({
+      practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2a",
     });
     expect(
-      parseStepFromSearchParams(window.location.search, "interval-melodic-sing"),
+      parseCurriculumLessonFromSearchParams(window.location.search, "interval-melodic-sing"),
     ).toEqual({
-      exerciseId: "interval-melodic-sing",
+      practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2a",
     });
   });
 
   test("mounts an accessible step from the URL", async () => {
-    setStepSearch({
-      exerciseId: "interval-melodic-sing",
+    setCurriculumLessonSearch({
+      practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2a",
     });
     const seed = passingLevel2History();
-    await mountExercisePageWithHistory("interval-melodic-sing", seed, {
+    await mountPracticeModePageWithHistory("interval-melodic-sing", seed, {
       locationSearch: window.location.search,
       history: createMemoryHistoryPort(seed),
     });

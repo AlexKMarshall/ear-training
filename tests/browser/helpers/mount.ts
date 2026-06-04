@@ -3,26 +3,26 @@ import { createTestRecordingPort } from "../../../src/audio/recording-port.ts";
 import { MAJOR_TRIAD_SING_MIDDLE } from "../../../src/chord-config.ts";
 import { resetInversionPreference } from "../../../src/chord-inversion-preference.ts";
 import { resetChordTypePreference } from "../../../src/chord-type-preference.ts";
-import { buildChordQuestion } from "../../../src/chord-types.ts";
+import { buildChordExercise } from "../../../src/chord-types.ts";
 import { chordTarget } from "../../../src/chords.ts";
-import { getExercise } from "../../../src/exercises/registry.ts";
+import { getPracticeMode } from "../../../src/practice-modes/registry.ts";
 import { getIntervalById } from "../../../src/interval-config.ts";
 import {
-  buildIntervalQuestion,
-  intervalToSingTestQuestion,
-} from "../../../src/interval-questions.ts";
+  buildIntervalExercise,
+  intervalToLessonExercise,
+} from "../../../src/interval-exercises.ts";
 import { INTERVAL_2A_IDS } from "../../../src/interval-config.ts";
 import { getScaleDegreeById } from "../../../src/scale-degree-config.ts";
 import {
-  buildScaleDegreeQuestion,
-  scaleDegreeToSingTestQuestion,
-} from "../../../src/scale-degree-questions.ts";
+  buildScaleDegreeExercise,
+  scaleDegreeToLessonExercise,
+} from "../../../src/scale-degree-exercises.ts";
 import { resetScaleDegreePreference } from "../../../src/scale-degree-preference.ts";
 import {
   createMemoryHistoryPort,
   type HistoryPort,
 } from "../../../src/history/port.ts";
-import type { AttemptRecord, ExerciseId } from "../../../src/history/types.ts";
+import type { AttemptRecord, PracticeModeId } from "../../../src/history/types.ts";
 import { midiToHz } from "../../../src/notes.ts";
 import {
   mountIdentifyTest,
@@ -36,7 +36,7 @@ import {
   intervalMelodicSingConfig,
 } from "../../../src/ui/interval-tests.ts";
 import { scaleDegreeSingConfig } from "../../../src/ui/scale-degree-tests.ts";
-import { mountExercisePage } from "../../../src/ui/exercise-page.ts";
+import { mountPracticeModePage } from "../../../src/ui/exercise-page.ts";
 import { mountHome } from "../../../src/ui/home.ts";
 import {
   mountSingTest,
@@ -72,13 +72,13 @@ export function setUnlockAllSearch(enabled: boolean): void {
 }
 
 /** Sets the guided-path `step` query param (and clears unlock-all unless provided). */
-export function setStepSearch(
-  step: { exerciseId: ExerciseId; contentTierId: string } | null,
+export function setCurriculumLessonSearch(
+  step: { practiceModeId: PracticeModeId; contentTierId: string } | null,
   options?: { unlockAll?: boolean },
 ): void {
   const url = new URL(window.location.href);
   if (step) {
-    url.searchParams.set("step", `${step.exerciseId}:${step.contentTierId}`);
+    url.searchParams.set("step", `${step.practiceModeId}:${step.contentTierId}`);
   } else {
     url.searchParams.delete("step");
   }
@@ -101,14 +101,14 @@ export async function mountHomeWithHistory(
   await mountHome(root, { history: createMemoryHistoryPort(records) });
 }
 
-export async function mountExercisePageWithHistory(
-  exerciseId: ExerciseId,
+export async function mountPracticeModePageWithHistory(
+  practiceModeId: PracticeModeId,
   records: AttemptRecord[],
   options?: { locationSearch?: string; history?: HistoryPort },
 ): Promise<{ history: HistoryPort }> {
   const root = createAppRoot();
   const history = options?.history ?? createMemoryHistoryPort(records);
-  await mountExercisePage(root, exerciseId, {
+  await mountPracticeModePage(root, practiceModeId, {
     history,
     locationSearch: options?.locationSearch ?? getLocationSearch(),
   });
@@ -130,7 +130,7 @@ const fixedSingleNoteTarget = {
   hz: 261.63,
 } as const;
 
-const fixedChordQuestion = buildChordQuestion(
+const fixedChordExercise = buildChordExercise(
   MAJOR_TRIAD_SING_MIDDLE,
   "root",
   52,
@@ -142,9 +142,9 @@ export interface MountExerciseResult {
   history: HistoryPort;
 }
 
-function resetPreferencesFor(exerciseId: ExerciseId): void {
+function resetPreferencesFor(practiceModeId: PracticeModeId): void {
   resetVoiceTypePreference();
-  switch (exerciseId) {
+  switch (practiceModeId) {
     case "chord-middle":
       resetChordTypePreference();
       resetInversionPreference();
@@ -163,23 +163,23 @@ function resetPreferencesFor(exerciseId: ExerciseId): void {
 }
 
 function createSingTestConfigFor(
-  exerciseId: ExerciseId,
+  practiceModeId: PracticeModeId,
   overrides?: Partial<SingTestConfig>,
 ): SingTestConfig {
-  switch (exerciseId) {
+  switch (practiceModeId) {
     case "single-note":
       return {
         ...singleNoteTestConfig,
-        prepareQuestion: () => ({ target: { ...fixedSingleNoteTarget } }),
+        prepareExercise: () => ({ target: { ...fixedSingleNoteTarget } }),
         playReference: async () => {},
         ...overrides,
       };
     case "chord-middle":
       return {
         ...chordMiddleTestConfig,
-        prepareQuestion: () => ({
-          target: chordTarget(fixedChordQuestion),
-          chord: fixedChordQuestion,
+        prepareExercise: () => ({
+          target: chordTarget(fixedChordExercise),
+          chord: fixedChordExercise,
           chordTypeId: MAJOR_TRIAD_SING_MIDDLE.id,
           inversionId: "root",
           contentTierId: "chord-1a",
@@ -195,9 +195,9 @@ function createSingTestConfigFor(
     case "interval-melodic-sing":
       return {
         ...intervalMelodicSingConfig,
-        prepareQuestion: () => ({
-          ...intervalToSingTestQuestion(
-            buildIntervalQuestion(perfectFifth, "melodic", 60),
+        prepareExercise: () => ({
+          ...intervalToLessonExercise(
+            buildIntervalExercise(perfectFifth, "melodic", 60),
           ),
           contentTierId: "interval-2a",
           eligibleTagIds: INTERVAL_2A_IDS,
@@ -208,9 +208,9 @@ function createSingTestConfigFor(
     case "interval-harmonic-sing":
       return {
         ...intervalHarmonicSingConfig,
-        prepareQuestion: () => ({
-          ...intervalToSingTestQuestion(
-            buildIntervalQuestion(perfectFifth, "harmonic", 60),
+        prepareExercise: () => ({
+          ...intervalToLessonExercise(
+            buildIntervalExercise(perfectFifth, "harmonic", 60),
           ),
           contentTierId: "interval-2a",
           eligibleTagIds: INTERVAL_2A_IDS,
@@ -221,9 +221,9 @@ function createSingTestConfigFor(
     case "scale-degree-sing":
       return {
         ...scaleDegreeSingConfig,
-        prepareQuestion: () => ({
-          ...scaleDegreeToSingTestQuestion(
-            buildScaleDegreeQuestion(scaleDegreeFifth, 60),
+        prepareExercise: () => ({
+          ...scaleDegreeToLessonExercise(
+            buildScaleDegreeExercise(scaleDegreeFifth, 60),
           ),
           contentTierId: "degree-3a",
           eligibleTagIds: ["fourth", "fifth", "octave"],
@@ -232,25 +232,25 @@ function createSingTestConfigFor(
         ...overrides,
       };
     default:
-      throw new Error(`Not a sing exercise: ${exerciseId}`);
+      throw new Error(`Not a sing exercise: ${practiceModeId}`);
   }
 }
 
 function createIdentifyTestConfigFor(
-  exerciseId: ExerciseId,
+  practiceModeId: PracticeModeId,
   overrides?: Partial<IdentifyTestConfig>,
 ): IdentifyTestConfig {
   const base =
-    exerciseId === "interval-harmonic-id"
+    practiceModeId === "interval-harmonic-id"
       ? intervalHarmonicIdConfig
       : intervalMelodicIdConfig;
   const presentation =
-    exerciseId === "interval-harmonic-id" ? "harmonic" : "melodic";
+    practiceModeId === "interval-harmonic-id" ? "harmonic" : "melodic";
   return {
     ...base,
-    prepareQuestion: () => ({
-      ...intervalToSingTestQuestion(
-        buildIntervalQuestion(perfectFifth, presentation, 60),
+    prepareExercise: () => ({
+      ...intervalToLessonExercise(
+        buildIntervalExercise(perfectFifth, presentation, 60),
       ),
       contentTierId: "interval-2a",
       eligibleTagIds: INTERVAL_2A_IDS,
@@ -260,17 +260,17 @@ function createIdentifyTestConfigFor(
   };
 }
 
-export function defaultPassSamplesHzFor(exerciseId: ExerciseId): number[] {
-  switch (exerciseId) {
+export function defaultPassSamplesHzFor(practiceModeId: PracticeModeId): number[] {
+  switch (practiceModeId) {
     case "single-note":
       return Array(20).fill(fixedSingleNoteTarget.hz);
     case "chord-middle":
-      return Array(20).fill(midiToHz(chordTarget(fixedChordQuestion).midi));
+      return Array(20).fill(midiToHz(chordTarget(fixedChordExercise).midi));
     case "interval-melodic-sing":
     case "interval-harmonic-sing": {
-      const q = buildIntervalQuestion(
+      const q = buildIntervalExercise(
         perfectFifth,
-        exerciseId === "interval-harmonic-sing" ? "harmonic" : "melodic",
+        practiceModeId === "interval-harmonic-sing" ? "harmonic" : "melodic",
         60,
       );
       return Array(20).fill(midiToHz(q.upper.midi));
@@ -278,7 +278,7 @@ export function defaultPassSamplesHzFor(exerciseId: ExerciseId): number[] {
     case "scale-degree-sing":
       return Array(20).fill(midiToHz(67));
     default:
-      throw new Error(`No default pass samples for ${exerciseId}`);
+      throw new Error(`No default pass samples for ${practiceModeId}`);
   }
 }
 
@@ -289,15 +289,15 @@ export interface MountExerciseInBrowserOptions {
   resetPreferences?: boolean;
 }
 
-export function mountExerciseInBrowser(
-  exerciseId: ExerciseId,
+export function mountPracticeModeInBrowser(
+  practiceModeId: PracticeModeId,
   options: MountExerciseInBrowserOptions = {},
 ): MountExerciseResult {
   if (options.resetPreferences !== false) {
-    resetPreferencesFor(exerciseId);
+    resetPreferencesFor(practiceModeId);
   }
 
-  const { responseMode } = getExercise(exerciseId);
+  const { responseMode } = getPracticeMode(practiceModeId);
   const history =
     options.deps?.history ?? createMemoryHistoryPort();
   const root = createAppRoot();
@@ -310,17 +310,17 @@ export function mountExerciseInBrowser(
   if (responseMode === "select") {
     mountIdentifyTest(
       root,
-      createIdentifyTestConfigFor(exerciseId, configOverrides),
+      createIdentifyTestConfigFor(practiceModeId, configOverrides),
       { history, audio },
     );
     return { history };
   }
 
   const samplesHz =
-    options.samplesHz ?? defaultPassSamplesHzFor(exerciseId);
+    options.samplesHz ?? defaultPassSamplesHzFor(practiceModeId);
   mountSingTest(
     root,
-    createSingTestConfigFor(exerciseId, configOverrides),
+    createSingTestConfigFor(practiceModeId, configOverrides),
     {
       history,
       audio,
@@ -371,7 +371,7 @@ export function mountMelodicIntervalIdTest(options?: {
   deps?: IdentifyMountDeps;
   resetPreferences?: boolean;
 }): MountMelodicIdResult {
-  return mountExerciseInBrowser("interval-melodic-id", {
+  return mountPracticeModeInBrowser("interval-melodic-id", {
     config: options?.config,
     deps: options?.deps,
     resetPreferences: options?.resetPreferences,
@@ -388,7 +388,7 @@ export interface MountSingleNoteSingOptions {
 export function mountSingleNoteSingTest(
   options: MountSingleNoteSingOptions,
 ): MountMelodicIdResult {
-  return mountExerciseInBrowser("single-note", {
+  return mountPracticeModeInBrowser("single-note", {
     config: options.config,
     deps: options.deps,
     samplesHz: options.samplesHz,
@@ -406,7 +406,7 @@ export interface MountScaleDegreeSingOptions {
 export function mountScaleDegreeSingTest(
   options: MountScaleDegreeSingOptions,
 ): MountMelodicIdResult {
-  return mountExerciseInBrowser("scale-degree-sing", {
+  return mountPracticeModeInBrowser("scale-degree-sing", {
     config: options.config,
     deps: options.deps,
     samplesHz: options.samplesHz,

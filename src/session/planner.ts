@@ -1,22 +1,22 @@
-import type { CurriculumStep } from "../curriculum/steps.ts";
+import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
 import {
-  filterRecordsForStep,
+  filterRecordsForCurriculumLesson,
   getEligibleTagIds,
-} from "../curriculum/steps.ts";
+} from "../curriculum/curriculum-lessons.ts";
 import {
-  MIN_QUESTION_PASS_RATE,
-  MIN_QUESTIONS,
+  MIN_EXERCISE_PASS_RATE,
+  MIN_EXERCISES_FOR_UNLOCK,
 } from "../curriculum/unlock.ts";
 import { getTagBreakdownConfig } from "../history/tag-stats.ts";
-import { computeQuestionStats } from "../history/stats.ts";
+import { computeLessonExerciseStats } from "../history/stats.ts";
 import type { AttemptRecord } from "../history/types.ts";
 
 /** Share of draws that target weak (under-threshold) tags vs maintenance. */
 export const WEAK_AREA_PROBABILITY = 0.7;
 
 export interface SessionPlanner {
-  planNextQuestionTag(
-    step: CurriculumStep,
+  planNextExerciseTag(
+    step: CurriculumLesson,
     records: readonly AttemptRecord[],
   ): string;
 }
@@ -33,8 +33,8 @@ export function createSessionPlanner(
   const weakAreaProbability =
     options.weakAreaProbability ?? WEAK_AREA_PROBABILITY;
   return {
-    planNextQuestionTag(step, records) {
-      return planNextQuestionTag(step, records, rng, weakAreaProbability);
+    planNextExerciseTag(step, records) {
+      return planNextExerciseTag(step, records, rng, weakAreaProbability);
     },
   };
 }
@@ -43,18 +43,18 @@ export function createDefaultSessionPlanner(): SessionPlanner {
   return createSessionPlanner();
 }
 
-function isWeakTag(questionCount: number, questionPassRatePercent: number): boolean {
+function isWeakTag(lessonExerciseCount: number, lessonExercisePassRatePercent: number): boolean {
   return (
-    questionCount < MIN_QUESTIONS ||
-    questionPassRatePercent < MIN_QUESTION_PASS_RATE
+    lessonExerciseCount < MIN_EXERCISES_FOR_UNLOCK ||
+    lessonExercisePassRatePercent < MIN_EXERCISE_PASS_RATE
   );
 }
 
-function weakTagWeight(questionCount: number, questionPassRatePercent: number): number {
-  if (questionCount === 0) {
+function weakTagWeight(lessonExerciseCount: number, lessonExercisePassRatePercent: number): number {
+  if (lessonExerciseCount === 0) {
     return 100;
   }
-  return Math.max(1, 100 - questionPassRatePercent);
+  return Math.max(1, 100 - lessonExercisePassRatePercent);
 }
 
 function pickWeighted<T>(
@@ -77,8 +77,8 @@ function pickWeighted<T>(
   return items[items.length - 1]!;
 }
 
-export function planNextQuestionTag(
-  step: CurriculumStep,
+export function planNextExerciseTag(
+  step: CurriculumLesson,
   records: readonly AttemptRecord[],
   rng: () => number = Math.random,
   weakAreaProbability: number = WEAK_AREA_PROBABILITY,
@@ -86,16 +86,16 @@ export function planNextQuestionTag(
   const eligible = getEligibleTagIds(step);
   if (eligible.length === 0) {
     throw new Error(
-      `No eligible tags for step ${step.exerciseId}:${step.contentTierId}`,
+      `No eligible tags for curriculum lesson ${step.practiceModeId}:${step.contentTierId}`,
     );
   }
 
-  const config = getTagBreakdownConfig(step.exerciseId);
+  const config = getTagBreakdownConfig(step.practiceModeId);
   if (!config) {
     return eligible[Math.floor(rng() * eligible.length)]!;
   }
 
-  const stepRecords = filterRecordsForStep(records, step);
+  const stepRecords = filterRecordsForCurriculumLesson(records, step);
   const byTag = new Map<string, AttemptRecord[]>();
   for (const record of stepRecords) {
     const tagId = config.getTagId(record);
@@ -112,9 +112,9 @@ export function planNextQuestionTag(
 
   for (const tagId of eligible) {
     const tagRecords = byTag.get(tagId) ?? [];
-    const { questionCount, questionPassRatePercent } =
-      computeQuestionStats(tagRecords);
-    if (isWeakTag(questionCount, questionPassRatePercent)) {
+    const { lessonExerciseCount, lessonExercisePassRatePercent } =
+      computeLessonExerciseStats(tagRecords);
+    if (isWeakTag(lessonExerciseCount, lessonExercisePassRatePercent)) {
       weak.push(tagId);
     } else {
       maintenance.push(tagId);
@@ -133,9 +133,9 @@ export function planNextQuestionTag(
   if (pickFromWeak) {
     return pickWeighted(pool, (tagId) => {
       const tagRecords = byTag.get(tagId) ?? [];
-      const { questionCount, questionPassRatePercent } =
-        computeQuestionStats(tagRecords);
-      return weakTagWeight(questionCount, questionPassRatePercent);
+      const { lessonExerciseCount, lessonExercisePassRatePercent } =
+        computeLessonExerciseStats(tagRecords);
+      return weakTagWeight(lessonExerciseCount, lessonExercisePassRatePercent);
     }, rng);
   }
 

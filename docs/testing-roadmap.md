@@ -40,13 +40,13 @@ These are **not** open debt; they define what “covered” builds on.
 | Area | Status | Where |
 |------|--------|--------|
 | CI on PRs and `main` | **Done** | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — `npm test`, `npm run test:browser`, `npm run build` (Node 22, Chromium) |
-| Domain unit tests | **Done** | Scoring, chords, intervals, scale degrees, rounds, history stats + tag breakdown, curriculum unlock/levels/steps, **session planner** (incl. large 2b pool weak-tag overweighting), **session-step resolution**, interval/scale-degree/chord session wiring, registry contract |
+| Domain unit tests | **Done** | Scoring, chords, intervals, scale degrees, rounds, history stats + tag breakdown, curriculum unlock/levels/curriculum-lessons, **session planner** (incl. large 2b pool weak-tag overweighting), **session-curriculum-lesson resolution**, interval/scale-degree/chord session wiring, registry contract |
 | Ports + browser project | **Done** | `HistoryPort`, `AudioPort`, `RecordingPort`; `tests/browser/**/*.browser.test.ts` |
-| Curriculum guards | **Done** | Guided-path home (path node link vs locked, current step, path-complete), locked exercise page, `?unlock=all` (access only) |
+| Curriculum guards | **Done** | Guided-path home (path node link vs locked, current step, path-complete), locked practice page, `?unlock=all` (access only) |
 | Identify orchestration | **Done** | Melodic interval ID — pass, Q2 progress, no interval picker; tier pool drives MC |
 | Sing orchestration | **Done** | Single note + scale-degree sing — pass, fail/retry, short recording error |
-| Per-exercise smokes | **Done** | `registry-exercises.browser.test.ts` — one pass path for chord-middle, interval melodic/harmonic sing, interval harmonic ID |
-| Registry contract | **Done** | `tests/exercises-registry.test.ts` |
+| Per-practice-mode smokes | **Done** | `registry-exercises.browser.test.ts` — one pass path for chord-middle, interval melodic/harmonic sing, interval harmonic ID |
+| Registry contract | **Done** | `tests/practice-modes-registry.test.ts` |
 
 **Optional ops (not blocking debt):** GitHub branch protection requiring `ci`; parallel CI jobs if browser runtime grows; preview-deploy smoke.
 
@@ -63,20 +63,20 @@ Seven registry exercises on the guided curriculum path. Use this table to see **
 | Interval + scale-degree **generation** | Yes | — | Tier pools via `getEligibleTagIds`; session modules tested with planner doubles |
 | **Session planner** (weak + maintenance) | Yes | — | `tests/session-planner.test.ts` — includes 12-tag melodic 2b pool |
 | Chord / interval / inversion preference modules | Yes | — | Logic only; **not** wired to question draw on shipped exercises (pickers removed) |
-| Round scoring math (`summarizeRound`) | Yes | — | |
-| History stats + unlock + tag breakdown | Yes | — | Step unlock + `getContinueStep` in Node; `tag-stats` + dashboard weakness |
+| Round scoring math (`summarizeLesson`) | Yes | — | |
+| History stats + unlock + tag breakdown | Yes | — | Step unlock + `getContinueCurriculumLesson` in Node; `tag-stats` + dashboard weakness |
 | Exercise registry + configs | Yes | — | |
-| Home guided path | Partial | Yes | [`home-curriculum.browser.test.ts`](../tests/browser/home-curriculum.browser.test.ts) — path node states, step-link URLs, path-complete banner, `?unlock=all`; no scroll-into-view assertion |
-| Locked exercise page | — | Yes | |
+| Home guided path | Partial | Yes | [`home-curriculum.browser.test.ts`](../tests/browser/home-curriculum.browser.test.ts) — path node states, lesson-link URLs, path-complete banner, `?unlock=all`; no scroll-into-view assertion |
+| Locked practice page | — | Yes | |
 | Stats dashboard `/stats/` | Yes | Partial | Tag weakness + identify copy in browser ([`stats.browser.test.ts`](../tests/browser/stats.browser.test.ts)); optional deeper exercise-summary assertions |
-| **single-note** sing | — | Yes | Dedicated round test; not in registry smoke list |
-| **interval-melodic-id** | — | Yes | Dedicated round test; not in registry smoke list |
+| **single-note** sing | — | Yes | Dedicated lesson browser test; not in registry smoke list |
+| **interval-melodic-id** | — | Yes | Dedicated lesson browser test; not in registry smoke list |
 | **interval-melodic-sing** | — | Smoke only | Pass path; no fail/retry browser test |
 | **interval-harmonic-sing** | — | Smoke only | Pass path; no fail/retry browser test |
-| **interval-harmonic-id** | — | Smoke + round-style in identify file | No interval picker; tier pool drives choices |
-| **scale-degree-sing** | Yes | Yes | Session module + pass/fail browser; no full-round browser test |
+| **interval-harmonic-id** | — | Smoke + lesson-style in identify file | No interval picker; tier pool drives choices |
+| **scale-degree-sing** | Yes | Yes | Session module + pass/fail browser; no full-lesson browser test |
 | **chord-middle** (path node) | Yes | Smoke only | Session module + pass path; no fail/retry browser test |
-| 10-question round **completion / summary UI** | — | No | Browser tests stop at Q1→Q2 or single question |
+| 10-exercise lesson **completion / summary UI** | — | No | Browser tests stop at Q1→Q2 or single question |
 | Real IndexedDB in browser tests | — | N/A | Intentional: `createMemoryHistoryPort()` |
 | Mic, timbre, Safari audio unlock | — | Manual | See [Manual QA](#manual-qa-always-required) |
 
@@ -88,15 +88,15 @@ Prioritized gaps for **current** functionality. Close a row by merging tests on 
 
 | ID | Gap | Shipped behavior | Plan to close |
 |----|-----|------------------|---------------|
-| D1 | **Round completion UI** | After question 10, round summary (`firstTry` / `retry` / `wrong`) | Browser test on one sing + one identify exercise: advance through mocked/fixed questions or inject config to shorten round; assert summary region copy. |
-| D2 | **Sing fail/retry beyond single-note** | Interval sing + chord-middle share 3-attempt flow with single-note | Reuse `sing-round` patterns: wrong `samplesHz`, “Not quite”, attempt cap — at least one interval sing + chord-middle. |
-| D3 | **Registry smoke parity** | All seven `exerciseId`s should stay guarded against mount/regression breaks | Add **single-note** and **interval-melodic-id** one-question smokes to `registry-exercises.browser.test.ts` *or* document in [`testing.md`](agents/testing.md) that dedicated round files satisfy the contract (prefer smokes for uniformity). |
+| D1 | **Lesson completion UI** | After question 10, lesson summary (`firstTry` / `retry` / `wrong`) | Browser test on one sing + one identify exercise: advance through mocked/fixed questions or inject config to shorten lesson; assert summary region copy. |
+| D2 | **Sing fail/retry beyond single-note** | Interval sing + chord-middle share 3-attempt flow with single-note | Reuse `sing-lesson` patterns: wrong `samplesHz`, “Not quite”, attempt cap — at least one interval sing + chord-middle. |
+| D3 | **Registry smoke parity** | All seven `practiceModeId`s should stay guarded against mount/regression breaks | Add **single-note** and **interval-melodic-id** one-exercise smokes to `registry-exercises.browser.test.ts` *or* document in [`testing.md`](agents/testing.md) that dedicated lesson browser files satisfy the contract (prefer smokes for uniformity). |
 **Closed on `main`**
 
 | ID | Resolution |
 |----|------------|
 | D5 | **Done (obsolete)** — free-practice home section removed; `chord-middle` is a guided-path node. Covered by guided-path home browser tests + registry smoke. |
-| D4 | **Done (obsolete)** — interval / scale-degree / chord-type / inversion pickers removed from UI; only voice type persists. No reload round-trip needed for retired pickers. Optional follow-up: voice-type `localStorage` browser test only. |
+| D4 | **Done (obsolete)** — interval / scale-degree / chord-type / inversion pickers removed from UI; only voice type persists. No reload reload needed for retired pickers. Optional follow-up: voice-type `localStorage` browser test only. |
 | D6 | **Done (obsolete)** — `scale-degree-preference.ts` no longer drives question draw; dedicated unit file not needed unless module is kept for cleanup. |
 
 **Closed on `main` (PR #33):** stats with history — browser tests for weakness breakdown and identify median copy; tag stats in Node (`tests/history-stats.test.ts`).
@@ -156,7 +156,7 @@ Phased rollout (T-CI → T0 → T3) is **complete**. Kept for history only; do n
 | T-CI | GitHub Actions: `npm test` + `npm run build` |
 | T0 | Browser project, `HistoryPort`, home/locked browser tests, Playwright in CI |
 | T1 | Identify orchestration + interval ID browser tests |
-| T2 | `RecordingPort`, single-note sing round browser tests |
+| T2 | `RecordingPort`, single-note sing lesson browser tests |
 | T3 | Registry smokes, helpers, `?unlock=all`, registry contract |
 
-**Session planner rollout (PRs #35–#40):** curriculum steps, planner core, interval/degree/chord wiring, step unlock + melodic 2b — tests shipped in feature PRs; product/testing roadmaps synced in the final docs PR of that sequence.
+**Session planner rollout (PRs #35–#40):** curriculum lessons, planner core, interval/degree/chord wiring, step unlock + melodic 2b — tests shipped in feature PRs; product/testing roadmaps synced in the final docs PR of that sequence.
