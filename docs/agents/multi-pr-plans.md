@@ -65,6 +65,10 @@ For each PR:
 
 Docs-only PRs: summary + “No runtime changes”; omit CI checkboxes until a workflow exists.
 
+### GitHub issues (epic + slices)
+
+When the plan maps to a **parent epic** and **child slice issues** from `/to-issues`, each PR `Closes` its slice issue; the **last PR in the sequence must also `Closes` the parent epic**. See [Closing GitHub issues from a PR](pull-requests.md#closing-github-issues-from-a-pr).
+
 ## Final step: roadmap sync (required)
 
 After the **last** PR in the plan is merged:

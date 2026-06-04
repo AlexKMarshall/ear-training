@@ -119,10 +119,21 @@ GitHub **only** auto-closes issues when the PR description or a commit message u
 | Situation | PR summary line |
 |-----------|-----------------|
 | One issue | `Closes #45` |
-| Parent + child slices (one PR ships all) | List every issue: `Closes #45`, `Closes #46`, … `Closes #50` |
-| Child slices delivered in separate PRs | Each PR closes only its own issue(s) |
+| Parent epic + child slices (one PR ships all) | `Closes` **parent and every child**: `#45`, `#46`, … `#50` |
+| Parent epic + child slices (**separate PR per slice**) | Each PR `Closes` its **child** slice issue only — **except the final slice**, which must also `Closes` the **parent epic** (see below) |
 
-When work was broken down with `/to-issues` (see [`.agents/skills/to-issues/SKILL.md`](../../.agents/skills/to-issues/SKILL.md)) under a parent PRD issue, a **single merge PR** that delivers the full parent should close **the parent and every child issue** included in that merge, not only the parent.
+When work was broken down with `/to-issues` (see [`.agents/skills/to-issues/SKILL.md`](../../.agents/skills/to-issues/SKILL.md)) under a **parent PRD / epic issue**:
+
+- **One PR ships the whole breakdown** — `Closes` the parent and **every** child issue in that PR summary.
+- **Several PRs (one per slice)** — earlier PRs `Closes` only their slice issue; the **last slice PR must `Closes` the parent epic and its own slice issue**. Do not leave the parent open after the final slice merges; do not use *optional* wording for the parent on the final PR.
+
+Example (parent #45, children #46–#50, **three separate PRs**):
+
+| PR | Closes |
+|----|--------|
+| Slice 1 | `#46` |
+| Slice 2 | `#47` |
+| Final slice 3 | `#48`, `#45` |
 
 Example (one vertical-slice PR for parent #45 and children #46–#50):
 

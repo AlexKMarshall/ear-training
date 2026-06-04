@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc -p tsconfig.build.json && vite build",
     "preview": "vite preview",
     "test": "vitest run --project unit",
     "test:browser": "PLAYWRIGHT_BROWSERS_PATH=0 vitest run --project browser",
@@ -16,10 +16,12 @@
     "playwright": "^1.60.0",
     "typescript": "~6.0.2",
     "vite": "^8.0.12",
+    "vite-plugin-solid": "^2.11.12",
     "vitest": "^4.1.8"
   },
   "dependencies": {
     "pitchy": "^4.1.0",
-    "smplr": "^0.26.0"
+    "smplr": "^0.26.0",
+    "solid-js": "^1.9.13"
   }
 }

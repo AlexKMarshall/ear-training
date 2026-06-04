@@ -1,8 +1,11 @@
+/// <reference types="vitest/config" />
 import { resolve } from "node:path";
 import { playwright } from "@vitest/browser-playwright";
+import solid from "vite-plugin-solid";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  plugins: [solid()],
   build: {
     rollupOptions: {
       input: {
@@ -34,8 +37,12 @@ export default defineConfig({
     },
   },
   test: {
+    // vite-plugin-solid defaults test.environment to jsdom when unset; we use node
+    // (unit) and Vitest browser mode (real Chromium via Playwright), not jsdom.
+    environment: "node",
     projects: [
       {
+        extends: true,
         test: {
           name: "unit",
           environment: "node",
@@ -44,9 +51,11 @@ export default defineConfig({
         },
       },
       {
+        extends: true,
         test: {
           name: "browser",
           include: ["tests/**/*.browser.test.ts"],
+          // Real browser (Playwright); do not use jsdom/happy-dom for UI tests.
           browser: {
             enabled: true,
             headless: true,

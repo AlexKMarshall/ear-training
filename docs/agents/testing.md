@@ -23,6 +23,8 @@ Authoritative detail in leaf guides.
 | **Ports at mount boundaries** | `HistoryPort`, `AudioPort`, `RecordingPort`; optional `exercisesPerLesson` on sing/identify mount deps for shortened lesson browser tests. |
 | **No real mic in CI** | Fake `RecordingPort` + real `scoreFromSamples`; manual QA for permissions and timbre. |
 
+**Solid + Vitest:** `vite-plugin-solid` injects a default `test.environment` of `jsdom` when none is set at the root of `vite.config.ts`. This repo sets `test.environment: "node"` at the root so unit tests stay in Node and UI tests use **Vitest browser mode** (Playwright Chromium) only — do not add `jsdom` for UI coverage.
+
 ## Registry smoke contract
 
 All seven shipped `practiceModeId`s have a one-question pass smoke in `registry-exercises.browser.test.ts`. Richer flows (lesson progress, fail/retry, tier pool, lesson summary) live in dedicated `*.browser.test.ts` files—extend those when adding behavior, and add a registry smoke when adding an eighth practice mode.
