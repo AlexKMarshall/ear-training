@@ -1,6 +1,6 @@
 # Agent guide — Ear Training
 
-Browser-based ear training (static site, TypeScript, Vite, Vitest). Product direction: [`docs/roadmap.md`](docs/roadmap.md). Open **testing debt** (shipped behavior only): [`docs/testing-roadmap.md`](docs/testing-roadmap.md). How to write tests: [`docs/agents/testing.md`](docs/agents/testing.md).
+Browser-based ear training (static site, TypeScript, Vite, Vitest). Product direction: [`docs/roadmap.md`](docs/roadmap.md). Open **testing debt** (shipped behavior only): [`docs/testing-roadmap.md`](docs/testing-roadmap.md). Open **tech debt** (architecture & tooling): [`docs/tech-debt.md`](docs/tech-debt.md). How to write tests: [`docs/agents/testing.md`](docs/agents/testing.md).
 
 ## Documentation for agents
 
@@ -10,8 +10,10 @@ Browser-based ear training (static site, TypeScript, Vite, Vitest). Product dire
 | **Multi-PR plans** | [`docs/agents/multi-pr-plans.md`](docs/agents/multi-pr-plans.md) |
 | **Testing (agent guides)** | [`docs/agents/testing.md`](docs/agents/testing.md) |
 | **Testing debt (gaps on `main`)** | [`docs/testing-roadmap.md`](docs/testing-roadmap.md) |
+| **Tech debt (architecture & tooling)** | [`docs/tech-debt.md`](docs/tech-debt.md) |
+| **Tech debt (agent workflow)** | [`docs/agents/tech-debt.md`](docs/agents/tech-debt.md) |
 
-Read the pull-request guide before creating or updating a PR description, especially the **test plan** sections and **roadmap updates** ([`docs/roadmap.md`](docs/roadmap.md) for product; [`docs/testing-roadmap.md`](docs/testing-roadmap.md) only when closing or adding testing debt).
+Read the pull-request guide before creating or updating a PR description, especially the **test plan** sections and **roadmap updates** ([`docs/roadmap.md`](docs/roadmap.md) for product; [`docs/testing-roadmap.md`](docs/testing-roadmap.md) only when closing or adding testing debt; [`docs/tech-debt.md`](docs/tech-debt.md) when closing or adding tech debt).
 
 ## Quick commands
 

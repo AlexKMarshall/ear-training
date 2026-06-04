@@ -35,7 +35,7 @@ Relevant code seams: exercise registry + `mountExercisePage` guard; `CURRICULUM_
 
 ## Testing (summary)
 
-Conventions: [`docs/agents/testing.md`](agents/testing.md). **Open debt** on shipped behavior: [`docs/testing-roadmap.md`](testing-roadmap.md) (not a forward plan for unbuilt features).
+Conventions: [`docs/agents/testing.md`](agents/testing.md). **Open debt** on shipped behavior: [`docs/testing-roadmap.md`](testing-roadmap.md) (not a forward plan for unbuilt features). **Structural / tooling debt:** [`docs/tech-debt.md`](tech-debt.md).
 
 - **Today:** Vitest Node (scoring, generation, unlock, stats) + Vitest **browser** (curriculum guards, identify/sing rounds, registry smokes, ports). **CI** on every PR and `main`.
 - **Debt:** e.g. round-completion UI, broader sing fail/retry coverage — see [open debt table](testing-roadmap.md#open-testing-debt).
@@ -301,7 +301,7 @@ Free practice (`chord-middle`) uses the same planner within the selected **mode*
 - ~~**Curriculum steps**~~ **Done (v1)** — [`src/curriculum/steps.ts`](../src/curriculum/steps.ts); `isStepUnlocked(step, records)`; melodic 2b cross-mode gates. **Next:** harmonic 2b rows; per-tag tier gates; tier 2c+.
 - ~~Migrate generation from user pickers to planner output~~ **Done** — tier pools via `getEligibleTagIds`; `contentTierId` / `eligibleTagIds` on attempts.
 - ~~Implement **recognition** as sibling modes sharing playback and question generation.~~ **Partial** — `identify-test.ts` shares rounds/history with sing tests; interval playback/questions shared via `interval-questions.ts`; registry lists `responseMode` but sing/identify mount paths remain separate.
-- **Testability at UI boundaries** — **Done (baseline):** ports on mount functions; browser orchestration without mocking vendor audio libs. Remaining UI gaps: [testing debt](testing-roadmap.md#open-testing-debt).
+- **Testability at UI boundaries** — **Done (baseline):** ports on mount functions; browser orchestration without mocking vendor audio libs. Remaining UI gaps: [testing debt](testing-roadmap.md#open-testing-debt). Boundary and tooling gaps: [tech debt registry](tech-debt.md).
 
 ### Curriculum v1 — intentional gaps (post–levels shell)
 
