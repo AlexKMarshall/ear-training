@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  CURRICULUM_PATH,
-  FREE_PRACTICE_IDS,
-} from "../src/curriculum/levels.ts";
+import { CURRICULUM_PATH } from "../src/curriculum/levels.ts";
 import { EXERCISES, type ResponseMode } from "../src/exercises/registry.ts";
 import { EXERCISE_LABELS, type ExerciseId } from "../src/history/types.ts";
 import {
@@ -81,9 +78,8 @@ describe("exercise registry contract", () => {
     }
   });
 
-  it("lists every curriculum path and free-practice id", () => {
-    const expected = [...CURRICULUM_PATH, ...FREE_PRACTICE_IDS].sort();
-    expect([...registryIds].sort()).toEqual(expected);
+  it("lists every curriculum path exercise", () => {
+    expect([...registryIds].sort()).toEqual([...CURRICULUM_PATH].sort());
   });
 
   it.each(EXERCISES.map((e) => [e.id, e.responseMode, e.title, e.subtitle] as const))(

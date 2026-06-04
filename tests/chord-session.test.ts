@@ -5,6 +5,7 @@ import {
   prepareChordQuestion,
 } from "../src/ui/chord-session.ts";
 import type { SessionPlanner } from "../src/session/planner.ts";
+import { passingScaleDegreeHistory } from "./fixtures/attempts.ts";
 
 describe("prepareChordQuestion", () => {
   it("uses planner chord type and attaches tier metadata", () => {
@@ -12,7 +13,7 @@ describe("prepareChordQuestion", () => {
       planNextQuestionTag: () => "major-triad-sing-middle",
     };
     const question = prepareChordQuestion(
-      [],
+      passingScaleDegreeHistory(),
       planner,
       { lowMidi: 48, highMidi: 67 },
       () => 0,

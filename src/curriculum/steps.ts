@@ -23,14 +23,15 @@ export interface CurriculumStep {
 export const CURRICULUM_STEPS: readonly CurriculumStep[] = [
   { exerciseId: "single-note", contentTierId: "tier-1" },
   { exerciseId: "interval-melodic-sing", contentTierId: "interval-2a" },
-  { exerciseId: "interval-harmonic-sing", contentTierId: "interval-2a" },
   { exerciseId: "interval-melodic-id", contentTierId: "interval-2a" },
+  { exerciseId: "interval-harmonic-sing", contentTierId: "interval-2a" },
   { exerciseId: "interval-harmonic-id", contentTierId: "interval-2a" },
   { exerciseId: "interval-melodic-sing", contentTierId: "interval-2b" },
   { exerciseId: "interval-melodic-id", contentTierId: "interval-2b" },
   { exerciseId: "interval-harmonic-sing", contentTierId: "interval-2b" },
   { exerciseId: "interval-harmonic-id", contentTierId: "interval-2b" },
   { exerciseId: "scale-degree-sing", contentTierId: "degree-3a" },
+  { exerciseId: "chord-middle", contentTierId: "chord-1a" },
 ] as const;
 
 export function stepKey(step: CurriculumStep): string {

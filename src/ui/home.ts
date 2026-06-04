@@ -1,4 +1,4 @@
-import { CURRICULUM_LEVELS, FREE_PRACTICE_IDS } from "../curriculum/levels.ts";
+import { CURRICULUM_LEVELS } from "../curriculum/levels.ts";
 import {
   computeStepProgress,
   getContinueExercise,
@@ -164,22 +164,6 @@ function renderCurriculumLevels(records: readonly AttemptRecord[]): string {
   }).join("");
 }
 
-function renderFreePractice(records: readonly AttemptRecord[]): string {
-  const cards = FREE_PRACTICE_IDS.map((id) =>
-    renderExerciseCard(id, records),
-  ).join("");
-
-  return `
-    <section class="home-free-practice" aria-labelledby="free-practice-heading">
-      <h2 id="free-practice-heading" class="home-section-title">Free practice</h2>
-      <p class="home-section-desc">Outside the guided path — always available.</p>
-      <div class="curriculum-exercise-list">
-        ${cards}
-      </div>
-    </section>
-  `;
-}
-
 export async function mountHome(
   root: HTMLElement,
   deps: MountDeps = {},
@@ -201,8 +185,6 @@ export async function mountHome(
         <h2 class="home-section-title">Levels</h2>
         ${renderCurriculumLevels(records)}
       </section>
-
-      ${renderFreePractice(records)}
 
       <nav class="test-list" aria-label="More">
         <a href="/stats/" class="test-card test-card-stats">
