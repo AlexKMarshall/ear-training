@@ -24,7 +24,7 @@ export function ExerciseHeader(props: {
       {props.lessonBanner ? (
         <p class="lesson-banner">{props.lessonBanner}</p>
       ) : null}
-      <p class="round-progress" hidden={props.lessonProgressHidden}>
+      <p class="lesson-progress" hidden={props.lessonProgressHidden}>
         {props.lessonProgressText}
       </p>
     </header>
@@ -42,11 +42,11 @@ export function ExerciseActionBar(props: {
   retryHidden: boolean;
   nextHidden: boolean;
   nextLabel: string;
-  nextRoundHidden: boolean;
+  nextLessonHidden: boolean;
   onPlay: () => void;
   onRetry: () => void;
   onNext: () => void;
-  onNextRound: () => void;
+  onNextLesson: () => void;
 }) {
   return (
     <div class="actions">
@@ -86,14 +86,14 @@ export function ExerciseActionBar(props: {
       >
         {props.nextLabel}
       </button>
-      <a class="btn btn-primary" hidden={props.nextRoundHidden} href="/">
+      <a class="btn btn-primary" hidden={props.nextLessonHidden} href="/">
         Back to path
       </a>
       <button
         type="button"
         class="btn btn-secondary"
-        hidden={props.nextRoundHidden}
-        onClick={props.onNextRound}
+        hidden={props.nextLessonHidden}
+        onClick={props.onNextLesson}
       >
         Practice again
       </button>

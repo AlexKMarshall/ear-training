@@ -106,7 +106,7 @@ describe("ExerciseScreenState", () => {
       playDisabled: false,
       retryHidden: true,
       nextHidden: true,
-      nextRoundHidden: true,
+      nextLessonHidden: true,
       currentExercise: null,
       lesson: {
         lessonId: "lesson-test",
@@ -234,7 +234,7 @@ describe("ExerciseScreenState", () => {
     expect(state.getSnapshot()).toMatchObject({
       phase: "lessonSummary",
       lessonProgressHidden: true,
-      nextRoundHidden: false,
+      nextLessonHidden: false,
       result: {
         type: "summary",
         summary: { total: 1, correctCount: 1 },
@@ -320,12 +320,12 @@ describe("ExerciseScreenState", () => {
     expect(recordingSnapshot.playDisabled).toBe(true);
   });
 
-  it("startNextRound resets lesson state", async () => {
+  it("startNextLesson resets lesson state", async () => {
     const { state } = createSelectState({}, { exercisesPerLesson: 1 });
     await state.play();
     await state.submitChoice("P5");
     await state.advance();
-    state.startNextRound();
+    state.startNextLesson();
 
     expect(state.getSnapshot()).toMatchObject({
       phase: "idle",

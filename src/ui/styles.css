@@ -65,7 +65,7 @@ body {
   letter-spacing: 0.01em;
 }
 
-.round-progress {
+.lesson-progress {
   margin: 0.5rem 0 0;
   font-size: 0.85rem;
   font-weight: 500;
@@ -566,21 +566,21 @@ a.path-node:hover {
   color: var(--muted);
 }
 
-.round-summary .result-verdict {
+.lesson-summary .result-verdict {
   color: var(--text);
 }
 
-.round-summary-score {
+.lesson-summary-score {
   margin: 0.75rem 0 0;
   font-size: 1.1rem;
 }
 
-.round-summary-score-value {
+.lesson-summary-score-value {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
-.round-summary-breakdown {
+.lesson-summary-breakdown {
   margin: 1rem 0 0;
   padding: 0;
   list-style: none;
@@ -590,7 +590,7 @@ a.path-node:hover {
   font-size: 0.95rem;
 }
 
-.round-summary-label {
+.lesson-summary-label {
   display: inline-block;
   min-width: 6.5rem;
   color: var(--muted);

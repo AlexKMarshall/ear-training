@@ -94,7 +94,7 @@ export function mountSingTest(
     retryHidden: true,
     nextHidden: true,
     nextLabel: "Next exercise",
-    nextRoundHidden: true,
+    nextLessonHidden: true,
   });
 
   function exercisePromptText(exercise: LessonExercise | null): string | null {
@@ -155,7 +155,7 @@ export function mountSingTest(
       retryHidden: snapshot.retryHidden,
       nextHidden: snapshot.nextHidden,
       nextLabel: snapshot.nextLabel,
-      nextRoundHidden: snapshot.nextRoundHidden,
+      nextLessonHidden: snapshot.nextLessonHidden,
     });
   }
 
@@ -268,9 +268,9 @@ export function mountSingTest(
           stopRecordingStream();
           void exerciseScreen.advance();
         },
-        onNextRound: () => {
+        onNextLesson: () => {
           stopRecordingStream();
-          exerciseScreen.startNextRound();
+          exerciseScreen.startNextLesson();
         },
         onVoiceChange: handleVoiceChange,
       }),

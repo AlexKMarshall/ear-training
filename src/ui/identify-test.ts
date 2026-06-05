@@ -81,7 +81,7 @@ export function mountIdentifyTest(
     retryHidden: true,
     nextHidden: true,
     nextLabel: "Next exercise",
-    nextRoundHidden: true,
+    nextLessonHidden: true,
   });
 
   function rebuildChoices(exercise: LessonExercise): void {
@@ -119,7 +119,7 @@ export function mountIdentifyTest(
       retryHidden: snapshot.retryHidden,
       nextHidden: snapshot.nextHidden,
       nextLabel: snapshot.nextLabel,
-      nextRoundHidden: snapshot.nextRoundHidden,
+      nextLessonHidden: snapshot.nextLessonHidden,
     });
   }
 
@@ -219,10 +219,10 @@ export function mountIdentifyTest(
           currentChoices = [];
           void exerciseScreen.advance();
         },
-        onNextRound: () => {
+        onNextLesson: () => {
           currentChoices = [];
           choicesDisabled = false;
-          exerciseScreen.startNextRound();
+          exerciseScreen.startNextLesson();
         },
         onVoiceChange: handleVoiceChange,
         onChoice: (choiceId) => {
