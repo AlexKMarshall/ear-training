@@ -1,0 +1,335 @@
+import { describe, expect, it, vi } from "vitest";
+import {
+  ExerciseScreenState,
+  type ExerciseScreenStateHooks,
+  type ExerciseScreenStateSnapshot,
+} from "../src/exercise-screen-state.ts";
+import type { LessonExercise } from "../src/lesson-exercise.ts";
+
+const sampleExercise: LessonExercise = {
+  target: { midi: 60, hz: 261.63, name: "C4" },
+  intervalId: "P5",
+};
+
+const statusCopy = {
+  idle: "idle copy",
+  playing: "playing copy",
+  ready: "ready copy",
+  recording: "recording copy",
+  pass: "pass copy",
+  fail: "fail copy",
+  failExhausted: "fail exhausted copy",
+};
+
+function createSelectState(
+  hookOverrides: Partial<ExerciseScreenStateHooks> = {},
+  options: {
+    exercisesPerLesson?: number;
+    onAttemptScored?: ReturnType<typeof vi.fn>;
+    onSnapshotChange?: ReturnType<typeof vi.fn>;
+  } = {},
+) {
+  const snapshots: ExerciseScreenStateSnapshot[] = [];
+  const onSnapshotChange =
+    options.onSnapshotChange ??
+    vi.fn((snapshot: ExerciseScreenStateSnapshot) => {
+      snapshots.push(snapshot);
+    });
+  const onAttemptScored = options.onAttemptScored ?? vi.fn();
+
+  const hooks: ExerciseScreenStateHooks = {
+    prepareExercise: vi.fn(() => sampleExercise),
+    ensurePlayback: vi.fn(async () => {}),
+    playReference: vi.fn(async () => {}),
+    scoreAnswer: (_exercise, selectedId) => ({
+      kind: "scored",
+      passed: selectedId === "P5",
+      scorePayload: { selectedId },
+      attemptDetail: { selectedLabel: selectedId },
+    }),
+    ...hookOverrides,
+  };
+
+  const state = new ExerciseScreenState({
+    hooks,
+    statusCopy,
+    responseMode: "select",
+    exercisesPerLesson: options.exercisesPerLesson,
+    onSnapshotChange,
+    onAttemptScored,
+    createLessonId: () => "lesson-test",
+  });
+
+  return { state, hooks, snapshots, onAttemptScored, onSnapshotChange };
+}
+
+function createSingState(
+  hookOverrides: Partial<ExerciseScreenStateHooks> = {},
+) {
+  const snapshots: ExerciseScreenStateSnapshot[] = [];
+  const onAttemptScored = vi.fn();
+  const hooks: ExerciseScreenStateHooks = {
+    prepareExercise: () => sampleExercise,
+    ensurePlayback: vi.fn(async () => {}),
+    playReference: vi.fn(async () => {}),
+    scoreAnswer: () => ({
+      kind: "scored",
+      passed: true,
+      scorePayload: { centsOff: 5 },
+    }),
+    beginRecording: vi.fn(async ({ onComplete }) => {
+      onComplete([200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215]);
+      return { stop: vi.fn() };
+    }),
+    ...hookOverrides,
+  };
+
+  const state = new ExerciseScreenState({
+    hooks,
+    statusCopy,
+    responseMode: "sing",
+    onSnapshotChange: (snapshot) => snapshots.push(snapshot),
+    onAttemptScored,
+    createLessonId: () => "lesson-sing",
+  });
+
+  return { state, hooks, snapshots, onAttemptScored };
+}
+
+describe("ExerciseScreenState", () => {
+  it("exposes idle snapshot before play", () => {
+    const { state } = createSelectState();
+    expect(state.getSnapshot()).toMatchObject({
+      phase: "idle",
+      statusText: statusCopy.idle,
+      playHidden: false,
+      playDisabled: false,
+      retryHidden: true,
+      nextHidden: true,
+      nextRoundHidden: true,
+      currentExercise: null,
+      lesson: {
+        lessonId: "lesson-test",
+        currentExerciseIndex: null,
+        exerciseNumber: 1,
+      },
+    });
+  });
+
+  it("transitions idle → playing → ready on first play", async () => {
+    const { state, hooks } = createSelectState();
+    await state.play();
+
+    expect(hooks.prepareExercise).toHaveBeenCalledTimes(1);
+    expect(hooks.ensurePlayback).toHaveBeenCalledTimes(1);
+    expect(hooks.playReference).toHaveBeenCalledWith(sampleExercise);
+    expect(state.getSnapshot()).toMatchObject({
+      phase: "ready",
+      statusText: statusCopy.ready,
+      currentExercise: sampleExercise,
+      lesson: { currentExerciseIndex: 0 },
+    });
+  });
+
+  it("skips playing when requiresPlayback returns false", async () => {
+    const { state, hooks } = createSelectState({
+      requiresPlayback: () => false,
+    });
+
+    await state.play();
+
+    expect(hooks.playReference).not.toHaveBeenCalled();
+    expect(state.getSnapshot().phase).toBe("ready");
+  });
+
+  it("scores a select choice and fires enriched attempt scored", async () => {
+    const onAttemptScored = vi.fn();
+    const { state } = createSelectState({}, { onAttemptScored });
+
+    await state.play();
+    await state.submitChoice("P5");
+
+    expect(onAttemptScored).toHaveBeenCalledTimes(1);
+    expect(onAttemptScored.mock.calls[0][0]).toMatchObject({
+      exercise: sampleExercise,
+      scorePayload: { selectedId: "P5" },
+      lesson: {
+        lessonId: "lesson-test",
+        exerciseIndex: 0,
+        passed: true,
+        attemptNumber: 1,
+      },
+    });
+    expect(state.getSnapshot()).toMatchObject({
+      phase: "result",
+      result: {
+        type: "attempt",
+        passed: true,
+        detail: { selectedLabel: "P5" },
+      },
+      retryHidden: true,
+      nextHidden: false,
+      playHidden: true,
+    });
+  });
+
+  it("transitions sing recording via toggleRecording", async () => {
+    const { state, onAttemptScored } = createSingState();
+
+    await state.play();
+    await state.toggleRecording();
+
+    expect(state.getSnapshot()).toMatchObject({
+      phase: "result",
+      result: { type: "attempt", passed: true },
+    });
+    expect(onAttemptScored).toHaveBeenCalledWith(
+      expect.objectContaining({
+        scorePayload: { centsOff: 5 },
+      }),
+    );
+  });
+
+  it("retry replays without duplicate recordScore before a new attempt", async () => {
+    const onAttemptScored = vi.fn();
+    const { state } = createSelectState({}, { onAttemptScored });
+
+    await state.play();
+    await state.submitChoice("M3");
+    expect(onAttemptScored).toHaveBeenCalledTimes(1);
+
+    await state.retry();
+    expect(state.getSnapshot().phase).toBe("ready");
+    await state.submitChoice("P5");
+
+    expect(onAttemptScored).toHaveBeenCalledTimes(2);
+    expect(state.getSnapshot().lesson.scoredAttemptsOnCurrent).toBe(2);
+  });
+
+  it("advance mid-lesson clears exercise and auto-plays next", async () => {
+    const playReference = vi.fn(async () => {});
+    const { state } = createSelectState({ playReference });
+
+    await state.play();
+    await state.submitChoice("P5");
+    await state.advance();
+
+    expect(state.getSnapshot()).toMatchObject({
+      phase: "ready",
+      lesson: {
+        exerciseNumber: 2,
+        results: [{ outcome: "firstTry" }],
+      },
+    });
+    expect(playReference).toHaveBeenCalledTimes(2);
+  });
+
+  it("advance on last exercise shows lesson summary", async () => {
+    const { state } = createSelectState({}, { exercisesPerLesson: 1 });
+
+    await state.play();
+    await state.submitChoice("P5");
+    await state.advance();
+
+    expect(state.getSnapshot()).toMatchObject({
+      phase: "lessonSummary",
+      lessonProgressHidden: true,
+      nextRoundHidden: false,
+      result: {
+        type: "summary",
+        summary: { total: 1, correctCount: 1 },
+      },
+    });
+  });
+
+  it("resetLesson clears lesson and returns to idle", async () => {
+    const onLessonReset = vi.fn();
+    const onSnapshotChange = vi.fn();
+
+    const stateWithReset = new ExerciseScreenState({
+      hooks: {
+        prepareExercise: () => sampleExercise,
+        ensurePlayback: vi.fn(async () => {}),
+        playReference: vi.fn(async () => {}),
+        scoreAnswer: () => ({
+          kind: "scored",
+          passed: true,
+          scorePayload: {},
+        }),
+      },
+      statusCopy,
+      responseMode: "select",
+      onSnapshotChange,
+      onAttemptScored: vi.fn(),
+      onLessonReset,
+      createLessonId: () => "lesson-reset",
+    });
+
+    await stateWithReset.play();
+    await stateWithReset.submitChoice("P5");
+    stateWithReset.resetLesson();
+
+    expect(onLessonReset).toHaveBeenCalledTimes(1);
+    expect(stateWithReset.getSnapshot()).toMatchObject({
+      phase: "idle",
+      currentExercise: null,
+      result: null,
+      lesson: { results: [], exerciseNumber: 1 },
+    });
+  });
+
+  it("maps playback failure to audio error and idle", async () => {
+    const { state } = createSelectState({
+      playReference: vi.fn(async () => {
+        throw new Error("audio failed");
+      }),
+    });
+
+    await state.play();
+
+    expect(state.getSnapshot()).toMatchObject({
+      phase: "idle",
+      result: { type: "audio-error" },
+      currentExercise: null,
+    });
+  });
+
+  it("locks settings on result for select response mode", async () => {
+    const { state } = createSelectState();
+    await state.play();
+    await state.submitChoice("P5");
+
+    expect(state.getSnapshot().settingsLocked).toBe(true);
+  });
+
+  it("disables play while recording for sing response mode", async () => {
+    const beginRecording = vi.fn(
+      ({ onPitch }: { onPitch: (text: string) => void }) =>
+        new Promise<{ stop: () => void }>((resolve) => {
+          onPitch("~260 Hz");
+          resolve({ stop: vi.fn() });
+        }),
+    );
+    const { state } = createSingState({ beginRecording });
+
+    await state.play();
+    await state.toggleRecording();
+
+    const recordingSnapshot = state.getSnapshot();
+    expect(recordingSnapshot.phase).toBe("recording");
+    expect(recordingSnapshot.playDisabled).toBe(true);
+  });
+
+  it("startNextRound resets lesson state", async () => {
+    const { state } = createSelectState({}, { exercisesPerLesson: 1 });
+    await state.play();
+    await state.submitChoice("P5");
+    await state.advance();
+    state.startNextRound();
+
+    expect(state.getSnapshot()).toMatchObject({
+      phase: "idle",
+      lesson: { results: [], isLessonComplete: false },
+    });
+  });
+});
