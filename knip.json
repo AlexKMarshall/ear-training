@@ -1,0 +1,15 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["src/pages/*.ts!"],
+  "project": ["src/**/*.{ts,tsx}!", "tests/**/*.{ts,tsx}"],
+  "rules": {
+    "types": "off",
+    "unlisted": "off"
+  },
+  "vite": {
+    "config": "vite.config.ts"
+  },
+  "vitest": {
+    "config": "vite.config.ts"
+  }
+}
