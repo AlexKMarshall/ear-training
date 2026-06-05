@@ -114,5 +114,6 @@ function PathNodeContent(props: {
 
 ## Related
 
+- Solid reactivity and React footguns: [`solid-pitfalls.md`](solid-pitfalls.md) — props, effects, `<For>` vs `.map()`; this doc is **repo JSX shape** only
 - Domain: [`CONTEXT.md`](../../CONTEXT.md) — *Presentation implementation*
 - Skill: [`.agents/skills/write-jsx/SKILL.md`](../../.agents/skills/write-jsx/SKILL.md)
