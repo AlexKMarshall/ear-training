@@ -5,6 +5,7 @@ import {
   passingIntroScaleDegreeHistory,
   passingLevel2History,
   passingSingleNoteHistory,
+  passingMajorDiatonicScaleDegreeHistory,
   passingThroughHarmonic2bHistory,
   passingThroughMelodic2bHistory,
 } from "../fixtures/attempts.ts";
@@ -99,8 +100,26 @@ test("after melodic 2b complete: harmonic sing at 2b is current; intro scale deg
     .toBeVisible();
 });
 
-test("after harmonic 2b complete: chord step is a link", async () => {
+test("after harmonic 2b complete: major diatonic scale degrees is the current link", async () => {
   await mountHomeWithHistory(passingThroughHarmonic2bHistory());
+  await expect
+    .element(
+      guidedPath().getByRole("link", {
+        name: /Scale degrees.*Melodic reproduction.*diatonic degrees within one octave/i,
+      }),
+    )
+    .toBeVisible();
+  await expect
+    .element(
+      guidedPath().getByRole("link", {
+        name: /Chords.*major vs minor/i,
+      }),
+    )
+    .not.toBeInTheDocument();
+});
+
+test("after major diatonic scale degrees complete: chord step is a link", async () => {
+  await mountHomeWithHistory(passingMajorDiatonicScaleDegreeHistory());
   await expect
     .element(
       guidedPath().getByRole("link", {

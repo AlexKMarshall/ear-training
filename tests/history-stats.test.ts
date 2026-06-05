@@ -211,6 +211,19 @@ describe("tag breakdown", () => {
     expect(stats.byTag![0]!.label).toBe("5th");
   });
 
+  it("resolves labels for major diatonic degree ids", () => {
+    const stats = computePracticeModeStats("scale-degree-sing", [
+      attempt({
+        practiceModeId: "scale-degree-sing",
+        passed: true,
+        attemptNumber: 1,
+        centsOff: 0,
+        degreeId: "seventh",
+      }),
+    ]);
+    expect(stats.byTag![0]!.label).toBe("7th");
+  });
+
   it("computeTagStats omits records without tag id", () => {
     const rows = computeTagStats(
       [

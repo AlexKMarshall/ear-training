@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { getScaleDegreeById, SCALE_DEGREES } from "../src/scale-degree-config.ts";
+import {
+  DEGREE_MAJOR_DIATONIC_IDS,
+  getScaleDegreeById,
+  SCALE_DEGREES,
+} from "../src/scale-degree-config.ts";
 import {
   buildScaleDegreeExercise,
   maxSemitonesAmong,
@@ -20,6 +24,25 @@ describe("validTonicMidis", () => {
   it("returns empty when octave does not fit", () => {
     const tonics = validTonicMidis({ lowMidi: 60, highMidi: 65 }, 12);
     expect(tonics).toEqual([]);
+  });
+});
+
+describe("SCALE_DEGREES registry", () => {
+  it("includes major diatonic degrees with correct semitone spans", () => {
+    expect(DEGREE_MAJOR_DIATONIC_IDS).toEqual([
+      "second",
+      "third",
+      "fourth",
+      "fifth",
+      "sixth",
+      "seventh",
+      "octave",
+    ]);
+    expect(getScaleDegreeById("second")?.semitonesFromTonic).toBe(2);
+    expect(getScaleDegreeById("third")?.semitonesFromTonic).toBe(4);
+    expect(getScaleDegreeById("sixth")?.semitonesFromTonic).toBe(9);
+    expect(getScaleDegreeById("seventh")?.semitonesFromTonic).toBe(11);
+    expect(getScaleDegreeById("sixth")?.label).toBe("6th");
   });
 });
 

@@ -12,6 +12,10 @@ import {
   DIATONIC_MAJOR_INTERVAL_IDS,
   INTERVAL_2A_IDS,
 } from "../src/interval-config.ts";
+import {
+  DEGREE_MAJOR_DIATONIC_IDS,
+  DEGREE_MAJOR_INTRO_IDS,
+} from "../src/scale-degree-config.ts";
 
 describe("curriculum steps", () => {
   it("defines guided steps in cross-mode unlock order through chord middle", () => {
@@ -26,6 +30,7 @@ describe("curriculum steps", () => {
       "interval-melodic-id@interval-2b",
       "interval-harmonic-sing@interval-2b",
       "interval-harmonic-id@interval-2b",
+      "scale-degree-sing@degree-major-diatonic",
       "chord-middle@chord-1a",
     ]);
   });
@@ -109,6 +114,10 @@ describe("curriculum steps", () => {
       practiceModeId: "interval-harmonic-id",
       contentTierId: "interval-2b",
     });
+    const majorDiatonicDegrees = getCurriculumLessonIndex({
+      practiceModeId: "scale-degree-sing",
+      contentTierId: "degree-major-diatonic",
+    });
     const chordMiddle = getCurriculumLessonIndex({
       practiceModeId: "chord-middle",
       contentTierId: "chord-1a",
@@ -118,11 +127,13 @@ describe("curriculum steps", () => {
     expect(melodicId2b).toBe(7);
     expect(harmonicSing2b).toBe(8);
     expect(harmonicId2b).toBe(9);
-    expect(chordMiddle).toBe(10);
+    expect(majorDiatonicDegrees).toBe(10);
+    expect(chordMiddle).toBe(11);
     expect(melodicSing2b).toBeGreaterThan(introDegrees);
     expect(harmonicSing2b).toBeGreaterThan(melodicId2b);
     expect(harmonicId2b).toBeGreaterThan(harmonicSing2b);
-    expect(chordMiddle).toBeGreaterThan(harmonicId2b);
+    expect(majorDiatonicDegrees).toBeGreaterThan(harmonicId2b);
+    expect(chordMiddle).toBeGreaterThan(majorDiatonicDegrees);
   });
 
   it("returns ordered steps per exercise for tier progression", () => {
@@ -136,15 +147,30 @@ describe("curriculum steps", () => {
     ]);
     expect(curriculumLessonsForPracticeMode("scale-degree-sing").map((s) => s.contentTierId)).toEqual([
       "degree-major-intro",
+      "degree-major-diatonic",
     ]);
     expect(curriculumLessonsForPracticeMode("chord-middle").map((s) => s.contentTierId)).toEqual([
       "chord-1a",
     ]);
   });
 
-  it("presets degree-major-intro tags from enabled scale degrees", () => {
+  it("presets degree-major-intro tags from the intro pool", () => {
     const step = CURRICULUM_LESSONS.find((s) => s.contentTierId === "degree-major-intro")!;
-    expect(getEligibleTagIds(step)).toEqual(["fourth", "fifth", "octave"]);
+    expect(getEligibleTagIds(step)).toEqual([...DEGREE_MAJOR_INTRO_IDS]);
+  });
+
+  it("places intro degree tags inside the major diatonic pool", () => {
+    const intro = getEligibleTagIds(
+      CURRICULUM_LESSONS.find((s) => s.contentTierId === "degree-major-intro")!,
+    );
+    const diatonic = getEligibleTagIds(
+      CURRICULUM_LESSONS.find((s) => s.contentTierId === "degree-major-diatonic")!,
+    );
+    expect(diatonic).toHaveLength(7);
+    for (const id of intro) {
+      expect(diatonic).toContain(id);
+    }
+    expect(diatonic).toEqual([...DEGREE_MAJOR_DIATONIC_IDS]);
   });
 
   it("presets chord-1a types and inversions on the chord-middle step", () => {

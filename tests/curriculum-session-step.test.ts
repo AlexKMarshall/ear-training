@@ -11,6 +11,7 @@ import {
   passingMelodicSing2bHistory,
   passingSingleNoteHistory,
   passingStepHistory,
+  passingMajorDiatonicScaleDegreeHistory,
   passingThroughHarmonic2bHistory,
   passingThroughMelodic2bHistory,
 } from "./fixtures/attempts.ts";
@@ -110,10 +111,22 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
     });
   });
 
+  it("returns degree-major-diatonic when interval 2b path is complete", () => {
+    expect(
+      getSessionCurriculumLessonForPracticeMode("scale-degree-sing", passingThroughHarmonic2bHistory()),
+    ).toEqual({
+      practiceModeId: "scale-degree-sing",
+      contentTierId: "degree-major-diatonic",
+    });
+  });
+
   it("returns chord-1a for chord-middle when that step is unlocked", () => {
-    expect(getSessionCurriculumLessonForPracticeMode("chord-middle", passingThroughHarmonic2bHistory())).toEqual(
-      CHORD_MIDDLE_CURRICULUM_LESSON,
-    );
+    expect(
+      getSessionCurriculumLessonForPracticeMode(
+        "chord-middle",
+        passingMajorDiatonicScaleDegreeHistory(),
+      ),
+    ).toEqual(CHORD_MIDDLE_CURRICULUM_LESSON);
   });
 
   it("uses guided default (first incomplete tier) instead of highest unlocked", () => {
