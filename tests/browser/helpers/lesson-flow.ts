@@ -10,7 +10,7 @@ const PASS_SAMPLES = Array(20).fill(262);
 const FAIL_SAMPLES = Array(20).fill(300);
 
 /** Delivers a fixed Hz sequence per recording stop (O2 sing lesson). */
-export function createSequenceRecordingPort(
+function createSequenceRecordingPort(
   sequences: number[][],
 ): RecordingPort {
   let index = 0;
@@ -40,7 +40,7 @@ export function singLessonO2RecordingPort(): RecordingPort {
   ]);
 }
 
-export async function singPlayRecordPass(playLabel: RegExp): Promise<void> {
+async function singPlayRecordPass(playLabel: RegExp): Promise<void> {
   await userEvent.click(page.getByRole("button", { name: playLabel }));
   await userEvent.click(
     page.getByRole("button", { name: /Start singing/i }),
@@ -62,7 +62,7 @@ export async function singPlayRecordFail(playLabel: RegExp): Promise<void> {
     .toBeVisible();
 }
 
-export async function singRetryThenPass(playLabel: RegExp): Promise<void> {
+async function singRetryThenPass(playLabel: RegExp): Promise<void> {
   await userEvent.click(page.getByRole("button", { name: /Try again/i }));
   await userEvent.click(
     page.getByRole("button", { name: /Start singing/i }),
@@ -116,19 +116,19 @@ export async function runSingLessonO2(playLabel: RegExp): Promise<void> {
 const wrongIntervalLabel = getIntervalById("perfect-fourth")!.label;
 const correctIntervalLabel = getIntervalById("perfect-fifth")!.label;
 
-export async function identifyPlayAndChoose(label: string): Promise<void> {
+async function identifyPlayAndChoose(label: string): Promise<void> {
   await userEvent.click(page.getByRole("button", { name: /Play interval/i }));
   await userEvent.click(page.getByRole("button", { name: label }));
 }
 
-export async function identifyPassFirstTry(): Promise<void> {
+async function identifyPassFirstTry(): Promise<void> {
   await identifyPlayAndChoose(correctIntervalLabel);
   await expect
     .element(page.getByText("Correct", { exact: true }))
     .toBeVisible();
 }
 
-export async function identifyFailThenPass(): Promise<void> {
+async function identifyFailThenPass(): Promise<void> {
   await identifyPlayAndChoose(wrongIntervalLabel);
   await expect
     .element(page.getByText("Not quite", { exact: true }))
@@ -140,7 +140,7 @@ export async function identifyFailThenPass(): Promise<void> {
     .toBeVisible();
 }
 
-export async function identifyExhaustAttempts(): Promise<void> {
+async function identifyExhaustAttempts(): Promise<void> {
   await identifyPlayAndChoose(wrongIntervalLabel);
   for (let attempt = 1; attempt < 3; attempt++) {
     await userEvent.click(page.getByRole("button", { name: /Try again/i }));
@@ -151,7 +151,7 @@ export async function identifyExhaustAttempts(): Promise<void> {
     .not.toBeInTheDocument();
 }
 
-export async function identifyAdvanceFromResult(
+async function identifyAdvanceFromResult(
   buttonName: RegExp,
 ): Promise<void> {
   await userEvent.click(page.getByRole("button", { name: buttonName }));
@@ -193,4 +193,4 @@ export async function assertLessonSummaryO2(): Promise<void> {
   await expect.element(breakdown.nth(2)).toHaveTextContent(/1 \(33%\)/);
 }
 
-export { PASS_SAMPLES, FAIL_SAMPLES };
+export { FAIL_SAMPLES };

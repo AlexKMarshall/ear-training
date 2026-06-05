@@ -26,7 +26,7 @@ export interface SessionPlannerOptions {
   weakAreaProbability?: number;
 }
 
-export function createSessionPlanner(
+function createSessionPlanner(
   options: SessionPlannerOptions = {},
 ): SessionPlanner {
   const rng = options.rng ?? Math.random;

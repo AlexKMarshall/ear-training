@@ -1,4 +1,4 @@
-import { SCALE_DEGREES, type ScaleDegreeEntry } from "./scale-degree-config.ts";
+import { SCALE_DEGREES } from "./scale-degree-config.ts";
 
 const STORAGE_KEY = "ear-training-scale-degrees";
 
@@ -20,41 +20,11 @@ function readStoredIds(): string[] | null {
   }
 }
 
-function writeStoredIds(ids: string[]): void {
-  memorySelectedIds = ids;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
-  } catch {
-    /* ignore */
-  }
-}
-
-export function getSelectableScaleDegrees(): readonly ScaleDegreeEntry[] {
-  return SCALE_DEGREES.filter((entry) => entry.enabled);
-}
-
 export function getSelectedScaleDegreeIds(): string[] {
   const allowed = selectableIds();
   const stored = readStoredIds();
   if (stored === null) return allowed;
   return stored.filter((id) => allowed.includes(id));
-}
-
-export function isScaleDegreeSelected(id: string): boolean {
-  return getSelectedScaleDegreeIds().includes(id);
-}
-
-export function setScaleDegreeSelected(id: string, selected: boolean): void {
-  if (!selectableIds().includes(id)) return;
-
-  const current = getSelectedScaleDegreeIds();
-  if (selected) {
-    if (current.includes(id)) return;
-    writeStoredIds([...current, id]);
-    return;
-  }
-
-  writeStoredIds(current.filter((entryId) => entryId !== id));
 }
 
 export function resetScaleDegreePreference(): void {
@@ -66,15 +36,3 @@ export function resetScaleDegreePreference(): void {
   }
 }
 
-export function getActiveScaleDegrees(): ScaleDegreeEntry[] {
-  const selected = new Set(getSelectedScaleDegreeIds());
-  return SCALE_DEGREES.filter((entry) => entry.enabled && selected.has(entry.id));
-}
-
-export function pickRandomScaleDegree(): ScaleDegreeEntry {
-  const active = getActiveScaleDegrees();
-  if (active.length === 0) {
-    throw new Error("No scale degrees are selected");
-  }
-  return active[Math.floor(Math.random() * active.length)]!;
-}

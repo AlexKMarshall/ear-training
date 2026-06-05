@@ -64,5 +64,5 @@ Where boundary debt concentrates today:
 | Exercise registry + mount | [`src/practice-modes/registry.ts`](../src/practice-modes/registry.ts), [`src/ui/sing-test.ts`](../src/ui/sing-test.ts), [`src/ui/identify-test.ts`](../src/ui/identify-test.ts), [`src/ui/*-tests.ts`](../src/ui/) |
 | Session planner + question draw | [`src/session/planner.ts`](../src/session/planner.ts), [`src/history/session-cache.ts`](../src/history/session-cache.ts), [`src/ui/*-session.ts`](../src/ui/) |
 | Curriculum lessons + unlock | [`src/curriculum/curriculum-lessons.ts`](../src/curriculum/curriculum-lessons.ts), [`src/curriculum/unlock.ts`](../src/curriculum/unlock.ts), [`src/curriculum/session-curriculum-lesson.ts`](../src/curriculum/session-curriculum-lesson.ts) |
-| User content preferences (target: retire) | [`src/interval-preference.ts`](../src/interval-preference.ts), [`src/scale-degree-preference.ts`](../src/scale-degree-preference.ts), [`src/chord-type-preference.ts`](../src/chord-type-preference.ts) |
+| User content preferences (target: retire) | [`src/scale-degree-preference.ts`](../src/scale-degree-preference.ts), [`src/chord-type-preference.ts`](../src/chord-type-preference.ts) |
 | Tag stats vs tier eligibility | [`src/history/tag-stats.ts`](../src/history/tag-stats.ts), [`src/curriculum/curriculum-lessons.ts`](../src/curriculum/curriculum-lessons.ts) |

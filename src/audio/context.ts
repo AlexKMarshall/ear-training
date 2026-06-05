@@ -1,6 +1,6 @@
 let audioContext: AudioContext | null = null;
 
-export function getAudioContext(): AudioContext {
+function getAudioContext(): AudioContext {
   if (!audioContext) {
     audioContext = new AudioContext();
   }
@@ -29,9 +29,3 @@ export async function ensureAudioReady(): Promise<AudioContext> {
   return ctx;
 }
 
-export function closeAudioContext(): void {
-  if (audioContext) {
-    void audioContext.close();
-    audioContext = null;
-  }
-}

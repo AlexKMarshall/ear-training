@@ -12,7 +12,7 @@ function isContentTierId(value: string): value is ContentTierId {
   return (CONTENT_TIER_IDS as Set<string>).has(value);
 }
 
-export function findCurriculumLesson(
+function findCurriculumLesson(
   practiceModeId: PracticeModeId,
   contentTierId: ContentTierId,
 ): CurriculumLesson | null {

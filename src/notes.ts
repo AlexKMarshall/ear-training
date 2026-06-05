@@ -1,6 +1,6 @@
 /** A4 = 440 Hz; MIDI note 69 */
-export const A4_HZ = 440;
-export const A4_MIDI = 69;
+const A4_HZ = 440;
+const A4_MIDI = 69;
 
 const NOTE_NAMES = [
   "C",

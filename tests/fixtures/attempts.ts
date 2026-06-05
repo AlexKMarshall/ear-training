@@ -142,11 +142,6 @@ export function passingMinorDiatonicScaleDegreeHistory(): AttemptRecord[] {
   ];
 }
 
-/** @deprecated Use passingIntroScaleDegreeHistory — intro tier only until major/minor tiers ship. */
-export function passingScaleDegreeHistory(): AttemptRecord[] {
-  return passingIntroScaleDegreeHistory();
-}
-
 /** Every shipped curriculum step meets unlock thresholds. */
 export function passingFullGuidedPathHistory(): AttemptRecord[] {
   return [
