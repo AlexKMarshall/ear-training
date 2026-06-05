@@ -21,7 +21,7 @@ export interface SessionPlanner {
   ): string;
 }
 
-export interface SessionPlannerOptions {
+interface SessionPlannerOptions {
   rng?: () => number;
   weakAreaProbability?: number;
 }

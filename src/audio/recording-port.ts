@@ -5,8 +5,6 @@ import {
   type RecordingSession,
 } from "./capture.ts";
 
-export type { RecordingCallbacks, RecordingSession };
-
 export interface RecordingPort {
   start(callbacks: RecordingCallbacks): Promise<RecordingSession>;
   stopStream(): void;

@@ -17,10 +17,6 @@
     "src/pages/*.ts"
   ],
   "project": ["src/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}", "src/**/*.{ts,tsx}!"],
-  "rules": {
-    "types": "off",
-    "unlisted": "off"
-  },
   "vite": {
     "config": "vite.config.ts"
   },

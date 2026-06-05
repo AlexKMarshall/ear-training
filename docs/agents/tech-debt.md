@@ -41,7 +41,7 @@ Examples:
 
 - **Session planner work** — consider TD-003, TD-005, TD-007, TD-011 in scope.
 - **New identify exercise** — TD-001, TD-006 are likely blockers; do not add another one-off identify mount without a plan.
-- **Tooling PR** — TD-013 / TD-014 / TD-015 can be one focused PR series.
+- **Tooling PR** — TD-014 / TD-015 can be one focused PR series.
 
 ---
 
