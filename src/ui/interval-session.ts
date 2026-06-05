@@ -1,11 +1,9 @@
 import { resolveSessionCurriculumLesson } from "../curriculum/session-step.ts";
 import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
 import { getEligibleTagIds } from "../curriculum/curriculum-lessons.ts";
-import {
-  createDefaultHistoryPort,
-  type HistoryPort,
-} from "../history/port.ts";
-import type { AttemptInput, AttemptRecord, PracticeModeId } from "../history/types.ts";
+import type { MountDeps } from "../history/port.ts";
+import type { SessionHistoryCache } from "../history/session-cache.ts";
+import type { AttemptRecord, PracticeModeId } from "../history/types.ts";
 import {
   intervalToLessonExercise,
   randomIntervalExerciseForTag,
@@ -18,35 +16,9 @@ import {
 import type { LessonExercise } from "../lesson-exercise.ts";
 import { getActiveNoteRange } from "../voice-ranges.ts";
 
-export interface IntervalSessionDeps {
-  history?: HistoryPort;
+export interface IntervalSessionDeps
+  extends Pick<MountDeps, "sessionHistory" | "sessionCurriculumLesson"> {
   sessionPlanner?: SessionPlanner;
-  sessionCurriculumLesson?: CurriculumLesson;
-}
-
-export interface IntervalHistoryCache {
-  getRecords(): readonly AttemptRecord[];
-  historyPort: HistoryPort;
-}
-
-export function createIntervalHistoryCache(
-  port: HistoryPort = createDefaultHistoryPort(),
-): IntervalHistoryCache {
-  let records: AttemptRecord[] = [];
-  void port.getAllAttempts().then((loaded) => {
-    records = [...loaded];
-  });
-
-  return {
-    getRecords: () => records,
-    historyPort: {
-      getAllAttempts: async () => [...records],
-      saveAttempt: async (input: AttemptInput) => {
-        await port.saveAttempt(input);
-        records.push({ ...input });
-      },
-    },
-  };
 }
 
 export function prepareIntervalExercise(
@@ -74,15 +46,16 @@ export function prepareIntervalExercise(
   };
 }
 
-export function resolveIntervalSession(
-  deps?: IntervalSessionDeps,
-): {
-  cache: IntervalHistoryCache;
+export function resolveIntervalSession(deps: IntervalSessionDeps): {
+  sessionHistory: SessionHistoryCache;
   planner: SessionPlanner;
 } {
-  const cache = createIntervalHistoryCache(deps?.history);
+  if (!deps.sessionHistory) {
+    throw new Error("sessionHistory is required");
+  }
+
   return {
-    cache,
-    planner: deps?.sessionPlanner ?? createDefaultSessionPlanner(),
+    sessionHistory: deps.sessionHistory,
+    planner: deps.sessionPlanner ?? createDefaultSessionPlanner(),
   };
 }

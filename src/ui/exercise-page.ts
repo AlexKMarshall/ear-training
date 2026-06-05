@@ -15,6 +15,7 @@ import {
   createDefaultHistoryPort,
   type MountDeps,
 } from "../history/port.ts";
+import { createSessionHistoryCache } from "../history/session-cache.ts";
 import type { PracticeModeId } from "../history/types.ts";
 import { LockedCurriculumLessonView } from "./exercise-locked-view.tsx";
 
@@ -58,8 +59,13 @@ export async function mountPracticeModePage(
   practiceModeId: PracticeModeId,
   deps: MountDeps = {},
 ): Promise<void> {
-  const history = deps.history ?? createDefaultHistoryPort();
-  const records = await history.getAllAttempts();
+  const port = deps.history ?? createDefaultHistoryPort();
+  const sessionHistory =
+    deps.sessionHistory ??
+    createSessionHistoryCache(port, {
+      initialRecords: await port.getAllAttempts(),
+    });
+  const records = sessionHistory.getRecords();
   const search = getSearchString(deps);
   const urlCurriculumLesson = parseCurriculumLessonFromSearchParams(search, practiceModeId);
   const accessStep = resolveAccessCurriculumLesson(practiceModeId, records, urlCurriculumLesson);
@@ -75,6 +81,7 @@ export async function mountPracticeModePage(
 
   await mountPracticeMode(root, practiceModeId, {
     ...deps,
+    sessionHistory,
     sessionCurriculumLesson: accessStep,
   });
 }

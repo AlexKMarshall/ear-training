@@ -83,7 +83,7 @@ function mountIntervalSingTest(
   base: Omit<SingTestConfig, "prepareExercise">,
   deps?: IntervalSessionDeps & SingMountDeps,
 ): void {
-  const { cache, planner } = resolveIntervalSession(deps);
+  const { sessionHistory, planner } = resolveIntervalSession(deps ?? {});
   mountSingTest(
     root,
     {
@@ -92,13 +92,13 @@ function mountIntervalSingTest(
         prepareIntervalExercise(
           practiceModeId,
           presentation,
-          cache.getRecords(),
+          sessionHistory.getRecords(),
           planner,
           undefined,
           deps?.sessionCurriculumLesson,
         ),
     },
-    { ...deps, history: cache.historyPort },
+    { ...deps, history: sessionHistory.historyPort },
   );
 }
 
@@ -192,7 +192,7 @@ function mountIntervalIdentifyTest(
   base: Omit<IdentifyTestConfig, "prepareExercise">,
   deps?: IntervalSessionDeps & IdentifyMountDeps,
 ): void {
-  const { cache, planner } = resolveIntervalSession(deps);
+  const { sessionHistory, planner } = resolveIntervalSession(deps ?? {});
   mountIdentifyTest(
     root,
     {
@@ -201,13 +201,13 @@ function mountIntervalIdentifyTest(
         prepareIntervalExercise(
           practiceModeId,
           presentation,
-          cache.getRecords(),
+          sessionHistory.getRecords(),
           planner,
           undefined,
           deps?.sessionCurriculumLesson,
         ),
     },
-    { ...deps, history: cache.historyPort },
+    { ...deps, history: sessionHistory.historyPort },
   );
 }
 

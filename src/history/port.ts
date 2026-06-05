@@ -1,5 +1,6 @@
 import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
 import { getAllAttempts, saveAttempt } from "./store.ts";
+import type { SessionHistoryCache } from "./session-cache.ts";
 import type { AttemptInput, AttemptRecord } from "./types.ts";
 
 export interface HistoryPort {
@@ -9,6 +10,8 @@ export interface HistoryPort {
 
 export interface MountDeps {
   history?: HistoryPort;
+  /** Hydrated attempt history for planner draws and persistence on this page load. */
+  sessionHistory?: SessionHistoryCache;
   /** Resolved curriculum step for this mount (from URL or guided default). */
   sessionCurriculumLesson?: CurriculumLesson;
   /** Override `location.search` (tests). */

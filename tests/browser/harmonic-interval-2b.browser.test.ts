@@ -8,6 +8,7 @@ import {
 } from "../../src/interval-exercises.ts";
 import { createTestAudioPort } from "../../src/audio/port.ts";
 import { createMemoryHistoryPort } from "../../src/history/port.ts";
+import { createSessionHistoryCache } from "../../src/history/session-cache.ts";
 import { mountIntervalHarmonicIdTest } from "../../src/ui/interval-tests.ts";
 import {
   passingStepHistory,
@@ -63,16 +64,18 @@ test("harmonic sing at interval-2b saves attempt with 2b tier metadata", async (
 });
 
 test("harmonic identify at interval-2b saves attempt with 2b tier metadata", async () => {
-  const history = createMemoryHistoryPort([
+  const initialRecords = [
     ...passingThroughMelodic2bHistory(),
     ...passingStepHistory({
       practiceModeId: "interval-harmonic-sing",
       contentTierId: "interval-2b",
     }),
-  ]);
+  ];
+  const history = createMemoryHistoryPort(initialRecords);
+  const sessionHistory = createSessionHistoryCache(history, { initialRecords });
   const root = document.querySelector<HTMLElement>("#app")!;
   mountIntervalHarmonicIdTest(root, {
-    history,
+    sessionHistory,
     audio: createTestAudioPort(),
     sessionPlanner: {
       planNextExerciseTag: () => "perfect-fifth",
