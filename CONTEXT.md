@@ -57,8 +57,8 @@ A fixed-length run of exercises (today: ten per lesson) ending in a summary of h
 _Avoid_: Round, session (when meaning the ten-exercise run)
 
 **Lesson summary**:
-The end-of-lesson score screen listing how many exercises were correct and a breakdown (first try, after retry, wrong). Canonical term is *lesson summary*; the shipped headline still reads **Round complete** — see tech debt TD-018.
-_Avoid_: Round summary (as product term), lesson complete (until copy is aligned)
+The end-of-lesson score screen listing how many exercises were correct and a breakdown (first try, after retry, wrong). Canonical term is *lesson summary*;
+_Avoid_: Round summary (as product term)
 
 **Exercise type**:
 The kind of work each exercise in a lesson asks for, with a **main** part (task plus presentation — e.g. sing melodic intervals, identify harmonic intervals, sing scale degrees) and a **sub** part (content tier pool — e.g. perfect 4th / 5th / octave, diatonic within one octave). Homogeneous lessons repeat one exercise type; mixed lessons combine several types. On the guided path today, one curriculum lesson maps to one exercise type and one practice mode.

@@ -62,7 +62,7 @@ function IdentifyLessonSummaryResult(props: {
 }) {
   return (
     <>
-      <p class="result-verdict">Round complete</p>
+      <p class="result-verdict">Lesson complete</p>
       <p class="round-summary-score">
         <span class="round-summary-score-value">
           {props.summary.correctCount}/{props.summary.total}
@@ -79,8 +79,8 @@ function IdentifyLessonSummaryResult(props: {
           {props.summary.retryCount} ({props.retryPct}%)
         </li>
         <li>
-          <span class="round-summary-label">Wrong</span> {props.summary.wrongCount}{" "}
-          ({props.wrongPct}%)
+          <span class="round-summary-label">Wrong</span>{" "}
+          {props.summary.wrongCount} ({props.wrongPct}%)
         </li>
       </ul>
     </>

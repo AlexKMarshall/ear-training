@@ -10,9 +10,7 @@ const PASS_SAMPLES = Array(20).fill(262);
 const FAIL_SAMPLES = Array(20).fill(300);
 
 /** Delivers a fixed Hz sequence per recording stop (O2 sing lesson). */
-function createSequenceRecordingPort(
-  sequences: number[][],
-): RecordingPort {
+function createSequenceRecordingPort(sequences: number[][]): RecordingPort {
   let index = 0;
   return {
     async start(callbacks) {
@@ -42,9 +40,7 @@ export function singLessonO2RecordingPort(): RecordingPort {
 
 async function singPlayRecordPass(playLabel: RegExp): Promise<void> {
   await userEvent.click(page.getByRole("button", { name: playLabel }));
-  await userEvent.click(
-    page.getByRole("button", { name: /Start singing/i }),
-  );
+  await userEvent.click(page.getByRole("button", { name: /Start singing/i }));
   await userEvent.click(page.getByRole("button", { name: /^Done$/i }));
   await expect
     .element(page.getByText("Correct", { exact: true }))
@@ -53,9 +49,7 @@ async function singPlayRecordPass(playLabel: RegExp): Promise<void> {
 
 export async function singPlayRecordFail(playLabel: RegExp): Promise<void> {
   await userEvent.click(page.getByRole("button", { name: playLabel }));
-  await userEvent.click(
-    page.getByRole("button", { name: /Start singing/i }),
-  );
+  await userEvent.click(page.getByRole("button", { name: /Start singing/i }));
   await userEvent.click(page.getByRole("button", { name: /^Done$/i }));
   await expect
     .element(page.getByText("Not quite", { exact: true }))
@@ -64,9 +58,7 @@ export async function singPlayRecordFail(playLabel: RegExp): Promise<void> {
 
 async function singRetryThenPass(playLabel: RegExp): Promise<void> {
   await userEvent.click(page.getByRole("button", { name: /Try again/i }));
-  await userEvent.click(
-    page.getByRole("button", { name: /Start singing/i }),
-  );
+  await userEvent.click(page.getByRole("button", { name: /Start singing/i }));
   await userEvent.click(page.getByRole("button", { name: /^Done$/i }));
   await expect
     .element(page.getByText("Correct", { exact: true }))
@@ -77,9 +69,7 @@ export async function singExhaustAttempts(playLabel: RegExp): Promise<void> {
   await singPlayRecordFail(playLabel);
   for (let attempt = 1; attempt < 3; attempt++) {
     await userEvent.click(page.getByRole("button", { name: /Try again/i }));
-    await userEvent.click(
-      page.getByRole("button", { name: /Start singing/i }),
-    );
+    await userEvent.click(page.getByRole("button", { name: /Start singing/i }));
     await userEvent.click(page.getByRole("button", { name: /^Done$/i }));
   }
   await expect
@@ -87,9 +77,7 @@ export async function singExhaustAttempts(playLabel: RegExp): Promise<void> {
     .not.toBeInTheDocument();
 }
 
-export async function singAdvanceFromResult(
-  buttonName: RegExp,
-): Promise<void> {
+export async function singAdvanceFromResult(buttonName: RegExp): Promise<void> {
   await userEvent.click(page.getByRole("button", { name: buttonName }));
 }
 
@@ -151,9 +139,7 @@ async function identifyExhaustAttempts(): Promise<void> {
     .not.toBeInTheDocument();
 }
 
-async function identifyAdvanceFromResult(
-  buttonName: RegExp,
-): Promise<void> {
+async function identifyAdvanceFromResult(buttonName: RegExp): Promise<void> {
   await userEvent.click(page.getByRole("button", { name: buttonName }));
 }
 
@@ -178,7 +164,7 @@ export async function runIdentifyLessonO2(): Promise<void> {
 
 export async function assertLessonSummaryO2(): Promise<void> {
   await expect
-    .element(page.getByText("Round complete", { exact: true }))
+    .element(page.getByText("Lesson complete", { exact: true }))
     .toBeVisible();
   await expect.element(page.getByText("2/3")).toBeVisible();
   await expect
