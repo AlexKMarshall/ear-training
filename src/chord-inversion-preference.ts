@@ -16,8 +16,7 @@ function readStoredIds(): InversionId[] | null {
     if (!Array.isArray(parsed)) return null;
     const allowed = new Set(selectableIds());
     return parsed.filter(
-      (id): id is InversionId =>
-        typeof id === "string" && allowed.has(id as InversionId),
+      (id): id is InversionId => typeof id === "string" && allowed.has(id as InversionId),
     );
   } catch {
     return memorySelectedIds;

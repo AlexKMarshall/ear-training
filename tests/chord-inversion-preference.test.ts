@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   getActiveInversions,
-  getSelectedInversionIds,
   getSelectableInversions,
+  getSelectedInversionIds,
   isInversionSelected,
   resetInversionPreference,
   setInversionSelected,

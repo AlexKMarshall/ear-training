@@ -3,10 +3,7 @@ import { formatLessonLinkUrl } from "../src/curriculum/lesson-link.ts";
 import { resolveAccessCurriculumLesson } from "../src/curriculum/session-step.ts";
 import { getPredecessorCurriculumLesson } from "../src/curriculum/unlock.ts";
 import { getPracticeMode } from "../src/practice-modes/registry.ts";
-import {
-  passingLevel2History,
-  passingSingleNoteHistory,
-} from "./fixtures/attempts.ts";
+import { passingLevel2History } from "./fixtures/attempts.ts";
 
 describe("resolveAccessCurriculumLesson", () => {
   it("uses the URL step when provided", () => {
@@ -15,7 +12,11 @@ describe("resolveAccessCurriculumLesson", () => {
       contentTierId: "interval-2a" as const,
     };
     expect(
-      resolveAccessCurriculumLesson("interval-melodic-sing", passingLevel2History(), urlCurriculumLesson),
+      resolveAccessCurriculumLesson(
+        "interval-melodic-sing",
+        passingLevel2History(),
+        urlCurriculumLesson,
+      ),
     ).toEqual(urlCurriculumLesson);
   });
 
@@ -35,9 +36,7 @@ describe("resolveAccessCurriculumLesson", () => {
   });
 
   it("falls back to the first step on the exercise when none are unlocked", () => {
-    expect(
-      resolveAccessCurriculumLesson("interval-melodic-sing", [], null),
-    ).toEqual({
+    expect(resolveAccessCurriculumLesson("interval-melodic-sing", [], null)).toEqual({
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2a",
     });
@@ -55,8 +54,8 @@ describe("getPredecessorCurriculumLesson", () => {
       practiceModeId: "interval-harmonic-id",
       contentTierId: "interval-2a",
     });
-    expect(formatLessonLinkUrl(getPracticeMode(predecessor!.practiceModeId).route, predecessor!)).toBe(
-      "/interval-harmonic-id/?step=interval-harmonic-id%3Ainterval-2a",
-    );
+    expect(
+      formatLessonLinkUrl(getPracticeMode(predecessor!.practiceModeId).route, predecessor!),
+    ).toBe("/interval-harmonic-id/?step=interval-harmonic-id%3Ainterval-2a");
   });
 });

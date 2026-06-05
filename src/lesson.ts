@@ -21,18 +21,13 @@ export interface LessonSummary {
   total: number;
 }
 
-export function classifyExerciseOutcome(
-  passed: boolean,
-  scoredAttempts: number,
-): ExerciseOutcome {
+export function classifyExerciseOutcome(passed: boolean, scoredAttempts: number): ExerciseOutcome {
   if (passed && scoredAttempts === 1) return "firstTry";
   if (passed) return "retry";
   return "wrong";
 }
 
-export function summarizeLesson(
-  results: readonly LessonExerciseResult[],
-): LessonSummary {
+export function summarizeLesson(results: readonly LessonExerciseResult[]): LessonSummary {
   let firstTryCount = 0;
   let retryCount = 0;
   let wrongCount = 0;

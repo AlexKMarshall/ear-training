@@ -1,3 +1,6 @@
+import { render } from "solid-js/web";
+import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
+import { CURRICULUM_LESSONS } from "../curriculum/curriculum-lessons.ts";
 import {
   formatPathNodeHref,
   formatPathNodeStatus,
@@ -5,15 +8,10 @@ import {
   getPathNodeState,
   isGuidedPathComplete,
 } from "../curriculum/path-node.ts";
-import { CURRICULUM_LESSONS } from "../curriculum/curriculum-lessons.ts";
-import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
 import { createDefaultHistoryPort, type MountDeps } from "../history/port.ts";
 import type { AttemptRecord } from "../history/types.ts";
-import { render } from "solid-js/web";
 
-function pathNodeStateClass(
-  state: ReturnType<typeof getPathNodeState>,
-): string {
+function pathNodeStateClass(state: ReturnType<typeof getPathNodeState>): string {
   return state === "passed"
     ? "path-node-passed"
     : state === "current"
@@ -21,20 +19,13 @@ function pathNodeStateClass(
       : "path-node-locked";
 }
 
-function PathNode(props: {
-  step: CurriculumLesson;
-  records: readonly AttemptRecord[];
-}) {
+function PathNode(props: { step: CurriculumLesson; records: readonly AttemptRecord[] }) {
   const state = getPathNodeState(props.step, props.records);
   const stateClass = pathNodeStateClass(state);
 
   if (state === "locked") {
     return (
-      <div
-        class={`path-node ${stateClass}`}
-        data-path-node={state}
-        aria-disabled="true"
-      >
+      <div class={`path-node ${stateClass}`} data-path-node={state} aria-disabled="true">
         <PathNodeContent step={props.step} records={props.records} />
       </div>
     );
@@ -52,10 +43,7 @@ function PathNode(props: {
   );
 }
 
-function PathNodeContent(props: {
-  step: CurriculumLesson;
-  records: readonly AttemptRecord[];
-}) {
+function PathNodeContent(props: { step: CurriculumLesson; records: readonly AttemptRecord[] }) {
   const { title, subtitle } = getPathNodeLabels(props.step);
   const status = formatPathNodeStatus(props.step, props.records);
 
@@ -100,9 +88,7 @@ function Home(props: { records: readonly AttemptRecord[] }) {
       <nav class="test-list" aria-label="More">
         <a href="/stats/" class="test-card test-card-stats">
           <span class="test-card-title">Your progress</span>
-          <span class="test-card-desc">
-            Accuracy, pitch error, and first-try rate
-          </span>
+          <span class="test-card-desc">Accuracy, pitch error, and first-try rate</span>
         </a>
       </nav>
     </main>
@@ -114,19 +100,14 @@ function scrollCurrentPathNodeIntoView(root: HTMLElement): void {
   if (!(current instanceof HTMLElement)) {
     return;
   }
-  const reducedMotion = globalThis.matchMedia?.(
-    "(prefers-reduced-motion: reduce)",
-  ).matches;
+  const reducedMotion = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
   current.scrollIntoView({
     block: "nearest",
     behavior: reducedMotion ? "auto" : "smooth",
   });
 }
 
-export async function mountHome(
-  root: HTMLElement,
-  deps: MountDeps = {},
-): Promise<void> {
+export async function mountHome(root: HTMLElement, deps: MountDeps = {}): Promise<void> {
   const history = deps.history ?? createDefaultHistoryPort();
   const records = await history.getAllAttempts();
 

@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getEligibleChordTypeIds } from "../src/curriculum/curriculum-lessons.ts";
-import {
-  pickRandomInversionFromTier,
-  prepareChordExercise,
-} from "../src/ui/chord-session.ts";
 import type { SessionPlanner } from "../src/session/planner.ts";
+import { pickRandomInversionFromTier, prepareChordExercise } from "../src/ui/chord-session.ts";
 import { passingMinorDiatonicScaleDegreeHistory } from "./fixtures/attempts.ts";
 
 describe("prepareChordExercise", () => {

@@ -3,22 +3,16 @@ import {
   filterRecordsForCurriculumLesson,
   getEligibleTagIds,
 } from "../curriculum/curriculum-lessons.ts";
-import {
-  MIN_EXERCISE_PASS_RATE,
-  MIN_EXERCISES_FOR_UNLOCK,
-} from "../curriculum/unlock.ts";
-import { getTagBreakdownConfig } from "../history/tag-stats.ts";
+import { MIN_EXERCISE_PASS_RATE, MIN_EXERCISES_FOR_UNLOCK } from "../curriculum/unlock.ts";
 import { computeLessonExerciseStats } from "../history/stats.ts";
+import { getTagBreakdownConfig } from "../history/tag-stats.ts";
 import type { AttemptRecord } from "../history/types.ts";
 
 /** Share of draws that target weak (under-threshold) tags vs maintenance. */
 export const WEAK_AREA_PROBABILITY = 0.7;
 
 export interface SessionPlanner {
-  planNextExerciseTag(
-    step: CurriculumLesson,
-    records: readonly AttemptRecord[],
-  ): string;
+  planNextExerciseTag(step: CurriculumLesson, records: readonly AttemptRecord[]): string;
 }
 
 interface SessionPlannerOptions {
@@ -26,12 +20,9 @@ interface SessionPlannerOptions {
   weakAreaProbability?: number;
 }
 
-function createSessionPlanner(
-  options: SessionPlannerOptions = {},
-): SessionPlanner {
+function createSessionPlanner(options: SessionPlannerOptions = {}): SessionPlanner {
   const rng = options.rng ?? Math.random;
-  const weakAreaProbability =
-    options.weakAreaProbability ?? WEAK_AREA_PROBABILITY;
+  const weakAreaProbability = options.weakAreaProbability ?? WEAK_AREA_PROBABILITY;
   return {
     planNextExerciseTag(step, records) {
       return planNextExerciseTag(step, records, rng, weakAreaProbability);
@@ -57,11 +48,7 @@ function weakTagWeight(lessonExerciseCount: number, lessonExercisePassRatePercen
   return Math.max(1, 100 - lessonExercisePassRatePercent);
 }
 
-function pickWeighted<T>(
-  items: readonly T[],
-  weightFn: (item: T) => number,
-  rng: () => number,
-): T {
+function pickWeighted<T>(items: readonly T[], weightFn: (item: T) => number, rng: () => number): T {
   const weights = items.map(weightFn);
   const total = weights.reduce((sum, w) => sum + w, 0);
   if (total <= 0) {
@@ -121,9 +108,7 @@ export function planNextExerciseTag(
     }
   }
 
-  const pickFromWeak =
-    weak.length > 0 &&
-    (maintenance.length === 0 || rng() < weakAreaProbability);
+  const pickFromWeak = weak.length > 0 && (maintenance.length === 0 || rng() < weakAreaProbability);
   const pool = pickFromWeak ? weak : maintenance;
 
   if (pool.length === 1) {
@@ -131,12 +116,16 @@ export function planNextExerciseTag(
   }
 
   if (pickFromWeak) {
-    return pickWeighted(pool, (tagId) => {
-      const tagRecords = byTag.get(tagId) ?? [];
-      const { lessonExerciseCount, lessonExercisePassRatePercent } =
-        computeLessonExerciseStats(tagRecords);
-      return weakTagWeight(lessonExerciseCount, lessonExercisePassRatePercent);
-    }, rng);
+    return pickWeighted(
+      pool,
+      (tagId) => {
+        const tagRecords = byTag.get(tagId) ?? [];
+        const { lessonExerciseCount, lessonExercisePassRatePercent } =
+          computeLessonExerciseStats(tagRecords);
+        return weakTagWeight(lessonExerciseCount, lessonExercisePassRatePercent);
+      },
+      rng,
+    );
   }
 
   return pool[Math.floor(rng() * pool.length)]!;

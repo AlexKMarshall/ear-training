@@ -1,11 +1,8 @@
 import { CHORD_TYPES } from "../chord-config.ts";
 import { CHORD_INVERSIONS, type InversionId } from "../chord-inversions.ts";
-import { PRACTICE_MODE_LABELS, type PracticeModeId } from "../history/types.ts";
 import type { AttemptRecord } from "../history/types.ts";
-import {
-  DIATONIC_MAJOR_INTERVAL_IDS,
-  INTERVAL_2A_IDS,
-} from "../interval-config.ts";
+import { PRACTICE_MODE_LABELS, type PracticeModeId } from "../history/types.ts";
+import { DIATONIC_MAJOR_INTERVAL_IDS, INTERVAL_2A_IDS } from "../interval-config.ts";
 import {
   DEGREE_MAJOR_DIATONIC_IDS,
   DEGREE_MAJOR_INTRO_IDS,
@@ -58,9 +55,7 @@ export function curriculumLessonsForPracticeMode(
   return CURRICULUM_LESSONS.filter((s) => s.practiceModeId === practiceModeId);
 }
 
-export function getEligibleIntervalIds(
-  tierId: "interval-2a" | "interval-2b",
-): readonly string[] {
+export function getEligibleIntervalIds(tierId: "interval-2a" | "interval-2b"): readonly string[] {
   if (tierId === "interval-2a") {
     return INTERVAL_2A_IDS;
   }
@@ -68,10 +63,7 @@ export function getEligibleIntervalIds(
 }
 
 export function getEligibleDegreeIds(
-  tierId:
-    | "degree-major-intro"
-    | "degree-major-diatonic"
-    | "degree-minor-diatonic",
+  tierId: "degree-major-intro" | "degree-major-diatonic" | "degree-minor-diatonic",
 ): readonly string[] {
   switch (tierId) {
     case "degree-major-intro":
@@ -83,18 +75,14 @@ export function getEligibleDegreeIds(
   }
 }
 
-export function getEligibleChordTypeIds(
-  tierId: "chord-1a",
-): readonly string[] {
+export function getEligibleChordTypeIds(tierId: "chord-1a"): readonly string[] {
   if (tierId !== "chord-1a") {
     return [];
   }
   return CHORD_TYPES.filter((t) => t.enabled).map((t) => t.id);
 }
 
-export function getEligibleInversionIds(
-  tierId: "chord-1a",
-): readonly InversionId[] {
+export function getEligibleInversionIds(tierId: "chord-1a"): readonly InversionId[] {
   if (tierId !== "chord-1a") {
     return [];
   }

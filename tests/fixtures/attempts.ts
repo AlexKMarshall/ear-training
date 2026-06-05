@@ -3,8 +3,7 @@ import { MIN_EXERCISES_FOR_UNLOCK } from "../../src/curriculum/unlock.ts";
 import type { AttemptRecord } from "../../src/history/types.ts";
 
 export function attempt(
-  overrides: Partial<AttemptRecord> &
-    Pick<AttemptRecord, "passed" | "attemptNumber" | "centsOff">,
+  overrides: Partial<AttemptRecord> & Pick<AttemptRecord, "passed" | "attemptNumber" | "centsOff">,
 ): AttemptRecord {
   return {
     practiceModeId: "single-note",

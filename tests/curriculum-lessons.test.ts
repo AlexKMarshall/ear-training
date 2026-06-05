@@ -1,21 +1,18 @@
 import { describe, expect, it } from "vitest";
 import {
   CURRICULUM_LESSONS,
-  getEligibleChordTypeIds,
-  getEligibleInversionIds,
-  getEligibleIntervalIds,
-  getEligibleTagIds,
-  getCurriculumLessonIndex,
   curriculumLessonsForPracticeMode,
+  getCurriculumLessonIndex,
+  getEligibleChordTypeIds,
+  getEligibleIntervalIds,
+  getEligibleInversionIds,
+  getEligibleTagIds,
 } from "../src/curriculum/curriculum-lessons.ts";
+import { DIATONIC_MAJOR_INTERVAL_IDS, INTERVAL_2A_IDS } from "../src/interval-config.ts";
 import {
-  DIATONIC_MAJOR_INTERVAL_IDS,
-  INTERVAL_2A_IDS,
-} from "../src/interval-config.ts";
-import {
-  DEGREE_MINOR_DIATONIC_IDS,
   DEGREE_MAJOR_DIATONIC_IDS,
   DEGREE_MAJOR_INTRO_IDS,
+  DEGREE_MINOR_DIATONIC_IDS,
 } from "../src/scale-degree-config.ts";
 
 describe("curriculum steps", () => {
@@ -50,9 +47,7 @@ describe("curriculum steps", () => {
 
   it("exposes twelve tags for interval 2b steps", () => {
     const harmonicSing2b = CURRICULUM_LESSONS.find(
-      (s) =>
-        s.practiceModeId === "interval-harmonic-sing" &&
-        s.contentTierId === "interval-2b",
+      (s) => s.practiceModeId === "interval-harmonic-sing" && s.contentTierId === "interval-2b",
     )!;
     expect(getEligibleTagIds(harmonicSing2b)).toHaveLength(12);
   });
@@ -145,19 +140,15 @@ describe("curriculum steps", () => {
   });
 
   it("returns ordered steps per exercise for tier progression", () => {
-    expect(curriculumLessonsForPracticeMode("interval-melodic-sing").map((s) => s.contentTierId)).toEqual([
-      "interval-2a",
-      "interval-2b",
-    ]);
-    expect(curriculumLessonsForPracticeMode("interval-harmonic-sing").map((s) => s.contentTierId)).toEqual([
-      "interval-2a",
-      "interval-2b",
-    ]);
-    expect(curriculumLessonsForPracticeMode("scale-degree-sing").map((s) => s.contentTierId)).toEqual([
-      "degree-major-intro",
-      "degree-major-diatonic",
-      "degree-minor-diatonic",
-    ]);
+    expect(
+      curriculumLessonsForPracticeMode("interval-melodic-sing").map((s) => s.contentTierId),
+    ).toEqual(["interval-2a", "interval-2b"]);
+    expect(
+      curriculumLessonsForPracticeMode("interval-harmonic-sing").map((s) => s.contentTierId),
+    ).toEqual(["interval-2a", "interval-2b"]);
+    expect(
+      curriculumLessonsForPracticeMode("scale-degree-sing").map((s) => s.contentTierId),
+    ).toEqual(["degree-major-intro", "degree-major-diatonic", "degree-minor-diatonic"]);
     expect(curriculumLessonsForPracticeMode("chord-middle").map((s) => s.contentTierId)).toEqual([
       "chord-1a",
     ]);
@@ -200,11 +191,7 @@ describe("curriculum steps", () => {
       "minor-triad-sing-middle",
       "diminished-triad-sing-middle",
     ]);
-    expect(getEligibleInversionIds("chord-1a")).toEqual([
-      "root",
-      "first",
-      "second",
-    ]);
+    expect(getEligibleInversionIds("chord-1a")).toEqual(["root", "first", "second"]);
     const step = CURRICULUM_LESSONS.find((s) => s.practiceModeId === "chord-middle")!;
     expect(getEligibleTagIds(step)).toEqual(getEligibleChordTypeIds("chord-1a"));
   });

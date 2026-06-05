@@ -46,24 +46,20 @@ describe("buildIntervalExercise", () => {
     ["major-third", 64],
     ["tritone", 66],
     ["major-seventh", 71],
-  ] as const)(
-    "builds diatonic interval %s from root 60",
-    (intervalId, upperMidi) => {
-      const interval = getIntervalById(intervalId)!;
-      const exercise = buildIntervalExercise(interval, "melodic", 60);
-      expect(exercise.intervalId).toBe(intervalId);
-      expect(exercise.upper.midi).toBe(upperMidi);
-    },
-  );
+  ] as const)("builds diatonic interval %s from root 60", (intervalId, upperMidi) => {
+    const interval = getIntervalById(intervalId)!;
+    const exercise = buildIntervalExercise(interval, "melodic", 60);
+    expect(exercise.intervalId).toBe(intervalId);
+    expect(exercise.upper.midi).toBe(upperMidi);
+  });
 });
 
 describe("randomIntervalExerciseForTag", () => {
   it("generates from an explicit tag id", () => {
-    const exercise = randomIntervalExerciseForTag(
-      "perfect-fourth",
-      "melodic",
-      { lowMidi: 48, highMidi: 72 },
-    );
+    const exercise = randomIntervalExerciseForTag("perfect-fourth", "melodic", {
+      lowMidi: 48,
+      highMidi: 72,
+    });
     expect(exercise.intervalId).toBe("perfect-fourth");
   });
 });
@@ -75,17 +71,15 @@ describe("randomIntervalExercise", () => {
       const interval = getIntervalById(intervalId)!;
       const exercise = randomIntervalExercise("melodic", range, interval);
       expect(exercise.intervalId).toBe(intervalId);
-      expect(exercise.upper.midi - exercise.lower.midi).toBe(
-        interval.semitones,
-      );
+      expect(exercise.upper.midi - exercise.lower.midi).toBe(interval.semitones);
     }
   });
 
   it("throws when the interval does not fit the voice range", () => {
     const octave = getIntervalById("perfect-octave")!;
-    expect(() =>
-      randomIntervalExercise("melodic", { lowMidi: 60, highMidi: 65 }, octave),
-    ).toThrow(/No valid root/);
+    expect(() => randomIntervalExercise("melodic", { lowMidi: 60, highMidi: 65 }, octave)).toThrow(
+      /No valid root/,
+    );
   });
 });
 

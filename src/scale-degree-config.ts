@@ -94,8 +94,6 @@ const NATURAL_MINOR_SEMITONES_FROM_TONIC: Partial<Record<string, number>> = {
   octave: 12,
 };
 
-export function getNaturalMinorSemitonesFromTonic(
-  degreeId: string,
-): number | undefined {
+export function getNaturalMinorSemitonesFromTonic(degreeId: string): number | undefined {
   return NATURAL_MINOR_SEMITONES_FROM_TONIC[degreeId];
 }

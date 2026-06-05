@@ -1,11 +1,6 @@
-import type { ScaleDegreeEntry } from "./scale-degree-config.ts";
-import {
-  midiToHz,
-  midiToNoteName,
-  type NoteRange,
-  type TargetNote,
-} from "./notes.ts";
 import type { LessonExercise } from "./lesson-exercise.ts";
+import { midiToHz, midiToNoteName, type NoteRange, type TargetNote } from "./notes.ts";
+import type { ScaleDegreeEntry } from "./scale-degree-config.ts";
 
 export interface ScaleDegreeExercise {
   degreeId: string;
@@ -23,10 +18,7 @@ function targetNote(midi: number): TargetNote {
 }
 
 /** Tonic MIDI values where both tonic and degree target fit in range. */
-export function validTonicMidis(
-  range: NoteRange,
-  semitonesFromTonic: number,
-): number[] {
+export function validTonicMidis(range: NoteRange, semitonesFromTonic: number): number[] {
   const midis: number[] = [];
   const maxTonic = range.highMidi - semitonesFromTonic;
   for (let midi = range.lowMidi; midi <= maxTonic; midi++) {
@@ -49,9 +41,7 @@ export function buildScaleDegreeExercise(
 }
 
 /** Largest semitone span among degrees — tonic must fit all of them in range. */
-export function maxSemitonesAmong(
-  degrees: readonly ScaleDegreeEntry[],
-): number {
+export function maxSemitonesAmong(degrees: readonly ScaleDegreeEntry[]): number {
   if (degrees.length === 0) {
     throw new Error("No scale degrees provided");
   }
@@ -112,4 +102,3 @@ export function scaleDegreeToLessonExercise(
     degreeId: scaleDegreeQuestion.degreeId,
   };
 }
-

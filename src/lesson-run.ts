@@ -1,11 +1,5 @@
-import {
-  EXERCISES_PER_LESSON,
-  MAX_ATTEMPTS_PER_EXERCISE,
-} from "./config.ts";
-import {
-  classifyExerciseOutcome,
-  type LessonExerciseResult,
-} from "./lesson.ts";
+import { EXERCISES_PER_LESSON, MAX_ATTEMPTS_PER_EXERCISE } from "./config.ts";
+import { classifyExerciseOutcome, type LessonExerciseResult } from "./lesson.ts";
 import type { LessonExercise } from "./lesson-exercise.ts";
 
 export interface LessonRunSnapshot {
@@ -57,10 +51,8 @@ export class LessonRun {
   constructor(options: LessonRunOptions = {}) {
     this.onAttemptScored = options.onAttemptScored;
     this.createLessonId = options.createLessonId ?? (() => crypto.randomUUID());
-    this.maxAttemptsPerExercise =
-      options.maxAttemptsPerExercise ?? MAX_ATTEMPTS_PER_EXERCISE;
-    this.exercisesPerLesson =
-      options.exercisesPerLesson ?? EXERCISES_PER_LESSON;
+    this.maxAttemptsPerExercise = options.maxAttemptsPerExercise ?? MAX_ATTEMPTS_PER_EXERCISE;
+    this.exercisesPerLesson = options.exercisesPerLesson ?? EXERCISES_PER_LESSON;
     this.lessonId = this.createLessonId();
   }
 
@@ -114,10 +106,7 @@ export class LessonRun {
     }
     this.results.push({
       exerciseIndex: this.currentExerciseIndex,
-      outcome: classifyExerciseOutcome(
-        this.lastPassed,
-        this.scoredAttemptsOnCurrent,
-      ),
+      outcome: classifyExerciseOutcome(this.lastPassed, this.scoredAttemptsOnCurrent),
       exercise,
     });
     this.currentExerciseIndex = null;
@@ -128,8 +117,7 @@ export class LessonRun {
   getSnapshot(): LessonRunSnapshot {
     const results = this.results;
     const exerciseNumber = results.length + 1;
-    const isLastExerciseInLesson =
-      results.length >= this.exercisesPerLesson - 1;
+    const isLastExerciseInLesson = results.length >= this.exercisesPerLesson - 1;
     const isLessonComplete = results.length >= this.exercisesPerLesson;
     const canRetry =
       this.currentExerciseIndex !== null &&
@@ -139,8 +127,7 @@ export class LessonRun {
     const canAdvance =
       this.currentExerciseIndex !== null &&
       this.scoredAttemptsOnCurrent > 0 &&
-      (this.lastPassed ||
-        this.scoredAttemptsOnCurrent >= this.maxAttemptsPerExercise);
+      (this.lastPassed || this.scoredAttemptsOnCurrent >= this.maxAttemptsPerExercise);
 
     return {
       lessonId: this.lessonId,

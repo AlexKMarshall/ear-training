@@ -1,12 +1,11 @@
-import type { InversionId } from "./chord-inversions.ts";
+import type { ChordQualityIntervals, InversionId } from "./chord-inversions.ts";
 import { voicingOffsetsForInversion } from "./chord-inversions.ts";
-import type { ChordQualityIntervals } from "./chord-inversions.ts";
 import type { ChordExercise } from "./chords.ts";
 import {
   midiToHz,
   midiToNoteName,
-  randomNoteInRange,
   type NoteRange,
+  randomNoteInRange,
   type TargetNote,
 } from "./notes.ts";
 
@@ -21,10 +20,7 @@ export interface ChordType {
   rangeAnchorIndex: 1;
 }
 
-function voicingFor(
-  type: ChordType,
-  inversion: InversionId,
-): [number, number, number] {
+function voicingFor(type: ChordType, inversion: InversionId): [number, number, number] {
   return voicingOffsetsForInversion(type.quality, inversion);
 }
 
@@ -39,9 +35,7 @@ export function buildChordExercise(
   middleMidi: number,
 ): ChordExercise {
   const voicing = voicingFor(type, inversion);
-  const midis = voicing.map(
-    (offset) => middleMidi + offset,
-  ) as [number, number, number];
+  const midis = voicing.map((offset) => middleMidi + offset) as [number, number, number];
   return {
     notes: midis.map(targetNote) as [TargetNote, TargetNote, TargetNote],
     targetIndex: type.targetIndex,

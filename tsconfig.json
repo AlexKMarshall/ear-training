@@ -17,11 +17,8 @@
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
 
-    /* Linting */
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    /* Type-only checks (lint/style: Biome) */
+    "erasableSyntaxOnly": true
   },
   "include": ["src"]
 }

@@ -20,6 +20,9 @@ Read the pull-request guide before creating or updating a PR description, especi
 ```bash
 npm test              # Vitest Node — unit tests
 npm run test:browser  # Vitest browser — UI orchestration (Playwright)
+npm run lint          # Biome — lint + format check (CI)
+npm run lint:fix      # Biome — apply safe lint fixes + organize imports
+npm run format        # Biome — format in-scope files
 npm run typecheck     # tsc on src (same config as the IDE)
 npm run knip:production  # dead shipped code (production entry points only)
 npm run knip          # test helpers, devDependencies, tooling (full graph)
@@ -33,7 +36,7 @@ Run `npm run test:browser` when changing `src/ui/`, mount functions, or browser 
 
 ## CI
 
-Every push to `main` and every pull request runs [GitHub Actions](.github/workflows/ci.yml): `npm run typecheck`, `npm run knip:production`, `npm run knip`, `npm test`, `npm run test:browser`, and `npm run build` on Node 22.
+Every push to `main` and every pull request runs [GitHub Actions](.github/workflows/ci.yml): `npm run lint`, `npm run typecheck`, `npm run knip:production`, `npm run knip`, `npm test`, `npm run test:browser`, and `npm run build` on Node 22.
 
 Do not claim tests pass on a PR without a green **CI** check on that PR.
 

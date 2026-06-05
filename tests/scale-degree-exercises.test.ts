@@ -71,9 +71,9 @@ describe("buildScaleDegreeExercise", () => {
 describe("randomScaleDegreeExercise", () => {
   it("throws when no tonic fits the range", () => {
     const octave = getScaleDegreeById("octave")!;
-    expect(() =>
-      randomScaleDegreeExercise({ lowMidi: 60, highMidi: 65 }, octave),
-    ).toThrow(/No valid tonic/);
+    expect(() => randomScaleDegreeExercise({ lowMidi: 60, highMidi: 65 }, octave)).toThrow(
+      /No valid tonic/,
+    );
   });
 });
 

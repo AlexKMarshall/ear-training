@@ -1,18 +1,17 @@
 import { playTargetNote } from "../audio/playback.ts";
 import { getScaleDegreeKeyQualityLabel } from "../curriculum/scale-degree-tiers.ts";
 import { getScaleDegreeById } from "../scale-degree-config.ts";
-import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts";
 import {
   prepareScaleDegreeExercise,
   resolveScaleDegreeSession,
   type ScaleDegreeSessionDeps,
 } from "./scale-degree-session.ts";
+import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts";
 
 const scaleDegreeSingBase = {
   practiceModeId: "scale-degree-sing" as const,
   title: "Sing scale degrees",
-  subtitle:
-    "One key per lesson — hear the tonic, then sing each requested scale degree",
+  subtitle: "One key per lesson — hear the tonic, then sing each requested scale degree",
   playButtonLabel: "Play tonic",
   showVoicePicker: true,
   status: {
@@ -32,16 +31,14 @@ const scaleDegreeSingBase = {
     return playTargetNote(exercise.scaleDegree.tonic.midi);
   },
   exercisePrompt: (exercise: Parameters<NonNullable<SingTestConfig["exercisePrompt"]>>[0]) => {
-    const label =
-      getScaleDegreeById(exercise.degreeId ?? "")?.label ?? exercise.degreeId;
+    const label = getScaleDegreeById(exercise.degreeId ?? "")?.label ?? exercise.degreeId;
     return `Sing the ${label}`;
   },
 };
 
 export const scaleDegreeSingConfig: SingTestConfig = {
   ...scaleDegreeSingBase,
-  prepareExercise: () =>
-    prepareScaleDegreeExercise([], null).exercise,
+  prepareExercise: () => prepareScaleDegreeExercise([], null).exercise,
 };
 
 export function mountScaleDegreeSingTest(

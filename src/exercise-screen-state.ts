@@ -1,18 +1,7 @@
-import {
-  EXERCISES_PER_LESSON,
-  MAX_ATTEMPTS_PER_EXERCISE,
-} from "./config.ts";
-import {
-  LessonRun,
-  type AttemptScoredContext,
-  type LessonRunSnapshot,
-} from "./lesson-run.ts";
-import {
-  percentOf,
-  summarizeLesson,
-  type LessonSummary,
-} from "./lesson.ts";
+import { EXERCISES_PER_LESSON, MAX_ATTEMPTS_PER_EXERCISE } from "./config.ts";
+import { type LessonSummary, percentOf, summarizeLesson } from "./lesson.ts";
 import type { LessonExercise } from "./lesson-exercise.ts";
+import { type AttemptScoredContext, LessonRun, type LessonRunSnapshot } from "./lesson-run.ts";
 
 export type ExerciseScreenPhase =
   | "idle"
@@ -85,9 +74,7 @@ export interface ExerciseScreenStateHooks {
     exercise: LessonExercise,
     response: unknown,
   ): ScoreAnswerResult | Promise<ScoreAnswerResult>;
-  beginRecording?(
-    options: BeginRecordingOptions,
-  ): Promise<{ stop: () => void } | void>;
+  beginRecording?(options: BeginRecordingOptions): Promise<{ stop: () => void } | void>;
   isPlaybackBusy?(): boolean;
 }
 
@@ -125,11 +112,7 @@ function nextStepButtonLabel(isLastExerciseInLesson: boolean): string {
   return isLastExerciseInLesson ? "Finish lesson" : "Next exercise";
 }
 
-function buildAttemptNote(
-  passed: boolean,
-  triesLeft: number,
-  nextLabel: string,
-): string | null {
+function buildAttemptNote(passed: boolean, triesLeft: number, nextLabel: string): string | null {
   if (passed) return null;
   if (triesLeft > 0) {
     return `${triesLeft} ${triesLeft === 1 ? "try" : "tries"} left on this exercise.`;
@@ -148,22 +131,16 @@ export class ExerciseScreenState {
   private readonly responseMode: ResponseMode;
   private readonly exercisesPerLesson: number;
   private readonly maxAttemptsPerExercise: number;
-  private readonly onSnapshotChange: (
-    snapshot: ExerciseScreenStateSnapshot,
-  ) => void;
-  private readonly onAttemptScored: (
-    context: AttemptScoredEnrichedContext,
-  ) => void;
+  private readonly onSnapshotChange: (snapshot: ExerciseScreenStateSnapshot) => void;
+  private readonly onAttemptScored: (context: AttemptScoredEnrichedContext) => void;
   private readonly onLessonReset?: () => void;
 
   constructor(options: ExerciseScreenStateOptions) {
     this.hooks = options.hooks;
     this.statusCopy = options.statusCopy;
     this.responseMode = options.responseMode;
-    this.exercisesPerLesson =
-      options.exercisesPerLesson ?? EXERCISES_PER_LESSON;
-    this.maxAttemptsPerExercise =
-      options.maxAttemptsPerExercise ?? MAX_ATTEMPTS_PER_EXERCISE;
+    this.exercisesPerLesson = options.exercisesPerLesson ?? EXERCISES_PER_LESSON;
+    this.maxAttemptsPerExercise = options.maxAttemptsPerExercise ?? MAX_ATTEMPTS_PER_EXERCISE;
     this.onSnapshotChange = options.onSnapshotChange;
     this.onAttemptScored = options.onAttemptScored;
     this.onLessonReset = options.onLessonReset;
@@ -201,8 +178,7 @@ export class ExerciseScreenState {
     let statusText = this.statusCopy.idle;
     switch (this.phase) {
       case "lessonSummary":
-        statusText =
-          "Lesson finished — review your score, then start the next lesson.";
+        statusText = "Lesson finished — review your score, then start the next lesson.";
         break;
       case "idle":
         statusText = this.statusCopy.idle;
@@ -217,8 +193,7 @@ export class ExerciseScreenState {
         statusText = this.statusCopy.recording ?? this.statusCopy.ready;
         break;
       case "result": {
-        const triesLeft =
-          this.maxAttemptsPerExercise - lesson.scoredAttemptsOnCurrent;
+        const triesLeft = this.maxAttemptsPerExercise - lesson.scoredAttemptsOnCurrent;
         const onLastQuestion = lesson.isLastExerciseInLesson;
         if (this.resultView?.type === "attempt") {
           statusText = this.resultView.passed
@@ -245,9 +220,7 @@ export class ExerciseScreenState {
 
     let resultClassName = "result";
     if (this.resultView?.type === "attempt") {
-      resultClassName = this.resultView.passed
-        ? "result result-pass"
-        : "result result-fail";
+      resultClassName = this.resultView.passed ? "result result-pass" : "result result-fail";
     } else if (this.resultView?.type === "summary") {
       resultClassName = "result lesson-summary";
     } else if (
@@ -325,10 +298,7 @@ export class ExerciseScreenState {
   async submitChoice(selectedId: string): Promise<void> {
     if (this.phase !== "ready" || !this.currentExercise) return;
 
-    const outcome = await this.hooks.scoreAnswer(
-      this.currentExercise,
-      selectedId,
-    );
+    const outcome = await this.hooks.scoreAnswer(this.currentExercise, selectedId);
     if (outcome.kind === "error") {
       this.showScoringError(outcome.message);
       return;
@@ -371,9 +341,7 @@ export class ExerciseScreenState {
         this.recordingSession = session;
       }
     } catch (err) {
-      this.showScoringError(
-        err instanceof Error ? err.message : "Microphone error.",
-      );
+      this.showScoringError(err instanceof Error ? err.message : "Microphone error.");
     }
   }
 
@@ -383,10 +351,7 @@ export class ExerciseScreenState {
       return;
     }
 
-    const outcome = await this.hooks.scoreAnswer(
-      this.currentExercise,
-      samplesHz,
-    );
+    const outcome = await this.hooks.scoreAnswer(this.currentExercise, samplesHz);
     if (outcome.kind === "error") {
       this.showScoringError(outcome.message);
       return;
@@ -395,17 +360,14 @@ export class ExerciseScreenState {
     this.applyScoredAttempt(outcome);
   }
 
-  private applyScoredAttempt(
-    outcome: Extract<ScoreAnswerResult, { kind: "scored" }>,
-  ): void {
+  private applyScoredAttempt(outcome: Extract<ScoreAnswerResult, { kind: "scored" }>): void {
     if (!this.currentExercise) return;
 
     this.pendingScorePayload = outcome.scorePayload;
     this.lessonRun.recordScore(outcome.passed);
 
     const lesson = this.lessonRun.getSnapshot();
-    const triesLeft =
-      this.maxAttemptsPerExercise - lesson.scoredAttemptsOnCurrent;
+    const triesLeft = this.maxAttemptsPerExercise - lesson.scoredAttemptsOnCurrent;
     const nextLabel = nextStepButtonLabel(lesson.isLastExerciseInLesson);
 
     this.resultView = {

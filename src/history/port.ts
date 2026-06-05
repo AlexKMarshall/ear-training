@@ -1,6 +1,6 @@
 import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
-import { getAllAttempts, saveAttempt } from "./store.ts";
 import type { SessionHistoryCache } from "./session-cache.ts";
+import { getAllAttempts, saveAttempt } from "./store.ts";
 import type { AttemptInput, AttemptRecord } from "./types.ts";
 
 export interface HistoryPort {
@@ -22,9 +22,7 @@ export function createDefaultHistoryPort(): HistoryPort {
   return { getAllAttempts, saveAttempt };
 }
 
-export function createMemoryHistoryPort(
-  initial: AttemptRecord[] = [],
-): HistoryPort {
+export function createMemoryHistoryPort(initial: AttemptRecord[] = []): HistoryPort {
   const records = [...initial];
 
   return {

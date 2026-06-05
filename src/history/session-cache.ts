@@ -14,9 +14,7 @@ export function createSessionHistoryCache(
   port: HistoryPort,
   options: CreateSessionHistoryCacheOptions = {},
 ): SessionHistoryCache {
-  let records: AttemptRecord[] = options.initialRecords
-    ? [...options.initialRecords]
-    : [];
+  let records: AttemptRecord[] = options.initialRecords ? [...options.initialRecords] : [];
 
   if (!options.initialRecords) {
     void port.getAllAttempts().then((loaded) => {

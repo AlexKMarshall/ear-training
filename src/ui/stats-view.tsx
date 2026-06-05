@@ -1,9 +1,5 @@
 import type { DashboardStats, PracticeModeStats } from "../history/stats.ts";
-import {
-  getTagBreakdownConfig,
-  tagBreakdownHeading,
-  type TagStats,
-} from "../history/tag-stats.ts";
+import { getTagBreakdownConfig, type TagStats, tagBreakdownHeading } from "../history/tag-stats.ts";
 
 function formatMedianCents(value: number | null): string {
   if (value === null) return "—";
@@ -28,15 +24,9 @@ function StatsTagRow(props: { tag: TagStats; showMedian: boolean }) {
           label="Questions correct"
           value={`${props.tag.lessonExercisePassRatePercent}%`}
         />
-        <StatsItem
-          label="First try"
-          value={`${props.tag.firstTryRatePercent}%`}
-        />
+        <StatsItem label="First try" value={`${props.tag.firstTryRatePercent}%`} />
         {props.showMedian ? (
-          <StatsItem
-            label="Median error"
-            value={formatMedianCents(props.tag.medianAbsCents)}
-          />
+          <StatsItem label="Median error" value={formatMedianCents(props.tag.medianAbsCents)} />
         ) : null}
       </dl>
     </div>
@@ -79,23 +69,14 @@ function StatsExerciseSection(props: { stats: PracticeModeStats }) {
       <h2 class="stats-section-title">{props.stats.label}</h2>
       <dl class="stats-grid">
         <StatsItem label="Attempts" value={props.stats.attemptCount} />
-        <StatsItem
-          label="Attempt pass rate"
-          value={`${props.stats.attemptPassRatePercent}%`}
-        />
+        <StatsItem label="Attempt pass rate" value={`${props.stats.attemptPassRatePercent}%`} />
         <StatsItem
           label="Questions correct"
           value={`${props.stats.lessonExercisePassRatePercent}%`}
         />
-        <StatsItem
-          label="First try"
-          value={`${props.stats.firstTryRatePercent}%`}
-        />
+        <StatsItem label="First try" value={`${props.stats.firstTryRatePercent}%`} />
         {showMedian ? (
-          <StatsItem
-            label="Median error"
-            value={formatMedianCents(props.stats.medianAbsCents)}
-          />
+          <StatsItem label="Median error" value={formatMedianCents(props.stats.medianAbsCents)} />
         ) : null}
       </dl>
       <StatsTagBreakdown stats={props.stats} />
@@ -103,42 +84,25 @@ function StatsExerciseSection(props: { stats: PracticeModeStats }) {
   );
 }
 
-function StatsOverallSection(props: {
-  stats: DashboardStats;
-  hasSingAttempts: boolean;
-}) {
+function StatsOverallSection(props: { stats: DashboardStats; hasSingAttempts: boolean }) {
   return (
     <section class="stats-section stats-section-overall">
       <h2 class="stats-section-title">Overall</h2>
       <dl class="stats-grid">
         <StatsItem label="Total attempts" value={props.stats.totalAttempts} />
-        <StatsItem
-          label="Questions practiced"
-          value={props.stats.totalLessonExercises}
-        />
-        <StatsItem
-          label="Attempt pass rate"
-          value={`${props.stats.attemptPassRatePercent}%`}
-        />
+        <StatsItem label="Questions practiced" value={props.stats.totalLessonExercises} />
+        <StatsItem label="Attempt pass rate" value={`${props.stats.attemptPassRatePercent}%`} />
         <StatsItem
           label="Questions correct"
           value={`${props.stats.lessonExercisePassRatePercent}%`}
         />
-        <StatsItem
-          label="First try"
-          value={`${props.stats.firstTryRatePercent}%`}
-        />
+        <StatsItem label="First try" value={`${props.stats.firstTryRatePercent}%`} />
         {props.hasSingAttempts ? (
-          <StatsItem
-            label="Median error (singing)"
-            value={`${props.stats.medianAbsCents}¢`}
-          />
+          <StatsItem label="Median error (singing)" value={`${props.stats.medianAbsCents}¢`} />
         ) : null}
       </dl>
       {props.hasSingAttempts ? null : (
-        <p class="stats-hint">
-          Median error applies to singing exercises only.
-        </p>
+        <p class="stats-hint">Median error applies to singing exercises only.</p>
       )}
     </section>
   );
@@ -157,10 +121,7 @@ function StatsPracticeLinks() {
   );
 }
 
-export function StatsView(props: {
-  stats: DashboardStats;
-  hasSingAttempts: boolean;
-}) {
+export function StatsView(props: { stats: DashboardStats; hasSingAttempts: boolean }) {
   const hasData = props.stats.totalAttempts > 0;
 
   return (
@@ -178,10 +139,7 @@ export function StatsView(props: {
 
       {hasData ? (
         <>
-          <StatsOverallSection
-            stats={props.stats}
-            hasSingAttempts={props.hasSingAttempts}
-          />
+          <StatsOverallSection stats={props.stats} hasSingAttempts={props.hasSingAttempts} />
           {props.stats.byPracticeMode.map((section) => (
             <StatsExerciseSection stats={section} />
           ))}
@@ -190,8 +148,7 @@ export function StatsView(props: {
         <section class="card">
           <p class="status">No practice history yet.</p>
           <p class="stats-hint">
-            Complete a lesson on any test — each scored attempt is saved locally
-            in your browser.
+            Complete a lesson on any test — each scored attempt is saved locally in your browser.
           </p>
         </section>
       )}

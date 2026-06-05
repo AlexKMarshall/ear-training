@@ -1,5 +1,5 @@
-import { page } from "vitest/browser";
 import { beforeEach, expect, test } from "vitest";
+import { page } from "vitest/browser";
 import {
   FAIL_SAMPLES,
   singAdvanceFromResult,
@@ -18,9 +18,7 @@ test("interval melodic sing: fail shows retry and records failed attempt", async
   });
 
   await expect
-    .element(
-      page.getByRole("heading", { name: /Sing melodic intervals/i }),
-    )
+    .element(page.getByRole("heading", { name: /Sing melodic intervals/i }))
     .toBeVisible();
 
   await singPlayRecordFail(/Play interval/i);
@@ -49,9 +47,7 @@ test("chord middle: fail shows retry and records failed attempt", async () => {
     samplesHz: FAIL_SAMPLES,
   });
 
-  await expect
-    .element(page.getByRole("heading", { name: /Sing the middle note/i }))
-    .toBeVisible();
+  await expect.element(page.getByRole("heading", { name: /Sing the middle note/i })).toBeVisible();
 
   await singPlayRecordFail(/Play chord/i);
 

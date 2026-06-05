@@ -11,10 +11,7 @@ const RATIO_TOLERANCE = 0.18;
  * Octave errors (2× / ½×) are intentionally not folded — those stay wrong so
  * we can still coach "wrong octave" feedback.
  */
-export function correctHarmonicPitch(
-  detectedHz: number,
-  targetHz: number,
-): number {
+export function correctHarmonicPitch(detectedHz: number, targetHz: number): number {
   if (detectedHz <= 0 || targetHz <= 0) {
     return detectedHz;
   }

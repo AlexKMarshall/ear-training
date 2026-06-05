@@ -19,17 +19,14 @@ export function LockedCurriculumLessonView(props: {
         <p class="subtitle">{props.subtitle}</p>
       </header>
 
-      <section
-        class="exercise-locked"
-        aria-labelledby="exercise-locked-heading"
-      >
+      <section class="exercise-locked" aria-labelledby="exercise-locked-heading">
         <h2 id="exercise-locked-heading" class="exercise-locked-title">
           Locked
         </h2>
         <p class="exercise-locked-desc">
           Complete <strong>{props.predecessorName}</strong> first: answer at least{" "}
-          {props.minExercisesForUnlock} questions with{" "}
-          {props.minPassRatePercent}% or higher question pass rate.
+          {props.minExercisesForUnlock} questions with {props.minPassRatePercent}% or higher
+          question pass rate.
         </p>
         <a href={props.predecessorHref} class="test-card exercise-locked-cta">
           <span class="test-card-title">Go to {props.predecessorName}</span>

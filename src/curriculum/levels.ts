@@ -35,5 +35,6 @@ export const CURRICULUM_LEVELS: readonly CurriculumLevel[] = [
 ] as const;
 
 /** Ordered guided path (Level 1 → Level 4 exercises). */
-export const CURRICULUM_PATH: readonly PracticeModeId[] =
-  CURRICULUM_LEVELS.flatMap((level) => level.practiceModeIds);
+export const CURRICULUM_PATH: readonly PracticeModeId[] = CURRICULUM_LEVELS.flatMap(
+  (level) => level.practiceModeIds,
+);

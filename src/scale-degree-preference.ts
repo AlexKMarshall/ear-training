@@ -35,4 +35,3 @@ export function resetScaleDegreePreference(): void {
     /* ignore */
   }
 }
-

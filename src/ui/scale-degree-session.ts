@@ -1,23 +1,17 @@
-import { resolveSessionCurriculumLesson } from "../curriculum/session-step.ts";
 import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
 import { getEligibleTagIds } from "../curriculum/curriculum-lessons.ts";
+import { resolveSessionCurriculumLesson } from "../curriculum/session-step.ts";
 import type { MountDeps } from "../history/port.ts";
 import type { SessionHistoryCache } from "../history/session-cache.ts";
 import type { AttemptRecord } from "../history/types.ts";
-import {
-  getNaturalMinorSemitonesFromTonic,
-  getScaleDegreeById,
-} from "../scale-degree-config.ts";
+import type { LessonExercise } from "../lesson-exercise.ts";
+import { getNaturalMinorSemitonesFromTonic, getScaleDegreeById } from "../scale-degree-config.ts";
 import {
   buildScaleDegreeExercise,
   pickRandomLessonTonic,
   scaleDegreeToLessonExercise,
 } from "../scale-degree-exercises.ts";
-import {
-  createDefaultSessionPlanner,
-  type SessionPlanner,
-} from "../session/planner.ts";
-import type { LessonExercise } from "../lesson-exercise.ts";
+import { createDefaultSessionPlanner, type SessionPlanner } from "../session/planner.ts";
 import { getActiveNoteRange } from "../voice-ranges.ts";
 
 export interface ScaleDegreeSessionDeps

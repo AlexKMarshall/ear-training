@@ -344,12 +344,8 @@ describe("computePracticeModeProgress", () => {
     ];
     const progress = computePracticeModeProgress("single-note", records);
     const dashboard = computeDashboardStats(records);
-    const singleNote = dashboard.byPracticeMode.find(
-      (s) => s.practiceModeId === "single-note",
-    );
+    const singleNote = dashboard.byPracticeMode.find((s) => s.practiceModeId === "single-note");
     expect(progress.lessonExerciseCount).toBe(singleNote?.lessonExerciseCount);
-    expect(progress.lessonExercisePassRatePercent).toBe(
-      singleNote?.lessonExercisePassRatePercent,
-    );
+    expect(progress.lessonExercisePassRatePercent).toBe(singleNote?.lessonExercisePassRatePercent);
   });
 });

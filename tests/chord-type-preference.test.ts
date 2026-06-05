@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { resetInversionPreference } from "../src/chord-inversion-preference.ts";
 import {
   getActiveChordTypes,
-  getSelectedChordTypeIds,
   getSelectableChordTypes,
+  getSelectedChordTypeIds,
   isChordTypeSelected,
   resetChordTypePreference,
   setChordTypeSelected,

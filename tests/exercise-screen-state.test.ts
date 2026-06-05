@@ -63,9 +63,7 @@ function createSelectState(
   return { state, hooks, snapshots, onAttemptScored, onSnapshotChange };
 }
 
-function createSingState(
-  hookOverrides: Partial<ExerciseScreenStateHooks> = {},
-) {
+function createSingState(hookOverrides: Partial<ExerciseScreenStateHooks> = {}) {
   const snapshots: ExerciseScreenStateSnapshot[] = [];
   const onAttemptScored = vi.fn();
   const hooks: ExerciseScreenStateHooks = {

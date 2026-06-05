@@ -1,12 +1,9 @@
 import { getChordTypeById } from "../chord-config.ts";
-import { getPracticeMode } from "../practice-modes/registry.ts";
 import { getIntervalById } from "../interval-config.ts";
+import { getPracticeMode } from "../practice-modes/registry.ts";
 import { getScaleDegreeById } from "../scale-degree-config.ts";
+import { computeLessonExerciseStats, computeMedianAbsCents } from "./stats.ts";
 import type { AttemptRecord, PracticeModeId } from "./types.ts";
-import {
-  computeMedianAbsCents,
-  computeLessonExerciseStats,
-} from "./stats.ts";
 
 export interface TagStats {
   tagId: string;
@@ -109,9 +106,7 @@ export function computeTagStats(
       label: resolveTagLabel(config.kind, tagId),
       attemptCount: tagRecords.length,
       ...lessonExerciseStats,
-      medianAbsCents: config.includeMedianCents
-        ? computeMedianAbsCents(tagRecords)
-        : null,
+      medianAbsCents: config.includeMedianCents ? computeMedianAbsCents(tagRecords) : null,
     });
   }
 
@@ -136,9 +131,7 @@ export function computeTagBreakdownForExercise(
 }
 
 /** Sing attempts only — meaningful for overall intonation on the dashboard. */
-export function singAttemptsMedianAbsCents(
-  records: readonly AttemptRecord[],
-): number {
+export function singAttemptsMedianAbsCents(records: readonly AttemptRecord[]): number {
   const singRecords = records.filter(
     (r) => getPracticeMode(r.practiceModeId).responseMode === "sing",
   );

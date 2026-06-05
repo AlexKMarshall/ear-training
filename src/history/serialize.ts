@@ -1,7 +1,7 @@
 import { getActiveInversions } from "../chord-inversion-preference.ts";
 import { getSelectedChordTypeIds } from "../chord-type-preference.ts";
-import { getSelectedScaleDegreeIds } from "../scale-degree-preference.ts";
 import type { LessonExercise } from "../lesson-exercise.ts";
+import { getSelectedScaleDegreeIds } from "../scale-degree-preference.ts";
 import { getVoiceType } from "../voice-ranges.ts";
 import type { AttemptInput, PracticeModeId } from "./types.ts";
 
@@ -41,9 +41,7 @@ export function buildAttemptRecord(
     chordTypeId: exercise.chordTypeId,
     inversionId: exercise.inversionId,
     voiceType: context.showVoicePicker ? getVoiceType() : undefined,
-    activeChordTypeIds: context.showChordFilters
-      ? getSelectedChordTypeIds()
-      : undefined,
+    activeChordTypeIds: context.showChordFilters ? getSelectedChordTypeIds() : undefined,
     activeInversionIds: context.showChordFilters
       ? getActiveInversions().map((inv) => inv.id)
       : undefined,
@@ -57,9 +55,7 @@ export function buildAttemptRecord(
     selectedIntervalId,
     degreeId: exercise.degreeId,
     tonicMidi: exercise.scaleDegree?.tonic.midi,
-    activeDegreeIds: context.showDegreeFilters
-      ? getSelectedScaleDegreeIds()
-      : undefined,
+    activeDegreeIds: context.showDegreeFilters ? getSelectedScaleDegreeIds() : undefined,
     lessonId: context.lessonId,
     exerciseIndex: context.exerciseIndex,
   };

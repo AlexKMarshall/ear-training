@@ -1,16 +1,13 @@
 import type { MountDeps } from "../history/port.ts";
 import type { PracticeModeId } from "../history/types.ts";
 import {
-  mountChordMiddleTest,
-  mountSingleNoteTest,
-} from "../ui/tests.ts";
-import {
   mountIntervalHarmonicIdTest,
   mountIntervalHarmonicSingTest,
   mountIntervalMelodicIdTest,
   mountIntervalMelodicSingTest,
 } from "../ui/interval-tests.ts";
 import { mountScaleDegreeSingTest } from "../ui/scale-degree-tests.ts";
+import { mountChordMiddleTest, mountSingleNoteTest } from "../ui/tests.ts";
 
 export type ResponseMode = "sing" | "select";
 
@@ -77,8 +74,7 @@ const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
     responseMode: "sing",
     route: "/scale-degree-sing/",
     title: "Sing scale degrees",
-    subtitle:
-      "One key per lesson — hear the tonic, then sing each requested scale degree",
+    subtitle: "One key per lesson — hear the tonic, then sing each requested scale degree",
     mount: mountScaleDegreeSingTest,
   },
 ];

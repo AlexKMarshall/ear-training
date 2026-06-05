@@ -1,5 +1,5 @@
-import { page } from "vitest/browser";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { page } from "vitest/browser";
 import { parseCurriculumLessonFromSearchParams } from "../../src/curriculum/lesson-link.ts";
 import { createMemoryHistoryPort } from "../../src/history/port.ts";
 import { passingLevel2History } from "../fixtures/attempts.ts";
@@ -42,8 +42,6 @@ describe("curriculum lesson query param on practice page", () => {
     await expect
       .element(page.getByRole("heading", { name: /Sing melodic intervals/i }))
       .toBeVisible();
-    await expect
-      .element(page.getByRole("heading", { name: "Locked" }))
-      .not.toBeInTheDocument();
+    await expect.element(page.getByRole("heading", { name: "Locked" })).not.toBeInTheDocument();
   });
 });

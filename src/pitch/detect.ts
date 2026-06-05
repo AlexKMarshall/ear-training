@@ -28,10 +28,7 @@ export function detectPitchFromAnalyser(
     return null;
   }
 
-  const [frequencyHz, clarity] = detector.findPitch(
-    timeDomainBuffer,
-    sampleRate,
-  );
+  const [frequencyHz, clarity] = detector.findPitch(timeDomainBuffer, sampleRate);
 
   if (frequencyHz <= 0 || clarity < MIN_CLARITY) {
     return null;

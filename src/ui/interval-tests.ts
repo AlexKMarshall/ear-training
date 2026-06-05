@@ -1,11 +1,15 @@
 import { playDyad, playMelodicSequence } from "../audio/playback.ts";
 import type { PracticeModeId } from "../history/types.ts";
 import type { LessonExercise } from "../lesson-exercise.ts";
-import { mountIdentifyTest, type IdentifyMountDeps, type IdentifyTestConfig } from "./identify-test.ts";
 import {
+  type IdentifyMountDeps,
+  type IdentifyTestConfig,
+  mountIdentifyTest,
+} from "./identify-test.ts";
+import {
+  type IntervalSessionDeps,
   prepareIntervalExercise,
   resolveIntervalSession,
-  type IntervalSessionDeps,
 } from "./interval-session.ts";
 import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts";
 
@@ -18,8 +22,7 @@ const intervalMelodicSingBase = {
   status: {
     idle: "Press Play to hear the interval.",
     playing: "Listen to both notes…",
-    ready:
-      "Sing the top note of the interval, then tap Start singing when ready.",
+    ready: "Sing the top note of the interval, then tap Start singing when ready.",
     recording:
       "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
     pass: "Correct — tap Next exercise when you are ready.",
@@ -37,8 +40,7 @@ const intervalMelodicSingBase = {
 
 export const intervalMelodicSingConfig: SingTestConfig = {
   ...intervalMelodicSingBase,
-  prepareExercise: () =>
-    prepareIntervalExercise("interval-melodic-sing", "melodic", []),
+  prepareExercise: () => prepareIntervalExercise("interval-melodic-sing", "melodic", []),
 };
 
 const intervalHarmonicSingBase = {
@@ -50,8 +52,7 @@ const intervalHarmonicSingBase = {
   status: {
     idle: "Press Play to hear the interval.",
     playing: "Listen to both notes…",
-    ready:
-      "Sing the top note of the interval, then tap Start singing when ready.",
+    ready: "Sing the top note of the interval, then tap Start singing when ready.",
     recording:
       "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
     pass: "Correct — tap Next exercise when you are ready.",
@@ -69,16 +70,12 @@ const intervalHarmonicSingBase = {
 
 export const intervalHarmonicSingConfig: SingTestConfig = {
   ...intervalHarmonicSingBase,
-  prepareExercise: () =>
-    prepareIntervalExercise("interval-harmonic-sing", "harmonic", []),
+  prepareExercise: () => prepareIntervalExercise("interval-harmonic-sing", "harmonic", []),
 };
 
 function mountIntervalSingTest(
   root: HTMLElement,
-  practiceModeId: Extract<
-    PracticeModeId,
-    "interval-melodic-sing" | "interval-harmonic-sing"
-  >,
+  practiceModeId: Extract<PracticeModeId, "interval-melodic-sing" | "interval-harmonic-sing">,
   presentation: "melodic" | "harmonic",
   base: Omit<SingTestConfig, "prepareExercise">,
   deps?: IntervalSessionDeps & SingMountDeps,
@@ -106,26 +103,14 @@ export function mountIntervalMelodicSingTest(
   root: HTMLElement,
   deps?: IntervalSessionDeps & SingMountDeps,
 ): void {
-  mountIntervalSingTest(
-    root,
-    "interval-melodic-sing",
-    "melodic",
-    intervalMelodicSingBase,
-    deps,
-  );
+  mountIntervalSingTest(root, "interval-melodic-sing", "melodic", intervalMelodicSingBase, deps);
 }
 
 export function mountIntervalHarmonicSingTest(
   root: HTMLElement,
   deps?: IntervalSessionDeps & SingMountDeps,
 ): void {
-  mountIntervalSingTest(
-    root,
-    "interval-harmonic-sing",
-    "harmonic",
-    intervalHarmonicSingBase,
-    deps,
-  );
+  mountIntervalSingTest(root, "interval-harmonic-sing", "harmonic", intervalHarmonicSingBase, deps);
 }
 
 const intervalMelodicIdBase = {
@@ -151,8 +136,7 @@ const intervalMelodicIdBase = {
 
 export const intervalMelodicIdConfig: IdentifyTestConfig = {
   ...intervalMelodicIdBase,
-  prepareExercise: () =>
-    prepareIntervalExercise("interval-melodic-id", "melodic", []),
+  prepareExercise: () => prepareIntervalExercise("interval-melodic-id", "melodic", []),
 };
 
 const intervalHarmonicIdBase = {
@@ -178,16 +162,12 @@ const intervalHarmonicIdBase = {
 
 export const intervalHarmonicIdConfig: IdentifyTestConfig = {
   ...intervalHarmonicIdBase,
-  prepareExercise: () =>
-    prepareIntervalExercise("interval-harmonic-id", "harmonic", []),
+  prepareExercise: () => prepareIntervalExercise("interval-harmonic-id", "harmonic", []),
 };
 
 function mountIntervalIdentifyTest(
   root: HTMLElement,
-  practiceModeId: Extract<
-    PracticeModeId,
-    "interval-melodic-id" | "interval-harmonic-id"
-  >,
+  practiceModeId: Extract<PracticeModeId, "interval-melodic-id" | "interval-harmonic-id">,
   presentation: "melodic" | "harmonic",
   base: Omit<IdentifyTestConfig, "prepareExercise">,
   deps?: IntervalSessionDeps & IdentifyMountDeps,
@@ -215,24 +195,12 @@ export function mountIntervalMelodicIdTest(
   root: HTMLElement,
   deps?: IntervalSessionDeps & IdentifyMountDeps,
 ): void {
-  mountIntervalIdentifyTest(
-    root,
-    "interval-melodic-id",
-    "melodic",
-    intervalMelodicIdBase,
-    deps,
-  );
+  mountIntervalIdentifyTest(root, "interval-melodic-id", "melodic", intervalMelodicIdBase, deps);
 }
 
 export function mountIntervalHarmonicIdTest(
   root: HTMLElement,
   deps?: IntervalSessionDeps & IdentifyMountDeps,
 ): void {
-  mountIntervalIdentifyTest(
-    root,
-    "interval-harmonic-id",
-    "harmonic",
-    intervalHarmonicIdBase,
-    deps,
-  );
+  mountIntervalIdentifyTest(root, "interval-harmonic-id", "harmonic", intervalHarmonicIdBase, deps);
 }

@@ -8,11 +8,11 @@ import {
 import {
   passingIntroScaleDegreeHistory,
   passingLevel2History,
+  passingMajorDiatonicScaleDegreeHistory,
   passingMelodicSing2bHistory,
+  passingMinorDiatonicScaleDegreeHistory,
   passingSingleNoteHistory,
   passingStepHistory,
-  passingMajorDiatonicScaleDegreeHistory,
-  passingMinorDiatonicScaleDegreeHistory,
   passingThroughHarmonic2bHistory,
   passingThroughMelodic2bHistory,
 } from "./fixtures/attempts.ts";
@@ -20,9 +20,7 @@ import {
 describe("getSessionCurriculumLessonForPracticeMode", () => {
   it("returns interval-2a for melodic sing until 2b unlocks", () => {
     const records = passingSingleNoteHistory();
-    expect(
-      getSessionCurriculumLessonForPracticeMode("interval-melodic-sing", records),
-    ).toEqual({
+    expect(getSessionCurriculumLessonForPracticeMode("interval-melodic-sing", records)).toEqual({
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2a",
     });
@@ -30,15 +28,11 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
 
   it("returns interval-2b for melodic exercises when that tier is unlocked", () => {
     const records = passingIntroScaleDegreeHistory();
-    expect(
-      getSessionCurriculumLessonForPracticeMode("interval-melodic-sing", records),
-    ).toEqual({
+    expect(getSessionCurriculumLessonForPracticeMode("interval-melodic-sing", records)).toEqual({
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2b",
     });
-    expect(
-      getSessionCurriculumLessonForPracticeMode("interval-melodic-id", records),
-    ).toEqual({
+    expect(getSessionCurriculumLessonForPracticeMode("interval-melodic-id", records)).toEqual({
       practiceModeId: "interval-melodic-id",
       contentTierId: "interval-2a",
     });
@@ -46,9 +40,7 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
 
   it("returns interval-2b for melodic identify after sing at 2b passes", () => {
     const records = passingMelodicSing2bHistory();
-    expect(
-      getSessionCurriculumLessonForPracticeMode("interval-melodic-id", records),
-    ).toEqual({
+    expect(getSessionCurriculumLessonForPracticeMode("interval-melodic-id", records)).toEqual({
       practiceModeId: "interval-melodic-id",
       contentTierId: "interval-2b",
     });
@@ -56,15 +48,11 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
 
   it("returns interval-2a for harmonic exercises until harmonic sing at 2b unlocks", () => {
     const records = passingMelodicSing2bHistory();
-    expect(
-      getSessionCurriculumLessonForPracticeMode("interval-harmonic-sing", records),
-    ).toEqual({
+    expect(getSessionCurriculumLessonForPracticeMode("interval-harmonic-sing", records)).toEqual({
       practiceModeId: "interval-harmonic-sing",
       contentTierId: "interval-2a",
     });
-    expect(
-      getSessionCurriculumLessonForPracticeMode("interval-harmonic-id", records),
-    ).toEqual({
+    expect(getSessionCurriculumLessonForPracticeMode("interval-harmonic-id", records)).toEqual({
       practiceModeId: "interval-harmonic-id",
       contentTierId: "interval-2a",
     });
@@ -72,15 +60,11 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
 
   it("returns interval-2b for harmonic exercises when that tier is unlocked", () => {
     const records = passingThroughMelodic2bHistory();
-    expect(
-      getSessionCurriculumLessonForPracticeMode("interval-harmonic-sing", records),
-    ).toEqual({
+    expect(getSessionCurriculumLessonForPracticeMode("interval-harmonic-sing", records)).toEqual({
       practiceModeId: "interval-harmonic-sing",
       contentTierId: "interval-2b",
     });
-    expect(
-      getSessionCurriculumLessonForPracticeMode("interval-harmonic-id", records),
-    ).toEqual({
+    expect(getSessionCurriculumLessonForPracticeMode("interval-harmonic-id", records)).toEqual({
       practiceModeId: "interval-harmonic-id",
       contentTierId: "interval-2a",
     });
@@ -94,9 +78,7 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
         contentTierId: "interval-2b",
       }),
     ];
-    expect(
-      getSessionCurriculumLessonForPracticeMode("interval-harmonic-id", records),
-    ).toEqual({
+    expect(getSessionCurriculumLessonForPracticeMode("interval-harmonic-id", records)).toEqual({
       practiceModeId: "interval-harmonic-id",
       contentTierId: "interval-2b",
     });
@@ -104,9 +86,7 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
 
   it("returns degree-major-intro for scale-degree sing when interval 2a path is complete", () => {
     const records = passingLevel2History();
-    expect(
-      getSessionCurriculumLessonForPracticeMode("scale-degree-sing", records),
-    ).toEqual({
+    expect(getSessionCurriculumLessonForPracticeMode("scale-degree-sing", records)).toEqual({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-intro",
     });
@@ -114,7 +94,10 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
 
   it("returns degree-major-diatonic when interval 2b path is complete", () => {
     expect(
-      getSessionCurriculumLessonForPracticeMode("scale-degree-sing", passingThroughHarmonic2bHistory()),
+      getSessionCurriculumLessonForPracticeMode(
+        "scale-degree-sing",
+        passingThroughHarmonic2bHistory(),
+      ),
     ).toEqual({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-diatonic",
@@ -161,7 +144,9 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
       contentTierId: "interval-2a" as const,
     };
     expect(
-      resolveSessionCurriculumLesson("interval-melodic-sing", records, { urlCurriculumLesson: replay2a }),
+      resolveSessionCurriculumLesson("interval-melodic-sing", records, {
+        urlCurriculumLesson: replay2a,
+      }),
     ).toEqual(replay2a);
     expect(getSessionCurriculumLessonForPracticeMode("interval-melodic-sing", records)).toEqual({
       practiceModeId: "interval-melodic-sing",

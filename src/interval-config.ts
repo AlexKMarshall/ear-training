@@ -14,11 +14,7 @@ export interface IntervalEntry {
 }
 
 /** Tier 2a: perfect fourth, fifth, and octave. */
-export const INTERVAL_2A_IDS = [
-  "perfect-fourth",
-  "perfect-fifth",
-  "perfect-octave",
-] as const;
+export const INTERVAL_2A_IDS = ["perfect-fourth", "perfect-fifth", "perfect-octave"] as const;
 
 /** Twelve ascending diatonic major intervals within one octave (tier 2b pool). */
 export const DIATONIC_MAJOR_INTERVAL_IDS = [

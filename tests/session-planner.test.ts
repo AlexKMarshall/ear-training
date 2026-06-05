@@ -1,19 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { MIN_EXERCISES_FOR_UNLOCK } from "../src/curriculum/unlock.ts";
 import type { ContentTierId } from "../src/curriculum/curriculum-lessons.ts";
 import { filterRecordsForCurriculumLesson } from "../src/curriculum/curriculum-lessons.ts";
-import {
-  planNextExerciseTag,
-  WEAK_AREA_PROBABILITY,
-} from "../src/session/planner.ts";
-import { DIATONIC_MAJOR_INTERVAL_IDS } from "../src/interval-config.ts";
-import { attempt } from "./fixtures/attempts.ts";
+import { MIN_EXERCISES_FOR_UNLOCK } from "../src/curriculum/unlock.ts";
 import type { AttemptRecord } from "../src/history/types.ts";
+import { DIATONIC_MAJOR_INTERVAL_IDS } from "../src/interval-config.ts";
+import { planNextExerciseTag, WEAK_AREA_PROBABILITY } from "../src/session/planner.ts";
+import { attempt } from "./fixtures/attempts.ts";
 
-function withTier(
-  record: AttemptRecord,
-  contentTierId: ContentTierId,
-): AttemptRecord {
+function withTier(record: AttemptRecord, contentTierId: ContentTierId): AttemptRecord {
   return { ...record, contentTierId } as AttemptRecord;
 }
 
@@ -39,11 +33,7 @@ function intervalHistory(
       exerciseIndex: i,
       lessonId: `${tagId}-${i}`,
     });
-    records.push(
-      options.contentTierId
-        ? withTier(base, options.contentTierId)
-        : base,
-    );
+    records.push(options.contentTierId ? withTier(base, options.contentTierId) : base);
   }
   return records;
 }
@@ -86,9 +76,7 @@ describe("filterRecordsForCurriculumLesson", () => {
       }),
     ];
     expect(filterRecordsForCurriculumLesson(records, step)).toHaveLength(1);
-    expect(filterRecordsForCurriculumLesson(records, step)[0]!.intervalId).toBe(
-      "perfect-fourth",
-    );
+    expect(filterRecordsForCurriculumLesson(records, step)[0]!.intervalId).toBe("perfect-fourth");
   });
 
   it("does not count legacy untagged attempts toward interval-2b", () => {
@@ -132,9 +120,7 @@ describe("planNextExerciseTag", () => {
   });
 
   it("overweights a weak tag in a large 2b pool", () => {
-    const strongTags = DIATONIC_MAJOR_INTERVAL_IDS.filter(
-      (id) => id !== "minor-sixth",
-    );
+    const strongTags = DIATONIC_MAJOR_INTERVAL_IDS.filter((id) => id !== "minor-sixth");
     const records: AttemptRecord[] = [];
     for (const tagId of strongTags) {
       records.push(
@@ -175,11 +161,7 @@ describe("planNextExerciseTag", () => {
         contentTierId: "interval-2b",
       }),
     ];
-    const tag = planNextExerciseTag(
-      melodicSing2b,
-      records,
-      () => WEAK_AREA_PROBABILITY + 0.01,
-    );
+    const tag = planNextExerciseTag(melodicSing2b, records, () => WEAK_AREA_PROBABILITY + 0.01);
     expect(tag).toBe("perfect-fifth");
   });
 
@@ -228,9 +210,9 @@ describe("planNextExerciseTag", () => {
       counts.add(planNextExerciseTag(step2a, records));
     }
     expect(counts.has("minor-second")).toBe(false);
-    expect([...counts].every((id) =>
-      ["perfect-fourth", "perfect-fifth", "perfect-octave"].includes(id),
-    )).toBe(true);
+    expect(
+      [...counts].every((id) => ["perfect-fourth", "perfect-fifth", "perfect-octave"].includes(id)),
+    ).toBe(true);
   });
 
   it("draws scale degrees from the degree-major-intro pool", () => {
@@ -242,9 +224,7 @@ describe("planNextExerciseTag", () => {
     for (let i = 0; i < 30; i++) {
       counts.add(planNextExerciseTag(step, []));
     }
-    expect([...counts].every((id) =>
-      ["fourth", "fifth", "octave"].includes(id),
-    )).toBe(true);
+    expect([...counts].every((id) => ["fourth", "fifth", "octave"].includes(id))).toBe(true);
   });
 
   it("draws scale degrees from the degree-major-diatonic pool", () => {
@@ -258,9 +238,11 @@ describe("planNextExerciseTag", () => {
     }
     expect(counts.has("second")).toBe(true);
     expect(counts.has("seventh")).toBe(true);
-    expect([...counts].every((id) =>
-      ["second", "third", "fourth", "fifth", "sixth", "seventh", "octave"].includes(id),
-    )).toBe(true);
+    expect(
+      [...counts].every((id) =>
+        ["second", "third", "fourth", "fifth", "sixth", "seventh", "octave"].includes(id),
+      ),
+    ).toBe(true);
   });
 
   it("draws scale degrees from the degree-minor-diatonic pool", () => {
@@ -274,9 +256,11 @@ describe("planNextExerciseTag", () => {
     }
     expect(counts.has("second")).toBe(true);
     expect(counts.has("seventh")).toBe(true);
-    expect([...counts].every((id) =>
-      ["second", "third", "fourth", "fifth", "sixth", "seventh", "octave"].includes(id),
-    )).toBe(true);
+    expect(
+      [...counts].every((id) =>
+        ["second", "third", "fourth", "fifth", "sixth", "seventh", "octave"].includes(id),
+      ),
+    ).toBe(true);
   });
 
   it("draws chord types from the chord-1a pool", () => {
@@ -288,12 +272,14 @@ describe("planNextExerciseTag", () => {
     for (let i = 0; i < 30; i++) {
       counts.add(planNextExerciseTag(step, []));
     }
-    expect([...counts].every((id) =>
-      [
-        "major-triad-sing-middle",
-        "minor-triad-sing-middle",
-        "diminished-triad-sing-middle",
-      ].includes(id),
-    )).toBe(true);
+    expect(
+      [...counts].every((id) =>
+        [
+          "major-triad-sing-middle",
+          "minor-triad-sing-middle",
+          "diminished-triad-sing-middle",
+        ].includes(id),
+      ),
+    ).toBe(true);
   });
 });

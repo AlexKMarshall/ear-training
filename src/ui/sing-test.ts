@@ -2,37 +2,32 @@ import { createStore } from "solid-js/store";
 import { render } from "solid-js/web";
 import { createDefaultAudioPort } from "../audio/port.ts";
 import { createDefaultRecordingPort } from "../audio/recording-port.ts";
-import { ExerciseScreenState } from "../exercise-screen-state.ts";
-import type { ExerciseScreenResultView } from "../exercise-screen-state.ts";
 import { EXERCISES_PER_LESSON, MIN_VALID_SAMPLES } from "../config.ts";
+import type { ExerciseScreenResultView } from "../exercise-screen-state.ts";
+import { ExerciseScreenState } from "../exercise-screen-state.ts";
 import { createDefaultHistoryPort } from "../history/port.ts";
 import { buildAttemptRecord } from "../history/serialize.ts";
 import type { LessonExercise } from "../lesson-exercise.ts";
-import { scoreFromSamples } from "../pitch/score.ts";
 import type { ScoreResult } from "../pitch/score.ts";
+import { scoreFromSamples } from "../pitch/score.ts";
 import { getScaleDegreeById } from "../scale-degree-config.ts";
-import {
-  getVoiceType,
-  setVoiceType,
-  type VoiceType,
-} from "../voice-ranges.ts";
+import { getVoiceType, setVoiceType, type VoiceType } from "../voice-ranges.ts";
 import { voiceRangeHint } from "./components/voice-picker.tsx";
-import { SingTestView } from "./sing-test-view.tsx";
 import type {
   SingMountDeps,
   SingResultView,
   SingTestConfig,
   SingUiState,
 } from "./sing-test-types.ts";
+import { SingTestView } from "./sing-test-view.tsx";
 
+export type { LessonExercise } from "../lesson-exercise.ts";
 export type {
   SingMountDeps,
   SingResultView,
   SingTestConfig,
   SingUiState,
 } from "./sing-test-types.ts";
-
-export type { LessonExercise } from "../lesson-exercise.ts";
 
 function toSingResult(
   result: ExerciseScreenResultView | null,
@@ -68,8 +63,7 @@ export function mountSingTest(
   const history = deps?.history ?? createDefaultHistoryPort();
   const audio = deps?.audio ?? createDefaultAudioPort();
   const recording = deps?.recording ?? createDefaultRecordingPort();
-  const exercisesPerLesson =
-    deps?.exercisesPerLesson ?? EXERCISES_PER_LESSON;
+  const exercisesPerLesson = deps?.exercisesPerLesson ?? EXERCISES_PER_LESSON;
 
   let livePitchText = "Listening…";
 
@@ -103,9 +97,7 @@ export function mountSingTest(
       return config.exercisePrompt(exercise);
     }
     if (exercise.scaleDegree) {
-      const label =
-        getScaleDegreeById(exercise.degreeId ?? "")?.label ??
-        exercise.degreeId;
+      const label = getScaleDegreeById(exercise.degreeId ?? "")?.label ?? exercise.degreeId;
       return label ? `Sing the ${label}` : null;
     }
     return null;
@@ -148,10 +140,8 @@ export function mountSingTest(
       playHidden: snapshot.playHidden,
       playDisabled: snapshot.playDisabled,
       recordHidden: showResultActions || inLessonSummary,
-      recordDisabled:
-        snapshot.phase !== "ready" && snapshot.phase !== "recording",
-      recordLabel:
-        snapshot.phase === "recording" ? "Done" : "Start singing",
+      recordDisabled: snapshot.phase !== "ready" && snapshot.phase !== "recording",
+      recordLabel: snapshot.phase === "recording" ? "Done" : "Start singing",
       retryHidden: snapshot.retryHidden,
       nextHidden: snapshot.nextHidden,
       nextLabel: snapshot.nextLabel,

@@ -1,17 +1,11 @@
-import { page, userEvent } from "vitest/browser";
 import { beforeEach, expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { createTestAudioPort } from "../../src/audio/port.ts";
 import { getEligibleTagIds } from "../../src/curriculum/curriculum-lessons.ts";
 import { getIntervalById } from "../../src/interval-config.ts";
-import {
-  buildIntervalExercise,
-  intervalToLessonExercise,
-} from "../../src/interval-exercises.ts";
-import { createTestAudioPort } from "../../src/audio/port.ts";
+import { buildIntervalExercise, intervalToLessonExercise } from "../../src/interval-exercises.ts";
 import { mountIntervalHarmonicIdTest } from "../../src/ui/interval-tests.ts";
-import {
-  passingStepHistory,
-  passingThroughMelodic2bHistory,
-} from "../fixtures/attempts.ts";
+import { passingStepHistory, passingThroughMelodic2bHistory } from "../fixtures/attempts.ts";
 import {
   createHarmonicSingTestConfig,
   createTestSessionHistory,
@@ -34,9 +28,7 @@ test("harmonic sing at interval-2b saves attempt with 2b tier metadata", async (
   const { history } = mountPracticeModeInBrowser("interval-harmonic-sing", {
     config: createHarmonicSingTestConfig({
       prepareExercise: () => ({
-        ...intervalToLessonExercise(
-          buildIntervalExercise(perfectFifth, "harmonic", 60),
-        ),
+        ...intervalToLessonExercise(buildIntervalExercise(perfectFifth, "harmonic", 60)),
         contentTierId: harmonicSing2bStep.contentTierId,
         eligibleTagIds: getEligibleTagIds(harmonicSing2bStep),
       }),
@@ -48,9 +40,7 @@ test("harmonic sing at interval-2b saves attempt with 2b tier metadata", async (
   await userEvent.click(page.getByRole("button", { name: /Start singing/i }));
   await userEvent.click(page.getByRole("button", { name: /^Done$/i }));
 
-  await expect
-    .element(page.getByText("Correct", { exact: true }))
-    .toBeVisible();
+  await expect.element(page.getByText("Correct", { exact: true })).toBeVisible();
 
   const records = await history.getAllAttempts();
   expect(records).toHaveLength(1);
@@ -83,9 +73,7 @@ test("harmonic identify at interval-2b saves attempt with 2b tier metadata", asy
   await userEvent.click(page.getByRole("button", { name: /Play interval/i }));
   await userEvent.click(page.getByRole("button", { name: /Perfect 5th/i }));
 
-  await expect
-    .element(page.getByText("Correct", { exact: true }))
-    .toBeVisible();
+  await expect.element(page.getByText("Correct", { exact: true })).toBeVisible();
 
   const records = await history.getAllAttempts();
   const attempt = records[records.length - 1]!;

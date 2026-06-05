@@ -1,16 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
-  DIMINISHED_TRIAD_SING_MIDDLE,
-  MAJOR_TRIAD_SING_MIDDLE,
-  MINOR_TRIAD_SING_MIDDLE,
   cDiminishedTriadAtC3,
   cMajorTriadAtC3,
   cMinorTriadAtC3,
+  DIMINISHED_TRIAD_SING_MIDDLE,
   enabledChordTypes,
+  MAJOR_TRIAD_SING_MIDDLE,
+  MINOR_TRIAD_SING_MIDDLE,
   majorTriadAtMiddle,
+  randomDiminishedTriadWithMiddleInRange,
   randomMajorTriadWithMiddleInRange,
   randomMinorTriadWithMiddleInRange,
-  randomDiminishedTriadWithMiddleInRange,
 } from "../src/chord-config.ts";
 import {
   getActiveInversions,
@@ -26,10 +26,7 @@ import {
   resetChordTypePreference,
   setChordTypeSelected,
 } from "../src/chord-type-preference.ts";
-import {
-  buildChordExercise,
-  randomChordExercise,
-} from "../src/chord-types.ts";
+import { buildChordExercise, randomChordExercise } from "../src/chord-types.ts";
 import { chordFrequenciesHz, chordTarget } from "../src/chords.ts";
 import { midiToHz } from "../src/notes.ts";
 
@@ -51,11 +48,7 @@ describe("buildChordExercise", () => {
   });
 
   it("applies root-position voicing from the middle note (diminished)", () => {
-    const exercise = buildChordExercise(
-      DIMINISHED_TRIAD_SING_MIDDLE,
-      "root",
-      51,
-    );
+    const exercise = buildChordExercise(DIMINISHED_TRIAD_SING_MIDDLE, "root", 51);
 
     expect(exercise.notes.map((n) => n.name)).toEqual(["C3", "D#3", "F#3"]);
     expect(exercise.targetIndex).toBe(1);
@@ -89,11 +82,7 @@ describe("randomChordExercise", () => {
   it("keeps the range anchor note within the given range (major)", () => {
     const range = { lowMidi: 48, highMidi: 67 };
     for (let i = 0; i < 50; i++) {
-      const exercise = randomChordExercise(
-        MAJOR_TRIAD_SING_MIDDLE,
-        "root",
-        range,
-      );
+      const exercise = randomChordExercise(MAJOR_TRIAD_SING_MIDDLE, "root", range);
       const anchor = exercise.notes[MAJOR_TRIAD_SING_MIDDLE.rangeAnchorIndex]!;
       expect(anchor.midi).toBeGreaterThanOrEqual(range.lowMidi);
       expect(anchor.midi).toBeLessThanOrEqual(range.highMidi);
@@ -113,13 +102,8 @@ describe("randomChordExercise", () => {
   it("keeps the range anchor note within the given range (diminished)", () => {
     const range = { lowMidi: 48, highMidi: 67 };
     for (let i = 0; i < 50; i++) {
-      const exercise = randomChordExercise(
-        DIMINISHED_TRIAD_SING_MIDDLE,
-        "root",
-        range,
-      );
-      const anchor =
-        exercise.notes[DIMINISHED_TRIAD_SING_MIDDLE.rangeAnchorIndex]!;
+      const exercise = randomChordExercise(DIMINISHED_TRIAD_SING_MIDDLE, "root", range);
+      const anchor = exercise.notes[DIMINISHED_TRIAD_SING_MIDDLE.rangeAnchorIndex]!;
       expect(anchor.midi).toBeGreaterThanOrEqual(range.lowMidi);
       expect(anchor.midi).toBeLessThanOrEqual(range.highMidi);
     }
