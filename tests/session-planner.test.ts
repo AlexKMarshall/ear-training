@@ -263,6 +263,22 @@ describe("planNextExerciseTag", () => {
     )).toBe(true);
   });
 
+  it("draws scale degrees from the degree-minor-diatonic pool", () => {
+    const step = {
+      practiceModeId: "scale-degree-sing" as const,
+      contentTierId: "degree-minor-diatonic" as const,
+    };
+    const counts = new Set<string>();
+    for (let i = 0; i < 50; i++) {
+      counts.add(planNextExerciseTag(step, []));
+    }
+    expect(counts.has("second")).toBe(true);
+    expect(counts.has("seventh")).toBe(true);
+    expect([...counts].every((id) =>
+      ["second", "third", "fourth", "fifth", "sixth", "seventh", "octave"].includes(id),
+    )).toBe(true);
+  });
+
   it("draws chord types from the chord-1a pool", () => {
     const step = {
       practiceModeId: "chord-middle" as const,

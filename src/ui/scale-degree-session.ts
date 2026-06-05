@@ -6,7 +6,10 @@ import {
   type HistoryPort,
 } from "../history/port.ts";
 import type { AttemptInput, AttemptRecord } from "../history/types.ts";
-import { getScaleDegreeById } from "../scale-degree-config.ts";
+import {
+  getNaturalMinorSemitonesFromTonic,
+  getScaleDegreeById,
+} from "../scale-degree-config.ts";
 import {
   buildScaleDegreeExercise,
   pickRandomLessonTonic,
@@ -80,11 +83,24 @@ export function prepareScaleDegreeExercise(
   if (!degree) {
     throw new Error(`Unknown scale degree id: ${tagId}`);
   }
+  const semitonesFromTonic =
+    step.contentTierId === "degree-minor-diatonic"
+      ? getNaturalMinorSemitonesFromTonic(tagId)
+      : degree.semitonesFromTonic;
+  if (semitonesFromTonic === undefined) {
+    throw new Error(`Unknown natural minor degree id: ${tagId}`);
+  }
 
   return {
     exercise: {
       ...scaleDegreeToLessonExercise(
-        buildScaleDegreeExercise(degree, tonic),
+        buildScaleDegreeExercise(
+          {
+            ...degree,
+            semitonesFromTonic,
+          },
+          tonic,
+        ),
       ),
       contentTierId: step.contentTierId,
       eligibleTagIds,

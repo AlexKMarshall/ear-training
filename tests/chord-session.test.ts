@@ -5,7 +5,7 @@ import {
   prepareChordExercise,
 } from "../src/ui/chord-session.ts";
 import type { SessionPlanner } from "../src/session/planner.ts";
-import { passingMajorDiatonicScaleDegreeHistory } from "./fixtures/attempts.ts";
+import { passingMinorDiatonicScaleDegreeHistory } from "./fixtures/attempts.ts";
 
 describe("prepareChordExercise", () => {
   it("uses planner chord type and attaches tier metadata", () => {
@@ -13,7 +13,7 @@ describe("prepareChordExercise", () => {
       planNextExerciseTag: () => "major-triad-sing-middle",
     };
     const exercise = prepareChordExercise(
-      passingMajorDiatonicScaleDegreeHistory(),
+      passingMinorDiatonicScaleDegreeHistory(),
       planner,
       { lowMidi: 48, highMidi: 67 },
       () => 0,

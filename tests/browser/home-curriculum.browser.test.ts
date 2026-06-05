@@ -6,6 +6,7 @@ import {
   passingLevel2History,
   passingSingleNoteHistory,
   passingMajorDiatonicScaleDegreeHistory,
+  passingMinorDiatonicScaleDegreeHistory,
   passingThroughHarmonic2bHistory,
   passingThroughMelodic2bHistory,
 } from "../fixtures/attempts.ts";
@@ -118,8 +119,19 @@ test("after harmonic 2b complete: major diatonic scale degrees is the current li
     .not.toBeInTheDocument();
 });
 
-test("after major diatonic scale degrees complete: chord step is a link", async () => {
+test("after major diatonic scale degrees complete: minor diatonic is the current link", async () => {
   await mountHomeWithHistory(passingMajorDiatonicScaleDegreeHistory());
+  await expect
+    .element(
+      guidedPath().getByRole("link", {
+        name: /Scale degrees.*Melodic reproduction.*natural minor key.*diatonic degrees within one octave/i,
+      }),
+    )
+    .toBeVisible();
+});
+
+test("after minor diatonic scale degrees complete: chord step is a link", async () => {
+  await mountHomeWithHistory(passingMinorDiatonicScaleDegreeHistory());
   await expect
     .element(
       guidedPath().getByRole("link", {

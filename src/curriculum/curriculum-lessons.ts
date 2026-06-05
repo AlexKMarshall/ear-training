@@ -9,6 +9,7 @@ import {
 import {
   DEGREE_MAJOR_DIATONIC_IDS,
   DEGREE_MAJOR_INTRO_IDS,
+  DEGREE_MINOR_DIATONIC_IDS,
 } from "../scale-degree-config.ts";
 import { DEGREE_TIER_POOL_LABEL } from "./scale-degree-tiers.ts";
 
@@ -18,6 +19,7 @@ export type ContentTierId =
   | "interval-2b"
   | "degree-major-intro"
   | "degree-major-diatonic"
+  | "degree-minor-diatonic"
   | "chord-1a";
 
 export interface CurriculumLesson {
@@ -37,6 +39,7 @@ export const CURRICULUM_LESSONS: readonly CurriculumLesson[] = [
   { practiceModeId: "interval-harmonic-sing", contentTierId: "interval-2b" },
   { practiceModeId: "interval-harmonic-id", contentTierId: "interval-2b" },
   { practiceModeId: "scale-degree-sing", contentTierId: "degree-major-diatonic" },
+  { practiceModeId: "scale-degree-sing", contentTierId: "degree-minor-diatonic" },
   { practiceModeId: "chord-middle", contentTierId: "chord-1a" },
 ] as const;
 
@@ -65,13 +68,18 @@ export function getEligibleIntervalIds(
 }
 
 export function getEligibleDegreeIds(
-  tierId: "degree-major-intro" | "degree-major-diatonic",
+  tierId:
+    | "degree-major-intro"
+    | "degree-major-diatonic"
+    | "degree-minor-diatonic",
 ): readonly string[] {
   switch (tierId) {
     case "degree-major-intro":
       return DEGREE_MAJOR_INTRO_IDS;
     case "degree-major-diatonic":
       return DEGREE_MAJOR_DIATONIC_IDS;
+    case "degree-minor-diatonic":
+      return DEGREE_MINOR_DIATONIC_IDS;
   }
 }
 
@@ -141,6 +149,7 @@ export function getEligibleTagIds(step: CurriculumLesson): readonly string[] {
       return getEligibleIntervalIds(step.contentTierId);
     case "degree-major-intro":
     case "degree-major-diatonic":
+    case "degree-minor-diatonic":
       return getEligibleDegreeIds(step.contentTierId);
     case "chord-1a":
       return getEligibleChordTypeIds(step.contentTierId);
