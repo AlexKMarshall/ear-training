@@ -55,7 +55,7 @@ Static hosting (Vercel, Netlify, GitHub Pages). Ensure HTTPS so `getUserMedia` w
 
 ## Contributing
 
-Agent and PR conventions: [`AGENTS.md`](AGENTS.md) (pull-request test-plan format, branch naming).
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for setup, lint/format, and UI guides. Agents: [`AGENTS.md`](AGENTS.md).
 
 ## Browser notes
 

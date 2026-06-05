@@ -10,6 +10,8 @@ Browser-based ear training (static site, TypeScript, Vite, Vitest). Product dire
 | **Multi-PR plans** | [`docs/agents/multi-pr-plans.md`](docs/agents/multi-pr-plans.md) |
 | **Testing (agent guides)** | [`docs/agents/testing.md`](docs/agents/testing.md) |
 | **JSX / Solid UI** | [`docs/agents/jsx.md`](docs/agents/jsx.md) |
+| **Solid pitfalls (React→Solid)** | [`docs/agents/solid-pitfalls.md`](docs/agents/solid-pitfalls.md) |
+| **Human contributing** | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | **Tech debt (architecture & tooling)** | [`docs/tech-debt.md`](docs/tech-debt.md) |
 | **Tech debt (agent workflow)** | [`docs/agents/tech-debt.md`](docs/agents/tech-debt.md) |
 
