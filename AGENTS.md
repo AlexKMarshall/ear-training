@@ -29,11 +29,11 @@ npm run build         # production build
 
 Run `npm run test:browser` when changing `src/ui/`, mount functions, or browser tests — see [`docs/agents/testing.md`](docs/agents/testing.md).
 
-**Dead code (knip):** Report-only locally until CI is wired (slice 3 of [#118](https://github.com/AlexKMarshall/ear-training/issues/118)). Run both commands after config or import changes. Do **not** use `knip --fix` — delete dead code manually and re-run tests. Cleanup order for baseline work: `knip:production` first, then `knip`.
+**Dead code (knip):** Run both commands after config or import changes — same bar as typecheck before opening PRs. Do **not** use `knip --fix` — delete dead code manually and re-run tests. Cleanup order: `knip:production` first, then `knip`.
 
 ## CI
 
-Every push to `main` and every pull request runs [GitHub Actions](.github/workflows/ci.yml): `npm run typecheck`, `npm test`, `npm run test:browser`, and `npm run build` on Node 22.
+Every push to `main` and every pull request runs [GitHub Actions](.github/workflows/ci.yml): `npm run typecheck`, `npm run knip:production`, `npm run knip`, `npm test`, `npm run test:browser`, and `npm run build` on Node 22.
 
 Do not claim tests pass on a PR without a green **CI** check on that PR.
 
