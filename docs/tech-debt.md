@@ -50,6 +50,7 @@ Prioritize debt that blocks or complicates **near-term roadmap work** — especi
 | TD-014 | P2 | Tooling | No project **linter** or **formatter** (no ESLint, Prettier, or Biome). Style and obvious issues rely on reviewer attention and `tsc` on `src/` only. | Inconsistent formatting; latent bugs (`no-floating-promises`, unused imports) slip through. | Adopt **Biome** (single tool) or ESLint + Prettier; match existing style in an initial format pass. |
 | TD-015 | P2 | CI | **`tests/`** not typechecked; no project **lint** in CI. | Test helpers can drift from domain types; style and common issues not gated on PRs. | Extend **`npm run typecheck`** to include `tests/` and fix existing errors; add full linting (`npm run lint`) and wire both into [`.github/workflows/ci.yml`](../.github/workflows/ci.yml). |
 | TD-016 | P2 | TypeScript | **`strict`** mode not enabled (`tsconfig.json` uses selective flags only). | Weaker guarantees at module boundaries; nullable fields on attempts/questions easier to misuse. | Enable `strict` incrementally (or `strictNullChecks` first) with a tracked burn-down. |
+| TD-017 | P1 | Exercise UI | Exercise Actions component has boolean configuration props | Boolean props allow combinatorial explosion of states and make testing more difficult. | Refactor component to use a discriminating union of states. This may require the exercise state model to be turned into an explicit finite state machine
 
 ---
 

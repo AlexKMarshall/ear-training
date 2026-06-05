@@ -24,10 +24,7 @@ export function ExerciseHeader(props: {
       {props.lessonBanner ? (
         <p class="lesson-banner">{props.lessonBanner}</p>
       ) : null}
-      <p
-        class="round-progress"
-        hidden={props.lessonProgressHidden}
-      >
+      <p class="round-progress" hidden={props.lessonProgressHidden}>
         {props.lessonProgressText}
       </p>
     </header>
@@ -89,6 +86,9 @@ export function ExerciseActionBar(props: {
       >
         {props.nextLabel}
       </button>
+      <a class="btn btn-primary" hidden={props.nextRoundHidden} href="/">
+        Back to path
+      </a>
       <button
         type="button"
         class="btn btn-primary"
