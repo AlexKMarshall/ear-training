@@ -21,11 +21,15 @@ Read the pull-request guide before creating or updating a PR description, especi
 npm test              # Vitest Node — unit tests
 npm run test:browser  # Vitest browser — UI orchestration (Playwright)
 npm run typecheck     # tsc on src (same config as the IDE)
+npm run knip:production  # dead shipped code (production entry points only)
+npm run knip          # test helpers, devDependencies, tooling (full graph)
 npm run dev           # local dev server
 npm run build         # production build
 ```
 
 Run `npm run test:browser` when changing `src/ui/`, mount functions, or browser tests — see [`docs/agents/testing.md`](docs/agents/testing.md).
+
+**Dead code (knip):** Report-only locally until CI is wired (slice 3 of [#118](https://github.com/AlexKMarshall/ear-training/issues/118)). Run both commands after config or import changes. Do **not** use `knip --fix` — delete dead code manually and re-run tests. Cleanup order for baseline work: `knip:production` first, then `knip`.
 
 ## CI
 
