@@ -48,7 +48,7 @@ export interface SingUiState {
   retryHidden: boolean;
   nextHidden: boolean;
   nextLabel: string;
-  nextRoundHidden: boolean;
+  nextLessonHidden: boolean;
 }
 
 export interface SingTestConfig {

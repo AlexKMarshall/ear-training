@@ -51,7 +51,7 @@ export interface ExerciseScreenStateSnapshot {
   retryHidden: boolean;
   nextHidden: boolean;
   nextLabel: string;
-  nextRoundHidden: boolean;
+  nextLessonHidden: boolean;
   resultClassName: string;
   result: ExerciseScreenResultView | null;
   currentExercise: LessonExercise | null;
@@ -249,7 +249,7 @@ export class ExerciseScreenState {
         ? "result result-pass"
         : "result result-fail";
     } else if (this.resultView?.type === "summary") {
-      resultClassName = "result round-summary";
+      resultClassName = "result lesson-summary";
     } else if (
       this.resultView?.type === "scoring-error" ||
       this.resultView?.type === "audio-error"
@@ -276,7 +276,7 @@ export class ExerciseScreenState {
       retryHidden: !canRetry || inLessonSummary,
       nextHidden: !canNext || inLessonSummary,
       nextLabel,
-      nextRoundHidden: !inLessonSummary,
+      nextLessonHidden: !inLessonSummary,
       resultClassName,
       result: this.resultView,
       currentExercise: this.currentExercise,
@@ -470,7 +470,7 @@ export class ExerciseScreenState {
     this.setPhase("idle");
   }
 
-  startNextRound(): void {
+  startNextLesson(): void {
     this.resetLesson();
   }
 }

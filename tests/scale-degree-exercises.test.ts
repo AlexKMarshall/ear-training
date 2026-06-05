@@ -81,7 +81,7 @@ describe("lesson tonic", () => {
   const tenorRange = { lowMidi: 48, highMidi: 67 } as const;
   const enabledDegrees = SCALE_DEGREES.filter((entry) => entry.enabled);
 
-  it("uses max span among tier degrees for valid round tonics", () => {
+  it("uses max span among tier degrees for valid lesson tonics", () => {
     const lessonTonics = validLessonTonicMidis(tenorRange, enabledDegrees);
     const fourthOnly = validTonicMidis(tenorRange, 5);
     expect(lessonTonics.length).toBeLessThan(fourthOnly.length);

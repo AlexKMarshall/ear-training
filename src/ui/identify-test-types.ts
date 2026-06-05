@@ -40,7 +40,7 @@ export interface IdentifyUiState {
   retryHidden: boolean;
   nextHidden: boolean;
   nextLabel: string;
-  nextRoundHidden: boolean;
+  nextLessonHidden: boolean;
 }
 
 export interface IdentifyTestConfig {

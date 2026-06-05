@@ -43,23 +43,23 @@ function SingLessonSummaryResult(props: {
   return (
     <>
       <p class="result-verdict">Lesson complete</p>
-      <p class="round-summary-score">
-        <span class="round-summary-score-value">
+      <p class="lesson-summary-score">
+        <span class="lesson-summary-score-value">
           {props.summary.correctCount}/{props.summary.total}
         </span>{" "}
         correct ({props.correctPct}%)
       </p>
-      <ul class="round-summary-breakdown">
+      <ul class="lesson-summary-breakdown">
         <li>
-          <span class="round-summary-label">First try</span>{" "}
+          <span class="lesson-summary-label">First try</span>{" "}
           {props.summary.firstTryCount} ({props.firstTryPct}%)
         </li>
         <li>
-          <span class="round-summary-label">After retry</span>{" "}
+          <span class="lesson-summary-label">After retry</span>{" "}
           {props.summary.retryCount} ({props.retryPct}%)
         </li>
         <li>
-          <span class="round-summary-label">Wrong</span>{" "}
+          <span class="lesson-summary-label">Wrong</span>{" "}
           {props.summary.wrongCount} ({props.wrongPct}%)
         </li>
       </ul>
@@ -140,7 +140,7 @@ export function SingTestView(props: {
   onRecord: () => void;
   onRetry: () => void;
   onNext: () => void;
-  onNextRound: () => void;
+  onNextLesson: () => void;
   onVoiceChange: (voice: VoiceType) => void;
 }) {
   return (
@@ -182,11 +182,11 @@ export function SingTestView(props: {
         retryHidden={props.ui.retryHidden}
         nextHidden={props.ui.nextHidden}
         nextLabel={props.ui.nextLabel}
-        nextRoundHidden={props.ui.nextRoundHidden}
+        nextLessonHidden={props.ui.nextLessonHidden}
         onPlay={props.onPlay}
         onRetry={props.onRetry}
         onNext={props.onNext}
-        onNextRound={props.onNextRound}
+        onNextLesson={props.onNextLesson}
       />
       <ExerciseHint>
         Use headphones if you can. Allow microphone access when prompted. Works

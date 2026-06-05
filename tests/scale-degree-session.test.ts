@@ -66,7 +66,7 @@ describe("prepareScaleDegreeExercise", () => {
     expect(exercise.target.midi).toBe(63);
   });
 
-  it("keeps the same round tonic across questions", () => {
+  it("keeps the same lesson tonic across questions", () => {
     const introHistory = passingIntroScaleDegreeHistory();
     const planner: SessionPlanner = {
       planNextExerciseTag: (_step, records) =>
@@ -102,7 +102,7 @@ describe("prepareScaleDegreeExercise", () => {
     expect(second.exercise.scaleDegree?.tonic.midi).toBe(first.lessonTonicMidi);
   });
 
-  it("resets tonic when round state is cleared", () => {
+  it("resets tonic when lesson state is cleared", () => {
     const introHistory = passingIntroScaleDegreeHistory();
     const planner: SessionPlanner = {
       planNextExerciseTag: () => "fifth",

@@ -190,7 +190,7 @@ export function StatsView(props: {
         <section class="card">
           <p class="status">No practice history yet.</p>
           <p class="stats-hint">
-            Complete a round on any test — each scored attempt is saved locally
+            Complete a lesson on any test — each scored attempt is saved locally
             in your browser.
           </p>
         </section>
