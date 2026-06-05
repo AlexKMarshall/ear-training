@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.16",
+    "@total-typescript/tsconfig": "^1.0.4",
     "@types/node": "^25.9.1",
     "@vitest/browser-playwright": "^4.1.8",
     "knip": "^6.15.0",
