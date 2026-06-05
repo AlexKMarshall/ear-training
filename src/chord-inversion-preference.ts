@@ -80,5 +80,9 @@ export function pickRandomInversion(): InversionId {
   if (active.length === 0) {
     throw new Error("No inversions are selected")
   }
-  return active[Math.floor(Math.random() * active.length)]!.id
+  const picked = active[Math.floor(Math.random() * active.length)]
+  if (!picked) {
+    throw new Error("No inversions are selected")
+  }
+  return picked.id
 }

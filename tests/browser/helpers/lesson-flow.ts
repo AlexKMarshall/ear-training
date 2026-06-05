@@ -2,6 +2,7 @@ import { expect } from "vitest"
 import { page, userEvent } from "vitest/browser"
 import type { RecordingPort } from "../../../src/audio/recording-port.ts"
 import { getIntervalById } from "../../../src/interval-config.ts"
+import { defined } from "../../helpers/defined.ts"
 
 /** Shortened lesson length for summary browser tests (O2 outcome mix). */
 export const SHORT_LESSON_EXERCISES = 3
@@ -14,7 +15,11 @@ function createSequenceRecordingPort(sequences: number[][]): RecordingPort {
   let index = 0
   return {
     async start(callbacks) {
-      const samples = sequences[Math.min(index++, sequences.length - 1)] ?? sequences[0]!
+      const fallback = sequences[0]
+      const samples = sequences[Math.min(index++, sequences.length - 1)] ?? fallback
+      if (samples === undefined) {
+        throw new Error("createSequenceRecordingPort: empty sequences")
+      }
       return {
         stop: () => {
           callbacks.onComplete(samples)
@@ -88,8 +93,8 @@ export async function runSingLessonO2(playLabel: RegExp): Promise<void> {
   await singAdvanceFromResult(/Finish lesson/i)
 }
 
-const wrongIntervalLabel = getIntervalById("perfect-fourth")!.label
-const correctIntervalLabel = getIntervalById("perfect-fifth")!.label
+const wrongIntervalLabel = defined(getIntervalById("perfect-fourth"), "perfect-fourth").label
+const correctIntervalLabel = defined(getIntervalById("perfect-fifth"), "perfect-fifth").label
 
 async function identifyPlayAndChoose(label: string): Promise<void> {
   await userEvent.click(page.getByRole("button", { name: /Play interval/i }))

@@ -20,7 +20,7 @@ Open the URL Vite prints (localhost). Microphone exercises need **localhost** in
 | `npm run dev` | Local dev server |
 | `npm test` | Unit tests (Vitest, Node) |
 | `npm run test:browser` | Browser/UI tests (Playwright) — run when changing `src/ui/` |
-| `npm run lint` | Biome lint + format check (same as CI) |
+| `npm run lint` | Biome lint + format check — **warnings fail CI** |
 | `npm run lint:fix` | Apply safe Biome fixes and organize imports |
 | `npm run format` | Format in-scope files (`src/`, `tests/`, `vite.config.ts`) |
 | `npm run typecheck` | Strict TypeScript — see [`docs/agents/tsconfig.md`](docs/agents/tsconfig.md) |

@@ -2,6 +2,7 @@ import { beforeEach, expect, test } from "vitest"
 import { page, userEvent } from "vitest/browser"
 import type { PracticeModeId } from "../../src/history/types.ts"
 import { PRACTICE_MODES } from "../../src/practice-modes/registry.ts"
+import { defined } from "../helpers/defined.ts"
 import { defaultPassSamplesHzFor, mountPracticeModeInBrowser } from "./helpers/mount.ts"
 
 const SMOKE_IDS = [
@@ -19,7 +20,10 @@ beforeEach(() => {
 })
 
 for (const practiceModeId of SMOKE_IDS) {
-  const entry = PRACTICE_MODES.find((e) => e.id === practiceModeId)!
+  const entry = defined(
+    PRACTICE_MODES.find((e) => e.id === practiceModeId),
+    `practice mode ${practiceModeId}`,
+  )
 
   test(`${practiceModeId}: mounts and scores one question`, async () => {
     const mountOptions =

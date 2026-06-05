@@ -82,10 +82,10 @@ describe("computeDashboardStats", () => {
         lessonId: "r2",
       }),
     ])
-    expect(stats.byPracticeMode[0]!.attemptCount).toBe(1)
-    expect(stats.byPracticeMode[0]!.attemptPassRatePercent).toBe(100)
-    expect(stats.byPracticeMode[1]!.attemptCount).toBe(1)
-    expect(stats.byPracticeMode[1]!.attemptPassRatePercent).toBe(0)
+    expect(stats.byPracticeMode[0]?.attemptCount).toBe(1)
+    expect(stats.byPracticeMode[0]?.attemptPassRatePercent).toBe(100)
+    expect(stats.byPracticeMode[1]?.attemptCount).toBe(1)
+    expect(stats.byPracticeMode[1]?.attemptPassRatePercent).toBe(0)
   })
 
   it("includes interval melodic sing in byPracticeMode", () => {
@@ -158,10 +158,10 @@ describe("tag breakdown", () => {
       }),
     ])
     expect(stats.byTag).toHaveLength(2)
-    expect(stats.byTag![0]!.tagId).toBe("perfect-fourth")
-    expect(stats.byTag![0]!.lessonExercisePassRatePercent).toBe(100)
-    expect(stats.byTag![1]!.tagId).toBe("perfect-fifth")
-    expect(stats.byTag![0]!.medianAbsCents).toBe(30)
+    expect(stats.byTag?.[0]?.tagId).toBe("perfect-fourth")
+    expect(stats.byTag?.[0]?.lessonExercisePassRatePercent).toBe(100)
+    expect(stats.byTag?.[1]?.tagId).toBe("perfect-fifth")
+    expect(stats.byTag?.[0]?.medianAbsCents).toBe(30)
   })
 
   it("identify exercise has null median on exercise and tags", () => {
@@ -175,7 +175,7 @@ describe("tag breakdown", () => {
       }),
     ])
     expect(stats.medianAbsCents).toBeNull()
-    expect(stats.byTag![0]!.medianAbsCents).toBeNull()
+    expect(stats.byTag?.[0]?.medianAbsCents).toBeNull()
   })
 
   it("single-note has no byTag", () => {
@@ -195,7 +195,7 @@ describe("tag breakdown", () => {
         chordTypeId: "major-triad-sing-middle",
       }),
     ])
-    expect(stats.byTag![0]!.label).toBe("Major triad")
+    expect(stats.byTag?.[0]?.label).toBe("Major triad")
   })
 
   it("groups scale-degree-sing by degree", () => {
@@ -208,7 +208,7 @@ describe("tag breakdown", () => {
         degreeId: "fifth",
       }),
     ])
-    expect(stats.byTag![0]!.label).toBe("5th")
+    expect(stats.byTag?.[0]?.label).toBe("5th")
   })
 
   it("resolves labels for major diatonic degree ids", () => {
@@ -221,7 +221,7 @@ describe("tag breakdown", () => {
         degreeId: "seventh",
       }),
     ])
-    expect(stats.byTag![0]!.label).toBe("7th")
+    expect(stats.byTag?.[0]?.label).toBe("7th")
   })
 
   it("computeTagStats omits records without tag id", () => {

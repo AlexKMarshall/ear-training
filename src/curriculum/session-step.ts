@@ -104,13 +104,21 @@ export function resolveAccessCurriculumLesson(
   }
 
   if (practiceModeId === "single-note") {
-    return steps[0]!
+    const first = steps[0]
+    if (!first) {
+      throw new Error(`No curriculum lessons for practice mode: ${practiceModeId}`)
+    }
+    return first
   }
 
   try {
     return getGuidedCurriculumLessonForPracticeMode(practiceModeId, records)
   } catch {
-    return steps[0]!
+    const first = steps[0]
+    if (!first) {
+      throw new Error(`No curriculum lessons for practice mode: ${practiceModeId}`)
+    }
+    return first
   }
 }
 

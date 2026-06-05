@@ -74,7 +74,7 @@ export interface ExerciseScreenStateHooks {
     exercise: LessonExercise,
     response: unknown,
   ): ScoreAnswerResult | Promise<ScoreAnswerResult>
-  beginRecording?(options: BeginRecordingOptions): Promise<{ stop: () => void } | void>
+  beginRecording?(options: BeginRecordingOptions): Promise<{ stop: () => void } | undefined>
   isPlaybackBusy?(): boolean
 }
 

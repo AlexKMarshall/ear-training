@@ -4,6 +4,7 @@ import { resolveAccessCurriculumLesson } from "../src/curriculum/session-step.ts
 import { getPredecessorCurriculumLesson } from "../src/curriculum/unlock.ts"
 import { getPracticeMode } from "../src/practice-modes/registry.ts"
 import { passingLevel2History } from "./fixtures/attempts.ts"
+import { defined } from "./helpers/defined.ts"
 
 describe("resolveAccessCurriculumLesson", () => {
   it("uses the URL step when provided", () => {
@@ -55,7 +56,10 @@ describe("getPredecessorCurriculumLesson", () => {
       contentTierId: "interval-2a",
     })
     expect(
-      formatLessonLinkUrl(getPracticeMode(predecessor!.practiceModeId).route, predecessor!),
+      formatLessonLinkUrl(
+        getPracticeMode(defined(predecessor, "predecessor").practiceModeId).route,
+        defined(predecessor, "predecessor"),
+      ),
     ).toBe("/interval-harmonic-id/?step=interval-harmonic-id%3Ainterval-2a")
   })
 })

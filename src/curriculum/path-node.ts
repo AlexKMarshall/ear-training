@@ -134,7 +134,10 @@ export function getNextLockedPathNode(records: readonly AttemptRecord[]): Curric
   } else {
     let lastPassed = -1
     for (let i = 0; i < CURRICULUM_LESSONS.length; i++) {
-      const step = CURRICULUM_LESSONS[i]!
+      const step = CURRICULUM_LESSONS[i]
+      if (step === undefined) {
+        break
+      }
       if (meetsCurriculumLessonThreshold(step, records)) {
         lastPassed = i
       } else {
@@ -148,7 +151,10 @@ export function getNextLockedPathNode(records: readonly AttemptRecord[]): Curric
     return null
   }
 
-  const step = CURRICULUM_LESSONS[startIndex]!
+  const step = CURRICULUM_LESSONS[startIndex]
+  if (step === undefined) {
+    return null
+  }
   return isCurriculumLessonUnlocked(step, records) ? null : step
 }
 

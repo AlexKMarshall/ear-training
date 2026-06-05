@@ -4,6 +4,7 @@ import type { ChordType } from "./chord-types.ts"
 import { randomChordExercise } from "./chord-types.ts"
 import type { ChordExercise } from "./chords.ts"
 import type { NoteRange } from "./notes.ts"
+import { pickRandom } from "./util/array.ts"
 
 const STORAGE_KEY = "ear-training-chord-types"
 
@@ -88,7 +89,7 @@ export function pickRandomChordType(): ChordType {
   if (active.length === 0) {
     throw new Error("No chord types are selected")
   }
-  return active[Math.floor(Math.random() * active.length)]!
+  return pickRandom(active)
 }
 
 /** Random chord question using user-selected chord types and inversions. */

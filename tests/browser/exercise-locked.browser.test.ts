@@ -4,6 +4,7 @@ import { formatLessonLinkUrl } from "../../src/curriculum/lesson-link.ts"
 import { getPredecessorCurriculumLesson } from "../../src/curriculum/unlock.ts"
 import { getPracticeMode } from "../../src/practice-modes/registry.ts"
 import { passingSingleNoteHistory } from "../fixtures/attempts.ts"
+import { defined } from "../helpers/defined.ts"
 import {
   mountPracticeModePageWithHistory,
   setCurriculumLessonSearch,
@@ -12,10 +13,13 @@ import {
 
 test("locked default step shows predecessor curriculum label and lesson link", async () => {
   await mountPracticeModePageWithHistory("interval-melodic-sing", [])
-  const predecessor = getPredecessorCurriculumLesson({
-    practiceModeId: "interval-melodic-sing",
-    contentTierId: "interval-2a",
-  })!
+  const predecessor = defined(
+    getPredecessorCurriculumLesson({
+      practiceModeId: "interval-melodic-sing",
+      contentTierId: "interval-2a",
+    }),
+    "predecessor",
+  )
   const expectedHref = formatLessonLinkUrl(
     getPracticeMode(predecessor.practiceModeId).route,
     predecessor,
@@ -42,7 +46,7 @@ test("locked deep link shows predecessor step label and lesson link CTA", async 
     practiceModeId: "interval-melodic-sing" as const,
     contentTierId: "interval-2b" as const,
   }
-  const predecessor = getPredecessorCurriculumLesson(lockedStep)!
+  const predecessor = defined(getPredecessorCurriculumLesson(lockedStep), "predecessor")
   const expectedHref = formatLessonLinkUrl(
     getPracticeMode(predecessor.practiceModeId).route,
     predecessor,
@@ -66,7 +70,7 @@ test("locked scale-degree default step uses predecessor lesson link", async () =
     practiceModeId: "scale-degree-sing" as const,
     contentTierId: "degree-major-intro" as const,
   }
-  const predecessor = getPredecessorCurriculumLesson(lockedStep)!
+  const predecessor = defined(getPredecessorCurriculumLesson(lockedStep), "predecessor")
   const expectedHref = formatLessonLinkUrl(
     getPracticeMode(predecessor.practiceModeId).route,
     predecessor,

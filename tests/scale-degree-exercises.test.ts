@@ -14,6 +14,7 @@ import {
   validLessonTonicMidis,
   validTonicMidis,
 } from "../src/scale-degree-exercises.ts"
+import { defined } from "./helpers/defined.ts"
 
 describe("validTonicMidis", () => {
   it("fits fifth degree within a tenor-like range", () => {
@@ -57,7 +58,7 @@ describe("SCALE_DEGREES registry", () => {
 
 describe("buildScaleDegreeExercise", () => {
   it("sets target as tonic plus semitones", () => {
-    const fifth = getScaleDegreeById("fifth")!
+    const fifth = defined(getScaleDegreeById("fifth"), "fifth")
     const exercise = buildScaleDegreeExercise(fifth, 60)
     const sing = scaleDegreeToLessonExercise(exercise)
     expect(exercise.tonic.midi).toBe(60)
@@ -70,7 +71,7 @@ describe("buildScaleDegreeExercise", () => {
 
 describe("randomScaleDegreeExercise", () => {
   it("throws when no tonic fits the range", () => {
-    const octave = getScaleDegreeById("octave")!
+    const octave = defined(getScaleDegreeById("octave"), "octave")
     expect(() => randomScaleDegreeExercise({ lowMidi: 60, highMidi: 65 }, octave)).toThrow(
       /No valid tonic/,
     )
@@ -90,8 +91,8 @@ describe("lesson tonic", () => {
   })
 
   it("keeps the same tonic across exercises in a lesson", () => {
-    const fourth = getScaleDegreeById("fourth")!
-    const fifth = getScaleDegreeById("fifth")!
+    const fourth = defined(getScaleDegreeById("fourth"), "fourth")
+    const fifth = defined(getScaleDegreeById("fifth"), "fifth")
     const tonicMidi = 60
     const q4 = randomScaleDegreeExerciseForTonic(tonicMidi, fourth)
     const q5 = randomScaleDegreeExerciseForTonic(tonicMidi, fifth)

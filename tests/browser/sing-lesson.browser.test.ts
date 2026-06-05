@@ -1,5 +1,6 @@
 import { beforeEach, expect, test } from "vitest"
 import { page, userEvent } from "vitest/browser"
+import { defined } from "../helpers/defined.ts"
 import { mountSingleNoteSingTest } from "./helpers/mount.ts"
 
 const PASS_SAMPLES = Array(20).fill(262)
@@ -33,8 +34,9 @@ test("play, pass recording, and saveAttempt via HistoryPort", async () => {
     attemptNumber: 1,
     exerciseIndex: 0,
   })
-  expect(records[0]!.lessonId).toBeTruthy()
-  expect(Math.abs(records[0]!.centsOff)).toBeLessThanOrEqual(40)
+  const firstAttempt = defined(records[0], "first attempt")
+  expect(firstAttempt.lessonId).toBeTruthy()
+  expect(Math.abs(firstAttempt.centsOff)).toBeLessThanOrEqual(40)
 })
 
 test("shows lesson progress and advances to exercise 2", async () => {
@@ -58,7 +60,7 @@ test("fail shows retry and records failed attempt", async () => {
 
   const records = await history.getAllAttempts()
   expect(records).toHaveLength(1)
-  expect(records[0]!.passed).toBe(false)
+  expect(records[0]?.passed).toBe(false)
 })
 
 test("exhausts attempts and shows next exercise", async () => {

@@ -8,7 +8,11 @@ export interface ChordExercise {
 }
 
 export function chordTarget(chordExercise: ChordExercise): TargetNote {
-  return chordExercise.notes[chordExercise.targetIndex]!
+  const target = chordExercise.notes[chordExercise.targetIndex]
+  if (target === undefined) {
+    throw new Error(`Invalid chord target index: ${chordExercise.targetIndex}`)
+  }
+  return target
 }
 
 export function chordFrequenciesHz(question: ChordExercise): [number, number, number] {

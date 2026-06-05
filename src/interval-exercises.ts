@@ -1,6 +1,7 @@
 import { getIntervalById, getIntervalsByIds, type IntervalEntry } from "./interval-config.ts"
 import type { LessonExercise } from "./lesson-exercise.ts"
 import { midiToHz, midiToNoteName, type NoteRange, type TargetNote } from "./notes.ts"
+import { pickRandom } from "./util/array.ts"
 
 export type IntervalPresentation = "melodic" | "harmonic"
 
@@ -68,7 +69,7 @@ export function randomIntervalExercise(
       `No valid root for ${interval.label} in voice range (${range.lowMidi}–${range.highMidi})`,
     )
   }
-  const lowerMidi = lowers[Math.floor(Math.random() * lowers.length)]!
+  const lowerMidi = pickRandom(lowers)
   return buildIntervalExercise(interval, presentation, lowerMidi)
 }
 
@@ -89,7 +90,13 @@ function shuffle<T>(items: T[]): T[] {
   const copy = [...items]
   for (let i = copy.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
-    ;[copy[i], copy[j]] = [copy[j]!, copy[i]!]
+    const atI = copy[i]
+    const atJ = copy[j]
+    if (atI === undefined || atJ === undefined) {
+      continue
+    }
+    copy[i] = atJ
+    copy[j] = atI
   }
   return copy
 }

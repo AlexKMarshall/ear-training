@@ -54,5 +54,5 @@ test("fail shows retry and records failed attempt", async () => {
 
   const records = await history.getAllAttempts()
   expect(records).toHaveLength(1)
-  expect(records[0]!.passed).toBe(false)
+  expect(records[0]?.passed).toBe(false)
 })

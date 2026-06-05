@@ -21,7 +21,11 @@ export function midiToHz(midi: number): number {
 
 export function midiToNoteName(midi: number): string {
   const octave = Math.floor(midi / 12) - 1
-  return `${NOTE_NAMES[midi % 12]!}${octave}`
+  const name = NOTE_NAMES[midi % 12]
+  if (name === undefined) {
+    throw new Error(`Invalid MIDI note: ${midi}`)
+  }
+  return `${name}${octave}`
 }
 
 export function randomNoteInRange(range: NoteRange): TargetNote {
