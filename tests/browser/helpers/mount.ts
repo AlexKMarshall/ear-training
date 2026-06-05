@@ -64,7 +64,7 @@ export function createTestSessionHistory(
   return { sessionHistory, history };
 }
 
-export function createAppRoot(): HTMLElement {
+function createAppRoot(): HTMLElement {
   document.body.innerHTML = '<div id="app"></div>';
   const root = document.querySelector<HTMLElement>("#app");
   if (!root) {
@@ -103,7 +103,7 @@ export function setCurriculumLessonSearch(
   window.history.replaceState({}, "", `${url.pathname}${url.search}`);
 }
 
-export function getLocationSearch(): string {
+function getLocationSearch(): string {
   return window.location.search;
 }
 
@@ -362,24 +362,6 @@ export function createHarmonicSingTestConfig(
   overrides?: Partial<SingTestConfig>,
 ): SingTestConfig {
   return createSingTestConfigFor("interval-harmonic-sing", overrides);
-}
-
-export function createHarmonicIdTestConfig(
-  overrides?: Partial<IdentifyTestConfig>,
-): IdentifyTestConfig {
-  return createIdentifyTestConfigFor("interval-harmonic-id", overrides);
-}
-
-export function createSingleNoteTestConfig(
-  overrides?: Partial<SingTestConfig>,
-): SingTestConfig {
-  return createSingTestConfigFor("single-note", overrides);
-}
-
-export function createScaleDegreeSingTestConfig(
-  overrides?: Partial<SingTestConfig>,
-): SingTestConfig {
-  return createSingTestConfigFor("scale-degree-sing", overrides);
 }
 
 export interface MountMelodicIdResult {

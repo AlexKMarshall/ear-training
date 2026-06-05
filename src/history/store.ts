@@ -77,9 +77,3 @@ export function getAllAttempts(): Promise<AttemptRecord[]> {
     (rows) => rows ?? [],
   );
 }
-
-/** Reset store (for tests). */
-export async function clearAttempts(): Promise<void> {
-  await runTransaction("readwrite", (store) => store.clear());
-  dbPromise = null;
-}

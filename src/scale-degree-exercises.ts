@@ -1,8 +1,4 @@
-import {
-  getScaleDegreeById,
-  SCALE_DEGREES,
-  type ScaleDegreeEntry,
-} from "./scale-degree-config.ts";
+import type { ScaleDegreeEntry } from "./scale-degree-config.ts";
 import {
   midiToHz,
   midiToNoteName,
@@ -86,17 +82,6 @@ export function pickRandomLessonTonic(
   return tonics[Math.floor(Math.random() * tonics.length)]!;
 }
 
-export function scaleDegreeQuestionForTag(
-  degreeId: string,
-  tonicMidi: number,
-): ScaleDegreeExercise {
-  const degree = getScaleDegreeById(degreeId);
-  if (!degree) {
-    throw new Error(`Unknown scale degree id: ${degreeId}`);
-  }
-  return buildScaleDegreeExercise(degree, tonicMidi);
-}
-
 export function randomScaleDegreeExerciseForTonic(
   tonicMidi: number,
   degree: ScaleDegreeEntry,
@@ -128,15 +113,3 @@ export function scaleDegreeToLessonExercise(
   };
 }
 
-export function randomScaleDegreeSingQuestion(
-  range: NoteRange,
-  degrees: readonly ScaleDegreeEntry[] = SCALE_DEGREES.filter(
-    (entry) => entry.enabled,
-  ),
-  tonicMidi: number = pickRandomLessonTonic(range, degrees),
-): LessonExercise {
-  const degree = degrees[Math.floor(Math.random() * degrees.length)]!;
-  return scaleDegreeToLessonExercise(
-    randomScaleDegreeExerciseForTonic(tonicMidi, degree),
-  );
-}

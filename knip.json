@@ -1,7 +1,22 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "entry": ["src/pages/*.ts!"],
-  "project": ["src/**/*.{ts,tsx}!", "tests/**/*.{ts,tsx}"],
+  "entry": [
+    "src/pages/*.ts!",
+    "src/ui/tests.ts!",
+    "src/ui/interval-tests.ts!",
+    "src/ui/scale-degree-tests.ts!",
+    "src/ui/sing-test.ts!",
+    "src/ui/identify-test.ts!",
+    "src/ui/sing-test-view.tsx!",
+    "src/ui/sing-test-types.ts!",
+    "src/ui/identify-test-view.tsx!",
+    "src/ui/identify-test-types.ts!",
+    "src/audio/capture.ts!",
+    "src/audio/piano.ts!",
+    "src/pitch/detect.ts!",
+    "src/pages/*.ts"
+  ],
+  "project": ["src/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}", "src/**/*.{ts,tsx}!"],
   "rules": {
     "types": "off",
     "unlisted": "off"

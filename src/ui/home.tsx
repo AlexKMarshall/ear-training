@@ -87,7 +87,7 @@ function GuidedPath(props: { records: readonly AttemptRecord[] }) {
   );
 }
 
-export function Home(props: { records: readonly AttemptRecord[] }) {
+function Home(props: { records: readonly AttemptRecord[] }) {
   return (
     <main class="app">
       <header class="header">

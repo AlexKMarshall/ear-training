@@ -1,7 +1,4 @@
-import { EXERCISES_PER_LESSON } from "./config.ts";
 import type { LessonExercise } from "./lesson-exercise.ts";
-
-export { EXERCISES_PER_LESSON };
 
 /** How the user finished a single exercise within a lesson. */
 export type ExerciseOutcome = "firstTry" | "retry" | "wrong";
