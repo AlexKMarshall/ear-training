@@ -151,7 +151,7 @@ describe("ExerciseScreenState", () => {
     await state.submitChoice("P5")
 
     expect(onAttemptScored).toHaveBeenCalledTimes(1)
-    expect(onAttemptScored.mock.calls[0][0]).toMatchObject({
+    expect(onAttemptScored.mock.calls[0]?.[0]).toMatchObject({
       exercise: sampleExercise,
       scorePayload: { selectedId: "P5" },
       lesson: {

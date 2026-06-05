@@ -136,7 +136,7 @@ describe("LessonRun", () => {
     run.advanceAfterResult(sampleExercise)
 
     expect(onAttemptScored).toHaveBeenCalledTimes(2)
-    expect(onAttemptScored.mock.calls[0][0]).toEqual({
+    expect(onAttemptScored.mock.calls[0]?.[0]).toEqual({
       lessonId: "lesson-persist",
       exerciseIndex: 0,
       passed: false,
@@ -144,7 +144,7 @@ describe("LessonRun", () => {
       scoredAttemptsOnCurrent: 1,
       lastPassed: false,
     })
-    expect(onAttemptScored.mock.calls[1][0]).toEqual({
+    expect(onAttemptScored.mock.calls[1]?.[0]).toEqual({
       lessonId: "lesson-persist",
       exerciseIndex: 0,
       passed: true,
