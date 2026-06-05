@@ -50,7 +50,6 @@ Prioritize debt that blocks or complicates **near-term roadmap work** — especi
 | TD-014 | P2 | Tooling | No project **linter** or **formatter** (no ESLint, Prettier, or Biome). Style and obvious issues rely on reviewer attention and `tsc` on `src/` only. | Inconsistent formatting; latent bugs (`no-floating-promises`, unused imports) slip through. | Adopt **Biome** (single tool) or ESLint + Prettier; match existing style in an initial format pass. |
 | TD-015 | P2 | CI | **`tests/`** not typechecked; no project **lint** in CI. | Test helpers can drift from domain types; style and common issues not gated on PRs. | Extend **`npm run typecheck`** to include `tests/` and fix existing errors; add full linting (`npm run lint`) and wire both into [`.github/workflows/ci.yml`](../.github/workflows/ci.yml). |
 | TD-016 | P2 | TypeScript | **`strict`** mode not enabled (`tsconfig.json` uses selective flags only). | Weaker guarantees at module boundaries; nullable fields on attempts/questions easier to misuse. | Enable `strict` incrementally (or `strictNullChecks` first) with a tracked burn-down. |
-| TD-018 | P2 | Copy / UX | Lesson **summary** headline says **Round complete** while glossary uses **lesson** / **lesson summary** (see `CONTEXT.md`). Browser tests assert shipped copy until aligned. | Terminology drift for learners and docs; agents may confuse round vs lesson. | Rename headline (e.g. **Lesson complete**) and progress strings if any still say *round*; update tests in same PR. |
 
 ---
 

@@ -42,7 +42,7 @@ function SingLessonSummaryResult(props: {
 }) {
   return (
     <>
-      <p class="result-verdict">Round complete</p>
+      <p class="result-verdict">Lesson complete</p>
       <p class="round-summary-score">
         <span class="round-summary-score-value">
           {props.summary.correctCount}/{props.summary.total}
