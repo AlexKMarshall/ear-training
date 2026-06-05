@@ -72,20 +72,20 @@ export function mountChordMiddleTest(
   root: HTMLElement,
   deps?: ChordSessionDeps & SingMountDeps,
 ): void {
-  const { cache, planner, rng } = resolveChordSession(deps);
+  const { sessionHistory, planner, rng } = resolveChordSession(deps ?? {});
   mountSingTest(
     root,
     {
       ...chordMiddleBase,
       prepareExercise: () =>
         prepareChordExercise(
-          cache.getRecords(),
+          sessionHistory.getRecords(),
           planner,
           undefined,
           rng,
           deps?.sessionCurriculumLesson,
         ),
     },
-    { ...deps, history: cache.historyPort },
+    { ...deps, history: sessionHistory.historyPort },
   );
 }

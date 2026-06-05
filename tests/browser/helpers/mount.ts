@@ -23,6 +23,10 @@ import {
   createMemoryHistoryPort,
   type HistoryPort,
 } from "../../../src/history/port.ts";
+import {
+  createSessionHistoryCache,
+  type SessionHistoryCache,
+} from "../../../src/history/session-cache.ts";
 import type { AttemptRecord, PracticeModeId } from "../../../src/history/types.ts";
 import { midiToHz } from "../../../src/notes.ts";
 import {
@@ -51,6 +55,14 @@ import {
 import { mountStats } from "../../../src/ui/stats.ts";
 import { resetVoiceTypePreference } from "../../../src/voice-ranges.ts";
 import "../../../src/ui/styles.css";
+
+export function createTestSessionHistory(
+  records: AttemptRecord[] = [],
+): { sessionHistory: SessionHistoryCache; history: HistoryPort } {
+  const history = createMemoryHistoryPort(records);
+  const sessionHistory = createSessionHistoryCache(history, { initialRecords: records });
+  return { sessionHistory, history };
+}
 
 export function createAppRoot(): HTMLElement {
   document.body.innerHTML = '<div id="app"></div>';
