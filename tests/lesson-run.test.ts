@@ -1,20 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
-import {
-  LessonRun,
-  type AttemptScoredContext,
-} from "../src/lesson-run.ts";
 import type { LessonExercise } from "../src/lesson-exercise.ts";
+import { type AttemptScoredContext, LessonRun } from "../src/lesson-run.ts";
 
 const sampleExercise: LessonExercise = {
   target: { midi: 60, hz: 261.63, name: "C4" },
   intervalId: "P5",
 };
 
-function runThroughLesson(
-  run: LessonRun,
-  outcomes: boolean[],
-  exercise = sampleExercise,
-): void {
+function runThroughLesson(run: LessonRun, outcomes: boolean[], exercise = sampleExercise): void {
   for (const passed of outcomes) {
     run.ensureCurrentExercise();
     run.recordScore(passed);

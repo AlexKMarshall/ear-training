@@ -1,12 +1,12 @@
-import { page } from "vitest/browser";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { page } from "vitest/browser";
 import {
   passingFullGuidedPathHistory,
   passingIntroScaleDegreeHistory,
   passingLevel2History,
-  passingSingleNoteHistory,
   passingMajorDiatonicScaleDegreeHistory,
   passingMinorDiatonicScaleDegreeHistory,
+  passingSingleNoteHistory,
   passingThroughHarmonic2bHistory,
   passingThroughMelodic2bHistory,
 } from "../fixtures/attempts.ts";
@@ -48,9 +48,7 @@ test("after single-note complete: melodic 2a step is the current link", async ()
     )
     .toBeVisible();
   await expect
-    .element(
-      guidedPath().getByRole("link", { name: /Single note.*Complete/i }),
-    )
+    .element(guidedPath().getByRole("link", { name: /Single note.*Complete/i }))
     .toBeVisible();
 });
 
@@ -154,12 +152,8 @@ test("after melodic 2b: current node is harmonic sing at 2b tier", async () => {
 
 test("path complete: banner shown and stats link remains", async () => {
   await mountHomeWithHistory(passingFullGuidedPathHistory());
-  await expect
-    .element(guidedPath().getByText(/completed the guided path/i))
-    .toBeVisible();
-  await expect
-    .element(page.getByRole("link", { name: /Your progress/i }))
-    .toBeVisible();
+  await expect.element(guidedPath().getByText(/completed the guided path/i)).toBeVisible();
+  await expect.element(page.getByRole("link", { name: /Your progress/i })).toBeVisible();
   await expect
     .element(guidedPath().getByRole("link", { name: /Single note.*Complete/i }))
     .toBeVisible();

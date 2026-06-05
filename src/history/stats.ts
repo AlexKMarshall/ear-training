@@ -1,15 +1,11 @@
-import { PRACTICE_MODES, getPracticeMode } from "../practice-modes/registry.ts";
 import { percentOf } from "../lesson.ts";
+import { getPracticeMode, PRACTICE_MODES } from "../practice-modes/registry.ts";
 import {
   computeTagBreakdownForExercise,
   singAttemptsMedianAbsCents,
   type TagStats,
 } from "./tag-stats.ts";
-import {
-  PRACTICE_MODE_LABELS,
-  type AttemptRecord,
-  type PracticeModeId,
-} from "./types.ts";
+import { type AttemptRecord, PRACTICE_MODE_LABELS, type PracticeModeId } from "./types.ts";
 
 export interface PracticeModeStats {
   practiceModeId: PracticeModeId;
@@ -99,9 +95,7 @@ function computeAttemptPassRate(records: readonly AttemptRecord[]): number {
 
 export function computeMedianAbsCents(records: readonly AttemptRecord[]): number {
   if (records.length === 0) return 0;
-  return Math.round(
-    median(records.map((r) => Math.abs(r.centsOff))),
-  );
+  return Math.round(median(records.map((r) => Math.abs(r.centsOff))));
 }
 
 function statsForExercise(
@@ -147,9 +141,7 @@ export function computePracticeModeProgress(
   return { lessonExerciseCount, lessonExercisePassRatePercent };
 }
 
-export function computeDashboardStats(
-  records: readonly AttemptRecord[],
-): DashboardStats {
+export function computeDashboardStats(records: readonly AttemptRecord[]): DashboardStats {
   const lessonExerciseStats = computeLessonExerciseStats(records);
   const practiceModeIds = PRACTICE_MODES.map((e) => e.id);
 

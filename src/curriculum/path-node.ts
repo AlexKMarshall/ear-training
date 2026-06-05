@@ -1,17 +1,21 @@
-import { formatLessonLinkUrl } from "./lesson-link.ts";
+import type { AttemptRecord, PracticeModeId } from "../history/types.ts";
+import { getPracticeMode } from "../practice-modes/registry.ts";
 import type { CurriculumLesson } from "./curriculum-lessons.ts";
-import { CURRICULUM_LESSONS, getCurriculumLessonIndex, curriculumLessonKey } from "./curriculum-lessons.ts";
+import {
+  CURRICULUM_LESSONS,
+  curriculumLessonKey,
+  getCurriculumLessonIndex,
+} from "./curriculum-lessons.ts";
+import { formatLessonLinkUrl } from "./lesson-link.ts";
 import {
   computeCurriculumLessonProgress,
   getContinueCurriculumLesson,
   getUnlockRequirementForCurriculumLesson,
   isCurriculumLessonUnlocked,
-  meetsCurriculumLessonThreshold,
   MIN_EXERCISE_PASS_RATE,
   MIN_EXERCISES_FOR_UNLOCK,
+  meetsCurriculumLessonThreshold,
 } from "./unlock.ts";
-import { getPracticeMode } from "../practice-modes/registry.ts";
-import type { AttemptRecord, PracticeModeId } from "../history/types.ts";
 
 export type PathNodeState = "passed" | "current" | "locked";
 
@@ -36,10 +40,7 @@ const INTERVAL_MODE_LABEL: Record<
   "interval-harmonic-id": "Harmonic identification",
 };
 
-const TIER_POOL_LABEL: Record<
-  CurriculumLesson["contentTierId"],
-  string | null
-> = {
+const TIER_POOL_LABEL: Record<CurriculumLesson["contentTierId"], string | null> = {
   "tier-1": "sing back one note",
   "interval-2a": "perfect 4th, 5th, octave",
   "interval-2b": "diatonic intervals within one octave",
@@ -120,16 +121,12 @@ export function getPathNodeState(
   return "passed";
 }
 
-export function isGuidedPathComplete(
-  records: readonly AttemptRecord[],
-): boolean {
+export function isGuidedPathComplete(records: readonly AttemptRecord[]): boolean {
   return CURRICULUM_LESSONS.every((step) => meetsCurriculumLessonThreshold(step, records));
 }
 
 /** First locked step after the current node, or after the last passed step when none is current. */
-export function getNextLockedPathNode(
-  records: readonly AttemptRecord[],
-): CurriculumLesson | null {
+export function getNextLockedPathNode(records: readonly AttemptRecord[]): CurriculumLesson | null {
   const current = getContinueCurriculumLesson(records);
   let startIndex: number;
   if (current) {

@@ -1,8 +1,8 @@
 import {
-  startRecording,
-  stopMediaStream,
   type RecordingCallbacks,
   type RecordingSession,
+  startRecording,
+  stopMediaStream,
 } from "./capture.ts";
 
 export interface RecordingPort {
@@ -25,16 +25,11 @@ export interface TestRecordingPortOptions {
 }
 
 /** Fake mic for browser tests — no getUserMedia. */
-export function createTestRecordingPort(
-  options: TestRecordingPortOptions,
-): RecordingPort {
+export function createTestRecordingPort(options: TestRecordingPortOptions): RecordingPort {
   return {
     async start(callbacks) {
       if (options.emitPitch) {
-        callbacks.onPitch?.(
-          options.emitPitch.hz,
-          options.emitPitch.clarity,
-        );
+        callbacks.onPitch?.(options.emitPitch.hz, options.emitPitch.clarity);
       }
       return {
         stop: () => {

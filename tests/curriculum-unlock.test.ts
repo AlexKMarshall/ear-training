@@ -1,26 +1,24 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { isUnlockAllEnabled } from "../src/curriculum/dev-unlock.ts";
 import {
-  getContinuePracticeMode,
   getContinueCurriculumLesson,
+  getContinuePracticeMode,
   getUnlockRequirement,
-  isPracticeModeUnlocked,
-  isLevelUnlocked,
   isCurriculumLessonUnlocked,
+  isLevelUnlocked,
+  isPracticeModeUnlocked,
   MIN_EXERCISE_PASS_RATE,
   MIN_EXERCISES_FOR_UNLOCK,
 } from "../src/curriculum/unlock.ts";
-import type { AttemptRecord } from "../src/history/types.ts";
 import {
-  attempt,
   passingFullGuidedPathHistory,
   passingIntroScaleDegreeHistory,
   passingLevel2History,
+  passingMajorDiatonicScaleDegreeHistory,
   passingMelodicSing2bHistory,
+  passingMinorDiatonicScaleDegreeHistory,
   passingSingleNoteHistory,
   passingStepHistory,
-  passingMajorDiatonicScaleDegreeHistory,
-  passingMinorDiatonicScaleDegreeHistory,
   passingThroughHarmonic2bHistory,
   passingThroughMelodic2bHistory,
 } from "./fixtures/attempts.ts";
@@ -32,18 +30,14 @@ describe("isPracticeModeUnlocked", () => {
 
   it("locks chord-middle until minor diatonic scale degrees pass", () => {
     expect(isPracticeModeUnlocked("chord-middle", [])).toBe(false);
-    expect(isPracticeModeUnlocked("chord-middle", passingLevel2History())).toBe(
+    expect(isPracticeModeUnlocked("chord-middle", passingLevel2History())).toBe(false);
+    expect(isPracticeModeUnlocked("chord-middle", passingThroughHarmonic2bHistory())).toBe(false);
+    expect(isPracticeModeUnlocked("chord-middle", passingMajorDiatonicScaleDegreeHistory())).toBe(
       false,
     );
-    expect(
-      isPracticeModeUnlocked("chord-middle", passingThroughHarmonic2bHistory()),
-    ).toBe(false);
-    expect(
-      isPracticeModeUnlocked("chord-middle", passingMajorDiatonicScaleDegreeHistory()),
-    ).toBe(false);
-    expect(
-      isPracticeModeUnlocked("chord-middle", passingMinorDiatonicScaleDegreeHistory()),
-    ).toBe(true);
+    expect(isPracticeModeUnlocked("chord-middle", passingMinorDiatonicScaleDegreeHistory())).toBe(
+      true,
+    );
   });
 
   it("locks path successors until the predecessor meets thresholds", () => {
@@ -57,15 +51,11 @@ describe("isPracticeModeUnlocked", () => {
   });
 
   it("locks scale-degree-sing until harmonic identify at 2a passes", () => {
-    expect(isPracticeModeUnlocked("scale-degree-sing", passingSingleNoteHistory())).toBe(
-      false,
-    );
-    expect(isPracticeModeUnlocked("scale-degree-sing", passingLevel2History())).toBe(
+    expect(isPracticeModeUnlocked("scale-degree-sing", passingSingleNoteHistory())).toBe(false);
+    expect(isPracticeModeUnlocked("scale-degree-sing", passingLevel2History())).toBe(true);
+    expect(isPracticeModeUnlocked("scale-degree-sing", passingThroughMelodic2bHistory())).toBe(
       true,
     );
-    expect(
-      isPracticeModeUnlocked("scale-degree-sing", passingThroughMelodic2bHistory()),
-    ).toBe(true);
   });
 
   describe("?unlock=all", () => {
@@ -164,9 +154,7 @@ describe("isCurriculumLessonUnlocked", () => {
     };
     expect(isCurriculumLessonUnlocked(sing2b, passingSingleNoteHistory())).toBe(false);
     expect(isCurriculumLessonUnlocked(sing2b, passingLevel2History())).toBe(false);
-    expect(isCurriculumLessonUnlocked(sing2b, passingIntroScaleDegreeHistory())).toBe(
-      true,
-    );
+    expect(isCurriculumLessonUnlocked(sing2b, passingIntroScaleDegreeHistory())).toBe(true);
   });
 
   it("locks melodic identify at 2b until melodic sing at 2b passes", () => {
@@ -222,9 +210,7 @@ describe("getContinueCurriculumLesson", () => {
   });
 
   it("advances to melodic sing at 2b after intro scale degrees complete", () => {
-    expect(getContinuePracticeMode(passingIntroScaleDegreeHistory())).toBe(
-      "interval-melodic-sing",
-    );
+    expect(getContinuePracticeMode(passingIntroScaleDegreeHistory())).toBe("interval-melodic-sing");
     expect(getContinueCurriculumLesson(passingIntroScaleDegreeHistory())).toEqual({
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2b",
@@ -242,9 +228,7 @@ describe("getContinueCurriculumLesson", () => {
   });
 
   it("advances to major diatonic scale degrees after interval 2b completes", () => {
-    expect(getContinuePracticeMode(passingThroughHarmonic2bHistory())).toBe(
-      "scale-degree-sing",
-    );
+    expect(getContinuePracticeMode(passingThroughHarmonic2bHistory())).toBe("scale-degree-sing");
     expect(getContinueCurriculumLesson(passingThroughHarmonic2bHistory())).toEqual({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-diatonic",
@@ -262,9 +246,7 @@ describe("getContinueCurriculumLesson", () => {
   });
 
   it("advances to chord middle after minor diatonic scale degrees complete", () => {
-    expect(getContinuePracticeMode(passingMinorDiatonicScaleDegreeHistory())).toBe(
-      "chord-middle",
-    );
+    expect(getContinuePracticeMode(passingMinorDiatonicScaleDegreeHistory())).toBe("chord-middle");
     expect(getContinueCurriculumLesson(passingMinorDiatonicScaleDegreeHistory())).toEqual({
       practiceModeId: "chord-middle",
       contentTierId: "chord-1a",
@@ -278,9 +260,7 @@ describe("getContinuePracticeMode", () => {
   });
 
   it("advances after the current exercise meets thresholds", () => {
-    expect(getContinuePracticeMode(passingSingleNoteHistory())).toBe(
-      "interval-melodic-sing",
-    );
+    expect(getContinuePracticeMode(passingSingleNoteHistory())).toBe("interval-melodic-sing");
   });
 
   it("returns null when every curriculum step meets thresholds", () => {
@@ -305,8 +285,7 @@ describe("getUnlockRequirement", () => {
   it("includes tier pool in predecessor label for scale-degree sing", () => {
     expect(getUnlockRequirement("scale-degree-sing")).toEqual({
       predecessorPracticeModeId: "interval-harmonic-id",
-      predecessorLabel:
-        "Identify harmonic intervals (perfect 4th, 5th, octave)",
+      predecessorLabel: "Identify harmonic intervals (perfect 4th, 5th, octave)",
       minExercisesForUnlock: MIN_EXERCISES_FOR_UNLOCK,
       minPassRatePercent: MIN_EXERCISE_PASS_RATE,
     });
@@ -317,12 +296,8 @@ describe("getUnlockRequirement", () => {
       practiceModeId: "scale-degree-sing" as const,
       contentTierId: "degree-major-diatonic" as const,
     };
-    expect(isCurriculumLessonUnlocked(majorDiatonic, passingThroughMelodic2bHistory())).toBe(
-      false,
-    );
-    expect(
-      isCurriculumLessonUnlocked(majorDiatonic, passingThroughHarmonic2bHistory()),
-    ).toBe(true);
+    expect(isCurriculumLessonUnlocked(majorDiatonic, passingThroughMelodic2bHistory())).toBe(false);
+    expect(isCurriculumLessonUnlocked(majorDiatonic, passingThroughHarmonic2bHistory())).toBe(true);
   });
 
   it("requires major diatonic scale degrees before chord middle", () => {

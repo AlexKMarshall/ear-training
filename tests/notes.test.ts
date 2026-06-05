@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  midiToHz,
-  midiToNoteName,
-  randomNoteInRange,
-} from "../src/notes.ts";
+import { midiToHz, midiToNoteName, randomNoteInRange } from "../src/notes.ts";
 import { getActiveNoteRange } from "../src/voice-ranges.ts";
 
 describe("midiToHz", () => {

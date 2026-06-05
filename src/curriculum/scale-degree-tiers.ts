@@ -1,9 +1,7 @@
 import type { ContentTierId } from "./curriculum-lessons.ts";
 
 /** Learner-visible key quality for scale-degree curriculum tiers. */
-export function getScaleDegreeKeyQualityLabel(
-  tierId: ContentTierId,
-): string | null {
+export function getScaleDegreeKeyQualityLabel(tierId: ContentTierId): string | null {
   switch (tierId) {
     case "degree-major-intro":
     case "degree-major-diatonic":

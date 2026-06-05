@@ -1,10 +1,6 @@
-import {
-  ANALYSER_FFT_SIZE,
-  MAX_RECORD_MS,
-  SILENCE_AUTO_STOP_MS,
-} from "../config.ts";
-import { correctHarmonicPitch } from "../pitch/harmonics.ts";
+import { ANALYSER_FFT_SIZE, MAX_RECORD_MS, SILENCE_AUTO_STOP_MS } from "../config.ts";
 import { detectPitchFromAnalyser } from "../pitch/detect.ts";
+import { correctHarmonicPitch } from "../pitch/harmonics.ts";
 import { ensureAudioReady } from "./context.ts";
 
 export interface RecordingSession {
@@ -73,9 +69,7 @@ export function stopMediaStream(): void {
   }
 }
 
-export async function startRecording(
-  callbacks: RecordingCallbacks,
-): Promise<RecordingSession> {
+export async function startRecording(callbacks: RecordingCallbacks): Promise<RecordingSession> {
   const ctx = await ensureAudioReady();
   const stream = await ensureMicStream();
 

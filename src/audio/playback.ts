@@ -1,7 +1,4 @@
-import {
-  MELODIC_INTERVAL_GAP_MS,
-  PLAYBACK_DURATION_MS,
-} from "../config.ts";
+import { MELODIC_INTERVAL_GAP_MS, PLAYBACK_DURATION_MS } from "../config.ts";
 import { ensurePianoReady } from "./piano.ts";
 
 let playing = false;
@@ -13,11 +10,7 @@ export function isPlaying(): boolean {
   return playing;
 }
 
-async function playMidiNotes(
-  midis: number[],
-  durationMs: number,
-  velocity: number,
-): Promise<void> {
+async function playMidiNotes(midis: number[], durationMs: number, velocity: number): Promise<void> {
   if (playing) return;
 
   playing = true;

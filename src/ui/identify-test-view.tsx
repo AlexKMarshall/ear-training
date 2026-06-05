@@ -1,6 +1,5 @@
 import { Show } from "solid-js";
 import type { IntervalChoice } from "../interval-exercises.ts";
-import type { IdentifyResultView } from "./identify-test-types.ts";
 import type { LessonSummary } from "../lesson.ts";
 import type { VoiceType } from "../voice-ranges.ts";
 import {
@@ -10,7 +9,7 @@ import {
   ExerciseNav,
 } from "./components/exercise-chrome.tsx";
 import { VoicePicker } from "./components/voice-picker.tsx";
-import type { IdentifyUiState } from "./identify-test-types.ts";
+import type { IdentifyResultView, IdentifyUiState } from "./identify-test-types.ts";
 
 function ChoiceGrid(props: {
   choices: IntervalChoice[];
@@ -46,9 +45,7 @@ function IdentifyAttemptResult(props: {
           ? `You chose ${props.selectedLabel}.`
           : "That wasn't right — tap Try again to hear the interval and pick again."}
       </p>
-      {props.attemptNote ? (
-        <p class="result-attempts">{props.attemptNote}</p>
-      ) : null}
+      {props.attemptNote ? <p class="result-attempts">{props.attemptNote}</p> : null}
     </>
   );
 }
@@ -71,16 +68,16 @@ function IdentifyLessonSummaryResult(props: {
       </p>
       <ul class="lesson-summary-breakdown">
         <li>
-          <span class="lesson-summary-label">First try</span>{" "}
-          {props.summary.firstTryCount} ({props.firstTryPct}%)
+          <span class="lesson-summary-label">First try</span> {props.summary.firstTryCount} (
+          {props.firstTryPct}%)
         </li>
         <li>
-          <span class="lesson-summary-label">After retry</span>{" "}
-          {props.summary.retryCount} ({props.retryPct}%)
+          <span class="lesson-summary-label">After retry</span> {props.summary.retryCount} (
+          {props.retryPct}%)
         </li>
         <li>
-          <span class="lesson-summary-label">Wrong</span>{" "}
-          {props.summary.wrongCount} ({props.wrongPct}%)
+          <span class="lesson-summary-label">Wrong</span> {props.summary.wrongCount} (
+          {props.wrongPct}%)
         </li>
       </ul>
     </>
@@ -91,9 +88,7 @@ function IdentifyAudioErrorResult() {
   return (
     <>
       <p class="result-verdict">Could not play audio</p>
-      <p class="result-detail">
-        Tap Play again after interacting with the page.
-      </p>
+      <p class="result-detail">Tap Play again after interacting with the page.</p>
     </>
   );
 }
@@ -189,8 +184,7 @@ export function IdentifyTestView(props: {
         onNextLesson={props.onNextLesson}
       />
       <ExerciseHint>
-        Use headphones if you can. Tap Play to hear the reference (no microphone
-        needed).
+        Use headphones if you can. Tap Play to hear the reference (no microphone needed).
       </ExerciseHint>
     </main>
   );

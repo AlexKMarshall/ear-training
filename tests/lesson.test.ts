@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   classifyExerciseOutcome,
+  type LessonExerciseResult,
   percentOf,
   summarizeLesson,
-  type LessonExerciseResult,
 } from "../src/lesson.ts";
 
 describe("classifyExerciseOutcome", () => {

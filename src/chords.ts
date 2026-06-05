@@ -11,9 +11,7 @@ export function chordTarget(chordExercise: ChordExercise): TargetNote {
   return chordExercise.notes[chordExercise.targetIndex]!;
 }
 
-export function chordFrequenciesHz(
-  question: ChordExercise,
-): [number, number, number] {
+export function chordFrequenciesHz(question: ChordExercise): [number, number, number] {
   return question.notes.map((n) => n.hz) as [number, number, number];
 }
 

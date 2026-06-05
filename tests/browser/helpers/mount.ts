@@ -5,34 +5,32 @@ import { resetInversionPreference } from "../../../src/chord-inversion-preferenc
 import { resetChordTypePreference } from "../../../src/chord-type-preference.ts";
 import { buildChordExercise } from "../../../src/chord-types.ts";
 import { chordTarget } from "../../../src/chords.ts";
-import { getPracticeMode } from "../../../src/practice-modes/registry.ts";
-import { getIntervalById } from "../../../src/interval-config.ts";
+import { getScaleDegreeKeyQualityLabel } from "../../../src/curriculum/scale-degree-tiers.ts";
+import { createMemoryHistoryPort, type HistoryPort } from "../../../src/history/port.ts";
+import {
+  createSessionHistoryCache,
+  type SessionHistoryCache,
+} from "../../../src/history/session-cache.ts";
+import type { AttemptRecord, PracticeModeId } from "../../../src/history/types.ts";
+import { getIntervalById, INTERVAL_2A_IDS } from "../../../src/interval-config.ts";
 import {
   buildIntervalExercise,
   intervalToLessonExercise,
 } from "../../../src/interval-exercises.ts";
-import { INTERVAL_2A_IDS } from "../../../src/interval-config.ts";
-import { getScaleDegreeKeyQualityLabel } from "../../../src/curriculum/scale-degree-tiers.ts";
+import { midiToHz } from "../../../src/notes.ts";
+import { getPracticeMode } from "../../../src/practice-modes/registry.ts";
 import { getScaleDegreeById } from "../../../src/scale-degree-config.ts";
 import {
   buildScaleDegreeExercise,
   scaleDegreeToLessonExercise,
 } from "../../../src/scale-degree-exercises.ts";
 import { resetScaleDegreePreference } from "../../../src/scale-degree-preference.ts";
+import { mountPracticeModePage } from "../../../src/ui/exercise-page.ts";
+import { mountHome } from "../../../src/ui/home.tsx";
 import {
-  createMemoryHistoryPort,
-  type HistoryPort,
-} from "../../../src/history/port.ts";
-import {
-  createSessionHistoryCache,
-  type SessionHistoryCache,
-} from "../../../src/history/session-cache.ts";
-import type { AttemptRecord, PracticeModeId } from "../../../src/history/types.ts";
-import { midiToHz } from "../../../src/notes.ts";
-import {
-  mountIdentifyTest,
   type IdentifyMountDeps,
   type IdentifyTestConfig,
+  mountIdentifyTest,
 } from "../../../src/ui/identify-test.ts";
 import {
   intervalHarmonicIdConfig,
@@ -41,24 +39,20 @@ import {
   intervalMelodicSingConfig,
 } from "../../../src/ui/interval-tests.ts";
 import { scaleDegreeSingConfig } from "../../../src/ui/scale-degree-tests.ts";
-import { mountPracticeModePage } from "../../../src/ui/exercise-page.ts";
-import { mountHome } from "../../../src/ui/home.tsx";
 import {
   mountSingTest,
   type SingMountDeps,
   type SingTestConfig,
 } from "../../../src/ui/sing-test.ts";
-import {
-  chordMiddleTestConfig,
-  singleNoteTestConfig,
-} from "../../../src/ui/tests.ts";
 import { mountStats } from "../../../src/ui/stats.ts";
+import { chordMiddleTestConfig, singleNoteTestConfig } from "../../../src/ui/tests.ts";
 import { resetVoiceTypePreference } from "../../../src/voice-ranges.ts";
 import "../../../src/ui/styles.css";
 
-export function createTestSessionHistory(
-  records: AttemptRecord[] = [],
-): { sessionHistory: SessionHistoryCache; history: HistoryPort } {
+export function createTestSessionHistory(records: AttemptRecord[] = []): {
+  sessionHistory: SessionHistoryCache;
+  history: HistoryPort;
+} {
   const history = createMemoryHistoryPort(records);
   const sessionHistory = createSessionHistoryCache(history, { initialRecords: records });
   return { sessionHistory, history };
@@ -107,9 +101,7 @@ function getLocationSearch(): string {
   return window.location.search;
 }
 
-export async function mountHomeWithHistory(
-  records: AttemptRecord[],
-): Promise<void> {
+export async function mountHomeWithHistory(records: AttemptRecord[]): Promise<void> {
   const root = createAppRoot();
   await mountHome(root, { history: createMemoryHistoryPort(records) });
 }
@@ -128,9 +120,7 @@ export async function mountPracticeModePageWithHistory(
   return { history };
 }
 
-export async function mountStatsWithHistory(
-  records: AttemptRecord[],
-): Promise<void> {
+export async function mountStatsWithHistory(records: AttemptRecord[]): Promise<void> {
   const root = createAppRoot();
   await mountStats(root, { history: createMemoryHistoryPort(records) });
 }
@@ -143,11 +133,7 @@ const fixedSingleNoteTarget = {
   hz: 261.63,
 } as const;
 
-const fixedChordExercise = buildChordExercise(
-  MAJOR_TRIAD_SING_MIDDLE,
-  "root",
-  52,
-);
+const fixedChordExercise = buildChordExercise(MAJOR_TRIAD_SING_MIDDLE, "root", 52);
 
 const scaleDegreeFifth = getScaleDegreeById("fifth")!;
 
@@ -209,9 +195,7 @@ function createSingTestConfigFor(
       return {
         ...intervalMelodicSingConfig,
         prepareExercise: () => ({
-          ...intervalToLessonExercise(
-            buildIntervalExercise(perfectFifth, "melodic", 60),
-          ),
+          ...intervalToLessonExercise(buildIntervalExercise(perfectFifth, "melodic", 60)),
           contentTierId: "interval-2a",
           eligibleTagIds: INTERVAL_2A_IDS,
         }),
@@ -222,9 +206,7 @@ function createSingTestConfigFor(
       return {
         ...intervalHarmonicSingConfig,
         prepareExercise: () => ({
-          ...intervalToLessonExercise(
-            buildIntervalExercise(perfectFifth, "harmonic", 60),
-          ),
+          ...intervalToLessonExercise(buildIntervalExercise(perfectFifth, "harmonic", 60)),
           contentTierId: "interval-2a",
           eligibleTagIds: INTERVAL_2A_IDS,
         }),
@@ -236,9 +218,7 @@ function createSingTestConfigFor(
         ...scaleDegreeSingConfig,
         lessonBanner: getScaleDegreeKeyQualityLabel("degree-major-intro") ?? undefined,
         prepareExercise: () => ({
-          ...scaleDegreeToLessonExercise(
-            buildScaleDegreeExercise(scaleDegreeFifth, 60),
-          ),
+          ...scaleDegreeToLessonExercise(buildScaleDegreeExercise(scaleDegreeFifth, 60)),
           contentTierId: "degree-major-intro",
           eligibleTagIds: ["fourth", "fifth", "octave"],
         }),
@@ -255,17 +235,12 @@ function createIdentifyTestConfigFor(
   overrides?: Partial<IdentifyTestConfig>,
 ): IdentifyTestConfig {
   const base =
-    practiceModeId === "interval-harmonic-id"
-      ? intervalHarmonicIdConfig
-      : intervalMelodicIdConfig;
-  const presentation =
-    practiceModeId === "interval-harmonic-id" ? "harmonic" : "melodic";
+    practiceModeId === "interval-harmonic-id" ? intervalHarmonicIdConfig : intervalMelodicIdConfig;
+  const presentation = practiceModeId === "interval-harmonic-id" ? "harmonic" : "melodic";
   return {
     ...base,
     prepareExercise: () => ({
-      ...intervalToLessonExercise(
-        buildIntervalExercise(perfectFifth, presentation, 60),
-      ),
+      ...intervalToLessonExercise(buildIntervalExercise(perfectFifth, presentation, 60)),
       contentTierId: "interval-2a",
       eligibleTagIds: INTERVAL_2A_IDS,
     }),
@@ -312,8 +287,7 @@ export function mountPracticeModeInBrowser(
   }
 
   const { responseMode } = getPracticeMode(practiceModeId);
-  const history =
-    options.deps?.history ?? createMemoryHistoryPort();
+  const history = options.deps?.history ?? createMemoryHistoryPort();
   const root = createAppRoot();
   const audio = options.deps?.audio ?? createTestAudioPort();
   const configOverrides = options.config as
@@ -323,32 +297,22 @@ export function mountPracticeModeInBrowser(
 
   if (responseMode === "select") {
     const identifyDeps = options.deps as IdentifyMountDeps | undefined;
-    mountIdentifyTest(
-      root,
-      createIdentifyTestConfigFor(practiceModeId, configOverrides),
-      {
-        history,
-        audio,
-        exercisesPerLesson: identifyDeps?.exercisesPerLesson,
-      },
-    );
+    mountIdentifyTest(root, createIdentifyTestConfigFor(practiceModeId, configOverrides), {
+      history,
+      audio,
+      exercisesPerLesson: identifyDeps?.exercisesPerLesson,
+    });
     return { history };
   }
 
-  const samplesHz =
-    options.samplesHz ?? defaultPassSamplesHzFor(practiceModeId);
+  const samplesHz = options.samplesHz ?? defaultPassSamplesHzFor(practiceModeId);
   const singDeps = options.deps as SingMountDeps | undefined;
-  mountSingTest(
-    root,
-    createSingTestConfigFor(practiceModeId, configOverrides),
-    {
-      history,
-      audio,
-      recording:
-        singDeps?.recording ?? createTestRecordingPort({ samplesHz }),
-      exercisesPerLesson: singDeps?.exercisesPerLesson,
-    },
-  );
+  mountSingTest(root, createSingTestConfigFor(practiceModeId, configOverrides), {
+    history,
+    audio,
+    recording: singDeps?.recording ?? createTestRecordingPort({ samplesHz }),
+    exercisesPerLesson: singDeps?.exercisesPerLesson,
+  });
   return { history };
 }
 
@@ -358,9 +322,7 @@ export function createMelodicIdTestConfig(
   return createIdentifyTestConfigFor("interval-melodic-id", overrides);
 }
 
-export function createHarmonicSingTestConfig(
-  overrides?: Partial<SingTestConfig>,
-): SingTestConfig {
+export function createHarmonicSingTestConfig(overrides?: Partial<SingTestConfig>): SingTestConfig {
   return createSingTestConfigFor("interval-harmonic-sing", overrides);
 }
 
@@ -387,9 +349,7 @@ export interface MountSingleNoteSingOptions {
   resetPreferences?: boolean;
 }
 
-export function mountSingleNoteSingTest(
-  options: MountSingleNoteSingOptions,
-): MountMelodicIdResult {
+export function mountSingleNoteSingTest(options: MountSingleNoteSingOptions): MountMelodicIdResult {
   return mountPracticeModeInBrowser("single-note", {
     config: options.config,
     deps: options.deps,

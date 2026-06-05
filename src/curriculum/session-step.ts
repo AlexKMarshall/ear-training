@@ -1,3 +1,4 @@
+import type { AttemptRecord, PracticeModeId } from "../history/types.ts";
 import type { CurriculumLesson } from "./curriculum-lessons.ts";
 import { curriculumLessonsForPracticeMode } from "./curriculum-lessons.ts";
 import {
@@ -5,7 +6,6 @@ import {
   isCurriculumLessonUnlocked,
   meetsCurriculumLessonThreshold,
 } from "./unlock.ts";
-import type { AttemptRecord, PracticeModeId } from "../history/types.ts";
 
 export const CHORD_MIDDLE_CURRICULUM_LESSON: CurriculumLesson = {
   practiceModeId: "chord-middle",
@@ -46,7 +46,10 @@ export function getGuidedCurriculumLessonForPracticeMode(
   assertSessionPracticeMode(practiceModeId);
 
   for (const step of curriculumLessonsForPracticeMode(practiceModeId)) {
-    if (isCurriculumLessonUnlocked(step, records) && !meetsCurriculumLessonThreshold(step, records)) {
+    if (
+      isCurriculumLessonUnlocked(step, records) &&
+      !meetsCurriculumLessonThreshold(step, records)
+    ) {
       return step;
     }
   }

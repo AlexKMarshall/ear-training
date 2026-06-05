@@ -21,9 +21,7 @@ export function ExerciseHeader(props: {
     <header class="header">
       <h1>{props.title}</h1>
       <p class="subtitle">{props.subtitle}</p>
-      {props.lessonBanner ? (
-        <p class="lesson-banner">{props.lessonBanner}</p>
-      ) : null}
+      {props.lessonBanner ? <p class="lesson-banner">{props.lessonBanner}</p> : null}
       <p class="lesson-progress" hidden={props.lessonProgressHidden}>
         {props.lessonProgressText}
       </p>
@@ -70,12 +68,7 @@ export function ExerciseActionBar(props: {
           {props.recordLabel ?? "Start singing"}
         </button>
       ) : null}
-      <button
-        type="button"
-        class="btn"
-        hidden={props.retryHidden}
-        onClick={props.onRetry}
-      >
+      <button type="button" class="btn" hidden={props.retryHidden} onClick={props.onRetry}>
         Try again
       </button>
       <button

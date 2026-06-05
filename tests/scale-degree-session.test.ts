@@ -1,16 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { getEligibleDegreeIds } from "../src/curriculum/curriculum-lessons.ts";
 import { getScaleDegreeById } from "../src/scale-degree-config.ts";
-import {
-  prepareScaleDegreeExercise,
-} from "../src/ui/scale-degree-session.ts";
+import type { SessionPlanner } from "../src/session/planner.ts";
+import { prepareScaleDegreeExercise } from "../src/ui/scale-degree-session.ts";
 import {
   attempt,
   passingIntroScaleDegreeHistory,
   passingMajorDiatonicScaleDegreeHistory,
   passingThroughHarmonic2bHistory,
 } from "./fixtures/attempts.ts";
-import type { SessionPlanner } from "../src/session/planner.ts";
 
 describe("prepareScaleDegreeExercise", () => {
   it("uses planner tag and attaches intro tier metadata", () => {
@@ -69,8 +67,7 @@ describe("prepareScaleDegreeExercise", () => {
   it("keeps the same lesson tonic across questions", () => {
     const introHistory = passingIntroScaleDegreeHistory();
     const planner: SessionPlanner = {
-      planNextExerciseTag: (_step, records) =>
-        records.length === 0 ? "fourth" : "fifth",
+      planNextExerciseTag: (_step, records) => (records.length === 0 ? "fourth" : "fifth"),
     };
     const first = prepareScaleDegreeExercise(
       introHistory,
@@ -150,11 +147,9 @@ describe("scaleDegreeQuestionForTag", () => {
   it("builds a question for each major diatonic tier degree", () => {
     for (const id of getEligibleDegreeIds("degree-major-diatonic")) {
       const degree = getScaleDegreeById(id)!;
-      const { exercise } = prepareScaleDegreeExercise(
-        passingThroughHarmonic2bHistory(),
-        60,
-        { planNextExerciseTag: () => id },
-      );
+      const { exercise } = prepareScaleDegreeExercise(passingThroughHarmonic2bHistory(), 60, {
+        planNextExerciseTag: () => id,
+      });
       expect(exercise.degreeId).toBe(id);
       expect(exercise.target.midi).toBe(60 + degree.semitonesFromTonic);
     }

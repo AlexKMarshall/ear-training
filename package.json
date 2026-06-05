@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "lint": "biome ci",
+    "lint:fix": "biome check --write",
+    "format": "biome format --write",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build": "tsc -p tsconfig.build.json && vite build",
     "preview": "vite preview",
@@ -15,6 +18,7 @@
     "postinstall": "PLAYWRIGHT_BROWSERS_PATH=0 playwright install chromium"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.4.16",
     "@vitest/browser-playwright": "^4.1.8",
     "knip": "^6.15.0",
     "playwright": "^1.60.0",

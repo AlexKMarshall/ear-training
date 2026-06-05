@@ -23,12 +23,10 @@ function SingAttemptResult(props: {
       <p class="result-verdict">{props.passed ? "Correct" : "Not quite"}</p>
       <p class="result-detail">{props.message}</p>
       <p class="result-meta">
-        Detected {props.detectedHz.toFixed(1)} Hz (target{" "}
-        {props.targetHz.toFixed(1)} Hz — {props.targetName})
+        Detected {props.detectedHz.toFixed(1)} Hz (target {props.targetHz.toFixed(1)} Hz —{" "}
+        {props.targetName})
       </p>
-      {props.attemptNote ? (
-        <p class="result-attempts">{props.attemptNote}</p>
-      ) : null}
+      {props.attemptNote ? <p class="result-attempts">{props.attemptNote}</p> : null}
     </>
   );
 }
@@ -51,16 +49,16 @@ function SingLessonSummaryResult(props: {
       </p>
       <ul class="lesson-summary-breakdown">
         <li>
-          <span class="lesson-summary-label">First try</span>{" "}
-          {props.summary.firstTryCount} ({props.firstTryPct}%)
+          <span class="lesson-summary-label">First try</span> {props.summary.firstTryCount} (
+          {props.firstTryPct}%)
         </li>
         <li>
-          <span class="lesson-summary-label">After retry</span>{" "}
-          {props.summary.retryCount} ({props.retryPct}%)
+          <span class="lesson-summary-label">After retry</span> {props.summary.retryCount} (
+          {props.retryPct}%)
         </li>
         <li>
-          <span class="lesson-summary-label">Wrong</span>{" "}
-          {props.summary.wrongCount} ({props.wrongPct}%)
+          <span class="lesson-summary-label">Wrong</span> {props.summary.wrongCount} (
+          {props.wrongPct}%)
         </li>
       </ul>
     </>
@@ -80,9 +78,7 @@ function SingAudioErrorResult() {
   return (
     <>
       <p class="result-verdict">Could not play audio</p>
-      <p class="result-detail">
-        Tap Play again after interacting with the page.
-      </p>
+      <p class="result-detail">Tap Play again after interacting with the page.</p>
     </>
   );
 }
@@ -166,9 +162,7 @@ export function SingTestView(props: {
         {props.ui.showQuestionPrompt ? (
           <p class="question-prompt">{props.ui.questionPrompt}</p>
         ) : null}
-        {props.ui.showLivePitch ? (
-          <p class="live-pitch">{props.ui.livePitchText}</p>
-        ) : null}
+        {props.ui.showLivePitch ? <p class="live-pitch">{props.ui.livePitchText}</p> : null}
         <SingResultPanel ui={props.ui} />
       </section>
       <ExerciseActionBar
@@ -189,8 +183,8 @@ export function SingTestView(props: {
         onNextLesson={props.onNextLesson}
       />
       <ExerciseHint>
-        Use headphones if you can. Allow microphone access when prompted. Works
-        on HTTPS or localhost.
+        Use headphones if you can. Allow microphone access when prompted. Works on HTTPS or
+        localhost.
       </ExerciseHint>
     </main>
   );

@@ -1,5 +1,5 @@
-import { page } from "vitest/browser";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { page } from "vitest/browser";
 import { formatLessonLinkUrl } from "../../src/curriculum/lesson-link.ts";
 import { getPredecessorCurriculumLesson } from "../../src/curriculum/unlock.ts";
 import { getPracticeMode } from "../../src/practice-modes/registry.ts";
@@ -28,13 +28,8 @@ test("locked default step shows predecessor curriculum label and lesson link", a
 });
 
 test("unlocked default step mounts the exercise", async () => {
-  await mountPracticeModePageWithHistory(
-    "interval-melodic-sing",
-    passingSingleNoteHistory(),
-  );
-  await expect
-    .element(page.getByRole("heading", { name: "Locked" }))
-    .not.toBeInTheDocument();
+  await mountPracticeModePageWithHistory("interval-melodic-sing", passingSingleNoteHistory());
+  await expect.element(page.getByRole("heading", { name: "Locked" })).not.toBeInTheDocument();
   await expect
     .element(page.getByRole("heading", { name: /Sing melodic intervals/i }))
     .toBeVisible();
@@ -98,9 +93,7 @@ test("unlocked step deep link mounts the exercise", async () => {
   await expect
     .element(page.getByRole("heading", { name: /Sing melodic intervals/i }))
     .toBeVisible();
-  await expect
-    .element(page.getByRole("heading", { name: "Locked" }))
-    .not.toBeInTheDocument();
+  await expect.element(page.getByRole("heading", { name: "Locked" })).not.toBeInTheDocument();
   setCurriculumLessonSearch(null);
 });
 
@@ -124,12 +117,8 @@ describe("?unlock=all", () => {
     await mountPracticeModePageWithHistory("scale-degree-sing", [], {
       locationSearch: window.location.search,
     });
-    await expect
-      .element(page.getByRole("heading", { name: /Sing scale degrees/i }))
-      .toBeVisible();
-    await expect
-      .element(page.getByRole("heading", { name: "Locked" }))
-      .not.toBeInTheDocument();
+    await expect.element(page.getByRole("heading", { name: /Sing scale degrees/i })).toBeVisible();
+    await expect.element(page.getByRole("heading", { name: "Locked" })).not.toBeInTheDocument();
     setCurriculumLessonSearch(null);
   });
 });

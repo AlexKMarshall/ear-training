@@ -78,10 +78,7 @@ describe("getPathNodeState", () => {
   it("marks completed steps passed after single-note threshold", () => {
     const records = passingSingleNoteHistory();
     expect(
-      getPathNodeState(
-        { practiceModeId: "single-note", contentTierId: "tier-1" },
-        records,
-      ),
+      getPathNodeState({ practiceModeId: "single-note", contentTierId: "tier-1" }, records),
     ).toBe("passed");
     expect(
       getPathNodeState(

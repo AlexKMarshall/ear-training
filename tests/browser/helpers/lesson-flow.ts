@@ -1,5 +1,5 @@
-import { page, userEvent } from "vitest/browser";
 import { expect } from "vitest";
+import { page, userEvent } from "vitest/browser";
 import type { RecordingPort } from "../../../src/audio/recording-port.ts";
 import { getIntervalById } from "../../../src/interval-config.ts";
 
@@ -14,8 +14,7 @@ function createSequenceRecordingPort(sequences: number[][]): RecordingPort {
   let index = 0;
   return {
     async start(callbacks) {
-      const samples =
-        sequences[Math.min(index++, sequences.length - 1)] ?? sequences[0]!;
+      const samples = sequences[Math.min(index++, sequences.length - 1)] ?? sequences[0]!;
       return {
         stop: () => {
           callbacks.onComplete(samples);
@@ -42,27 +41,21 @@ async function singPlayRecordPass(playLabel: RegExp): Promise<void> {
   await userEvent.click(page.getByRole("button", { name: playLabel }));
   await userEvent.click(page.getByRole("button", { name: /Start singing/i }));
   await userEvent.click(page.getByRole("button", { name: /^Done$/i }));
-  await expect
-    .element(page.getByText("Correct", { exact: true }))
-    .toBeVisible();
+  await expect.element(page.getByText("Correct", { exact: true })).toBeVisible();
 }
 
 export async function singPlayRecordFail(playLabel: RegExp): Promise<void> {
   await userEvent.click(page.getByRole("button", { name: playLabel }));
   await userEvent.click(page.getByRole("button", { name: /Start singing/i }));
   await userEvent.click(page.getByRole("button", { name: /^Done$/i }));
-  await expect
-    .element(page.getByText("Not quite", { exact: true }))
-    .toBeVisible();
+  await expect.element(page.getByText("Not quite", { exact: true })).toBeVisible();
 }
 
-async function singRetryThenPass(playLabel: RegExp): Promise<void> {
+async function singRetryThenPass(_playLabel: RegExp): Promise<void> {
   await userEvent.click(page.getByRole("button", { name: /Try again/i }));
   await userEvent.click(page.getByRole("button", { name: /Start singing/i }));
   await userEvent.click(page.getByRole("button", { name: /^Done$/i }));
-  await expect
-    .element(page.getByText("Correct", { exact: true }))
-    .toBeVisible();
+  await expect.element(page.getByText("Correct", { exact: true })).toBeVisible();
 }
 
 export async function singExhaustAttempts(playLabel: RegExp): Promise<void> {
@@ -72,9 +65,7 @@ export async function singExhaustAttempts(playLabel: RegExp): Promise<void> {
     await userEvent.click(page.getByRole("button", { name: /Start singing/i }));
     await userEvent.click(page.getByRole("button", { name: /^Done$/i }));
   }
-  await expect
-    .element(page.getByRole("button", { name: /Try again/i }))
-    .not.toBeInTheDocument();
+  await expect.element(page.getByRole("button", { name: /Try again/i })).not.toBeInTheDocument();
 }
 
 export async function singAdvanceFromResult(buttonName: RegExp): Promise<void> {
@@ -83,11 +74,7 @@ export async function singAdvanceFromResult(buttonName: RegExp): Promise<void> {
 
 export async function runSingLessonO2(playLabel: RegExp): Promise<void> {
   await expect
-    .element(
-      page.getByText(
-        new RegExp(`exercise 1 of ${SHORT_LESSON_EXERCISES}`, "i"),
-      ),
-    )
+    .element(page.getByText(new RegExp(`exercise 1 of ${SHORT_LESSON_EXERCISES}`, "i")))
     .toBeVisible();
 
   await singPlayRecordPass(playLabel);
@@ -111,21 +98,15 @@ async function identifyPlayAndChoose(label: string): Promise<void> {
 
 async function identifyPassFirstTry(): Promise<void> {
   await identifyPlayAndChoose(correctIntervalLabel);
-  await expect
-    .element(page.getByText("Correct", { exact: true }))
-    .toBeVisible();
+  await expect.element(page.getByText("Correct", { exact: true })).toBeVisible();
 }
 
 async function identifyFailThenPass(): Promise<void> {
   await identifyPlayAndChoose(wrongIntervalLabel);
-  await expect
-    .element(page.getByText("Not quite", { exact: true }))
-    .toBeVisible();
+  await expect.element(page.getByText("Not quite", { exact: true })).toBeVisible();
   await userEvent.click(page.getByRole("button", { name: /Try again/i }));
   await identifyPlayAndChoose(correctIntervalLabel);
-  await expect
-    .element(page.getByText("Correct", { exact: true }))
-    .toBeVisible();
+  await expect.element(page.getByText("Correct", { exact: true })).toBeVisible();
 }
 
 async function identifyExhaustAttempts(): Promise<void> {
@@ -134,9 +115,7 @@ async function identifyExhaustAttempts(): Promise<void> {
     await userEvent.click(page.getByRole("button", { name: /Try again/i }));
     await identifyPlayAndChoose(wrongIntervalLabel);
   }
-  await expect
-    .element(page.getByRole("button", { name: /Try again/i }))
-    .not.toBeInTheDocument();
+  await expect.element(page.getByRole("button", { name: /Try again/i })).not.toBeInTheDocument();
 }
 
 async function identifyAdvanceFromResult(buttonName: RegExp): Promise<void> {
@@ -145,11 +124,7 @@ async function identifyAdvanceFromResult(buttonName: RegExp): Promise<void> {
 
 export async function runIdentifyLessonO2(): Promise<void> {
   await expect
-    .element(
-      page.getByText(
-        new RegExp(`exercise 1 of ${SHORT_LESSON_EXERCISES}`, "i"),
-      ),
-    )
+    .element(page.getByText(new RegExp(`exercise 1 of ${SHORT_LESSON_EXERCISES}`, "i")))
     .toBeVisible();
 
   await identifyPassFirstTry();
@@ -163,13 +138,9 @@ export async function runIdentifyLessonO2(): Promise<void> {
 }
 
 export async function assertLessonSummaryO2(): Promise<void> {
-  await expect
-    .element(page.getByText("Lesson complete", { exact: true }))
-    .toBeVisible();
+  await expect.element(page.getByText("Lesson complete", { exact: true })).toBeVisible();
   await expect.element(page.getByText("2/3")).toBeVisible();
-  await expect
-    .element(page.getByText("correct (67%)", { exact: false }))
-    .toBeVisible();
+  await expect.element(page.getByText("correct (67%)", { exact: false })).toBeVisible();
   const breakdown = page.getByRole("list").locator("li");
   await expect.element(breakdown.nth(0)).toHaveTextContent(/First try/);
   await expect.element(breakdown.nth(0)).toHaveTextContent(/1 \(33%\)/);

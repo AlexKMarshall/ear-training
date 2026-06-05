@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
-  formatLessonLinkUrl,
+  CURRICULUM_LESSON_QUERY_PARAM,
   formatCurriculumLessonParam,
+  formatLessonLinkUrl,
   parseCurriculumLessonFromSearchParams,
   parseCurriculumLessonParam,
-  CURRICULUM_LESSON_QUERY_PARAM,
 } from "../src/curriculum/lesson-link.ts";
 
 describe("lesson link", () => {
@@ -16,15 +16,16 @@ describe("lesson link", () => {
     const encoded = formatCurriculumLessonParam(step);
     expect(encoded).toBe("interval-melodic-sing:interval-2a");
     expect(parseCurriculumLessonParam(encoded)).toEqual(step);
-    expect(parseCurriculumLessonFromSearchParams(`?${CURRICULUM_LESSON_QUERY_PARAM}=${encoded}`, step.practiceModeId)).toEqual(
-      step,
-    );
+    expect(
+      parseCurriculumLessonFromSearchParams(
+        `?${CURRICULUM_LESSON_QUERY_PARAM}=${encoded}`,
+        step.practiceModeId,
+      ),
+    ).toEqual(step);
   });
 
   it("parses tier shorthand for the route exercise", () => {
-    expect(
-      parseCurriculumLessonParam("interval-2b", "interval-melodic-sing"),
-    ).toEqual({
+    expect(parseCurriculumLessonParam("interval-2b", "interval-melodic-sing")).toEqual({
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2b",
     });

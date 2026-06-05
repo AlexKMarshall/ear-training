@@ -1,15 +1,15 @@
 import { computeLessonExerciseStats } from "../history/stats.ts";
 import type { AttemptRecord, PracticeModeId } from "../history/types.ts";
-import { isUnlockAllEnabled } from "./dev-unlock.ts";
-import { CURRICULUM_LEVELS } from "./levels.ts";
 import type { CurriculumLesson } from "./curriculum-lessons.ts";
 import {
   CURRICULUM_LESSONS,
+  curriculumLessonsForPracticeMode,
   filterRecordsForCurriculumLesson,
   getCurriculumLessonIndex,
   getCurriculumLessonLabel,
-  curriculumLessonsForPracticeMode,
 } from "./curriculum-lessons.ts";
+import { isUnlockAllEnabled } from "./dev-unlock.ts";
+import { CURRICULUM_LEVELS } from "./levels.ts";
 
 export const MIN_EXERCISES_FOR_UNLOCK = 10;
 export const MIN_EXERCISE_PASS_RATE = 70;
@@ -91,10 +91,7 @@ export function isPracticeModeUnlocked(
   return isCurriculumLessonUnlocked(firstStep, records);
 }
 
-export function isLevelUnlocked(
-  level: number,
-  records: readonly AttemptRecord[],
-): boolean {
+export function isLevelUnlocked(level: number, records: readonly AttemptRecord[]): boolean {
   const def = CURRICULUM_LEVELS.find((l) => l.level === level);
   if (!def || def.practiceModeIds.length === 0) {
     return false;
@@ -118,9 +115,7 @@ export function getContinueCurriculumLesson(
 }
 
 /** First guided exercise to work on, or null when the path is complete. */
-export function getContinuePracticeMode(
-  records: readonly AttemptRecord[],
-): PracticeModeId | null {
+export function getContinuePracticeMode(records: readonly AttemptRecord[]): PracticeModeId | null {
   return getContinueCurriculumLesson(records)?.practiceModeId ?? null;
 }
 
@@ -162,9 +157,7 @@ export function isCurriculumLessonAccessible(
 }
 
 /** Static unlock copy for a path exercise (null if always available). */
-export function getUnlockRequirement(
-  practiceModeId: PracticeModeId,
-): UnlockRequirement | null {
+export function getUnlockRequirement(practiceModeId: PracticeModeId): UnlockRequirement | null {
   const firstStep = curriculumLessonsForPracticeMode(practiceModeId)[0];
   if (!firstStep) {
     return null;

@@ -1,22 +1,19 @@
+import { render } from "solid-js/web";
+import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
 import {
   formatLessonLinkUrl,
   parseCurriculumLessonFromSearchParams,
 } from "../curriculum/lesson-link.ts";
 import { resolveAccessCurriculumLesson } from "../curriculum/session-step.ts";
-import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
 import {
   getPredecessorCurriculumLesson,
   getUnlockRequirementForCurriculumLesson,
   isCurriculumLessonAccessible,
 } from "../curriculum/unlock.ts";
-import { render } from "solid-js/web";
-import { getPracticeMode, mountPracticeMode } from "../practice-modes/registry.ts";
-import {
-  createDefaultHistoryPort,
-  type MountDeps,
-} from "../history/port.ts";
+import { createDefaultHistoryPort, type MountDeps } from "../history/port.ts";
 import { createSessionHistoryCache } from "../history/session-cache.ts";
 import type { PracticeModeId } from "../history/types.ts";
+import { getPracticeMode, mountPracticeMode } from "../practice-modes/registry.ts";
 import { LockedCurriculumLessonView } from "./exercise-locked-view.tsx";
 
 function getSearchString(deps: MountDeps): string {
@@ -35,10 +32,7 @@ function mountLockedCurriculumLesson(
   }
   const predecessorEntry = getPracticeMode(predecessorStep.practiceModeId);
   const predecessorName = requirement.predecessorLabel;
-  const predecessorHref = formatLessonLinkUrl(
-    predecessorEntry.route,
-    predecessorStep,
-  );
+  const predecessorHref = formatLessonLinkUrl(predecessorEntry.route, predecessorStep);
 
   render(
     () =>

@@ -2,20 +2,14 @@ import { getChordTypeById } from "../chord-config.ts";
 import type { InversionId } from "../chord-inversions.ts";
 import { randomChordExercise } from "../chord-types.ts";
 import { chordTarget } from "../chords.ts";
-import { resolveSessionCurriculumLesson } from "../curriculum/session-step.ts";
 import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
-import {
-  getEligibleInversionIds,
-  getEligibleTagIds,
-} from "../curriculum/curriculum-lessons.ts";
+import { getEligibleInversionIds, getEligibleTagIds } from "../curriculum/curriculum-lessons.ts";
+import { resolveSessionCurriculumLesson } from "../curriculum/session-step.ts";
 import type { MountDeps } from "../history/port.ts";
 import type { SessionHistoryCache } from "../history/session-cache.ts";
 import type { AttemptRecord } from "../history/types.ts";
-import {
-  createDefaultSessionPlanner,
-  type SessionPlanner,
-} from "../session/planner.ts";
 import type { LessonExercise } from "../lesson-exercise.ts";
+import { createDefaultSessionPlanner, type SessionPlanner } from "../session/planner.ts";
 import { getActiveNoteRange } from "../voice-ranges.ts";
 
 export interface ChordSessionDeps
@@ -24,9 +18,7 @@ export interface ChordSessionDeps
   rng?: () => number;
 }
 
-export function pickRandomInversionFromTier(
-  rng: () => number = Math.random,
-): InversionId {
+export function pickRandomInversionFromTier(rng: () => number = Math.random): InversionId {
   const eligible = getEligibleInversionIds("chord-1a");
   return eligible[Math.floor(rng() * eligible.length)]!;
 }

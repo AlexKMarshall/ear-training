@@ -29,9 +29,7 @@ describe("INTERVALS registry", () => {
   });
 
   it("keeps only tier 2a enabled for the v1 picker until planner wiring", () => {
-    const enabledIds = INTERVALS.filter((entry) => entry.enabled).map(
-      (entry) => entry.id,
-    );
+    const enabledIds = INTERVALS.filter((entry) => entry.enabled).map((entry) => entry.id);
     expect(enabledIds).toEqual([...INTERVAL_2A_IDS]);
   });
 });

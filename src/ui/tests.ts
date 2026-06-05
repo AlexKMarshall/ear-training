@@ -1,14 +1,14 @@
-import { chordMidis } from "../chords.ts";
 import { playChord, playTargetNote } from "../audio/playback.ts";
+import { chordMidis } from "../chords.ts";
+import type { MountDeps } from "../history/port.ts";
 import { randomNoteInRange } from "../notes.ts";
 import { getActiveNoteRange } from "../voice-ranges.ts";
-import type { MountDeps } from "../history/port.ts";
-import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts";
 import {
+  type ChordSessionDeps,
   prepareChordExercise,
   resolveChordSession,
-  type ChordSessionDeps,
 } from "./chord-session.ts";
+import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts";
 
 export const singleNoteTestConfig: SingTestConfig = {
   practiceModeId: "single-note",
@@ -61,10 +61,7 @@ export const chordMiddleTestConfig: SingTestConfig = {
   prepareExercise: () => prepareChordExercise([]),
 };
 
-export function mountSingleNoteTest(
-  root: HTMLElement,
-  _deps?: MountDeps & SingMountDeps,
-): void {
+export function mountSingleNoteTest(root: HTMLElement, _deps?: MountDeps & SingMountDeps): void {
   mountSingTest(root, singleNoteTestConfig);
 }
 

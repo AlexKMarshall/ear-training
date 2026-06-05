@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { CURRICULUM_PATH } from "../src/curriculum/levels.ts";
-import { PRACTICE_MODES, type ResponseMode } from "../src/practice-modes/registry.ts";
 import { PRACTICE_MODE_LABELS, type PracticeModeId } from "../src/history/types.ts";
+import { PRACTICE_MODES, type ResponseMode } from "../src/practice-modes/registry.ts";
+import type { IdentifyTestConfig } from "../src/ui/identify-test.ts";
 import {
   intervalHarmonicIdConfig,
   intervalHarmonicSingConfig,
@@ -9,17 +10,10 @@ import {
   intervalMelodicSingConfig,
 } from "../src/ui/interval-tests.ts";
 import { scaleDegreeSingConfig } from "../src/ui/scale-degree-tests.ts";
-import type { IdentifyTestConfig } from "../src/ui/identify-test.ts";
 import type { SingTestConfig } from "../src/ui/sing-test.ts";
-import {
-  chordMiddleTestConfig,
-  singleNoteTestConfig,
-} from "../src/ui/tests.ts";
+import { chordMiddleTestConfig, singleNoteTestConfig } from "../src/ui/tests.ts";
 
-const SING_CONFIGS: Record<
-  PracticeModeId,
-  SingTestConfig | undefined
-> = {
+const SING_CONFIGS: Record<PracticeModeId, SingTestConfig | undefined> = {
   "single-note": singleNoteTestConfig,
   "chord-middle": chordMiddleTestConfig,
   "interval-melodic-sing": intervalMelodicSingConfig,
@@ -29,10 +23,7 @@ const SING_CONFIGS: Record<
   "scale-degree-sing": scaleDegreeSingConfig,
 };
 
-const IDENTIFY_CONFIGS: Record<
-  PracticeModeId,
-  IdentifyTestConfig | undefined
-> = {
+const IDENTIFY_CONFIGS: Record<PracticeModeId, IdentifyTestConfig | undefined> = {
   "single-note": undefined,
   "chord-middle": undefined,
   "interval-melodic-sing": undefined,
@@ -42,10 +33,7 @@ const IDENTIFY_CONFIGS: Record<
   "scale-degree-sing": undefined,
 };
 
-function configFor(
-  id: PracticeModeId,
-  mode: ResponseMode,
-): SingTestConfig | IdentifyTestConfig {
+function configFor(id: PracticeModeId, mode: ResponseMode): SingTestConfig | IdentifyTestConfig {
   if (mode === "sing") {
     const config = SING_CONFIGS[id];
     if (!config) {
@@ -82,20 +70,19 @@ describe("exercise registry contract", () => {
     expect([...registryIds].sort()).toEqual([...CURRICULUM_PATH].sort());
   });
 
-  it.each(PRACTICE_MODES.map((e) => [e.id, e.responseMode, e.title, e.subtitle] as const))(
-    "%s matches UI config practiceModeId, titles, and response mode",
-    (id, responseMode, title, subtitle) => {
-      const config = configFor(id, responseMode);
-      expect(config.practiceModeId).toBe(id);
-      expect(config.title).toBe(title);
-      expect(config.subtitle).toBe(subtitle);
-      if (responseMode === "sing") {
-        expect(SING_CONFIGS[id]).toBeDefined();
-        expect(IDENTIFY_CONFIGS[id]).toBeUndefined();
-      } else {
-        expect(IDENTIFY_CONFIGS[id]).toBeDefined();
-        expect(SING_CONFIGS[id]).toBeUndefined();
-      }
-    },
-  );
+  it.each(
+    PRACTICE_MODES.map((e) => [e.id, e.responseMode, e.title, e.subtitle] as const),
+  )("%s matches UI config practiceModeId, titles, and response mode", (id, responseMode, title, subtitle) => {
+    const config = configFor(id, responseMode);
+    expect(config.practiceModeId).toBe(id);
+    expect(config.title).toBe(title);
+    expect(config.subtitle).toBe(subtitle);
+    if (responseMode === "sing") {
+      expect(SING_CONFIGS[id]).toBeDefined();
+      expect(IDENTIFY_CONFIGS[id]).toBeUndefined();
+    } else {
+      expect(IDENTIFY_CONFIGS[id]).toBeDefined();
+      expect(SING_CONFIGS[id]).toBeUndefined();
+    }
+  });
 });

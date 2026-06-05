@@ -1,11 +1,8 @@
-import { page, userEvent } from "vitest/browser";
 import { beforeEach, expect, test } from "vitest";
-import { PRACTICE_MODES } from "../../src/practice-modes/registry.ts";
+import { page, userEvent } from "vitest/browser";
 import type { PracticeModeId } from "../../src/history/types.ts";
-import {
-  defaultPassSamplesHzFor,
-  mountPracticeModeInBrowser,
-} from "./helpers/mount.ts";
+import { PRACTICE_MODES } from "../../src/practice-modes/registry.ts";
+import { defaultPassSamplesHzFor, mountPracticeModeInBrowser } from "./helpers/mount.ts";
 
 const SMOKE_IDS = [
   "single-note",
@@ -32,9 +29,7 @@ for (const practiceModeId of SMOKE_IDS) {
 
     const { history } = mountPracticeModeInBrowser(practiceModeId, mountOptions);
 
-    await expect
-      .element(page.getByRole("heading", { name: entry.title }))
-      .toBeVisible();
+    await expect.element(page.getByRole("heading", { name: entry.title })).toBeVisible();
 
     const playLabel =
       practiceModeId === "single-note"
@@ -47,19 +42,13 @@ for (const practiceModeId of SMOKE_IDS) {
     await userEvent.click(page.getByRole("button", { name: playLabel }));
 
     if (entry.responseMode === "select") {
-      await userEvent.click(
-        page.getByRole("button", { name: /Perfect 5th/i }),
-      );
+      await userEvent.click(page.getByRole("button", { name: /Perfect 5th/i }));
     } else {
-      await userEvent.click(
-        page.getByRole("button", { name: /Start singing/i }),
-      );
+      await userEvent.click(page.getByRole("button", { name: /Start singing/i }));
       await userEvent.click(page.getByRole("button", { name: /^Done$/i }));
     }
 
-    await expect
-      .element(page.getByText("Correct", { exact: true }))
-      .toBeVisible();
+    await expect.element(page.getByText("Correct", { exact: true })).toBeVisible();
 
     const records = await history.getAllAttempts();
     expect(records).toHaveLength(1);

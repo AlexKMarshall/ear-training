@@ -1,15 +1,6 @@
-import {
-  getIntervalById,
-  getIntervalsByIds,
-  type IntervalEntry,
-} from "./interval-config.ts";
-import {
-  midiToHz,
-  midiToNoteName,
-  type NoteRange,
-  type TargetNote,
-} from "./notes.ts";
+import { getIntervalById, getIntervalsByIds, type IntervalEntry } from "./interval-config.ts";
 import type { LessonExercise } from "./lesson-exercise.ts";
+import { midiToHz, midiToNoteName, type NoteRange, type TargetNote } from "./notes.ts";
 
 export type IntervalPresentation = "melodic" | "harmonic";
 
@@ -30,10 +21,7 @@ function targetNote(midi: number): TargetNote {
 }
 
 /** Lower MIDI values where lower + semitones still fits in range. */
-export function validLowerMidis(
-  range: NoteRange,
-  semitones: number,
-): number[] {
+export function validLowerMidis(range: NoteRange, semitones: number): number[] {
   const midis: number[] = [];
   const maxLower = range.highMidi - semitones;
   for (let midi = range.lowMidi; midi <= maxLower; midi++) {
@@ -84,9 +72,7 @@ export function randomIntervalExercise(
   return buildIntervalExercise(interval, presentation, lowerMidi);
 }
 
-export function intervalToLessonExercise(
-  intervalExercise: IntervalExercise,
-): LessonExercise {
+export function intervalToLessonExercise(intervalExercise: IntervalExercise): LessonExercise {
   return {
     target: intervalExercise.upper,
     interval: intervalExercise,
@@ -114,8 +100,7 @@ export function buildIntervalChoices(
   eligibleIds: readonly string[],
 ): IntervalChoice[] {
   const pool = getIntervalsByIds(eligibleIds);
-  const correct =
-    pool.find((entry) => entry.id === correctId) ?? getIntervalById(correctId);
+  const correct = pool.find((entry) => entry.id === correctId) ?? getIntervalById(correctId);
   if (!correct) {
     throw new Error(`Unknown interval id: ${correctId}`);
   }

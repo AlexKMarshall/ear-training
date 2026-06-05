@@ -1,12 +1,10 @@
+import type { PracticeModeId } from "../history/types.ts";
 import type { ContentTierId, CurriculumLesson } from "./curriculum-lessons.ts";
 import { CURRICULUM_LESSONS, curriculumLessonKey } from "./curriculum-lessons.ts";
-import type { PracticeModeId } from "../history/types.ts";
 
 export const CURRICULUM_LESSON_QUERY_PARAM = "step";
 
-const CONTENT_TIER_IDS = new Set<ContentTierId>(
-  CURRICULUM_LESSONS.map((s) => s.contentTierId),
-);
+const CONTENT_TIER_IDS = new Set<ContentTierId>(CURRICULUM_LESSONS.map((s) => s.contentTierId));
 
 function isContentTierId(value: string): value is ContentTierId {
   return (CONTENT_TIER_IDS as Set<string>).has(value);
@@ -72,10 +70,7 @@ export function parseCurriculumLessonFromSearchParams(
 }
 
 /** Appends or replaces the `step` query param on an practice mode route. */
-export function formatLessonLinkUrl(
-  route: string,
-  step: CurriculumLesson,
-): string {
+export function formatLessonLinkUrl(route: string, step: CurriculumLesson): string {
   const url = new URL(route, "http://local");
   url.searchParams.set(CURRICULUM_LESSON_QUERY_PARAM, formatCurriculumLessonParam(step));
   return `${url.pathname}${url.search}`;

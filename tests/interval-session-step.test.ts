@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { INTERVAL_2A_IDS } from "../src/interval-config.ts";
-import { DIATONIC_MAJOR_INTERVAL_IDS } from "../src/interval-config.ts";
-import { prepareIntervalExercise } from "../src/ui/interval-session.ts";
+import { DIATONIC_MAJOR_INTERVAL_IDS, INTERVAL_2A_IDS } from "../src/interval-config.ts";
 import type { SessionPlanner } from "../src/session/planner.ts";
+import { prepareIntervalExercise } from "../src/ui/interval-session.ts";
 import { passingIntroScaleDegreeHistory, passingLevel2History } from "./fixtures/attempts.ts";
 
 const fixedPlanner: SessionPlanner = {

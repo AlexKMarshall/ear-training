@@ -1,9 +1,9 @@
+import type { AudioPort } from "../audio/port.ts";
+import type { HistoryPort } from "../history/port.ts";
+import type { PracticeModeId } from "../history/types.ts";
 import type { IntervalChoice } from "../interval-exercises.ts";
 import type { LessonSummary } from "../lesson.ts";
 import type { LessonExercise } from "../lesson-exercise.ts";
-import type { PracticeModeId } from "../history/types.ts";
-import type { AudioPort } from "../audio/port.ts";
-import type { HistoryPort } from "../history/port.ts";
 import type { VoiceType } from "../voice-ranges.ts";
 
 export type IdentifyResultView =

@@ -1,5 +1,5 @@
-import { page } from "vitest/browser";
 import { beforeEach, expect, test } from "vitest";
+import { page } from "vitest/browser";
 import {
   assertLessonSummaryO2,
   runIdentifyLessonO2,
@@ -7,10 +7,7 @@ import {
   SHORT_LESSON_EXERCISES,
   singLessonO2RecordingPort,
 } from "./helpers/lesson-flow.ts";
-import {
-  mountMelodicIntervalIdTest,
-  mountSingleNoteSingTest,
-} from "./helpers/mount.ts";
+import { mountMelodicIntervalIdTest, mountSingleNoteSingTest } from "./helpers/mount.ts";
 
 beforeEach(() => {
   document.body.innerHTML = "";
@@ -25,11 +22,7 @@ test("single-note sing shows lesson summary after shortened lesson with mixed ou
     },
   });
 
-  await expect
-    .element(
-      page.getByRole("heading", { name: /Sing a single note/i }),
-    )
-    .toBeVisible();
+  await expect.element(page.getByRole("heading", { name: /Sing a single note/i })).toBeVisible();
 
   await runSingLessonO2(/Play note/i);
   await assertLessonSummaryO2();
@@ -41,9 +34,7 @@ test("interval melodic identify shows lesson summary after shortened lesson with
   });
 
   await expect
-    .element(
-      page.getByRole("heading", { name: /Identify melodic intervals/i }),
-    )
+    .element(page.getByRole("heading", { name: /Identify melodic intervals/i }))
     .toBeVisible();
 
   await runIdentifyLessonO2();

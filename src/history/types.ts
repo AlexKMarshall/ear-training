@@ -1,5 +1,5 @@
-import type { ContentTierId } from "../curriculum/curriculum-lessons.ts";
 import type { InversionId } from "../chord-inversions.ts";
+import type { ContentTierId } from "../curriculum/curriculum-lessons.ts";
 
 export type PracticeModeId =
   | "single-note"

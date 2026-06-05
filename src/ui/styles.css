@@ -9,12 +9,7 @@
   --pass: #3d9a6a;
   --fail: #c45c5c;
   --border: #2a3a4f;
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   line-height: 1.5;
 }
 

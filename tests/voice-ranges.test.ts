@@ -50,13 +50,12 @@ describe("voice type preference", () => {
     });
   });
 
-  it.each(VOICE_TYPES as VoiceType[])(
-    "getNoteRangeForVoice returns midi bounds without label for %s",
-    (voice) => {
-      expect(getNoteRangeForVoice(voice)).toEqual({
-        lowMidi: VOICE_RANGES[voice].lowMidi,
-        highMidi: VOICE_RANGES[voice].highMidi,
-      });
-    },
-  );
+  it.each(
+    VOICE_TYPES as VoiceType[],
+  )("getNoteRangeForVoice returns midi bounds without label for %s", (voice) => {
+    expect(getNoteRangeForVoice(voice)).toEqual({
+      lowMidi: VOICE_RANGES[voice].lowMidi,
+      highMidi: VOICE_RANGES[voice].highMidi,
+    });
+  });
 });

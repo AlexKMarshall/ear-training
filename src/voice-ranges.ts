@@ -3,12 +3,7 @@ import type { NoteRange } from "./notes.ts";
 /** Classical voice categories. */
 export type VoiceType = "bass" | "tenor" | "alto" | "soprano";
 
-export const VOICE_TYPES: readonly VoiceType[] = [
-  "bass",
-  "tenor",
-  "alto",
-  "soprano",
-] as const;
+export const VOICE_TYPES: readonly VoiceType[] = ["bass", "tenor", "alto", "soprano"] as const;
 
 export interface VoiceRange extends NoteRange {
   /** e.g. "C3–G4" for display in settings UI. */

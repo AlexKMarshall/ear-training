@@ -1,5 +1,5 @@
-import { page, userEvent } from "vitest/browser";
 import { beforeEach, expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
 import { getEligibleTagIds } from "../../src/curriculum/curriculum-lessons.ts";
 import { getIntervalById } from "../../src/interval-config.ts";
 import {
@@ -7,10 +7,7 @@ import {
   randomIntervalExerciseForTag,
 } from "../../src/interval-exercises.ts";
 import { getActiveNoteRange } from "../../src/voice-ranges.ts";
-import {
-  createMelodicIdTestConfig,
-  mountMelodicIntervalIdTest,
-} from "./helpers/mount.ts";
+import { createMelodicIdTestConfig, mountMelodicIntervalIdTest } from "./helpers/mount.ts";
 
 beforeEach(() => {
   document.body.innerHTML = "";
@@ -20,21 +17,15 @@ test("play, correct choice, and saveAttempt via HistoryPort", async () => {
   const { history } = mountMelodicIntervalIdTest();
 
   await expect
-    .element(
-      page.getByRole("heading", { name: /Identify melodic intervals/i }),
-    )
+    .element(page.getByRole("heading", { name: /Identify melodic intervals/i }))
     .toBeVisible();
 
   await userEvent.click(page.getByRole("button", { name: /Play interval/i }));
 
-  await expect
-    .element(page.getByRole("button", { name: /Perfect 5th/i }))
-    .toBeVisible();
+  await expect.element(page.getByRole("button", { name: /Perfect 5th/i })).toBeVisible();
   await userEvent.click(page.getByRole("button", { name: /Perfect 5th/i }));
 
-  await expect
-    .element(page.getByText("Correct", { exact: true }))
-    .toBeVisible();
+  await expect.element(page.getByText("Correct", { exact: true })).toBeVisible();
 
   const records = await history.getAllAttempts();
   expect(records).toHaveLength(1);
@@ -59,9 +50,7 @@ test("shows lesson progress and advances to exercise 2", async () => {
 
   await userEvent.click(page.getByRole("button", { name: /Play interval/i }));
   await userEvent.click(page.getByRole("button", { name: /Perfect 5th/i }));
-  await userEvent.click(
-    page.getByRole("button", { name: /Next exercise/i }),
-  );
+  await userEvent.click(page.getByRole("button", { name: /Next exercise/i }));
 
   await expect.element(page.getByText(/exercise 2 of 10/i)).toBeVisible();
 });
@@ -69,9 +58,7 @@ test("shows lesson progress and advances to exercise 2", async () => {
 test("does not render interval picker", async () => {
   mountMelodicIntervalIdTest();
 
-  await expect
-    .element(page.getByRole("group", { name: /Intervals/i }))
-    .not.toBeInTheDocument();
+  await expect.element(page.getByRole("group", { name: /Intervals/i })).not.toBeInTheDocument();
 });
 
 test("eligible tier pool drives multiple choice without interval picker", async () => {
@@ -100,12 +87,8 @@ test("eligible tier pool drives multiple choice without interval picker", async 
   await userEvent.click(page.getByRole("button", { name: /Play interval/i }));
 
   const label = getIntervalById("minor-sixth")!.label;
-  await expect
-    .element(page.getByRole("button", { name: label }))
-    .toBeVisible();
+  await expect.element(page.getByRole("button", { name: label })).toBeVisible();
   await userEvent.click(page.getByRole("button", { name: label }));
 
-  await expect
-    .element(page.getByText("Correct", { exact: true }))
-    .toBeVisible();
+  await expect.element(page.getByText("Correct", { exact: true })).toBeVisible();
 });

@@ -1,9 +1,5 @@
 import type { InversionId } from "./chord-inversions.ts";
-import {
-  buildChordExercise,
-  randomChordExercise,
-  type ChordType,
-} from "./chord-types.ts";
+import { buildChordExercise, type ChordType, randomChordExercise } from "./chord-types.ts";
 import type { ChordExercise } from "./chords.ts";
 import type { NoteRange } from "./notes.ts";
 
@@ -76,16 +72,12 @@ export function cMinorTriadAtC3(): ChordExercise {
 }
 
 /** Random major triad in root position; middle (third) falls within `range`. */
-export function randomMajorTriadWithMiddleInRange(
-  range: NoteRange,
-): ChordExercise {
+export function randomMajorTriadWithMiddleInRange(range: NoteRange): ChordExercise {
   return randomChordExercise(MAJOR_TRIAD_SING_MIDDLE, "root", range);
 }
 
 /** Random minor triad in root position; middle (third) falls within `range`. */
-export function randomMinorTriadWithMiddleInRange(
-  range: NoteRange,
-): ChordExercise {
+export function randomMinorTriadWithMiddleInRange(range: NoteRange): ChordExercise {
   return randomChordExercise(MINOR_TRIAD_SING_MIDDLE, "root", range);
 }
 
@@ -95,16 +87,11 @@ export function cDiminishedTriadAtC3(): ChordExercise {
 }
 
 /** Random diminished triad in root position; middle falls within `range`. */
-export function randomDiminishedTriadWithMiddleInRange(
-  range: NoteRange,
-): ChordExercise {
+export function randomDiminishedTriadWithMiddleInRange(range: NoteRange): ChordExercise {
   return randomChordExercise(DIMINISHED_TRIAD_SING_MIDDLE, "root", range);
 }
 
 /** Fixed major triad with the given inversion; middle note at `middleMidi`. */
-export function majorTriadAtMiddle(
-  inversion: InversionId,
-  middleMidi: number,
-): ChordExercise {
+export function majorTriadAtMiddle(inversion: InversionId, middleMidi: number): ChordExercise {
   return buildChordExercise(MAJOR_TRIAD_SING_MIDDLE, inversion, middleMidi);
 }
