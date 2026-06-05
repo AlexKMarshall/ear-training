@@ -91,11 +91,11 @@ export function ExerciseActionBar(props: {
       </a>
       <button
         type="button"
-        class="btn btn-primary"
+        class="btn btn-secondary"
         hidden={props.nextRoundHidden}
         onClick={props.onNextRound}
       >
-        Start next lesson
+        Practice again
       </button>
     </div>
   );
