@@ -45,8 +45,20 @@ describe("filterRecordsForCurriculumLesson", () => {
       contentTierId: "interval-2a" as const,
     }
     const records = [
-      attempt({ practiceModeId: "interval-melodic-sing", intervalId: "perfect-fourth" }),
-      attempt({ practiceModeId: "interval-harmonic-sing", intervalId: "perfect-fifth" }),
+      attempt({
+        practiceModeId: "interval-melodic-sing",
+        intervalId: "perfect-fourth",
+        passed: true,
+        attemptNumber: 1,
+        centsOff: 0,
+      }),
+      attempt({
+        practiceModeId: "interval-harmonic-sing",
+        intervalId: "perfect-fifth",
+        passed: true,
+        attemptNumber: 1,
+        centsOff: 0,
+      }),
     ]
     expect(filterRecordsForCurriculumLesson(records, step)).toHaveLength(1)
   })

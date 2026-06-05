@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import {
+  type AttemptScoredEnrichedContext,
   ExerciseScreenState,
   type ExerciseScreenStateHooks,
   type ExerciseScreenStateSnapshot,
@@ -25,17 +26,19 @@ function createSelectState(
   hookOverrides: Partial<ExerciseScreenStateHooks> = {},
   options: {
     exercisesPerLesson?: number
-    onAttemptScored?: ReturnType<typeof vi.fn>
-    onSnapshotChange?: ReturnType<typeof vi.fn>
+    onAttemptScored?: (context: AttemptScoredEnrichedContext) => void
+    onSnapshotChange?: (snapshot: ExerciseScreenStateSnapshot) => void
   } = {},
 ) {
   const snapshots: ExerciseScreenStateSnapshot[] = []
   const onSnapshotChange =
     options.onSnapshotChange ??
-    vi.fn((snapshot: ExerciseScreenStateSnapshot) => {
+    (vi.fn((snapshot: ExerciseScreenStateSnapshot) => {
       snapshots.push(snapshot)
-    })
-  const onAttemptScored = options.onAttemptScored ?? vi.fn()
+    }) as (snapshot: ExerciseScreenStateSnapshot) => void)
+  const onAttemptScored = (options.onAttemptScored ?? vi.fn()) as (
+    context: AttemptScoredEnrichedContext,
+  ) => void
 
   const hooks: ExerciseScreenStateHooks = {
     prepareExercise: vi.fn(() => sampleExercise),

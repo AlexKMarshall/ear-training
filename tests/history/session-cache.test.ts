@@ -7,6 +7,13 @@ const sampleAttempt = (overrides: Partial<AttemptInput> = {}): AttemptInput => (
   practiceModeId: "interval-melodic-sing",
   passed: true,
   timestamp: 1,
+  centsOff: 0,
+  attemptNumber: 1,
+  targetMidi: 60,
+  targetHz: 261.63,
+  targetName: "C4",
+  lessonId: "lesson-1",
+  exerciseIndex: 0,
   ...overrides,
 })
 

@@ -25,7 +25,7 @@ npm run test:browser  # Vitest browser — UI orchestration (Playwright)
 npm run lint          # Biome — lint + format check (CI)
 npm run lint:fix      # Biome — apply safe lint fixes + organize imports
 npm run format        # Biome — format in-scope files
-npm run typecheck     # tsc on src (same config as the IDE)
+npm run typecheck     # tsc on src, tests, and vite.config.ts (same config as the IDE)
 npm run knip:production  # dead shipped code (production entry points only)
 npm run knip          # test helpers, devDependencies, tooling (full graph)
 npm run dev           # local dev server
