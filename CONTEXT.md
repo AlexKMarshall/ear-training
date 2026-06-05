@@ -15,8 +15,8 @@ Rules that determine outcomes: scoring, curriculum and unlock checks, session pl
 _Avoid_: Domain (without scope), backend (this app has no server)
 
 **Exercise screen state**:
-The phase machine for one exercise attempt inside a practice-mode mount (e.g. idle → playing → ready → recording → result → lesson summary on sing exercises). Lives **outside** the presentation component tree: imperative TypeScript updates a snapshot exposed to Solid via signals or a store; components render the snapshot and invoke callbacks — not `querySelector` or `innerHTML`. Duplicated across sing and identify mounts; should move toward a shared, testable exercise controller separate from markup. Distinct from **lesson run** (ten-exercise lesson rules).
-_Avoid_: Test state, UI state (when meaning curriculum or unlock state)
+The phase machine for one exercise attempt inside a practice-mode mount (e.g. idle → playing → ready → recording → result → lesson summary on sing **response mode** exercises). Lives **outside** the presentation component tree: imperative TypeScript updates a snapshot exposed to Solid via signals or a store; components render the snapshot and invoke callbacks — not `querySelector` or `innerHTML`. One shared, testable module owns the phase machine and shared chrome snapshot; **response mode**-specific answer and scoring mechanics plug in at a seam; the page mount adapter wires ports, maps snapshots to presentation, and handles **attempt scored** persistence. Distinct from **lesson run** (ten-exercise lesson rules).
+_Avoid_: Test state, UI state (when meaning curriculum or unlock state), exercise controller (when meaning the shared module name in code)
 
 **Lesson run**:
 The unified, rules-only controller for one ten-exercise lesson: exercise index, attempts on the current exercise, when retry and advance are allowed, lesson results, and lesson summary. Shared by sing and identify; mounts map its snapshot to presentation. Does not own exercise screen state (playback, recording, choice UI).
@@ -37,6 +37,10 @@ _Avoid_: Bootstrap (without “page”), init (when meaning mount)
 **Lesson run extraction**:
 Refactor that introduces the unified lesson run and rewires practice-mode mounts to use it while leaving presentation authoring unchanged. Delivered as separate pull requests: lesson run with unit tests first, then one PR per mount (identify, then sing) for reviewability.
 _Avoid_: UI rewrite, framework migration
+
+**Exercise screen state extraction**:
+Refactor that introduces the shared **exercise screen state** module (phase machine, shared chrome snapshot, injected playback/scoring hooks) and rewires practice-mode mounts to use it while leaving presentation authoring unchanged. Delivered as separate pull requests: module with unit tests first, then one PR per mount (identify, then sing) for reviewability. Does not ship new exercise types (e.g. **phrase response** dictation) — only removes duplication and keeps future playback/scoring variants behind the injected seam.
+_Avoid_: UI rewrite, framework migration, phrase response (as in-scope work for this extract)
 
 **Presentation migration**:
 Moving remaining **page mounts** from string-built markup to Solid JSX inside each mount. Rewires presentation only — not shared exercise screen state (TD-002), exercise-definition unification (TD-001), or a SPA router. Delivers **migrated mount** criteria and retires interval/chord/degree content pickers on sing/identify as those files convert. Each PR is verified by existing **browser tests** (plus typecheck/unit/build as today), not a new JSX test harness.
@@ -63,6 +67,14 @@ _Avoid_: Exercise alone (when meaning the per-lesson prompt), practice mode (whe
 **Practice mode**:
 The shipped implementation of one exercise type on a dedicated route — scoring UI, playback, and mount wiring (e.g. melodic interval sing vs harmonic interval identification). Not a Duolingo concept; one exercise type may map to one practice mode today, but mixed-type lessons would draw from more than one practice mode behind one lesson flow.
 _Avoid_: Exercise (when meaning route/registry id), exercise type (when meaning the route)
+
+**Response mode**:
+How the learner answers on an exercise screen — **sing** (record pitch and score against a target) or **select** (choose from options after hearing the reference). Orthogonal to **presentation mode** (how the interval is heard) and to **exercise type** family; several practice modes can share one response mode. The shared **exercise screen state** module stays response-mode-agnostic at its core; family-specific choice pools and scoring details are supplied at the seam, not hard-coded per practice mode route.
+_Avoid_: Presentation mode (when meaning melodic vs harmonic), practice mode (when meaning the route), identify (as a synonym for select)
+
+**Phrase response** (sing):
+Answering by singing multiple pitches as one uninterrupted musical phrase — one recording, scored once after the phrase ends, with no feedback between constituent notes. Preserves internal pitch memory across the response (e.g. singing back both notes of a melodic interval, or an interval above a reference note).
+_Avoid_: Per-note feedback, multi-segment retry, step-by-step sing-back
 
 ### Curriculum
 
