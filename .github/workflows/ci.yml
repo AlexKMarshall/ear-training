@@ -18,6 +18,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
+      - run: npm run knip:production
+      - run: npm run knip
       - run: npm test
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
