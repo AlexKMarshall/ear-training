@@ -1,12 +1,12 @@
-import { describe, expect, it } from "vitest";
-import { DIATONIC_MAJOR_INTERVAL_IDS, INTERVAL_2A_IDS } from "../src/interval-config.ts";
-import type { SessionPlanner } from "../src/session/planner.ts";
-import { prepareIntervalExercise } from "../src/ui/interval-session.ts";
-import { passingIntroScaleDegreeHistory, passingLevel2History } from "./fixtures/attempts.ts";
+import { describe, expect, it } from "vitest"
+import { DIATONIC_MAJOR_INTERVAL_IDS, INTERVAL_2A_IDS } from "../src/interval-config.ts"
+import type { SessionPlanner } from "../src/session/planner.ts"
+import { prepareIntervalExercise } from "../src/ui/interval-session.ts"
+import { passingIntroScaleDegreeHistory, passingLevel2History } from "./fixtures/attempts.ts"
 
 const fixedPlanner: SessionPlanner = {
   planNextExerciseTag: () => "perfect-fifth",
-};
+}
 
 describe("prepareIntervalExercise session step", () => {
   it("uses guided default tier for the tag pool", () => {
@@ -15,10 +15,10 @@ describe("prepareIntervalExercise session step", () => {
       "melodic",
       passingIntroScaleDegreeHistory(),
       fixedPlanner,
-    );
-    expect(exercise.contentTierId).toBe("interval-2b");
-    expect(exercise.eligibleTagIds).toEqual([...DIATONIC_MAJOR_INTERVAL_IDS]);
-  });
+    )
+    expect(exercise.contentTierId).toBe("interval-2b")
+    expect(exercise.eligibleTagIds).toEqual([...DIATONIC_MAJOR_INTERVAL_IDS])
+  })
 
   it("uses explicit session step for guided replay", () => {
     const exercise = prepareIntervalExercise(
@@ -31,8 +31,8 @@ describe("prepareIntervalExercise session step", () => {
         practiceModeId: "interval-melodic-sing",
         contentTierId: "interval-2a",
       },
-    );
-    expect(exercise.contentTierId).toBe("interval-2a");
-    expect(exercise.eligibleTagIds).toEqual([...INTERVAL_2A_IDS]);
-  });
-});
+    )
+    expect(exercise.contentTierId).toBe("interval-2a")
+    expect(exercise.eligibleTagIds).toEqual([...INTERVAL_2A_IDS])
+  })
+})

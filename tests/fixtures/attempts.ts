@@ -1,6 +1,6 @@
-import type { CurriculumLesson } from "../../src/curriculum/curriculum-lessons.ts";
-import { MIN_EXERCISES_FOR_UNLOCK } from "../../src/curriculum/unlock.ts";
-import type { AttemptRecord } from "../../src/history/types.ts";
+import type { CurriculumLesson } from "../../src/curriculum/curriculum-lessons.ts"
+import { MIN_EXERCISES_FOR_UNLOCK } from "../../src/curriculum/unlock.ts"
+import type { AttemptRecord } from "../../src/history/types.ts"
 
 export function attempt(
   overrides: Partial<AttemptRecord> & Pick<AttemptRecord, "passed" | "attemptNumber" | "centsOff">,
@@ -14,7 +14,7 @@ export function attempt(
     lessonId: "lesson-1",
     exerciseIndex: 0,
     ...overrides,
-  };
+  }
 }
 
 /** Ten distinct lesson exercises, all passed on first try. */
@@ -28,12 +28,12 @@ export function passingSingleNoteHistory(): AttemptRecord[] {
       exerciseIndex: i,
       lessonId: `lesson-${i}`,
     }),
-  );
+  )
 }
 
 /** Passing history through interval tier 2a (four presentation modes). */
 export function passingLevel2History(): AttemptRecord[] {
-  const records: AttemptRecord[] = [...passingSingleNoteHistory()];
+  const records: AttemptRecord[] = [...passingSingleNoteHistory()]
   for (const practiceModeId of [
     "interval-melodic-sing",
     "interval-harmonic-sing",
@@ -51,9 +51,9 @@ export function passingLevel2History(): AttemptRecord[] {
           lessonId: `${practiceModeId}-${i}`,
         }),
       ),
-    );
+    )
   }
-  return records;
+  return records
 }
 
 /** Passing history for one curriculum step (tier tagged when provided). */
@@ -68,7 +68,7 @@ export function passingStepHistory(step: CurriculumLesson): AttemptRecord[] {
       exerciseIndex: i,
       lessonId: `${step.practiceModeId}-${step.contentTierId}-${i}`,
     }),
-  );
+  )
 }
 
 /** Intro scale degrees complete; interval 2b block unlockable. */
@@ -79,7 +79,7 @@ export function passingIntroScaleDegreeHistory(): AttemptRecord[] {
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-intro",
     }),
-  ];
+  ]
 }
 
 /** Level 2a plus intro scale degrees (melodic sing at 2b still locked). */
@@ -90,7 +90,7 @@ export function passingMelodicSing2bHistory(): AttemptRecord[] {
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2b",
     }),
-  ];
+  ]
 }
 
 /** Melodic identification at interval-2b complete; harmonic 2b steps not yet done. */
@@ -101,7 +101,7 @@ export function passingThroughMelodic2bHistory(): AttemptRecord[] {
       practiceModeId: "interval-melodic-id",
       contentTierId: "interval-2b",
     }),
-  ];
+  ]
 }
 
 /** Full interval tier 2b (all four presentation modes); major diatonic scale degrees unlockable. */
@@ -116,7 +116,7 @@ export function passingThroughHarmonic2bHistory(): AttemptRecord[] {
       practiceModeId: "interval-harmonic-id",
       contentTierId: "interval-2b",
     }),
-  ];
+  ]
 }
 
 /** Major diatonic scale degrees complete; chord-middle unlockable. */
@@ -127,7 +127,7 @@ export function passingMajorDiatonicScaleDegreeHistory(): AttemptRecord[] {
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-diatonic",
     }),
-  ];
+  ]
 }
 
 /** Minor diatonic scale degrees complete; chord-middle unlockable. */
@@ -138,7 +138,7 @@ export function passingMinorDiatonicScaleDegreeHistory(): AttemptRecord[] {
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-minor-diatonic",
     }),
-  ];
+  ]
 }
 
 /** Every shipped curriculum step meets unlock thresholds. */
@@ -149,5 +149,5 @@ export function passingFullGuidedPathHistory(): AttemptRecord[] {
       practiceModeId: "chord-middle",
       contentTierId: "chord-1a",
     }),
-  ];
+  ]
 }

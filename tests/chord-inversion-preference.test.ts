@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import {
   getActiveInversions,
   getSelectableInversions,
@@ -6,37 +6,37 @@ import {
   isInversionSelected,
   resetInversionPreference,
   setInversionSelected,
-} from "../src/chord-inversion-preference.ts";
+} from "../src/chord-inversion-preference.ts"
 
 describe("chord inversion preference", () => {
   beforeEach(() => {
-    resetInversionPreference();
-  });
+    resetInversionPreference()
+  })
 
   afterEach(() => {
-    resetInversionPreference();
-  });
+    resetInversionPreference()
+  })
 
   it("defaults to all selectable inversions", () => {
-    const selectableIds = getSelectableInversions().map((inv) => inv.id);
-    expect(getSelectedInversionIds()).toEqual(selectableIds);
-    expect(getActiveInversions()).toHaveLength(selectableIds.length);
-  });
+    const selectableIds = getSelectableInversions().map((inv) => inv.id)
+    expect(getSelectedInversionIds()).toEqual(selectableIds)
+    expect(getActiveInversions()).toHaveLength(selectableIds.length)
+  })
 
   it("persists selected inversions", () => {
-    setInversionSelected("root", false);
+    setInversionSelected("root", false)
 
-    expect(getSelectedInversionIds()).toEqual(["first", "second"]);
-    expect(isInversionSelected("root")).toBe(false);
-    expect(isInversionSelected("first")).toBe(true);
-  });
+    expect(getSelectedInversionIds()).toEqual(["first", "second"])
+    expect(isInversionSelected("root")).toBe(false)
+    expect(isInversionSelected("first")).toBe(true)
+  })
 
   it("allows deselecting all inversions", () => {
-    setInversionSelected("root", false);
-    setInversionSelected("first", false);
-    setInversionSelected("second", false);
+    setInversionSelected("root", false)
+    setInversionSelected("first", false)
+    setInversionSelected("second", false)
 
-    expect(getSelectedInversionIds()).toEqual([]);
-    expect(getActiveInversions()).toEqual([]);
-  });
-});
+    expect(getSelectedInversionIds()).toEqual([])
+    expect(getActiveInversions()).toEqual([])
+  })
+})

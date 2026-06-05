@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { midiToNoteName } from "../src/notes.ts";
+import { afterEach, beforeEach, describe, expect, it } from "vitest"
+import { midiToNoteName } from "../src/notes.ts"
 import {
   DEFAULT_VOICE_TYPE,
   getActiveNoteRange,
@@ -10,45 +10,45 @@ import {
   VOICE_RANGES,
   VOICE_TYPES,
   type VoiceType,
-} from "../src/voice-ranges.ts";
+} from "../src/voice-ranges.ts"
 
 describe("VOICE_RANGES", () => {
   it.each(VOICE_TYPES)("defines a valid span for %s", (voice) => {
-    const { lowMidi, highMidi, label } = VOICE_RANGES[voice];
-    expect(lowMidi).toBeLessThan(highMidi);
-    expect(highMidi - lowMidi).toBeGreaterThanOrEqual(12);
-    expect(label).toContain(midiToNoteName(lowMidi).slice(0, -1));
-  });
+    const { lowMidi, highMidi, label } = VOICE_RANGES[voice]
+    expect(lowMidi).toBeLessThan(highMidi)
+    expect(highMidi - lowMidi).toBeGreaterThanOrEqual(12)
+    expect(label).toContain(midiToNoteName(lowMidi).slice(0, -1))
+  })
 
   it("orders ranges from low to high by voice type", () => {
-    expect(VOICE_RANGES.bass.highMidi).toBeLessThan(VOICE_RANGES.tenor.highMidi);
-    expect(VOICE_RANGES.tenor.highMidi).toBeLessThan(VOICE_RANGES.alto.highMidi);
-    expect(VOICE_RANGES.alto.highMidi).toBeLessThan(VOICE_RANGES.soprano.highMidi);
-  });
-});
+    expect(VOICE_RANGES.bass.highMidi).toBeLessThan(VOICE_RANGES.tenor.highMidi)
+    expect(VOICE_RANGES.tenor.highMidi).toBeLessThan(VOICE_RANGES.alto.highMidi)
+    expect(VOICE_RANGES.alto.highMidi).toBeLessThan(VOICE_RANGES.soprano.highMidi)
+  })
+})
 
 describe("voice type preference", () => {
   beforeEach(() => {
-    resetVoiceTypePreference();
-  });
+    resetVoiceTypePreference()
+  })
 
   afterEach(() => {
-    resetVoiceTypePreference();
-  });
+    resetVoiceTypePreference()
+  })
 
   it("defaults to tenor when nothing is stored", () => {
-    expect(getVoiceType()).toBe(DEFAULT_VOICE_TYPE);
-    expect(getActiveNoteRange()).toEqual(getNoteRangeForVoice("tenor"));
-  });
+    expect(getVoiceType()).toBe(DEFAULT_VOICE_TYPE)
+    expect(getActiveNoteRange()).toEqual(getNoteRangeForVoice("tenor"))
+  })
 
   it("persists the selected voice type", () => {
-    setVoiceType("alto");
-    expect(getVoiceType()).toBe("alto");
+    setVoiceType("alto")
+    expect(getVoiceType()).toBe("alto")
     expect(getActiveNoteRange()).toEqual({
       lowMidi: VOICE_RANGES.alto.lowMidi,
       highMidi: VOICE_RANGES.alto.highMidi,
-    });
-  });
+    })
+  })
 
   it.each(
     VOICE_TYPES as VoiceType[],
@@ -56,6 +56,6 @@ describe("voice type preference", () => {
     expect(getNoteRangeForVoice(voice)).toEqual({
       lowMidi: VOICE_RANGES[voice].lowMidi,
       highMidi: VOICE_RANGES[voice].highMidi,
-    });
-  });
-});
+    })
+  })
+})

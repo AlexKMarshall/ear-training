@@ -1,12 +1,12 @@
-import { playTargetNote } from "../audio/playback.ts";
-import { getScaleDegreeKeyQualityLabel } from "../curriculum/scale-degree-tiers.ts";
-import { getScaleDegreeById } from "../scale-degree-config.ts";
+import { playTargetNote } from "../audio/playback.ts"
+import { getScaleDegreeKeyQualityLabel } from "../curriculum/scale-degree-tiers.ts"
+import { getScaleDegreeById } from "../scale-degree-config.ts"
 import {
   prepareScaleDegreeExercise,
   resolveScaleDegreeSession,
   type ScaleDegreeSessionDeps,
-} from "./scale-degree-session.ts";
-import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts";
+} from "./scale-degree-session.ts"
+import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts"
 
 const scaleDegreeSingBase = {
   practiceModeId: "scale-degree-sing" as const,
@@ -26,31 +26,31 @@ const scaleDegreeSingBase = {
   },
   playReference: (exercise: Parameters<SingTestConfig["playReference"]>[0]) => {
     if (!exercise.scaleDegree) {
-      throw new Error("Missing scale degree for playback");
+      throw new Error("Missing scale degree for playback")
     }
-    return playTargetNote(exercise.scaleDegree.tonic.midi);
+    return playTargetNote(exercise.scaleDegree.tonic.midi)
   },
   exercisePrompt: (exercise: Parameters<NonNullable<SingTestConfig["exercisePrompt"]>>[0]) => {
-    const label = getScaleDegreeById(exercise.degreeId ?? "")?.label ?? exercise.degreeId;
-    return `Sing the ${label}`;
+    const label = getScaleDegreeById(exercise.degreeId ?? "")?.label ?? exercise.degreeId
+    return `Sing the ${label}`
   },
-};
+}
 
 export const scaleDegreeSingConfig: SingTestConfig = {
   ...scaleDegreeSingBase,
   prepareExercise: () => prepareScaleDegreeExercise([], null).exercise,
-};
+}
 
 export function mountScaleDegreeSingTest(
   root: HTMLElement,
   deps?: ScaleDegreeSessionDeps & SingMountDeps,
 ): void {
-  const { sessionHistory, planner } = resolveScaleDegreeSession(deps ?? {});
-  let lessonTonicMidi: number | null = null;
+  const { sessionHistory, planner } = resolveScaleDegreeSession(deps ?? {})
+  let lessonTonicMidi: number | null = null
   const lessonBanner =
     getScaleDegreeKeyQualityLabel(
       deps?.sessionCurriculumLesson?.contentTierId ?? "degree-major-intro",
-    ) ?? undefined;
+    ) ?? undefined
 
   mountSingTest(
     root,
@@ -58,7 +58,7 @@ export function mountScaleDegreeSingTest(
       ...scaleDegreeSingBase,
       lessonBanner,
       onLessonReset: () => {
-        lessonTonicMidi = null;
+        lessonTonicMidi = null
       },
       prepareExercise: () => {
         const result = prepareScaleDegreeExercise(
@@ -67,11 +67,11 @@ export function mountScaleDegreeSingTest(
           planner,
           undefined,
           deps?.sessionCurriculumLesson,
-        );
-        lessonTonicMidi = result.lessonTonicMidi;
-        return result.exercise;
+        )
+        lessonTonicMidi = result.lessonTonicMidi
+        return result.exercise
       },
     },
     { ...deps, history: sessionHistory.historyPort },
-  );
+  )
 }

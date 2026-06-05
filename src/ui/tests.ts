@@ -1,14 +1,14 @@
-import { playChord, playTargetNote } from "../audio/playback.ts";
-import { chordMidis } from "../chords.ts";
-import type { MountDeps } from "../history/port.ts";
-import { randomNoteInRange } from "../notes.ts";
-import { getActiveNoteRange } from "../voice-ranges.ts";
+import { playChord, playTargetNote } from "../audio/playback.ts"
+import { chordMidis } from "../chords.ts"
+import type { MountDeps } from "../history/port.ts"
+import { randomNoteInRange } from "../notes.ts"
+import { getActiveNoteRange } from "../voice-ranges.ts"
 import {
   type ChordSessionDeps,
   prepareChordExercise,
   resolveChordSession,
-} from "./chord-session.ts";
-import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts";
+} from "./chord-session.ts"
+import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts"
 
 export const singleNoteTestConfig: SingTestConfig = {
   practiceModeId: "single-note",
@@ -30,7 +30,7 @@ export const singleNoteTestConfig: SingTestConfig = {
     target: randomNoteInRange(getActiveNoteRange()),
   }),
   playReference: (exercise) => playTargetNote(exercise.target.midi),
-};
+}
 
 const chordMiddleBase = {
   practiceModeId: "chord-middle" as const,
@@ -50,26 +50,26 @@ const chordMiddleBase = {
   },
   playReference: (exercise: Parameters<SingTestConfig["playReference"]>[0]) => {
     if (!exercise.chord) {
-      throw new Error("Missing chord for playback");
+      throw new Error("Missing chord for playback")
     }
-    return playChord(chordMidis(exercise.chord));
+    return playChord(chordMidis(exercise.chord))
   },
-};
+}
 
 export const chordMiddleTestConfig: SingTestConfig = {
   ...chordMiddleBase,
   prepareExercise: () => prepareChordExercise([]),
-};
+}
 
 export function mountSingleNoteTest(root: HTMLElement, _deps?: MountDeps & SingMountDeps): void {
-  mountSingTest(root, singleNoteTestConfig);
+  mountSingTest(root, singleNoteTestConfig)
 }
 
 export function mountChordMiddleTest(
   root: HTMLElement,
   deps?: ChordSessionDeps & SingMountDeps,
 ): void {
-  const { sessionHistory, planner, rng } = resolveChordSession(deps ?? {});
+  const { sessionHistory, planner, rng } = resolveChordSession(deps ?? {})
   mountSingTest(
     root,
     {
@@ -84,5 +84,5 @@ export function mountChordMiddleTest(
         ),
     },
     { ...deps, history: sessionHistory.historyPort },
-  );
+  )
 }

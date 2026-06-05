@@ -1,22 +1,22 @@
-import { Show } from "solid-js";
-import type { LessonSummary } from "../lesson.ts";
-import type { VoiceType } from "../voice-ranges.ts";
+import { Show } from "solid-js"
+import type { LessonSummary } from "../lesson.ts"
+import type { VoiceType } from "../voice-ranges.ts"
 import {
   ExerciseActionBar,
   ExerciseHeader,
   ExerciseHint,
   ExerciseNav,
-} from "./components/exercise-chrome.tsx";
-import { VoicePicker } from "./components/voice-picker.tsx";
-import type { SingResultView, SingUiState } from "./sing-test-types.ts";
+} from "./components/exercise-chrome.tsx"
+import { VoicePicker } from "./components/voice-picker.tsx"
+import type { SingResultView, SingUiState } from "./sing-test-types.ts"
 
 function SingAttemptResult(props: {
-  passed: boolean;
-  message: string;
-  detectedHz: number;
-  targetHz: number;
-  targetName: string;
-  attemptNote: string | null;
+  passed: boolean
+  message: string
+  detectedHz: number
+  targetHz: number
+  targetName: string
+  attemptNote: string | null
 }) {
   return (
     <>
@@ -28,15 +28,15 @@ function SingAttemptResult(props: {
       </p>
       {props.attemptNote ? <p class="result-attempts">{props.attemptNote}</p> : null}
     </>
-  );
+  )
 }
 
 function SingLessonSummaryResult(props: {
-  summary: LessonSummary;
-  correctPct: number;
-  firstTryPct: number;
-  retryPct: number;
-  wrongPct: number;
+  summary: LessonSummary
+  correctPct: number
+  firstTryPct: number
+  retryPct: number
+  wrongPct: number
 }) {
   return (
     <>
@@ -62,7 +62,7 @@ function SingLessonSummaryResult(props: {
         </li>
       </ul>
     </>
-  );
+  )
 }
 
 function SingScoringErrorResult(props: { detail: string }) {
@@ -71,7 +71,7 @@ function SingScoringErrorResult(props: { detail: string }) {
       <p class="result-verdict">Could not score</p>
       <p class="result-detail">{props.detail}</p>
     </>
-  );
+  )
 }
 
 function SingAudioErrorResult() {
@@ -80,7 +80,7 @@ function SingAudioErrorResult() {
       <p class="result-verdict">Could not play audio</p>
       <p class="result-detail">Tap Play again after interacting with the page.</p>
     </>
-  );
+  )
 }
 
 function SingResultContent(props: { result: SingResultView }) {
@@ -94,7 +94,7 @@ function SingResultContent(props: { result: SingResultView }) {
         targetName={props.result.targetName}
         attemptNote={props.result.attemptNote}
       />
-    );
+    )
   }
   if (props.result.type === "summary") {
     return (
@@ -105,12 +105,12 @@ function SingResultContent(props: { result: SingResultView }) {
         retryPct={props.result.retryPct}
         wrongPct={props.result.wrongPct}
       />
-    );
+    )
   }
   if (props.result.type === "scoring-error") {
-    return <SingScoringErrorResult detail={props.result.detail} />;
+    return <SingScoringErrorResult detail={props.result.detail} />
   }
-  return <SingAudioErrorResult />;
+  return <SingAudioErrorResult />
 }
 
 function SingResultPanel(props: { ui: SingUiState }) {
@@ -122,22 +122,22 @@ function SingResultPanel(props: { ui: SingUiState }) {
         </div>
       )}
     </Show>
-  );
+  )
 }
 
 export function SingTestView(props: {
-  ui: SingUiState;
-  title: string;
-  subtitle: string;
-  lessonBanner?: string;
-  playButtonLabel: string;
-  showVoicePicker: boolean;
-  onPlay: () => void;
-  onRecord: () => void;
-  onRetry: () => void;
-  onNext: () => void;
-  onNextLesson: () => void;
-  onVoiceChange: (voice: VoiceType) => void;
+  ui: SingUiState
+  title: string
+  subtitle: string
+  lessonBanner?: string
+  playButtonLabel: string
+  showVoicePicker: boolean
+  onPlay: () => void
+  onRecord: () => void
+  onRetry: () => void
+  onNext: () => void
+  onNextLesson: () => void
+  onVoiceChange: (voice: VoiceType) => void
 }) {
   return (
     <main class="app">
@@ -187,5 +187,5 @@ export function SingTestView(props: {
         localhost.
       </ExerciseHint>
     </main>
-  );
+  )
 }

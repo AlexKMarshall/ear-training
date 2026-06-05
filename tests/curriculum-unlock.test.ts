@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { isUnlockAllEnabled } from "../src/curriculum/dev-unlock.ts";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { isUnlockAllEnabled } from "../src/curriculum/dev-unlock.ts"
 import {
   getContinueCurriculumLesson,
   getContinuePracticeMode,
@@ -9,7 +9,7 @@ import {
   isPracticeModeUnlocked,
   MIN_EXERCISE_PASS_RATE,
   MIN_EXERCISES_FOR_UNLOCK,
-} from "../src/curriculum/unlock.ts";
+} from "../src/curriculum/unlock.ts"
 import {
   passingFullGuidedPathHistory,
   passingIntroScaleDegreeHistory,
@@ -21,91 +21,89 @@ import {
   passingStepHistory,
   passingThroughHarmonic2bHistory,
   passingThroughMelodic2bHistory,
-} from "./fixtures/attempts.ts";
+} from "./fixtures/attempts.ts"
 
 describe("isPracticeModeUnlocked", () => {
   it("always unlocks the first path exercise", () => {
-    expect(isPracticeModeUnlocked("single-note", [])).toBe(true);
-  });
+    expect(isPracticeModeUnlocked("single-note", [])).toBe(true)
+  })
 
   it("locks chord-middle until minor diatonic scale degrees pass", () => {
-    expect(isPracticeModeUnlocked("chord-middle", [])).toBe(false);
-    expect(isPracticeModeUnlocked("chord-middle", passingLevel2History())).toBe(false);
-    expect(isPracticeModeUnlocked("chord-middle", passingThroughHarmonic2bHistory())).toBe(false);
+    expect(isPracticeModeUnlocked("chord-middle", [])).toBe(false)
+    expect(isPracticeModeUnlocked("chord-middle", passingLevel2History())).toBe(false)
+    expect(isPracticeModeUnlocked("chord-middle", passingThroughHarmonic2bHistory())).toBe(false)
     expect(isPracticeModeUnlocked("chord-middle", passingMajorDiatonicScaleDegreeHistory())).toBe(
       false,
-    );
+    )
     expect(isPracticeModeUnlocked("chord-middle", passingMinorDiatonicScaleDegreeHistory())).toBe(
       true,
-    );
-  });
+    )
+  })
 
   it("locks path successors until the predecessor meets thresholds", () => {
-    const records = passingSingleNoteHistory().slice(0, MIN_EXERCISES_FOR_UNLOCK - 1);
-    expect(isPracticeModeUnlocked("interval-melodic-sing", records)).toBe(false);
-  });
+    const records = passingSingleNoteHistory().slice(0, MIN_EXERCISES_FOR_UNLOCK - 1)
+    expect(isPracticeModeUnlocked("interval-melodic-sing", records)).toBe(false)
+  })
 
   it("unlocks the next path exercise when the predecessor passes", () => {
-    const records = passingSingleNoteHistory();
-    expect(isPracticeModeUnlocked("interval-melodic-sing", records)).toBe(true);
-  });
+    const records = passingSingleNoteHistory()
+    expect(isPracticeModeUnlocked("interval-melodic-sing", records)).toBe(true)
+  })
 
   it("locks scale-degree-sing until harmonic identify at 2a passes", () => {
-    expect(isPracticeModeUnlocked("scale-degree-sing", passingSingleNoteHistory())).toBe(false);
-    expect(isPracticeModeUnlocked("scale-degree-sing", passingLevel2History())).toBe(true);
-    expect(isPracticeModeUnlocked("scale-degree-sing", passingThroughMelodic2bHistory())).toBe(
-      true,
-    );
-  });
+    expect(isPracticeModeUnlocked("scale-degree-sing", passingSingleNoteHistory())).toBe(false)
+    expect(isPracticeModeUnlocked("scale-degree-sing", passingLevel2History())).toBe(true)
+    expect(isPracticeModeUnlocked("scale-degree-sing", passingThroughMelodic2bHistory())).toBe(true)
+  })
 
   describe("?unlock=all", () => {
     beforeEach(() => {
-      vi.stubGlobal("location", { search: "?unlock=all" });
-    });
+      vi.stubGlobal("location", { search: "?unlock=all" })
+    })
 
     afterEach(() => {
-      vi.unstubAllGlobals();
-    });
+      vi.unstubAllGlobals()
+    })
 
     it("isUnlockAllEnabled reads the query param", () => {
-      expect(isUnlockAllEnabled()).toBe(true);
-      expect(isUnlockAllEnabled("")).toBe(false);
-    });
+      expect(isUnlockAllEnabled()).toBe(true)
+      expect(isUnlockAllEnabled("")).toBe(false)
+    })
 
     it("unlocks path exercises with empty history", () => {
-      expect(isPracticeModeUnlocked("scale-degree-sing", [])).toBe(true);
-      expect(isPracticeModeUnlocked("interval-melodic-sing", [])).toBe(true);
-    });
+      expect(isPracticeModeUnlocked("scale-degree-sing", [])).toBe(true)
+      expect(isPracticeModeUnlocked("interval-melodic-sing", [])).toBe(true)
+    })
 
     it("does not change getContinuePracticeMode progress", () => {
-      expect(getContinuePracticeMode([])).toBe("single-note");
-    });
-  });
-});
+      expect(getContinuePracticeMode([])).toBe("single-note")
+    })
+  })
+})
 
 describe("isLevelUnlocked", () => {
   it("unlocks level 1 with no history", () => {
-    expect(isLevelUnlocked(1, [])).toBe(true);
-  });
+    expect(isLevelUnlocked(1, [])).toBe(true)
+  })
 
   it("locks level 2 until single-note meets thresholds", () => {
-    expect(isLevelUnlocked(2, [])).toBe(false);
-    expect(isLevelUnlocked(2, passingSingleNoteHistory())).toBe(true);
-  });
+    expect(isLevelUnlocked(2, [])).toBe(false)
+    expect(isLevelUnlocked(2, passingSingleNoteHistory())).toBe(true)
+  })
 
   it("locks level 3 until harmonic identify at 2a passes", () => {
-    expect(isLevelUnlocked(3, passingSingleNoteHistory())).toBe(false);
-    expect(isLevelUnlocked(3, passingLevel2History())).toBe(true);
-  });
-});
+    expect(isLevelUnlocked(3, passingSingleNoteHistory())).toBe(false)
+    expect(isLevelUnlocked(3, passingLevel2History())).toBe(true)
+  })
+})
 
 describe("isCurriculumLessonUnlocked", () => {
   it("locks melodic identify at 2a until melodic sing at 2a passes", () => {
     const id2a = {
       practiceModeId: "interval-melodic-id" as const,
       contentTierId: "interval-2a" as const,
-    };
-    expect(isCurriculumLessonUnlocked(id2a, passingSingleNoteHistory())).toBe(false);
+    }
+    expect(isCurriculumLessonUnlocked(id2a, passingSingleNoteHistory())).toBe(false)
     expect(
       isCurriculumLessonUnlocked(id2a, [
         ...passingSingleNoteHistory(),
@@ -114,15 +112,15 @@ describe("isCurriculumLessonUnlocked", () => {
           contentTierId: "interval-2a",
         }),
       ]),
-    ).toBe(true);
-  });
+    ).toBe(true)
+  })
 
   it("locks harmonic sing at 2a until melodic identify at 2a passes", () => {
     const sing2a = {
       practiceModeId: "interval-harmonic-sing" as const,
       contentTierId: "interval-2a" as const,
-    };
-    expect(isCurriculumLessonUnlocked(sing2a, passingSingleNoteHistory())).toBe(false);
+    }
+    expect(isCurriculumLessonUnlocked(sing2a, passingSingleNoteHistory())).toBe(false)
     expect(
       isCurriculumLessonUnlocked(sing2a, [
         ...passingSingleNoteHistory(),
@@ -131,7 +129,7 @@ describe("isCurriculumLessonUnlocked", () => {
           contentTierId: "interval-2a",
         }),
       ]),
-    ).toBe(false);
+    ).toBe(false)
     expect(
       isCurriculumLessonUnlocked(sing2a, [
         ...passingSingleNoteHistory(),
@@ -144,43 +142,43 @@ describe("isCurriculumLessonUnlocked", () => {
           contentTierId: "interval-2a",
         }),
       ]),
-    ).toBe(true);
-  });
+    ).toBe(true)
+  })
 
   it("locks melodic 2b until intro scale degrees pass", () => {
     const sing2b = {
       practiceModeId: "interval-melodic-sing" as const,
       contentTierId: "interval-2b" as const,
-    };
-    expect(isCurriculumLessonUnlocked(sing2b, passingSingleNoteHistory())).toBe(false);
-    expect(isCurriculumLessonUnlocked(sing2b, passingLevel2History())).toBe(false);
-    expect(isCurriculumLessonUnlocked(sing2b, passingIntroScaleDegreeHistory())).toBe(true);
-  });
+    }
+    expect(isCurriculumLessonUnlocked(sing2b, passingSingleNoteHistory())).toBe(false)
+    expect(isCurriculumLessonUnlocked(sing2b, passingLevel2History())).toBe(false)
+    expect(isCurriculumLessonUnlocked(sing2b, passingIntroScaleDegreeHistory())).toBe(true)
+  })
 
   it("locks melodic identify at 2b until melodic sing at 2b passes", () => {
     const id2b = {
       practiceModeId: "interval-melodic-id" as const,
       contentTierId: "interval-2b" as const,
-    };
-    expect(isCurriculumLessonUnlocked(id2b, passingLevel2History())).toBe(false);
-    expect(isCurriculumLessonUnlocked(id2b, passingMelodicSing2bHistory())).toBe(true);
-  });
+    }
+    expect(isCurriculumLessonUnlocked(id2b, passingLevel2History())).toBe(false)
+    expect(isCurriculumLessonUnlocked(id2b, passingMelodicSing2bHistory())).toBe(true)
+  })
 
   it("locks harmonic sing at 2b until melodic identify at 2b passes", () => {
     const sing2b = {
       practiceModeId: "interval-harmonic-sing" as const,
       contentTierId: "interval-2b" as const,
-    };
-    expect(isCurriculumLessonUnlocked(sing2b, passingMelodicSing2bHistory())).toBe(false);
-    expect(isCurriculumLessonUnlocked(sing2b, passingThroughMelodic2bHistory())).toBe(true);
-  });
+    }
+    expect(isCurriculumLessonUnlocked(sing2b, passingMelodicSing2bHistory())).toBe(false)
+    expect(isCurriculumLessonUnlocked(sing2b, passingThroughMelodic2bHistory())).toBe(true)
+  })
 
   it("locks harmonic identify at 2b until harmonic sing at 2b passes", () => {
     const id2b = {
       practiceModeId: "interval-harmonic-id" as const,
       contentTierId: "interval-2b" as const,
-    };
-    expect(isCurriculumLessonUnlocked(id2b, passingThroughMelodic2bHistory())).toBe(false);
+    }
+    expect(isCurriculumLessonUnlocked(id2b, passingThroughMelodic2bHistory())).toBe(false)
     expect(
       isCurriculumLessonUnlocked(id2b, [
         ...passingThroughMelodic2bHistory(),
@@ -189,89 +187,87 @@ describe("isCurriculumLessonUnlocked", () => {
           contentTierId: "interval-2b",
         }),
       ]),
-    ).toBe(true);
-  });
-});
+    ).toBe(true)
+  })
+})
 
 describe("getContinueCurriculumLesson", () => {
   it("points at the first path exercise on a fresh profile", () => {
     expect(getContinueCurriculumLesson([])).toEqual({
       practiceModeId: "single-note",
       contentTierId: "tier-1",
-    });
-  });
+    })
+  })
 
   it("advances to intro scale degrees after interval 2a completes", () => {
-    expect(getContinuePracticeMode(passingLevel2History())).toBe("scale-degree-sing");
+    expect(getContinuePracticeMode(passingLevel2History())).toBe("scale-degree-sing")
     expect(getContinueCurriculumLesson(passingLevel2History())).toEqual({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-intro",
-    });
-  });
+    })
+  })
 
   it("advances to melodic sing at 2b after intro scale degrees complete", () => {
-    expect(getContinuePracticeMode(passingIntroScaleDegreeHistory())).toBe("interval-melodic-sing");
+    expect(getContinuePracticeMode(passingIntroScaleDegreeHistory())).toBe("interval-melodic-sing")
     expect(getContinueCurriculumLesson(passingIntroScaleDegreeHistory())).toEqual({
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2b",
-    });
-  });
+    })
+  })
 
   it("advances to harmonic sing at 2b after melodic 2b completes", () => {
-    expect(getContinuePracticeMode(passingThroughMelodic2bHistory())).toBe(
-      "interval-harmonic-sing",
-    );
+    expect(getContinuePracticeMode(passingThroughMelodic2bHistory())).toBe("interval-harmonic-sing")
     expect(getContinueCurriculumLesson(passingThroughMelodic2bHistory())).toEqual({
       practiceModeId: "interval-harmonic-sing",
       contentTierId: "interval-2b",
-    });
-  });
+    })
+  })
 
   it("advances to major diatonic scale degrees after interval 2b completes", () => {
-    expect(getContinuePracticeMode(passingThroughHarmonic2bHistory())).toBe("scale-degree-sing");
+    expect(getContinuePracticeMode(passingThroughHarmonic2bHistory())).toBe("scale-degree-sing")
     expect(getContinueCurriculumLesson(passingThroughHarmonic2bHistory())).toEqual({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-diatonic",
-    });
-  });
+    })
+  })
 
   it("advances to minor diatonic scale degrees after major diatonic completes", () => {
     expect(getContinuePracticeMode(passingMajorDiatonicScaleDegreeHistory())).toBe(
       "scale-degree-sing",
-    );
+    )
     expect(getContinueCurriculumLesson(passingMajorDiatonicScaleDegreeHistory())).toEqual({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-minor-diatonic",
-    });
-  });
+    })
+  })
 
   it("advances to chord middle after minor diatonic scale degrees complete", () => {
-    expect(getContinuePracticeMode(passingMinorDiatonicScaleDegreeHistory())).toBe("chord-middle");
+    expect(getContinuePracticeMode(passingMinorDiatonicScaleDegreeHistory())).toBe("chord-middle")
     expect(getContinueCurriculumLesson(passingMinorDiatonicScaleDegreeHistory())).toEqual({
       practiceModeId: "chord-middle",
       contentTierId: "chord-1a",
-    });
-  });
-});
+    })
+  })
+})
 
 describe("getContinuePracticeMode", () => {
   it("points at the first path exercise on a fresh profile", () => {
-    expect(getContinuePracticeMode([])).toBe("single-note");
-  });
+    expect(getContinuePracticeMode([])).toBe("single-note")
+  })
 
   it("advances after the current exercise meets thresholds", () => {
-    expect(getContinuePracticeMode(passingSingleNoteHistory())).toBe("interval-melodic-sing");
-  });
+    expect(getContinuePracticeMode(passingSingleNoteHistory())).toBe("interval-melodic-sing")
+  })
 
   it("returns null when every curriculum step meets thresholds", () => {
-    expect(getContinuePracticeMode(passingFullGuidedPathHistory())).toBe(null);
-  });
-});
+    expect(getContinuePracticeMode(passingFullGuidedPathHistory())).toBe(null)
+  })
+})
 
 describe("getUnlockRequirement", () => {
   it("returns null for the first path exercise", () => {
-    expect(getUnlockRequirement("single-note")).toBe(null);
-  });
+    expect(getUnlockRequirement("single-note")).toBe(null)
+  })
 
   it("describes the predecessor and thresholds for later path exercises", () => {
     expect(getUnlockRequirement("interval-melodic-sing")).toEqual({
@@ -279,8 +275,8 @@ describe("getUnlockRequirement", () => {
       predecessorLabel: "Sing a single note",
       minExercisesForUnlock: MIN_EXERCISES_FOR_UNLOCK,
       minPassRatePercent: MIN_EXERCISE_PASS_RATE,
-    });
-  });
+    })
+  })
 
   it("includes tier pool in predecessor label for scale-degree sing", () => {
     expect(getUnlockRequirement("scale-degree-sing")).toEqual({
@@ -288,27 +284,27 @@ describe("getUnlockRequirement", () => {
       predecessorLabel: "Identify harmonic intervals (perfect 4th, 5th, octave)",
       minExercisesForUnlock: MIN_EXERCISES_FOR_UNLOCK,
       minPassRatePercent: MIN_EXERCISE_PASS_RATE,
-    });
-  });
+    })
+  })
 
   it("locks major diatonic scale degrees until harmonic identify at 2b passes", () => {
     const majorDiatonic = {
       practiceModeId: "scale-degree-sing" as const,
       contentTierId: "degree-major-diatonic" as const,
-    };
-    expect(isCurriculumLessonUnlocked(majorDiatonic, passingThroughMelodic2bHistory())).toBe(false);
-    expect(isCurriculumLessonUnlocked(majorDiatonic, passingThroughHarmonic2bHistory())).toBe(true);
-  });
+    }
+    expect(isCurriculumLessonUnlocked(majorDiatonic, passingThroughMelodic2bHistory())).toBe(false)
+    expect(isCurriculumLessonUnlocked(majorDiatonic, passingThroughHarmonic2bHistory())).toBe(true)
+  })
 
   it("requires major diatonic scale degrees before chord middle", () => {
     const minorDiatonic = {
       practiceModeId: "scale-degree-sing" as const,
       contentTierId: "degree-minor-diatonic" as const,
-    };
+    }
     expect(
       isCurriculumLessonUnlocked(minorDiatonic, passingMajorDiatonicScaleDegreeHistory()),
-    ).toBe(true);
-  });
+    ).toBe(true)
+  })
 
   it("requires minor diatonic scale degrees before chord middle", () => {
     expect(getUnlockRequirement("chord-middle")).toEqual({
@@ -317,6 +313,6 @@ describe("getUnlockRequirement", () => {
         "Sing scale degrees (natural minor key · diatonic degrees within one octave)",
       minExercisesForUnlock: MIN_EXERCISES_FOR_UNLOCK,
       minPassRatePercent: MIN_EXERCISE_PASS_RATE,
-    });
-  });
-});
+    })
+  })
+})

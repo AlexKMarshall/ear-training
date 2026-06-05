@@ -1,5 +1,5 @@
-import type { AttemptRecord } from "../../src/history/types.ts";
-import { attempt } from "./attempts.ts";
+import type { AttemptRecord } from "../../src/history/types.ts"
+import { attempt } from "./attempts.ts"
 
 /** Interval sing with two tags for weakness breakdown UI tests. */
 export function intervalWeaknessHistory(): AttemptRecord[] {
@@ -21,5 +21,5 @@ export function intervalWeaknessHistory(): AttemptRecord[] {
       exerciseIndex: 1,
       lessonId: "lesson-1",
     }),
-  ];
+  ]
 }

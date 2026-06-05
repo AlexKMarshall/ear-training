@@ -1,28 +1,28 @@
-import type { AttemptRecord, PracticeModeId } from "../history/types.ts";
-import type { CurriculumLesson } from "./curriculum-lessons.ts";
-import { curriculumLessonsForPracticeMode } from "./curriculum-lessons.ts";
+import type { AttemptRecord, PracticeModeId } from "../history/types.ts"
+import type { CurriculumLesson } from "./curriculum-lessons.ts"
+import { curriculumLessonsForPracticeMode } from "./curriculum-lessons.ts"
 import {
   getHighestUnlockedCurriculumLessonForPracticeMode,
   isCurriculumLessonUnlocked,
   meetsCurriculumLessonThreshold,
-} from "./unlock.ts";
+} from "./unlock.ts"
 
 export const CHORD_MIDDLE_CURRICULUM_LESSON: CurriculumLesson = {
   practiceModeId: "chord-middle",
   contentTierId: "chord-1a",
-};
+}
 
 const INTERVAL_PRACTICE_MODE_IDS = [
   "interval-melodic-sing",
   "interval-harmonic-sing",
   "interval-melodic-id",
   "interval-harmonic-id",
-] as const satisfies readonly PracticeModeId[];
+] as const satisfies readonly PracticeModeId[]
 
 function isIntervalPracticeMode(
   practiceModeId: PracticeModeId,
 ): practiceModeId is (typeof INTERVAL_PRACTICE_MODE_IDS)[number] {
-  return (INTERVAL_PRACTICE_MODE_IDS as readonly PracticeModeId[]).includes(practiceModeId);
+  return (INTERVAL_PRACTICE_MODE_IDS as readonly PracticeModeId[]).includes(practiceModeId)
 }
 
 function assertSessionPracticeMode(practiceModeId: PracticeModeId): void {
@@ -31,7 +31,7 @@ function assertSessionPracticeMode(practiceModeId: PracticeModeId): void {
     practiceModeId !== "scale-degree-sing" &&
     practiceModeId !== "chord-middle"
   ) {
-    throw new Error(`No session curriculum lesson for practice mode: ${practiceModeId}`);
+    throw new Error(`No session curriculum lesson for practice mode: ${practiceModeId}`)
   }
 }
 
@@ -43,27 +43,27 @@ export function getGuidedCurriculumLessonForPracticeMode(
   practiceModeId: PracticeModeId,
   records: readonly AttemptRecord[],
 ): CurriculumLesson {
-  assertSessionPracticeMode(practiceModeId);
+  assertSessionPracticeMode(practiceModeId)
 
   for (const step of curriculumLessonsForPracticeMode(practiceModeId)) {
     if (
       isCurriculumLessonUnlocked(step, records) &&
       !meetsCurriculumLessonThreshold(step, records)
     ) {
-      return step;
+      return step
     }
   }
 
-  const highest = getHighestUnlockedCurriculumLessonForPracticeMode(practiceModeId, records);
+  const highest = getHighestUnlockedCurriculumLessonForPracticeMode(practiceModeId, records)
   if (!highest) {
-    throw new Error(`No unlocked curriculum lesson for ${practiceModeId}`);
+    throw new Error(`No unlocked curriculum lesson for ${practiceModeId}`)
   }
-  return highest;
+  return highest
 }
 
 export interface ResolveSessionCurriculumLessonOptions {
   /** Step from the URL; when set and valid for the route, used for the session. */
-  urlCurriculumLesson?: CurriculumLesson | null;
+  urlCurriculumLesson?: CurriculumLesson | null
 }
 
 /**
@@ -75,14 +75,14 @@ export function resolveSessionCurriculumLesson(
   records: readonly AttemptRecord[],
   options: ResolveSessionCurriculumLessonOptions = {},
 ): CurriculumLesson {
-  assertSessionPracticeMode(practiceModeId);
+  assertSessionPracticeMode(practiceModeId)
 
-  const { urlCurriculumLesson } = options;
+  const { urlCurriculumLesson } = options
   if (urlCurriculumLesson && urlCurriculumLesson.practiceModeId === practiceModeId) {
-    return urlCurriculumLesson;
+    return urlCurriculumLesson
   }
 
-  return getGuidedCurriculumLessonForPracticeMode(practiceModeId, records);
+  return getGuidedCurriculumLessonForPracticeMode(practiceModeId, records)
 }
 
 /**
@@ -95,22 +95,22 @@ export function resolveAccessCurriculumLesson(
   urlCurriculumLesson: CurriculumLesson | null,
 ): CurriculumLesson {
   if (urlCurriculumLesson) {
-    return urlCurriculumLesson;
+    return urlCurriculumLesson
   }
 
-  const steps = curriculumLessonsForPracticeMode(practiceModeId);
+  const steps = curriculumLessonsForPracticeMode(practiceModeId)
   if (steps.length === 0) {
-    throw new Error(`No curriculum lessons for practice mode: ${practiceModeId}`);
+    throw new Error(`No curriculum lessons for practice mode: ${practiceModeId}`)
   }
 
   if (practiceModeId === "single-note") {
-    return steps[0]!;
+    return steps[0]!
   }
 
   try {
-    return getGuidedCurriculumLessonForPracticeMode(practiceModeId, records);
+    return getGuidedCurriculumLessonForPracticeMode(practiceModeId, records)
   } catch {
-    return steps[0]!;
+    return steps[0]!
   }
 }
 
@@ -123,5 +123,5 @@ export function getSessionCurriculumLessonForPracticeMode(
   records: readonly AttemptRecord[],
   options: ResolveSessionCurriculumLessonOptions = {},
 ): CurriculumLesson {
-  return resolveSessionCurriculumLesson(practiceModeId, records, options);
+  return resolveSessionCurriculumLesson(practiceModeId, records, options)
 }

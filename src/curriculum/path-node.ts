@@ -1,12 +1,12 @@
-import type { AttemptRecord, PracticeModeId } from "../history/types.ts";
-import { getPracticeMode } from "../practice-modes/registry.ts";
-import type { CurriculumLesson } from "./curriculum-lessons.ts";
+import type { AttemptRecord, PracticeModeId } from "../history/types.ts"
+import { getPracticeMode } from "../practice-modes/registry.ts"
+import type { CurriculumLesson } from "./curriculum-lessons.ts"
 import {
   CURRICULUM_LESSONS,
   curriculumLessonKey,
   getCurriculumLessonIndex,
-} from "./curriculum-lessons.ts";
-import { formatLessonLinkUrl } from "./lesson-link.ts";
+} from "./curriculum-lessons.ts"
+import { formatLessonLinkUrl } from "./lesson-link.ts"
 import {
   computeCurriculumLessonProgress,
   getContinueCurriculumLesson,
@@ -15,13 +15,13 @@ import {
   MIN_EXERCISE_PASS_RATE,
   MIN_EXERCISES_FOR_UNLOCK,
   meetsCurriculumLessonThreshold,
-} from "./unlock.ts";
+} from "./unlock.ts"
 
-export type PathNodeState = "passed" | "current" | "locked";
+export type PathNodeState = "passed" | "current" | "locked"
 
 export interface PathNodeLabels {
-  title: string;
-  subtitle: string;
+  title: string
+  subtitle: string
 }
 
 const INTERVAL_MODE_LABEL: Record<
@@ -38,7 +38,7 @@ const INTERVAL_MODE_LABEL: Record<
   "interval-melodic-id": "Melodic identification",
   "interval-harmonic-sing": "Harmonic reproduction",
   "interval-harmonic-id": "Harmonic identification",
-};
+}
 
 const TIER_POOL_LABEL: Record<CurriculumLesson["contentTierId"], string | null> = {
   "tier-1": "sing back one note",
@@ -48,33 +48,33 @@ const TIER_POOL_LABEL: Record<CurriculumLesson["contentTierId"], string | null> 
   "degree-major-diatonic": "major key · diatonic degrees within one octave",
   "degree-minor-diatonic": "natural minor key · diatonic degrees within one octave",
   "chord-1a": "major vs minor · root position",
-};
+}
 
 /** Optional per-step label overrides (full `practiceModeId:contentTierId` keys). */
-const STEP_LABEL_OVERRIDES: Partial<Record<string, PathNodeLabels>> = {};
+const STEP_LABEL_OVERRIDES: Partial<Record<string, PathNodeLabels>> = {}
 
 function familyTitle(practiceModeId: PracticeModeId): string {
   switch (practiceModeId) {
     case "single-note":
-      return "Single note";
+      return "Single note"
     case "interval-melodic-sing":
     case "interval-melodic-id":
     case "interval-harmonic-sing":
     case "interval-harmonic-id":
-      return "Intervals";
+      return "Intervals"
     case "scale-degree-sing":
-      return "Scale degrees";
+      return "Scale degrees"
     case "chord-middle":
-      return "Chords";
+      return "Chords"
   }
 }
 
 function defaultPathNodeLabels(step: CurriculumLesson): PathNodeLabels {
-  const title = familyTitle(step.practiceModeId);
-  const pool = TIER_POOL_LABEL[step.contentTierId];
+  const title = familyTitle(step.practiceModeId)
+  const pool = TIER_POOL_LABEL[step.contentTierId]
 
   if (step.practiceModeId === "single-note") {
-    return { title, subtitle: "Sing back one note" };
+    return { title, subtitle: "Sing back one note" }
   }
 
   if (
@@ -83,28 +83,28 @@ function defaultPathNodeLabels(step: CurriculumLesson): PathNodeLabels {
     step.practiceModeId === "interval-harmonic-sing" ||
     step.practiceModeId === "interval-harmonic-id"
   ) {
-    const mode = INTERVAL_MODE_LABEL[step.practiceModeId];
+    const mode = INTERVAL_MODE_LABEL[step.practiceModeId]
     return {
       title,
       subtitle: pool ? `${mode} · ${pool}` : mode,
-    };
+    }
   }
 
   if (step.practiceModeId === "scale-degree-sing") {
     return {
       title,
       subtitle: pool ? `Melodic reproduction · ${pool}` : "Melodic reproduction",
-    };
+    }
   }
 
   return {
     title,
     subtitle: pool ?? "Sing the middle note of a chord",
-  };
+  }
 }
 
 export function getPathNodeLabels(step: CurriculumLesson): PathNodeLabels {
-  return STEP_LABEL_OVERRIDES[curriculumLessonKey(step)] ?? defaultPathNodeLabels(step);
+  return STEP_LABEL_OVERRIDES[curriculumLessonKey(step)] ?? defaultPathNodeLabels(step)
 }
 
 export function getPathNodeState(
@@ -112,73 +112,73 @@ export function getPathNodeState(
   records: readonly AttemptRecord[],
 ): PathNodeState {
   if (!isCurriculumLessonUnlocked(step, records)) {
-    return "locked";
+    return "locked"
   }
-  const current = getContinueCurriculumLesson(records);
+  const current = getContinueCurriculumLesson(records)
   if (current && curriculumLessonKey(current) === curriculumLessonKey(step)) {
-    return "current";
+    return "current"
   }
-  return "passed";
+  return "passed"
 }
 
 export function isGuidedPathComplete(records: readonly AttemptRecord[]): boolean {
-  return CURRICULUM_LESSONS.every((step) => meetsCurriculumLessonThreshold(step, records));
+  return CURRICULUM_LESSONS.every((step) => meetsCurriculumLessonThreshold(step, records))
 }
 
 /** First locked step after the current node, or after the last passed step when none is current. */
 export function getNextLockedPathNode(records: readonly AttemptRecord[]): CurriculumLesson | null {
-  const current = getContinueCurriculumLesson(records);
-  let startIndex: number;
+  const current = getContinueCurriculumLesson(records)
+  let startIndex: number
   if (current) {
-    startIndex = getCurriculumLessonIndex(current) + 1;
+    startIndex = getCurriculumLessonIndex(current) + 1
   } else {
-    let lastPassed = -1;
+    let lastPassed = -1
     for (let i = 0; i < CURRICULUM_LESSONS.length; i++) {
-      const step = CURRICULUM_LESSONS[i]!;
+      const step = CURRICULUM_LESSONS[i]!
       if (meetsCurriculumLessonThreshold(step, records)) {
-        lastPassed = i;
+        lastPassed = i
       } else {
-        break;
+        break
       }
     }
-    startIndex = lastPassed + 1;
+    startIndex = lastPassed + 1
   }
 
   if (startIndex >= CURRICULUM_LESSONS.length) {
-    return null;
+    return null
   }
 
-  const step = CURRICULUM_LESSONS[startIndex]!;
-  return isCurriculumLessonUnlocked(step, records) ? null : step;
+  const step = CURRICULUM_LESSONS[startIndex]!
+  return isCurriculumLessonUnlocked(step, records) ? null : step
 }
 
 export function formatPathNodeStatus(
   step: CurriculumLesson,
   records: readonly AttemptRecord[],
 ): string {
-  const state = getPathNodeState(step, records);
+  const state = getPathNodeState(step, records)
   if (state === "passed") {
-    return "Complete";
+    return "Complete"
   }
   if (state === "current") {
     const { lessonExerciseCount, lessonExercisePassRatePercent } = computeCurriculumLessonProgress(
       step,
       records,
-    );
-    return `${lessonExerciseCount} / ${MIN_EXERCISES_FOR_UNLOCK} exercises · ${lessonExercisePassRatePercent}% pass (need ${MIN_EXERCISE_PASS_RATE}%)`;
+    )
+    return `${lessonExerciseCount} / ${MIN_EXERCISES_FOR_UNLOCK} exercises · ${lessonExercisePassRatePercent}% pass (need ${MIN_EXERCISE_PASS_RATE}%)`
   }
 
-  const nextLocked = getNextLockedPathNode(records);
+  const nextLocked = getNextLockedPathNode(records)
   if (nextLocked && curriculumLessonKey(nextLocked) === curriculumLessonKey(step)) {
-    const requirement = getUnlockRequirementForCurriculumLesson(step);
+    const requirement = getUnlockRequirementForCurriculumLesson(step)
     if (requirement) {
-      return `Locked · complete ${requirement.predecessorLabel} first`;
+      return `Locked · complete ${requirement.predecessorLabel} first`
     }
   }
-  return "Locked";
+  return "Locked"
 }
 
 export function formatPathNodeHref(step: CurriculumLesson): string {
-  const route = getPracticeMode(step.practiceModeId).route;
-  return formatLessonLinkUrl(route, step);
+  const route = getPracticeMode(step.practiceModeId).route
+  return formatLessonLinkUrl(route, step)
 }

@@ -1,13 +1,13 @@
-import type { InversionId } from "./chord-inversions.ts";
-import { buildChordExercise, type ChordType, randomChordExercise } from "./chord-types.ts";
-import type { ChordExercise } from "./chords.ts";
-import type { NoteRange } from "./notes.ts";
+import type { InversionId } from "./chord-inversions.ts"
+import { buildChordExercise, type ChordType, randomChordExercise } from "./chord-types.ts"
+import type { ChordExercise } from "./chords.ts"
+import type { NoteRange } from "./notes.ts"
 
 /** Registry entry for a chord exercise type (future user include/exclude). */
 export interface ChordTypeEntry extends ChordType {
-  label: string;
+  label: string
   /** When false, excluded from random chord-mode questions. */
-  enabled: boolean;
+  enabled: boolean
 }
 
 /** Major triad; user sings the middle voice of the voiced chord. */
@@ -16,7 +16,7 @@ export const MAJOR_TRIAD_SING_MIDDLE: ChordType = {
   quality: [0, 4, 7],
   targetIndex: 1,
   rangeAnchorIndex: 1,
-};
+}
 
 /** Minor triad; user sings the middle voice of the voiced chord. */
 export const MINOR_TRIAD_SING_MIDDLE: ChordType = {
@@ -24,7 +24,7 @@ export const MINOR_TRIAD_SING_MIDDLE: ChordType = {
   quality: [0, 3, 7],
   targetIndex: 1,
   rangeAnchorIndex: 1,
-};
+}
 
 /** Diminished triad; user sings the middle voice of the voiced chord. */
 export const DIMINISHED_TRIAD_SING_MIDDLE: ChordType = {
@@ -32,7 +32,7 @@ export const DIMINISHED_TRIAD_SING_MIDDLE: ChordType = {
   quality: [0, 3, 6],
   targetIndex: 1,
   rangeAnchorIndex: 1,
-};
+}
 
 /** All supported chord types for sing-the-middle (and future) modes. */
 export const CHORD_TYPES: readonly ChordTypeEntry[] = [
@@ -51,47 +51,47 @@ export const CHORD_TYPES: readonly ChordTypeEntry[] = [
     label: "Diminished triad",
     enabled: true,
   },
-] as const;
+] as const
 
 export function getChordTypeById(id: string): ChordTypeEntry | undefined {
-  return CHORD_TYPES.find((t) => t.id === id);
+  return CHORD_TYPES.find((t) => t.id === id)
 }
 
 export function enabledChordTypes(): ChordType[] {
-  return CHORD_TYPES.filter((t) => t.enabled);
+  return CHORD_TYPES.filter((t) => t.enabled)
 }
 
 /** Fixed C3 major triad in root position (C3–E3–G3); user sings E3. */
 export function cMajorTriadAtC3(): ChordExercise {
-  return buildChordExercise(MAJOR_TRIAD_SING_MIDDLE, "root", 52);
+  return buildChordExercise(MAJOR_TRIAD_SING_MIDDLE, "root", 52)
 }
 
 /** Fixed C3 minor triad in root position (C3–Eb3–G3); user sings Eb3. */
 export function cMinorTriadAtC3(): ChordExercise {
-  return buildChordExercise(MINOR_TRIAD_SING_MIDDLE, "root", 51);
+  return buildChordExercise(MINOR_TRIAD_SING_MIDDLE, "root", 51)
 }
 
 /** Random major triad in root position; middle (third) falls within `range`. */
 export function randomMajorTriadWithMiddleInRange(range: NoteRange): ChordExercise {
-  return randomChordExercise(MAJOR_TRIAD_SING_MIDDLE, "root", range);
+  return randomChordExercise(MAJOR_TRIAD_SING_MIDDLE, "root", range)
 }
 
 /** Random minor triad in root position; middle (third) falls within `range`. */
 export function randomMinorTriadWithMiddleInRange(range: NoteRange): ChordExercise {
-  return randomChordExercise(MINOR_TRIAD_SING_MIDDLE, "root", range);
+  return randomChordExercise(MINOR_TRIAD_SING_MIDDLE, "root", range)
 }
 
 /** Fixed C3 diminished triad in root position; user sings Eb3. */
 export function cDiminishedTriadAtC3(): ChordExercise {
-  return buildChordExercise(DIMINISHED_TRIAD_SING_MIDDLE, "root", 51);
+  return buildChordExercise(DIMINISHED_TRIAD_SING_MIDDLE, "root", 51)
 }
 
 /** Random diminished triad in root position; middle falls within `range`. */
 export function randomDiminishedTriadWithMiddleInRange(range: NoteRange): ChordExercise {
-  return randomChordExercise(DIMINISHED_TRIAD_SING_MIDDLE, "root", range);
+  return randomChordExercise(DIMINISHED_TRIAD_SING_MIDDLE, "root", range)
 }
 
 /** Fixed major triad with the given inversion; middle note at `middleMidi`. */
 export function majorTriadAtMiddle(inversion: InversionId, middleMidi: number): ChordExercise {
-  return buildChordExercise(MAJOR_TRIAD_SING_MIDDLE, inversion, middleMidi);
+  return buildChordExercise(MAJOR_TRIAD_SING_MIDDLE, inversion, middleMidi)
 }

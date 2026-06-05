@@ -1,10 +1,10 @@
-import { ensureAudioReady, unlockAudio } from "./context.ts";
-import { isPlaying } from "./playback.ts";
+import { ensureAudioReady, unlockAudio } from "./context.ts"
+import { isPlaying } from "./playback.ts"
 
 export interface AudioPort {
-  unlock(): AudioContext;
-  ensureReady(): Promise<AudioContext>;
-  isPlaying(): boolean;
+  unlock(): AudioContext
+  ensureReady(): Promise<AudioContext>
+  isPlaying(): boolean
 }
 
 export function createDefaultAudioPort(): AudioPort {
@@ -12,15 +12,15 @@ export function createDefaultAudioPort(): AudioPort {
     unlock: unlockAudio,
     ensureReady: ensureAudioReady,
     isPlaying,
-  };
+  }
 }
 
 /** Instant-ready audio for browser tests (no piano playback timing). */
 export function createTestAudioPort(): AudioPort {
-  const ctx = new AudioContext();
+  const ctx = new AudioContext()
   return {
     unlock: () => ctx,
     ensureReady: async () => ctx,
     isPlaying: () => false,
-  };
+  }
 }

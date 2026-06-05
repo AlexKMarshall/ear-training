@@ -1,15 +1,10 @@
-import {
-  VOICE_RANGES,
-  VOICE_TYPE_LABELS,
-  VOICE_TYPES,
-  type VoiceType,
-} from "../../voice-ranges.ts";
+import { VOICE_RANGES, VOICE_TYPE_LABELS, VOICE_TYPES, type VoiceType } from "../../voice-ranges.ts"
 
 export function VoicePicker(props: {
-  selectedVoice: VoiceType;
-  rangeHint: string;
-  disabled: boolean;
-  onVoiceChange: (voice: VoiceType) => void;
+  selectedVoice: VoiceType
+  rangeHint: string
+  disabled: boolean
+  onVoiceChange: (voice: VoiceType) => void
 }) {
   return (
     <fieldset class="voice-picker" disabled={props.disabled}>
@@ -32,9 +27,9 @@ export function VoicePicker(props: {
       </div>
       <p class="voice-range-hint">{props.rangeHint}</p>
     </fieldset>
-  );
+  )
 }
 
 export function voiceRangeHint(voice: VoiceType): string {
-  return `Notes drawn from ${VOICE_RANGES[voice].label}`;
+  return `Notes drawn from ${VOICE_RANGES[voice].label}`
 }

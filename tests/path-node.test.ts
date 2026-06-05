@@ -1,17 +1,17 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest"
 import {
   formatPathNodeStatus,
   getNextLockedPathNode,
   getPathNodeLabels,
   getPathNodeState,
   isGuidedPathComplete,
-} from "../src/curriculum/path-node.ts";
+} from "../src/curriculum/path-node.ts"
 import {
   passingFullGuidedPathHistory,
   passingLevel2History,
   passingSingleNoteHistory,
   passingThroughHarmonic2bHistory,
-} from "./fixtures/attempts.ts";
+} from "./fixtures/attempts.ts"
 
 describe("getPathNodeLabels", () => {
   it("uses family title and mode subtitle for interval steps", () => {
@@ -23,8 +23,8 @@ describe("getPathNodeLabels", () => {
     ).toEqual({
       title: "Intervals",
       subtitle: "Melodic reproduction · perfect 4th, 5th, octave",
-    });
-  });
+    })
+  })
 
   it("uses family title and key-quality subtitle for intro scale degrees", () => {
     expect(
@@ -35,8 +35,8 @@ describe("getPathNodeLabels", () => {
     ).toEqual({
       title: "Scale degrees",
       subtitle: "Melodic reproduction · major key · 4th, 5th, octave",
-    });
-  });
+    })
+  })
 
   it("uses family title and diatonic pool subtitle for major diatonic scale degrees", () => {
     expect(
@@ -47,8 +47,8 @@ describe("getPathNodeLabels", () => {
     ).toEqual({
       title: "Scale degrees",
       subtitle: "Melodic reproduction · major key · diatonic degrees within one octave",
-    });
-  });
+    })
+  })
 
   it("uses family title and key-quality subtitle for minor diatonic scale degrees", () => {
     expect(
@@ -59,80 +59,80 @@ describe("getPathNodeLabels", () => {
     ).toEqual({
       title: "Scale degrees",
       subtitle: "Melodic reproduction · natural minor key · diatonic degrees within one octave",
-    });
-  });
-});
+    })
+  })
+})
 
 describe("getPathNodeState", () => {
   it("marks the first step current on a fresh profile", () => {
-    const step = { practiceModeId: "single-note" as const, contentTierId: "tier-1" as const };
-    expect(getPathNodeState(step, [])).toBe("current");
+    const step = { practiceModeId: "single-note" as const, contentTierId: "tier-1" as const }
+    expect(getPathNodeState(step, [])).toBe("current")
     expect(
       getPathNodeState(
         { practiceModeId: "interval-melodic-sing", contentTierId: "interval-2a" },
         [],
       ),
-    ).toBe("locked");
-  });
+    ).toBe("locked")
+  })
 
   it("marks completed steps passed after single-note threshold", () => {
-    const records = passingSingleNoteHistory();
+    const records = passingSingleNoteHistory()
     expect(
       getPathNodeState({ practiceModeId: "single-note", contentTierId: "tier-1" }, records),
-    ).toBe("passed");
+    ).toBe("passed")
     expect(
       getPathNodeState(
         { practiceModeId: "interval-melodic-sing", contentTierId: "interval-2a" },
         records,
       ),
-    ).toBe("current");
-  });
-});
+    ).toBe("current")
+  })
+})
 
 describe("getNextLockedPathNode", () => {
   it("returns the step after the current node when practice is in progress", () => {
     expect(getNextLockedPathNode(passingSingleNoteHistory())).toEqual({
       practiceModeId: "interval-melodic-id",
       contentTierId: "interval-2a",
-    });
-  });
+    })
+  })
 
   it("returns null when the path is complete", () => {
-    expect(getNextLockedPathNode(passingFullGuidedPathHistory())).toBe(null);
-  });
-});
+    expect(getNextLockedPathNode(passingFullGuidedPathHistory())).toBe(null)
+  })
+})
 
 describe("formatPathNodeStatus", () => {
   it("shows predecessor unlock copy only on the next locked node", () => {
-    const records = passingSingleNoteHistory();
+    const records = passingSingleNoteHistory()
     expect(
       formatPathNodeStatus(
         { practiceModeId: "interval-melodic-sing", contentTierId: "interval-2a" },
         records,
       ),
-    ).toContain("exercises");
+    ).toContain("exercises")
     expect(
       formatPathNodeStatus(
         { practiceModeId: "interval-melodic-id", contentTierId: "interval-2a" },
         records,
       ),
-    ).toContain("Sing melodic intervals");
+    ).toContain("Sing melodic intervals")
     expect(
       formatPathNodeStatus(
         { practiceModeId: "interval-harmonic-sing", contentTierId: "interval-2a" },
         records,
       ),
-    ).toBe("Locked");
-  });
-});
+    ).toBe("Locked")
+  })
+})
 
 describe("isGuidedPathComplete", () => {
   it("is false until every step meets thresholds", () => {
-    expect(isGuidedPathComplete(passingThroughHarmonic2bHistory())).toBe(false);
-    expect(isGuidedPathComplete(passingFullGuidedPathHistory())).toBe(true);
-  });
+    expect(isGuidedPathComplete(passingThroughHarmonic2bHistory())).toBe(false)
+    expect(isGuidedPathComplete(passingFullGuidedPathHistory())).toBe(true)
+  })
 
   it("is false when level 2 at 2a is complete but 2b is not started", () => {
-    expect(isGuidedPathComplete(passingLevel2History())).toBe(false);
-  });
-});
+    expect(isGuidedPathComplete(passingLevel2History())).toBe(false)
+  })
+})
