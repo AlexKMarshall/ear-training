@@ -1,23 +1,23 @@
-import type { MountDeps } from "../history/port.ts";
-import type { PracticeModeId } from "../history/types.ts";
+import type { MountDeps } from "../history/port.ts"
+import type { PracticeModeId } from "../history/types.ts"
 import {
   mountIntervalHarmonicIdTest,
   mountIntervalHarmonicSingTest,
   mountIntervalMelodicIdTest,
   mountIntervalMelodicSingTest,
-} from "../ui/interval-tests.ts";
-import { mountScaleDegreeSingTest } from "../ui/scale-degree-tests.ts";
-import { mountChordMiddleTest, mountSingleNoteTest } from "../ui/tests.ts";
+} from "../ui/interval-tests.ts"
+import { mountScaleDegreeSingTest } from "../ui/scale-degree-tests.ts"
+import { mountChordMiddleTest, mountSingleNoteTest } from "../ui/tests.ts"
 
-export type ResponseMode = "sing" | "select";
+export type ResponseMode = "sing" | "select"
 
 export interface PracticeModeEntry {
-  id: PracticeModeId;
-  responseMode: ResponseMode;
-  route: string;
-  title: string;
-  subtitle: string;
-  mount: (root: HTMLElement, deps?: MountDeps) => void;
+  id: PracticeModeId
+  responseMode: ResponseMode
+  route: string
+  title: string
+  subtitle: string
+  mount: (root: HTMLElement, deps?: MountDeps) => void
 }
 
 const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
@@ -77,16 +77,16 @@ const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
     subtitle: "One key per lesson — hear the tonic, then sing each requested scale degree",
     mount: mountScaleDegreeSingTest,
   },
-];
+]
 
-export const PRACTICE_MODES: readonly PracticeModeEntry[] = PRACTICE_MODE_ENTRIES;
+export const PRACTICE_MODES: readonly PracticeModeEntry[] = PRACTICE_MODE_ENTRIES
 
 export function getPracticeMode(id: PracticeModeId): PracticeModeEntry {
-  const entry = PRACTICE_MODES.find((e) => e.id === id);
+  const entry = PRACTICE_MODES.find((e) => e.id === id)
   if (!entry) {
-    throw new Error(`Unknown practice mode: ${id}`);
+    throw new Error(`Unknown practice mode: ${id}`)
   }
-  return entry;
+  return entry
 }
 
 export async function mountPracticeMode(
@@ -94,5 +94,5 @@ export async function mountPracticeMode(
   id: PracticeModeId,
   deps?: MountDeps,
 ): Promise<void> {
-  getPracticeMode(id).mount(root, deps);
+  getPracticeMode(id).mount(root, deps)
 }

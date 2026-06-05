@@ -1,8 +1,8 @@
 /// <reference types="vitest/config" />
-import { resolve } from "node:path";
-import { playwright } from "@vitest/browser-playwright";
-import solid from "vite-plugin-solid";
-import { defineConfig } from "vitest/config";
+import { resolve } from "node:path"
+import { playwright } from "@vitest/browser-playwright"
+import solid from "vite-plugin-solid"
+import { defineConfig } from "vitest/config"
 
 export default defineConfig({
   plugins: [solid()],
@@ -52,4 +52,4 @@ export default defineConfig({
       },
     ],
   },
-});
+})

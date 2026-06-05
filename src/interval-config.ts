@@ -1,20 +1,20 @@
 /** Registry entry for an interval exercise (user can include/exclude). */
 export interface IntervalEntry {
-  id: string;
+  id: string
   /** Semitone distance from lower to upper note. */
-  semitones: number;
+  semitones: number
   /** Degree-style label for answers and UI (no solfege). */
-  label: string;
+  label: string
   /**
    * When false, excluded from picker and random questions until tier wiring.
    * Tier 2b rows stay false until the session planner (PR 4+); tier presets
    * use {@link DIATONIC_MAJOR_INTERVAL_IDS}, not this flag.
    */
-  enabled: boolean;
+  enabled: boolean
 }
 
 /** Tier 2a: perfect fourth, fifth, and octave. */
-export const INTERVAL_2A_IDS = ["perfect-fourth", "perfect-fifth", "perfect-octave"] as const;
+export const INTERVAL_2A_IDS = ["perfect-fourth", "perfect-fifth", "perfect-octave"] as const
 
 /** Twelve ascending diatonic major intervals within one octave (tier 2b pool). */
 export const DIATONIC_MAJOR_INTERVAL_IDS = [
@@ -30,7 +30,7 @@ export const DIATONIC_MAJOR_INTERVAL_IDS = [
   "minor-seventh",
   "major-seventh",
   "perfect-octave",
-] as const;
+] as const
 
 /** v1 curriculum: perfect fourth, fifth, octave; full diatonic-within-octave set for tier 2b. */
 export const INTERVALS: readonly IntervalEntry[] = [
@@ -106,14 +106,14 @@ export const INTERVALS: readonly IntervalEntry[] = [
     label: "Perfect octave",
     enabled: true,
   },
-] as const;
+] as const
 
 export function getIntervalById(id: string): IntervalEntry | undefined {
-  return INTERVALS.find((entry) => entry.id === id);
+  return INTERVALS.find((entry) => entry.id === id)
 }
 
 export function getIntervalsByIds(ids: readonly string[]): IntervalEntry[] {
   return ids
     .map((id) => getIntervalById(id))
-    .filter((entry): entry is IntervalEntry => entry !== undefined);
+    .filter((entry): entry is IntervalEntry => entry !== undefined)
 }

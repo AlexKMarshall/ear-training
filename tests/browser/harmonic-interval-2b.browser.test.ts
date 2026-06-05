@@ -1,28 +1,28 @@
-import { beforeEach, expect, test } from "vitest";
-import { page, userEvent } from "vitest/browser";
-import { createTestAudioPort } from "../../src/audio/port.ts";
-import { getEligibleTagIds } from "../../src/curriculum/curriculum-lessons.ts";
-import { getIntervalById } from "../../src/interval-config.ts";
-import { buildIntervalExercise, intervalToLessonExercise } from "../../src/interval-exercises.ts";
-import { mountIntervalHarmonicIdTest } from "../../src/ui/interval-tests.ts";
-import { passingStepHistory, passingThroughMelodic2bHistory } from "../fixtures/attempts.ts";
+import { beforeEach, expect, test } from "vitest"
+import { page, userEvent } from "vitest/browser"
+import { createTestAudioPort } from "../../src/audio/port.ts"
+import { getEligibleTagIds } from "../../src/curriculum/curriculum-lessons.ts"
+import { getIntervalById } from "../../src/interval-config.ts"
+import { buildIntervalExercise, intervalToLessonExercise } from "../../src/interval-exercises.ts"
+import { mountIntervalHarmonicIdTest } from "../../src/ui/interval-tests.ts"
+import { passingStepHistory, passingThroughMelodic2bHistory } from "../fixtures/attempts.ts"
 import {
   createHarmonicSingTestConfig,
   createTestSessionHistory,
   defaultPassSamplesHzFor,
   mountPracticeModeInBrowser,
-} from "./helpers/mount.ts";
-import "../../src/ui/styles.css";
+} from "./helpers/mount.ts"
+import "../../src/ui/styles.css"
 
-const perfectFifth = getIntervalById("perfect-fifth")!;
+const perfectFifth = getIntervalById("perfect-fifth")!
 const harmonicSing2bStep = {
   practiceModeId: "interval-harmonic-sing" as const,
   contentTierId: "interval-2b" as const,
-};
+}
 
 beforeEach(() => {
-  document.body.innerHTML = '<div id="app"></div>';
-});
+  document.body.innerHTML = '<div id="app"></div>'
+})
 
 test("harmonic sing at interval-2b saves attempt with 2b tier metadata", async () => {
   const { history } = mountPracticeModeInBrowser("interval-harmonic-sing", {
@@ -34,23 +34,23 @@ test("harmonic sing at interval-2b saves attempt with 2b tier metadata", async (
       }),
     }),
     samplesHz: defaultPassSamplesHzFor("interval-harmonic-sing"),
-  });
+  })
 
-  await userEvent.click(page.getByRole("button", { name: /Play interval/i }));
-  await userEvent.click(page.getByRole("button", { name: /Start singing/i }));
-  await userEvent.click(page.getByRole("button", { name: /^Done$/i }));
+  await userEvent.click(page.getByRole("button", { name: /Play interval/i }))
+  await userEvent.click(page.getByRole("button", { name: /Start singing/i }))
+  await userEvent.click(page.getByRole("button", { name: /^Done$/i }))
 
-  await expect.element(page.getByText("Correct", { exact: true })).toBeVisible();
+  await expect.element(page.getByText("Correct", { exact: true })).toBeVisible()
 
-  const records = await history.getAllAttempts();
-  expect(records).toHaveLength(1);
+  const records = await history.getAllAttempts()
+  expect(records).toHaveLength(1)
   expect(records[0]).toMatchObject({
     practiceModeId: "interval-harmonic-sing",
     passed: true,
     contentTierId: "interval-2b",
-  });
-  expect(records[0]!.eligibleTagIds).toHaveLength(12);
-});
+  })
+  expect(records[0]!.eligibleTagIds).toHaveLength(12)
+})
 
 test("harmonic identify at interval-2b saves attempt with 2b tier metadata", async () => {
   const initialRecords = [
@@ -59,29 +59,29 @@ test("harmonic identify at interval-2b saves attempt with 2b tier metadata", asy
       practiceModeId: "interval-harmonic-sing",
       contentTierId: "interval-2b",
     }),
-  ];
-  const { sessionHistory, history } = createTestSessionHistory(initialRecords);
-  const root = document.querySelector<HTMLElement>("#app")!;
+  ]
+  const { sessionHistory, history } = createTestSessionHistory(initialRecords)
+  const root = document.querySelector<HTMLElement>("#app")!
   mountIntervalHarmonicIdTest(root, {
     sessionHistory,
     audio: createTestAudioPort(),
     sessionPlanner: {
       planNextExerciseTag: () => "perfect-fifth",
     },
-  });
+  })
 
-  await userEvent.click(page.getByRole("button", { name: /Play interval/i }));
-  await userEvent.click(page.getByRole("button", { name: /Perfect 5th/i }));
+  await userEvent.click(page.getByRole("button", { name: /Play interval/i }))
+  await userEvent.click(page.getByRole("button", { name: /Perfect 5th/i }))
 
-  await expect.element(page.getByText("Correct", { exact: true })).toBeVisible();
+  await expect.element(page.getByText("Correct", { exact: true })).toBeVisible()
 
-  const records = await history.getAllAttempts();
-  const attempt = records[records.length - 1]!;
+  const records = await history.getAllAttempts()
+  const attempt = records[records.length - 1]!
   expect(attempt).toMatchObject({
     practiceModeId: "interval-harmonic-id",
     contentTierId: "interval-2b",
     intervalId: "perfect-fifth",
     passed: true,
-  });
-  expect(attempt.eligibleTagIds).toHaveLength(12);
-});
+  })
+  expect(attempt.eligibleTagIds).toHaveLength(12)
+})

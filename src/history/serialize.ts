@@ -1,18 +1,18 @@
-import { getActiveInversions } from "../chord-inversion-preference.ts";
-import { getSelectedChordTypeIds } from "../chord-type-preference.ts";
-import type { LessonExercise } from "../lesson-exercise.ts";
-import { getSelectedScaleDegreeIds } from "../scale-degree-preference.ts";
-import { getVoiceType } from "../voice-ranges.ts";
-import type { AttemptInput, PracticeModeId } from "./types.ts";
+import { getActiveInversions } from "../chord-inversion-preference.ts"
+import { getSelectedChordTypeIds } from "../chord-type-preference.ts"
+import type { LessonExercise } from "../lesson-exercise.ts"
+import { getSelectedScaleDegreeIds } from "../scale-degree-preference.ts"
+import { getVoiceType } from "../voice-ranges.ts"
+import type { AttemptInput, PracticeModeId } from "./types.ts"
 
 export interface AttemptContext {
-  practiceModeId: PracticeModeId;
-  lessonId: string;
-  exerciseIndex: number;
-  showVoicePicker: boolean;
-  showChordFilters: boolean;
-  showIntervalFilters: boolean;
-  showDegreeFilters: boolean;
+  practiceModeId: PracticeModeId
+  lessonId: string
+  exerciseIndex: number
+  showVoicePicker: boolean
+  showChordFilters: boolean
+  showIntervalFilters: boolean
+  showDegreeFilters: boolean
 }
 
 export function buildAttemptRecord(
@@ -26,7 +26,7 @@ export function buildAttemptRecord(
   const chordNotes = exercise.chord?.notes.map((n) => ({
     midi: n.midi,
     name: n.name,
-  }));
+  }))
 
   return {
     practiceModeId: context.practiceModeId,
@@ -58,5 +58,5 @@ export function buildAttemptRecord(
     activeDegreeIds: context.showDegreeFilters ? getSelectedScaleDegreeIds() : undefined,
     lessonId: context.lessonId,
     exerciseIndex: context.exerciseIndex,
-  };
+  }
 }

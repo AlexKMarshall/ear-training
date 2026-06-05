@@ -1,17 +1,17 @@
-import { playDyad, playMelodicSequence } from "../audio/playback.ts";
-import type { PracticeModeId } from "../history/types.ts";
-import type { LessonExercise } from "../lesson-exercise.ts";
+import { playDyad, playMelodicSequence } from "../audio/playback.ts"
+import type { PracticeModeId } from "../history/types.ts"
+import type { LessonExercise } from "../lesson-exercise.ts"
 import {
   type IdentifyMountDeps,
   type IdentifyTestConfig,
   mountIdentifyTest,
-} from "./identify-test.ts";
+} from "./identify-test.ts"
 import {
   type IntervalSessionDeps,
   prepareIntervalExercise,
   resolveIntervalSession,
-} from "./interval-session.ts";
-import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts";
+} from "./interval-session.ts"
+import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts"
 
 const intervalMelodicSingBase = {
   practiceModeId: "interval-melodic-sing" as const,
@@ -31,17 +31,17 @@ const intervalMelodicSingBase = {
   },
   playReference: (exercise: LessonExercise) => {
     if (!exercise.interval) {
-      throw new Error("Missing interval for playback");
+      throw new Error("Missing interval for playback")
     }
-    const { lower, upper } = exercise.interval;
-    return playMelodicSequence([lower.midi, upper.midi]);
+    const { lower, upper } = exercise.interval
+    return playMelodicSequence([lower.midi, upper.midi])
   },
-};
+}
 
 export const intervalMelodicSingConfig: SingTestConfig = {
   ...intervalMelodicSingBase,
   prepareExercise: () => prepareIntervalExercise("interval-melodic-sing", "melodic", []),
-};
+}
 
 const intervalHarmonicSingBase = {
   practiceModeId: "interval-harmonic-sing" as const,
@@ -61,17 +61,17 @@ const intervalHarmonicSingBase = {
   },
   playReference: (exercise: LessonExercise) => {
     if (!exercise.interval) {
-      throw new Error("Missing interval for playback");
+      throw new Error("Missing interval for playback")
     }
-    const { lower, upper } = exercise.interval;
-    return playDyad([lower.midi, upper.midi]);
+    const { lower, upper } = exercise.interval
+    return playDyad([lower.midi, upper.midi])
   },
-};
+}
 
 export const intervalHarmonicSingConfig: SingTestConfig = {
   ...intervalHarmonicSingBase,
   prepareExercise: () => prepareIntervalExercise("interval-harmonic-sing", "harmonic", []),
-};
+}
 
 function mountIntervalSingTest(
   root: HTMLElement,
@@ -80,7 +80,7 @@ function mountIntervalSingTest(
   base: Omit<SingTestConfig, "prepareExercise">,
   deps?: IntervalSessionDeps & SingMountDeps,
 ): void {
-  const { sessionHistory, planner } = resolveIntervalSession(deps ?? {});
+  const { sessionHistory, planner } = resolveIntervalSession(deps ?? {})
   mountSingTest(
     root,
     {
@@ -96,21 +96,21 @@ function mountIntervalSingTest(
         ),
     },
     { ...deps, history: sessionHistory.historyPort },
-  );
+  )
 }
 
 export function mountIntervalMelodicSingTest(
   root: HTMLElement,
   deps?: IntervalSessionDeps & SingMountDeps,
 ): void {
-  mountIntervalSingTest(root, "interval-melodic-sing", "melodic", intervalMelodicSingBase, deps);
+  mountIntervalSingTest(root, "interval-melodic-sing", "melodic", intervalMelodicSingBase, deps)
 }
 
 export function mountIntervalHarmonicSingTest(
   root: HTMLElement,
   deps?: IntervalSessionDeps & SingMountDeps,
 ): void {
-  mountIntervalSingTest(root, "interval-harmonic-sing", "harmonic", intervalHarmonicSingBase, deps);
+  mountIntervalSingTest(root, "interval-harmonic-sing", "harmonic", intervalHarmonicSingBase, deps)
 }
 
 const intervalMelodicIdBase = {
@@ -128,16 +128,16 @@ const intervalMelodicIdBase = {
     failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
   },
   playReference: (exercise: LessonExercise) => {
-    if (!exercise.interval) throw new Error("Missing interval for playback");
-    const { lower, upper } = exercise.interval;
-    return playMelodicSequence([lower.midi, upper.midi]);
+    if (!exercise.interval) throw new Error("Missing interval for playback")
+    const { lower, upper } = exercise.interval
+    return playMelodicSequence([lower.midi, upper.midi])
   },
-};
+}
 
 export const intervalMelodicIdConfig: IdentifyTestConfig = {
   ...intervalMelodicIdBase,
   prepareExercise: () => prepareIntervalExercise("interval-melodic-id", "melodic", []),
-};
+}
 
 const intervalHarmonicIdBase = {
   practiceModeId: "interval-harmonic-id" as const,
@@ -154,16 +154,16 @@ const intervalHarmonicIdBase = {
     failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
   },
   playReference: (exercise: LessonExercise) => {
-    if (!exercise.interval) throw new Error("Missing interval for playback");
-    const { lower, upper } = exercise.interval;
-    return playDyad([lower.midi, upper.midi]);
+    if (!exercise.interval) throw new Error("Missing interval for playback")
+    const { lower, upper } = exercise.interval
+    return playDyad([lower.midi, upper.midi])
   },
-};
+}
 
 export const intervalHarmonicIdConfig: IdentifyTestConfig = {
   ...intervalHarmonicIdBase,
   prepareExercise: () => prepareIntervalExercise("interval-harmonic-id", "harmonic", []),
-};
+}
 
 function mountIntervalIdentifyTest(
   root: HTMLElement,
@@ -172,7 +172,7 @@ function mountIntervalIdentifyTest(
   base: Omit<IdentifyTestConfig, "prepareExercise">,
   deps?: IntervalSessionDeps & IdentifyMountDeps,
 ): void {
-  const { sessionHistory, planner } = resolveIntervalSession(deps ?? {});
+  const { sessionHistory, planner } = resolveIntervalSession(deps ?? {})
   mountIdentifyTest(
     root,
     {
@@ -188,19 +188,19 @@ function mountIntervalIdentifyTest(
         ),
     },
     { ...deps, history: sessionHistory.historyPort },
-  );
+  )
 }
 
 export function mountIntervalMelodicIdTest(
   root: HTMLElement,
   deps?: IntervalSessionDeps & IdentifyMountDeps,
 ): void {
-  mountIntervalIdentifyTest(root, "interval-melodic-id", "melodic", intervalMelodicIdBase, deps);
+  mountIntervalIdentifyTest(root, "interval-melodic-id", "melodic", intervalMelodicIdBase, deps)
 }
 
 export function mountIntervalHarmonicIdTest(
   root: HTMLElement,
   deps?: IntervalSessionDeps & IdentifyMountDeps,
 ): void {
-  mountIntervalIdentifyTest(root, "interval-harmonic-id", "harmonic", intervalHarmonicIdBase, deps);
+  mountIntervalIdentifyTest(root, "interval-harmonic-id", "harmonic", intervalHarmonicIdBase, deps)
 }

@@ -1,16 +1,16 @@
 /** Registry entry for a scale degree in a major key (semitones above tonic). */
 export interface ScaleDegreeEntry {
-  id: string;
+  id: string
   /** Semitone distance from tonic to the degree pitch. */
-  semitonesFromTonic: number;
+  semitonesFromTonic: number
   /** Degree-style label for prompts and UI (no solfege). */
-  label: string;
+  label: string
   /** When false, excluded from random scale-degree questions. */
-  enabled: boolean;
+  enabled: boolean
 }
 
 /** Intro tier: perfect fourth, fifth, and octave. */
-export const DEGREE_MAJOR_INTRO_IDS = ["fourth", "fifth", "octave"] as const;
+export const DEGREE_MAJOR_INTRO_IDS = ["fourth", "fifth", "octave"] as const
 
 /** Major diatonic within one octave (no unison). */
 export const DEGREE_MAJOR_DIATONIC_IDS = [
@@ -21,7 +21,7 @@ export const DEGREE_MAJOR_DIATONIC_IDS = [
   "sixth",
   "seventh",
   "octave",
-] as const;
+] as const
 
 /** Natural minor within one octave (same ordinal labels, minor semitone map). */
 export const DEGREE_MINOR_DIATONIC_IDS = [
@@ -32,7 +32,7 @@ export const DEGREE_MINOR_DIATONIC_IDS = [
   "sixth",
   "seventh",
   "octave",
-] as const;
+] as const
 
 /** v1 curriculum registry; tier presets select pools, not only `enabled`. */
 export const SCALE_DEGREES: readonly ScaleDegreeEntry[] = [
@@ -78,10 +78,10 @@ export const SCALE_DEGREES: readonly ScaleDegreeEntry[] = [
     label: "Octave",
     enabled: true,
   },
-] as const;
+] as const
 
 export function getScaleDegreeById(id: string): ScaleDegreeEntry | undefined {
-  return SCALE_DEGREES.find((entry) => entry.id === id);
+  return SCALE_DEGREES.find((entry) => entry.id === id)
 }
 
 const NATURAL_MINOR_SEMITONES_FROM_TONIC: Partial<Record<string, number>> = {
@@ -92,8 +92,8 @@ const NATURAL_MINOR_SEMITONES_FROM_TONIC: Partial<Record<string, number>> = {
   sixth: 8,
   seventh: 10,
   octave: 12,
-};
+}
 
 export function getNaturalMinorSemitonesFromTonic(degreeId: string): number | undefined {
-  return NATURAL_MINOR_SEMITONES_FROM_TONIC[degreeId];
+  return NATURAL_MINOR_SEMITONES_FROM_TONIC[degreeId]
 }

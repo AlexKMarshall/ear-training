@@ -1,10 +1,10 @@
 export function LockedCurriculumLessonView(props: {
-  title: string;
-  subtitle: string;
-  predecessorName: string;
-  minExercisesForUnlock: number;
-  minPassRatePercent: number;
-  predecessorHref: string;
+  title: string
+  subtitle: string
+  predecessorName: string
+  minExercisesForUnlock: number
+  minPassRatePercent: number
+  predecessorHref: string
 }) {
   return (
     <main class="app">
@@ -34,5 +34,5 @@ export function LockedCurriculumLessonView(props: {
         </a>
       </section>
     </main>
-  );
+  )
 }

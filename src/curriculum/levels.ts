@@ -1,9 +1,9 @@
-import type { PracticeModeId } from "../history/types.ts";
+import type { PracticeModeId } from "../history/types.ts"
 
 export interface CurriculumLevel {
-  level: number;
-  label: string;
-  practiceModeIds: readonly PracticeModeId[];
+  level: number
+  label: string
+  practiceModeIds: readonly PracticeModeId[]
 }
 
 export const CURRICULUM_LEVELS: readonly CurriculumLevel[] = [
@@ -32,9 +32,9 @@ export const CURRICULUM_LEVELS: readonly CurriculumLevel[] = [
     label: "Chord middle",
     practiceModeIds: ["chord-middle"],
   },
-] as const;
+] as const
 
 /** Ordered guided path (Level 1 → Level 4 exercises). */
 export const CURRICULUM_PATH: readonly PracticeModeId[] = CURRICULUM_LEVELS.flatMap(
   (level) => level.practiceModeIds,
-);
+)

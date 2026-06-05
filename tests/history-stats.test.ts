@@ -1,11 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest"
 import {
   computeDashboardStats,
   computePracticeModeProgress,
   computePracticeModeStats,
-} from "../src/history/stats.ts";
-import { computeTagStats } from "../src/history/tag-stats.ts";
-import type { AttemptRecord } from "../src/history/types.ts";
+} from "../src/history/stats.ts"
+import { computeTagStats } from "../src/history/tag-stats.ts"
+import type { AttemptRecord } from "../src/history/types.ts"
 
 function attempt(
   overrides: Partial<AttemptRecord> & Pick<AttemptRecord, "passed" | "attemptNumber" | "centsOff">,
@@ -19,28 +19,28 @@ function attempt(
     lessonId: "lesson-1",
     exerciseIndex: 0,
     ...overrides,
-  };
+  }
 }
 
 describe("computeDashboardStats", () => {
   it("returns zeros for empty history", () => {
-    const stats = computeDashboardStats([]);
-    expect(stats.totalAttempts).toBe(0);
-    expect(stats.attemptPassRatePercent).toBe(0);
-    expect(stats.firstTryRatePercent).toBe(0);
-    expect(stats.medianAbsCents).toBe(0);
-  });
+    const stats = computeDashboardStats([])
+    expect(stats.totalAttempts).toBe(0)
+    expect(stats.attemptPassRatePercent).toBe(0)
+    expect(stats.firstTryRatePercent).toBe(0)
+    expect(stats.medianAbsCents).toBe(0)
+  })
 
   it("computes attempt pass rate and median cents", () => {
     const stats = computeDashboardStats([
       attempt({ passed: true, attemptNumber: 1, centsOff: 10 }),
       attempt({ passed: false, attemptNumber: 1, centsOff: -30 }),
       attempt({ passed: true, attemptNumber: 2, centsOff: 5, exerciseIndex: 1 }),
-    ]);
-    expect(stats.totalAttempts).toBe(3);
-    expect(stats.attemptPassRatePercent).toBe(67);
-    expect(stats.medianAbsCents).toBe(10);
-  });
+    ])
+    expect(stats.totalAttempts).toBe(3)
+    expect(stats.attemptPassRatePercent).toBe(67)
+    expect(stats.medianAbsCents).toBe(10)
+  })
 
   it("computes first-try rate per question", () => {
     const stats = computeDashboardStats([
@@ -59,11 +59,11 @@ describe("computeDashboardStats", () => {
         exerciseIndex: 1,
         lessonId: "lesson-1",
       }),
-    ]);
-    expect(stats.totalLessonExercises).toBe(2);
-    expect(stats.firstTryRatePercent).toBe(50);
-    expect(stats.lessonExercisePassRatePercent).toBe(100);
-  });
+    ])
+    expect(stats.totalLessonExercises).toBe(2)
+    expect(stats.firstTryRatePercent).toBe(50)
+    expect(stats.lessonExercisePassRatePercent).toBe(100)
+  })
 
   it("splits stats by exercise", () => {
     const stats = computeDashboardStats([
@@ -81,12 +81,12 @@ describe("computeDashboardStats", () => {
         exerciseIndex: 0,
         lessonId: "r2",
       }),
-    ]);
-    expect(stats.byPracticeMode[0]!.attemptCount).toBe(1);
-    expect(stats.byPracticeMode[0]!.attemptPassRatePercent).toBe(100);
-    expect(stats.byPracticeMode[1]!.attemptCount).toBe(1);
-    expect(stats.byPracticeMode[1]!.attemptPassRatePercent).toBe(0);
-  });
+    ])
+    expect(stats.byPracticeMode[0]!.attemptCount).toBe(1)
+    expect(stats.byPracticeMode[0]!.attemptPassRatePercent).toBe(100)
+    expect(stats.byPracticeMode[1]!.attemptCount).toBe(1)
+    expect(stats.byPracticeMode[1]!.attemptPassRatePercent).toBe(0)
+  })
 
   it("includes interval melodic sing in byPracticeMode", () => {
     const stats = computeDashboardStats([
@@ -97,14 +97,14 @@ describe("computeDashboardStats", () => {
         centsOff: 8,
         intervalId: "perfect-fifth",
       }),
-    ]);
+    ])
     const intervalStats = stats.byPracticeMode.find(
       (s) => s.practiceModeId === "interval-melodic-sing",
-    );
-    expect(intervalStats?.attemptCount).toBe(1);
-    expect(intervalStats?.label).toBe("Sing melodic intervals");
-    expect(intervalStats?.byTag?.[0]?.label).toBe("Perfect 5th");
-  });
+    )
+    expect(intervalStats?.attemptCount).toBe(1)
+    expect(intervalStats?.label).toBe("Sing melodic intervals")
+    expect(intervalStats?.byTag?.[0]?.label).toBe("Perfect 5th")
+  })
 
   it("overall median uses sing attempts only", () => {
     const stats = computeDashboardStats([
@@ -122,10 +122,10 @@ describe("computeDashboardStats", () => {
         centsOff: 20,
         intervalId: "perfect-fifth",
       }),
-    ]);
-    expect(stats.medianAbsCents).toBe(20);
-  });
-});
+    ])
+    expect(stats.medianAbsCents).toBe(20)
+  })
+})
 
 describe("tag breakdown", () => {
   it("sorts intervals weakest first and includes median cents for sing", () => {
@@ -156,13 +156,13 @@ describe("tag breakdown", () => {
         exerciseIndex: 1,
         lessonId: "lesson-1",
       }),
-    ]);
-    expect(stats.byTag).toHaveLength(2);
-    expect(stats.byTag![0]!.tagId).toBe("perfect-fourth");
-    expect(stats.byTag![0]!.lessonExercisePassRatePercent).toBe(100);
-    expect(stats.byTag![1]!.tagId).toBe("perfect-fifth");
-    expect(stats.byTag![0]!.medianAbsCents).toBe(30);
-  });
+    ])
+    expect(stats.byTag).toHaveLength(2)
+    expect(stats.byTag![0]!.tagId).toBe("perfect-fourth")
+    expect(stats.byTag![0]!.lessonExercisePassRatePercent).toBe(100)
+    expect(stats.byTag![1]!.tagId).toBe("perfect-fifth")
+    expect(stats.byTag![0]!.medianAbsCents).toBe(30)
+  })
 
   it("identify exercise has null median on exercise and tags", () => {
     const stats = computePracticeModeStats("interval-melodic-id", [
@@ -173,17 +173,17 @@ describe("tag breakdown", () => {
         centsOff: 0,
         intervalId: "perfect-octave",
       }),
-    ]);
-    expect(stats.medianAbsCents).toBeNull();
-    expect(stats.byTag![0]!.medianAbsCents).toBeNull();
-  });
+    ])
+    expect(stats.medianAbsCents).toBeNull()
+    expect(stats.byTag![0]!.medianAbsCents).toBeNull()
+  })
 
   it("single-note has no byTag", () => {
     const stats = computePracticeModeStats("single-note", [
       attempt({ passed: true, attemptNumber: 1, centsOff: 0 }),
-    ]);
-    expect(stats.byTag).toBeUndefined();
-  });
+    ])
+    expect(stats.byTag).toBeUndefined()
+  })
 
   it("groups chord-middle by chord type", () => {
     const stats = computePracticeModeStats("chord-middle", [
@@ -194,9 +194,9 @@ describe("tag breakdown", () => {
         centsOff: 0,
         chordTypeId: "major-triad-sing-middle",
       }),
-    ]);
-    expect(stats.byTag![0]!.label).toBe("Major triad");
-  });
+    ])
+    expect(stats.byTag![0]!.label).toBe("Major triad")
+  })
 
   it("groups scale-degree-sing by degree", () => {
     const stats = computePracticeModeStats("scale-degree-sing", [
@@ -207,9 +207,9 @@ describe("tag breakdown", () => {
         centsOff: 0,
         degreeId: "fifth",
       }),
-    ]);
-    expect(stats.byTag![0]!.label).toBe("5th");
-  });
+    ])
+    expect(stats.byTag![0]!.label).toBe("5th")
+  })
 
   it("resolves labels for major diatonic degree ids", () => {
     const stats = computePracticeModeStats("scale-degree-sing", [
@@ -220,9 +220,9 @@ describe("tag breakdown", () => {
         centsOff: 0,
         degreeId: "seventh",
       }),
-    ]);
-    expect(stats.byTag![0]!.label).toBe("7th");
-  });
+    ])
+    expect(stats.byTag![0]!.label).toBe("7th")
+  })
 
   it("computeTagStats omits records without tag id", () => {
     const rows = computeTagStats(
@@ -240,10 +240,10 @@ describe("tag breakdown", () => {
         getTagId: (r) => r.intervalId,
         includeMedianCents: true,
       },
-    );
-    expect(rows).toHaveLength(1);
-  });
-});
+    )
+    expect(rows).toHaveLength(1)
+  })
+})
 
 describe("computePracticeModeStats", () => {
   it("ignores attempts for other exercises", () => {
@@ -261,13 +261,13 @@ describe("computePracticeModeStats", () => {
         centsOff: 40,
         lessonId: "r2",
       }),
-    ]);
-    expect(stats.practiceModeId).toBe("single-note");
-    expect(stats.attemptCount).toBe(1);
-    expect(stats.lessonExerciseCount).toBe(1);
-    expect(stats.lessonExercisePassRatePercent).toBe(100);
-  });
-});
+    ])
+    expect(stats.practiceModeId).toBe("single-note")
+    expect(stats.attemptCount).toBe(1)
+    expect(stats.lessonExerciseCount).toBe(1)
+    expect(stats.lessonExercisePassRatePercent).toBe(100)
+  })
+})
 
 describe("computePracticeModeProgress", () => {
   it("returns zeros when the exercise has no attempts", () => {
@@ -278,12 +278,12 @@ describe("computePracticeModeProgress", () => {
         attemptNumber: 1,
         centsOff: 0,
       }),
-    ]);
+    ])
     expect(progress).toEqual({
       lessonExerciseCount: 0,
       lessonExercisePassRatePercent: 0,
-    });
-  });
+    })
+  })
 
   it("groups questions by lessonId and exerciseIndex", () => {
     const records = [
@@ -319,11 +319,11 @@ describe("computePracticeModeProgress", () => {
         exerciseIndex: 0,
         lessonId: "lesson-2",
       }),
-    ];
-    const progress = computePracticeModeProgress("single-note", records);
-    expect(progress.lessonExerciseCount).toBe(3);
-    expect(progress.lessonExercisePassRatePercent).toBe(67);
-  });
+    ]
+    const progress = computePracticeModeProgress("single-note", records)
+    expect(progress.lessonExerciseCount).toBe(3)
+    expect(progress.lessonExercisePassRatePercent).toBe(67)
+  })
 
   it("matches dashboard question pass rate for one exercise", () => {
     const records = [
@@ -341,11 +341,11 @@ describe("computePracticeModeProgress", () => {
         centsOff: 40,
         lessonId: "r2",
       }),
-    ];
-    const progress = computePracticeModeProgress("single-note", records);
-    const dashboard = computeDashboardStats(records);
-    const singleNote = dashboard.byPracticeMode.find((s) => s.practiceModeId === "single-note");
-    expect(progress.lessonExerciseCount).toBe(singleNote?.lessonExerciseCount);
-    expect(progress.lessonExercisePassRatePercent).toBe(singleNote?.lessonExercisePassRatePercent);
-  });
-});
+    ]
+    const progress = computePracticeModeProgress("single-note", records)
+    const dashboard = computeDashboardStats(records)
+    const singleNote = dashboard.byPracticeMode.find((s) => s.practiceModeId === "single-note")
+    expect(progress.lessonExerciseCount).toBe(singleNote?.lessonExerciseCount)
+    expect(progress.lessonExercisePassRatePercent).toBe(singleNote?.lessonExercisePassRatePercent)
+  })
+})

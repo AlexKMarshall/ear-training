@@ -1,4 +1,4 @@
-import type { JSX } from "solid-js";
+import type { JSX } from "solid-js"
 
 export function ExerciseNav() {
   return (
@@ -7,15 +7,15 @@ export function ExerciseNav() {
         ← All tests
       </a>
     </nav>
-  );
+  )
 }
 
 export function ExerciseHeader(props: {
-  title: string;
-  subtitle: string;
-  lessonBanner?: string;
-  lessonProgressHidden: boolean;
-  lessonProgressText: string;
+  title: string
+  subtitle: string
+  lessonBanner?: string
+  lessonProgressHidden: boolean
+  lessonProgressText: string
 }) {
   return (
     <header class="header">
@@ -26,25 +26,25 @@ export function ExerciseHeader(props: {
         {props.lessonProgressText}
       </p>
     </header>
-  );
+  )
 }
 
 export function ExerciseActionBar(props: {
-  playLabel: string;
-  playHidden: boolean;
-  playDisabled: boolean;
-  recordHidden?: boolean;
-  recordDisabled?: boolean;
-  recordLabel?: string;
-  onRecord?: () => void;
-  retryHidden: boolean;
-  nextHidden: boolean;
-  nextLabel: string;
-  nextLessonHidden: boolean;
-  onPlay: () => void;
-  onRetry: () => void;
-  onNext: () => void;
-  onNextLesson: () => void;
+  playLabel: string
+  playHidden: boolean
+  playDisabled: boolean
+  recordHidden?: boolean
+  recordDisabled?: boolean
+  recordLabel?: string
+  onRecord?: () => void
+  retryHidden: boolean
+  nextHidden: boolean
+  nextLabel: string
+  nextLessonHidden: boolean
+  onPlay: () => void
+  onRetry: () => void
+  onNext: () => void
+  onNextLesson: () => void
 }) {
   return (
     <div class="actions">
@@ -91,9 +91,9 @@ export function ExerciseActionBar(props: {
         Practice again
       </button>
     </div>
-  );
+  )
 }
 
 export function ExerciseHint(props: { children: JSX.Element }) {
-  return <p class="hint">{props.children}</p>;
+  return <p class="hint">{props.children}</p>
 }

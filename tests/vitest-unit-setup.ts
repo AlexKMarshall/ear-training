@@ -8,12 +8,12 @@ if (typeof globalThis.window === "undefined") {
     removeEventListener: () => {},
     dispatchEvent: () => true,
     _$DX_DELEGATE: new Set(),
-  };
-  globalThis.document = documentStub as Document;
+  }
+  globalThis.document = documentStub as Document
   globalThis.window = {
     document: documentStub,
     addEventListener: () => {},
     removeEventListener: () => {},
     dispatchEvent: () => true,
-  } as Window & typeof globalThis;
+  } as Window & typeof globalThis
 }

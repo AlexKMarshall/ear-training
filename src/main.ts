@@ -1,9 +1,9 @@
-import { mountHome } from "./ui/home.tsx";
-import "./ui/styles.css";
+import { mountHome } from "./ui/home.tsx"
+import "./ui/styles.css"
 
-const root = document.querySelector<HTMLElement>("#app");
+const root = document.querySelector<HTMLElement>("#app")
 if (!root) {
-  throw new Error("#app element not found");
+  throw new Error("#app element not found")
 }
 
-void mountHome(root);
+void mountHome(root)

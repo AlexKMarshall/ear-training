@@ -1,38 +1,38 @@
-import { beforeEach, expect, test } from "vitest";
-import { page, userEvent } from "vitest/browser";
-import { midiToHz } from "../../src/notes.ts";
-import { mountScaleDegreeSingTest } from "./helpers/mount.ts";
+import { beforeEach, expect, test } from "vitest"
+import { page, userEvent } from "vitest/browser"
+import { midiToHz } from "../../src/notes.ts"
+import { mountScaleDegreeSingTest } from "./helpers/mount.ts"
 
-const PASS_SAMPLES = Array(20).fill(midiToHz(67));
-const FAIL_SAMPLES = Array(20).fill(300);
+const PASS_SAMPLES = Array(20).fill(midiToHz(67))
+const FAIL_SAMPLES = Array(20).fill(300)
 
 async function playAndRecord(): Promise<void> {
-  await userEvent.click(page.getByRole("button", { name: /Play tonic/i }));
-  await userEvent.click(page.getByRole("button", { name: /Start singing/i }));
-  await userEvent.click(page.getByRole("button", { name: /^Done$/i }));
+  await userEvent.click(page.getByRole("button", { name: /Play tonic/i }))
+  await userEvent.click(page.getByRole("button", { name: /Start singing/i }))
+  await userEvent.click(page.getByRole("button", { name: /^Done$/i }))
 }
 
 beforeEach(() => {
-  document.body.innerHTML = "";
-});
+  document.body.innerHTML = ""
+})
 
 test("play tonic, show degree prompt, pass recording, and saveAttempt", async () => {
-  const { history } = mountScaleDegreeSingTest({ samplesHz: PASS_SAMPLES });
+  const { history } = mountScaleDegreeSingTest({ samplesHz: PASS_SAMPLES })
 
-  await expect.element(page.getByRole("heading", { name: /Sing scale degrees/i })).toBeVisible();
-  await expect.element(page.getByText("Major key")).toBeVisible();
+  await expect.element(page.getByRole("heading", { name: /Sing scale degrees/i })).toBeVisible()
+  await expect.element(page.getByText("Major key")).toBeVisible()
 
-  await userEvent.click(page.getByRole("button", { name: /Play tonic/i }));
+  await userEvent.click(page.getByRole("button", { name: /Play tonic/i }))
 
-  await expect.element(page.getByText("Sing the 5th")).toBeVisible();
+  await expect.element(page.getByText("Sing the 5th")).toBeVisible()
 
-  await userEvent.click(page.getByRole("button", { name: /Start singing/i }));
-  await userEvent.click(page.getByRole("button", { name: /^Done$/i }));
+  await userEvent.click(page.getByRole("button", { name: /Start singing/i }))
+  await userEvent.click(page.getByRole("button", { name: /^Done$/i }))
 
-  await expect.element(page.getByText("Correct", { exact: true })).toBeVisible();
+  await expect.element(page.getByText("Correct", { exact: true })).toBeVisible()
 
-  const records = await history.getAllAttempts();
-  expect(records).toHaveLength(1);
+  const records = await history.getAllAttempts()
+  expect(records).toHaveLength(1)
   expect(records[0]).toMatchObject({
     practiceModeId: "scale-degree-sing",
     passed: true,
@@ -42,17 +42,17 @@ test("play tonic, show degree prompt, pass recording, and saveAttempt", async ()
     targetMidi: 67,
     contentTierId: "degree-major-intro",
     exerciseIndex: 0,
-  });
-});
+  })
+})
 
 test("fail shows retry and records failed attempt", async () => {
-  const { history } = mountScaleDegreeSingTest({ samplesHz: FAIL_SAMPLES });
+  const { history } = mountScaleDegreeSingTest({ samplesHz: FAIL_SAMPLES })
 
-  await playAndRecord();
+  await playAndRecord()
 
-  await expect.element(page.getByText("Not quite", { exact: true })).toBeVisible();
+  await expect.element(page.getByText("Not quite", { exact: true })).toBeVisible()
 
-  const records = await history.getAllAttempts();
-  expect(records).toHaveLength(1);
-  expect(records[0]!.passed).toBe(false);
-});
+  const records = await history.getAllAttempts()
+  expect(records).toHaveLength(1)
+  expect(records[0]!.passed).toBe(false)
+})

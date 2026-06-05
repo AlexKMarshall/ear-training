@@ -1,10 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest"
 import {
   CHORD_MIDDLE_CURRICULUM_LESSON,
   getGuidedCurriculumLessonForPracticeMode,
   getSessionCurriculumLessonForPracticeMode,
   resolveSessionCurriculumLesson,
-} from "../src/curriculum/session-step.ts";
+} from "../src/curriculum/session-step.ts"
 import {
   passingIntroScaleDegreeHistory,
   passingLevel2History,
@@ -15,60 +15,60 @@ import {
   passingStepHistory,
   passingThroughHarmonic2bHistory,
   passingThroughMelodic2bHistory,
-} from "./fixtures/attempts.ts";
+} from "./fixtures/attempts.ts"
 
 describe("getSessionCurriculumLessonForPracticeMode", () => {
   it("returns interval-2a for melodic sing until 2b unlocks", () => {
-    const records = passingSingleNoteHistory();
+    const records = passingSingleNoteHistory()
     expect(getSessionCurriculumLessonForPracticeMode("interval-melodic-sing", records)).toEqual({
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2a",
-    });
-  });
+    })
+  })
 
   it("returns interval-2b for melodic exercises when that tier is unlocked", () => {
-    const records = passingIntroScaleDegreeHistory();
+    const records = passingIntroScaleDegreeHistory()
     expect(getSessionCurriculumLessonForPracticeMode("interval-melodic-sing", records)).toEqual({
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2b",
-    });
+    })
     expect(getSessionCurriculumLessonForPracticeMode("interval-melodic-id", records)).toEqual({
       practiceModeId: "interval-melodic-id",
       contentTierId: "interval-2a",
-    });
-  });
+    })
+  })
 
   it("returns interval-2b for melodic identify after sing at 2b passes", () => {
-    const records = passingMelodicSing2bHistory();
+    const records = passingMelodicSing2bHistory()
     expect(getSessionCurriculumLessonForPracticeMode("interval-melodic-id", records)).toEqual({
       practiceModeId: "interval-melodic-id",
       contentTierId: "interval-2b",
-    });
-  });
+    })
+  })
 
   it("returns interval-2a for harmonic exercises until harmonic sing at 2b unlocks", () => {
-    const records = passingMelodicSing2bHistory();
+    const records = passingMelodicSing2bHistory()
     expect(getSessionCurriculumLessonForPracticeMode("interval-harmonic-sing", records)).toEqual({
       practiceModeId: "interval-harmonic-sing",
       contentTierId: "interval-2a",
-    });
+    })
     expect(getSessionCurriculumLessonForPracticeMode("interval-harmonic-id", records)).toEqual({
       practiceModeId: "interval-harmonic-id",
       contentTierId: "interval-2a",
-    });
-  });
+    })
+  })
 
   it("returns interval-2b for harmonic exercises when that tier is unlocked", () => {
-    const records = passingThroughMelodic2bHistory();
+    const records = passingThroughMelodic2bHistory()
     expect(getSessionCurriculumLessonForPracticeMode("interval-harmonic-sing", records)).toEqual({
       practiceModeId: "interval-harmonic-sing",
       contentTierId: "interval-2b",
-    });
+    })
     expect(getSessionCurriculumLessonForPracticeMode("interval-harmonic-id", records)).toEqual({
       practiceModeId: "interval-harmonic-id",
       contentTierId: "interval-2a",
-    });
-  });
+    })
+  })
 
   it("returns interval-2b for harmonic identify after harmonic sing at 2b passes", () => {
     const records = [
@@ -77,20 +77,20 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
         practiceModeId: "interval-harmonic-sing",
         contentTierId: "interval-2b",
       }),
-    ];
+    ]
     expect(getSessionCurriculumLessonForPracticeMode("interval-harmonic-id", records)).toEqual({
       practiceModeId: "interval-harmonic-id",
       contentTierId: "interval-2b",
-    });
-  });
+    })
+  })
 
   it("returns degree-major-intro for scale-degree sing when interval 2a path is complete", () => {
-    const records = passingLevel2History();
+    const records = passingLevel2History()
     expect(getSessionCurriculumLessonForPracticeMode("scale-degree-sing", records)).toEqual({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-intro",
-    });
-  });
+    })
+  })
 
   it("returns degree-major-diatonic when interval 2b path is complete", () => {
     expect(
@@ -101,8 +101,8 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
     ).toEqual({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-diatonic",
-    });
-  });
+    })
+  })
 
   it("returns degree-minor-diatonic when major diatonic is complete", () => {
     expect(
@@ -113,8 +113,8 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
     ).toEqual({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-minor-diatonic",
-    });
-  });
+    })
+  })
 
   it("returns chord-1a for chord-middle when that step is unlocked", () => {
     expect(
@@ -122,40 +122,40 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
         "chord-middle",
         passingMinorDiatonicScaleDegreeHistory(),
       ),
-    ).toEqual(CHORD_MIDDLE_CURRICULUM_LESSON);
-  });
+    ).toEqual(CHORD_MIDDLE_CURRICULUM_LESSON)
+  })
 
   it("uses guided default (first incomplete tier) instead of highest unlocked", () => {
-    const records = passingIntroScaleDegreeHistory();
+    const records = passingIntroScaleDegreeHistory()
     expect(getGuidedCurriculumLessonForPracticeMode("interval-melodic-id", records)).toEqual({
       practiceModeId: "interval-melodic-id",
       contentTierId: "interval-2a",
-    });
+    })
     expect(getGuidedCurriculumLessonForPracticeMode("interval-melodic-sing", records)).toEqual({
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2b",
-    });
-  });
+    })
+  })
 
   it("uses URL step for guided replay when tier is below highest unlocked", () => {
-    const records = passingIntroScaleDegreeHistory();
+    const records = passingIntroScaleDegreeHistory()
     const replay2a = {
       practiceModeId: "interval-melodic-sing" as const,
       contentTierId: "interval-2a" as const,
-    };
+    }
     expect(
       resolveSessionCurriculumLesson("interval-melodic-sing", records, {
         urlCurriculumLesson: replay2a,
       }),
-    ).toEqual(replay2a);
+    ).toEqual(replay2a)
     expect(getSessionCurriculumLessonForPracticeMode("interval-melodic-sing", records)).toEqual({
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2b",
-    });
-  });
+    })
+  })
 
   it("ignores URL steps for a different exercise id", () => {
-    const records = passingSingleNoteHistory();
+    const records = passingSingleNoteHistory()
     expect(
       resolveSessionCurriculumLesson("interval-melodic-sing", records, {
         urlCurriculumLesson: {
@@ -166,6 +166,6 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
     ).toEqual({
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2a",
-    });
-  });
-});
+    })
+  })
+})

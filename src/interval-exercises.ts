@@ -1,15 +1,15 @@
-import { getIntervalById, getIntervalsByIds, type IntervalEntry } from "./interval-config.ts";
-import type { LessonExercise } from "./lesson-exercise.ts";
-import { midiToHz, midiToNoteName, type NoteRange, type TargetNote } from "./notes.ts";
+import { getIntervalById, getIntervalsByIds, type IntervalEntry } from "./interval-config.ts"
+import type { LessonExercise } from "./lesson-exercise.ts"
+import { midiToHz, midiToNoteName, type NoteRange, type TargetNote } from "./notes.ts"
 
-export type IntervalPresentation = "melodic" | "harmonic";
+export type IntervalPresentation = "melodic" | "harmonic"
 
 export interface IntervalExercise {
-  intervalId: string;
-  semitones: number;
-  presentation: IntervalPresentation;
-  lower: TargetNote;
-  upper: TargetNote;
+  intervalId: string
+  semitones: number
+  presentation: IntervalPresentation
+  lower: TargetNote
+  upper: TargetNote
 }
 
 function targetNote(midi: number): TargetNote {
@@ -17,17 +17,17 @@ function targetNote(midi: number): TargetNote {
     midi,
     hz: midiToHz(midi),
     name: midiToNoteName(midi),
-  };
+  }
 }
 
 /** Lower MIDI values where lower + semitones still fits in range. */
 export function validLowerMidis(range: NoteRange, semitones: number): number[] {
-  const midis: number[] = [];
-  const maxLower = range.highMidi - semitones;
+  const midis: number[] = []
+  const maxLower = range.highMidi - semitones
   for (let midi = range.lowMidi; midi <= maxLower; midi++) {
-    midis.push(midi);
+    midis.push(midi)
   }
-  return midis;
+  return midis
 }
 
 export function buildIntervalExercise(
@@ -35,14 +35,14 @@ export function buildIntervalExercise(
   presentation: IntervalPresentation,
   lowerMidi: number,
 ): IntervalExercise {
-  const upperMidi = lowerMidi + interval.semitones;
+  const upperMidi = lowerMidi + interval.semitones
   return {
     intervalId: interval.id,
     semitones: interval.semitones,
     presentation,
     lower: targetNote(lowerMidi),
     upper: targetNote(upperMidi),
-  };
+  }
 }
 
 export function randomIntervalExerciseForTag(
@@ -50,11 +50,11 @@ export function randomIntervalExerciseForTag(
   presentation: IntervalPresentation,
   range: NoteRange,
 ): IntervalExercise {
-  const interval = getIntervalById(intervalId);
+  const interval = getIntervalById(intervalId)
   if (!interval) {
-    throw new Error(`Unknown interval id: ${intervalId}`);
+    throw new Error(`Unknown interval id: ${intervalId}`)
   }
-  return randomIntervalExercise(presentation, range, interval);
+  return randomIntervalExercise(presentation, range, interval)
 }
 
 export function randomIntervalExercise(
@@ -62,14 +62,14 @@ export function randomIntervalExercise(
   range: NoteRange,
   interval: IntervalEntry,
 ): IntervalExercise {
-  const lowers = validLowerMidis(range, interval.semitones);
+  const lowers = validLowerMidis(range, interval.semitones)
   if (lowers.length === 0) {
     throw new Error(
       `No valid root for ${interval.label} in voice range (${range.lowMidi}–${range.highMidi})`,
-    );
+    )
   }
-  const lowerMidi = lowers[Math.floor(Math.random() * lowers.length)]!;
-  return buildIntervalExercise(interval, presentation, lowerMidi);
+  const lowerMidi = lowers[Math.floor(Math.random() * lowers.length)]!
+  return buildIntervalExercise(interval, presentation, lowerMidi)
 }
 
 export function intervalToLessonExercise(intervalExercise: IntervalExercise): LessonExercise {
@@ -77,21 +77,21 @@ export function intervalToLessonExercise(intervalExercise: IntervalExercise): Le
     target: intervalExercise.upper,
     interval: intervalExercise,
     intervalId: intervalExercise.intervalId,
-  };
+  }
 }
 
 export interface IntervalChoice {
-  id: string;
-  label: string;
+  id: string
+  label: string
 }
 
 function shuffle<T>(items: T[]): T[] {
-  const copy = [...items];
+  const copy = [...items]
   for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j]!, copy[i]!];
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[copy[i], copy[j]] = [copy[j]!, copy[i]!]
   }
-  return copy;
+  return copy
 }
 
 /** Multiple-choice options for interval recognition (correct + distractors). */
@@ -99,23 +99,23 @@ export function buildIntervalChoices(
   correctId: string,
   eligibleIds: readonly string[],
 ): IntervalChoice[] {
-  const pool = getIntervalsByIds(eligibleIds);
-  const correct = pool.find((entry) => entry.id === correctId) ?? getIntervalById(correctId);
+  const pool = getIntervalsByIds(eligibleIds)
+  const correct = pool.find((entry) => entry.id === correctId) ?? getIntervalById(correctId)
   if (!correct) {
-    throw new Error(`Unknown interval id: ${correctId}`);
+    throw new Error(`Unknown interval id: ${correctId}`)
   }
 
-  const others = pool.filter((entry) => entry.id !== correctId);
-  const distractorCount = Math.min(3, others.length);
-  const distractors = shuffle(others).slice(0, distractorCount);
+  const others = pool.filter((entry) => entry.id !== correctId)
+  const distractorCount = Math.min(3, others.length)
+  const distractors = shuffle(others).slice(0, distractorCount)
   let options: IntervalChoice[] = [
     { id: correct.id, label: correct.label },
     ...distractors.map((entry) => ({ id: entry.id, label: entry.label })),
-  ];
+  ]
 
   if (options.length < 4 && pool.length > options.length) {
-    options = pool.map((entry) => ({ id: entry.id, label: entry.label }));
+    options = pool.map((entry) => ({ id: entry.id, label: entry.label }))
   }
 
-  return shuffle(options);
+  return shuffle(options)
 }

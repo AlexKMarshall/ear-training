@@ -1,20 +1,20 @@
-import { Show } from "solid-js";
-import type { IntervalChoice } from "../interval-exercises.ts";
-import type { LessonSummary } from "../lesson.ts";
-import type { VoiceType } from "../voice-ranges.ts";
+import { Show } from "solid-js"
+import type { IntervalChoice } from "../interval-exercises.ts"
+import type { LessonSummary } from "../lesson.ts"
+import type { VoiceType } from "../voice-ranges.ts"
 import {
   ExerciseActionBar,
   ExerciseHeader,
   ExerciseHint,
   ExerciseNav,
-} from "./components/exercise-chrome.tsx";
-import { VoicePicker } from "./components/voice-picker.tsx";
-import type { IdentifyResultView, IdentifyUiState } from "./identify-test-types.ts";
+} from "./components/exercise-chrome.tsx"
+import { VoicePicker } from "./components/voice-picker.tsx"
+import type { IdentifyResultView, IdentifyUiState } from "./identify-test-types.ts"
 
 function ChoiceGrid(props: {
-  choices: IntervalChoice[];
-  disabled: boolean;
-  onChoice: (choiceId: string) => void;
+  choices: IntervalChoice[]
+  disabled: boolean
+  onChoice: (choiceId: string) => void
 }) {
   return (
     <div class="choice-grid">
@@ -29,13 +29,13 @@ function ChoiceGrid(props: {
         </button>
       ))}
     </div>
-  );
+  )
 }
 
 function IdentifyAttemptResult(props: {
-  passed: boolean;
-  selectedLabel: string;
-  attemptNote: string | null;
+  passed: boolean
+  selectedLabel: string
+  attemptNote: string | null
 }) {
   return (
     <>
@@ -47,15 +47,15 @@ function IdentifyAttemptResult(props: {
       </p>
       {props.attemptNote ? <p class="result-attempts">{props.attemptNote}</p> : null}
     </>
-  );
+  )
 }
 
 function IdentifyLessonSummaryResult(props: {
-  summary: LessonSummary;
-  correctPct: number;
-  firstTryPct: number;
-  retryPct: number;
-  wrongPct: number;
+  summary: LessonSummary
+  correctPct: number
+  firstTryPct: number
+  retryPct: number
+  wrongPct: number
 }) {
   return (
     <>
@@ -81,7 +81,7 @@ function IdentifyLessonSummaryResult(props: {
         </li>
       </ul>
     </>
-  );
+  )
 }
 
 function IdentifyAudioErrorResult() {
@@ -90,7 +90,7 @@ function IdentifyAudioErrorResult() {
       <p class="result-verdict">Could not play audio</p>
       <p class="result-detail">Tap Play again after interacting with the page.</p>
     </>
-  );
+  )
 }
 
 function IdentifyResultContent(props: { result: IdentifyResultView }) {
@@ -101,7 +101,7 @@ function IdentifyResultContent(props: { result: IdentifyResultView }) {
         selectedLabel={props.result.selectedLabel}
         attemptNote={props.result.attemptNote}
       />
-    );
+    )
   }
   if (props.result.type === "summary") {
     return (
@@ -112,9 +112,9 @@ function IdentifyResultContent(props: { result: IdentifyResultView }) {
         retryPct={props.result.retryPct}
         wrongPct={props.result.wrongPct}
       />
-    );
+    )
   }
-  return <IdentifyAudioErrorResult />;
+  return <IdentifyAudioErrorResult />
 }
 
 function IdentifyResultPanel(props: { ui: IdentifyUiState }) {
@@ -126,21 +126,21 @@ function IdentifyResultPanel(props: { ui: IdentifyUiState }) {
         </div>
       )}
     </Show>
-  );
+  )
 }
 
 export function IdentifyTestView(props: {
-  ui: IdentifyUiState;
-  title: string;
-  subtitle: string;
-  playButtonLabel: string;
-  showVoicePicker: boolean;
-  onPlay: () => void;
-  onRetry: () => void;
-  onNext: () => void;
-  onNextLesson: () => void;
-  onVoiceChange: (voice: VoiceType) => void;
-  onChoice: (choiceId: string) => void;
+  ui: IdentifyUiState
+  title: string
+  subtitle: string
+  playButtonLabel: string
+  showVoicePicker: boolean
+  onPlay: () => void
+  onRetry: () => void
+  onNext: () => void
+  onNextLesson: () => void
+  onVoiceChange: (voice: VoiceType) => void
+  onChoice: (choiceId: string) => void
 }) {
   return (
     <main class="app">
@@ -187,5 +187,5 @@ export function IdentifyTestView(props: {
         Use headphones if you can. Tap Play to hear the reference (no microphone needed).
       </ExerciseHint>
     </main>
-  );
+  )
 }

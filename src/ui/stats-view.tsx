@@ -1,9 +1,9 @@
-import type { DashboardStats, PracticeModeStats } from "../history/stats.ts";
-import { getTagBreakdownConfig, type TagStats, tagBreakdownHeading } from "../history/tag-stats.ts";
+import type { DashboardStats, PracticeModeStats } from "../history/stats.ts"
+import { getTagBreakdownConfig, type TagStats, tagBreakdownHeading } from "../history/tag-stats.ts"
 
 function formatMedianCents(value: number | null): string {
-  if (value === null) return "—";
-  return `${value}¢`;
+  if (value === null) return "—"
+  return `${value}¢`
 }
 
 function StatsItem(props: { label: string; value: string | number }) {
@@ -12,7 +12,7 @@ function StatsItem(props: { label: string; value: string | number }) {
       <dt>{props.label}</dt>
       <dd>{props.value}</dd>
     </div>
-  );
+  )
 }
 
 function StatsTagRow(props: { tag: TagStats; showMedian: boolean }) {
@@ -30,16 +30,16 @@ function StatsTagRow(props: { tag: TagStats; showMedian: boolean }) {
         ) : null}
       </dl>
     </div>
-  );
+  )
 }
 
 function StatsTagBreakdown(props: { stats: PracticeModeStats }) {
-  const config = getTagBreakdownConfig(props.stats.practiceModeId);
+  const config = getTagBreakdownConfig(props.stats.practiceModeId)
   if (!config || !props.stats.byTag?.length) {
-    return null;
+    return null
   }
 
-  const showMedian = config.includeMedianCents;
+  const showMedian = config.includeMedianCents
   return (
     <div class="stats-subsection">
       <h3 class="stats-subsection-title">{tagBreakdownHeading(config.kind)}</h3>
@@ -50,7 +50,7 @@ function StatsTagBreakdown(props: { stats: PracticeModeStats }) {
         ))}
       </div>
     </div>
-  );
+  )
 }
 
 function StatsExerciseSection(props: { stats: PracticeModeStats }) {
@@ -60,10 +60,10 @@ function StatsExerciseSection(props: { stats: PracticeModeStats }) {
         <h2 class="stats-section-title">{props.stats.label}</h2>
         <p class="stats-empty">No attempts yet.</p>
       </section>
-    );
+    )
   }
 
-  const showMedian = props.stats.medianAbsCents !== null;
+  const showMedian = props.stats.medianAbsCents !== null
   return (
     <section class="stats-section">
       <h2 class="stats-section-title">{props.stats.label}</h2>
@@ -81,7 +81,7 @@ function StatsExerciseSection(props: { stats: PracticeModeStats }) {
       </dl>
       <StatsTagBreakdown stats={props.stats} />
     </section>
-  );
+  )
 }
 
 function StatsOverallSection(props: { stats: DashboardStats; hasSingAttempts: boolean }) {
@@ -105,7 +105,7 @@ function StatsOverallSection(props: { stats: DashboardStats; hasSingAttempts: bo
         <p class="stats-hint">Median error applies to singing exercises only.</p>
       )}
     </section>
-  );
+  )
 }
 
 function StatsPracticeLinks() {
@@ -118,11 +118,11 @@ function StatsPracticeLinks() {
         <span class="test-card-title">Sing the middle note of a chord</span>
       </a>
     </nav>
-  );
+  )
 }
 
 export function StatsView(props: { stats: DashboardStats; hasSingAttempts: boolean }) {
-  const hasData = props.stats.totalAttempts > 0;
+  const hasData = props.stats.totalAttempts > 0
 
   return (
     <main class="app">
@@ -155,5 +155,5 @@ export function StatsView(props: { stats: DashboardStats; hasSingAttempts: boole
 
       <StatsPracticeLinks />
     </main>
-  );
+  )
 }

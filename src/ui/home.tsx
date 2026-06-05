@@ -1,37 +1,37 @@
-import { render } from "solid-js/web";
-import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
-import { CURRICULUM_LESSONS } from "../curriculum/curriculum-lessons.ts";
+import { render } from "solid-js/web"
+import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts"
+import { CURRICULUM_LESSONS } from "../curriculum/curriculum-lessons.ts"
 import {
   formatPathNodeHref,
   formatPathNodeStatus,
   getPathNodeLabels,
   getPathNodeState,
   isGuidedPathComplete,
-} from "../curriculum/path-node.ts";
-import { createDefaultHistoryPort, type MountDeps } from "../history/port.ts";
-import type { AttemptRecord } from "../history/types.ts";
+} from "../curriculum/path-node.ts"
+import { createDefaultHistoryPort, type MountDeps } from "../history/port.ts"
+import type { AttemptRecord } from "../history/types.ts"
 
 function pathNodeStateClass(state: ReturnType<typeof getPathNodeState>): string {
   return state === "passed"
     ? "path-node-passed"
     : state === "current"
       ? "path-node-current"
-      : "path-node-locked";
+      : "path-node-locked"
 }
 
 function PathNode(props: { step: CurriculumLesson; records: readonly AttemptRecord[] }) {
-  const state = getPathNodeState(props.step, props.records);
-  const stateClass = pathNodeStateClass(state);
+  const state = getPathNodeState(props.step, props.records)
+  const stateClass = pathNodeStateClass(state)
 
   if (state === "locked") {
     return (
       <div class={`path-node ${stateClass}`} data-path-node={state} aria-disabled="true">
         <PathNodeContent step={props.step} records={props.records} />
       </div>
-    );
+    )
   }
 
-  const href = formatPathNodeHref(props.step);
+  const href = formatPathNodeHref(props.step)
   return (
     <a
       href={href}
@@ -40,12 +40,12 @@ function PathNode(props: { step: CurriculumLesson; records: readonly AttemptReco
     >
       <PathNodeContent step={props.step} records={props.records} />
     </a>
-  );
+  )
 }
 
 function PathNodeContent(props: { step: CurriculumLesson; records: readonly AttemptRecord[] }) {
-  const { title, subtitle } = getPathNodeLabels(props.step);
-  const status = formatPathNodeStatus(props.step, props.records);
+  const { title, subtitle } = getPathNodeLabels(props.step)
+  const status = formatPathNodeStatus(props.step, props.records)
 
   return (
     <>
@@ -53,11 +53,11 @@ function PathNodeContent(props: { step: CurriculumLesson; records: readonly Atte
       <span class="path-node-subtitle">{subtitle}</span>
       <span class="path-node-status">{status}</span>
     </>
-  );
+  )
 }
 
 function GuidedPath(props: { records: readonly AttemptRecord[] }) {
-  const pathComplete = isGuidedPathComplete(props.records);
+  const pathComplete = isGuidedPathComplete(props.records)
 
   return (
     <section class="guided-path" aria-label="Guided path">
@@ -72,7 +72,7 @@ function GuidedPath(props: { records: readonly AttemptRecord[] }) {
         ))}
       </div>
     </section>
-  );
+  )
 }
 
 function Home(props: { records: readonly AttemptRecord[] }) {
@@ -92,25 +92,25 @@ function Home(props: { records: readonly AttemptRecord[] }) {
         </a>
       </nav>
     </main>
-  );
+  )
 }
 
 function scrollCurrentPathNodeIntoView(root: HTMLElement): void {
-  const current = root.querySelector('[data-path-node="current"]');
+  const current = root.querySelector('[data-path-node="current"]')
   if (!(current instanceof HTMLElement)) {
-    return;
+    return
   }
-  const reducedMotion = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  const reducedMotion = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches
   current.scrollIntoView({
     block: "nearest",
     behavior: reducedMotion ? "auto" : "smooth",
-  });
+  })
 }
 
 export async function mountHome(root: HTMLElement, deps: MountDeps = {}): Promise<void> {
-  const history = deps.history ?? createDefaultHistoryPort();
-  const records = await history.getAllAttempts();
+  const history = deps.history ?? createDefaultHistoryPort()
+  const records = await history.getAllAttempts()
 
-  render(() => <Home records={records} />, root);
-  scrollCurrentPathNodeIntoView(root);
+  render(() => <Home records={records} />, root)
+  scrollCurrentPathNodeIntoView(root)
 }
