@@ -58,7 +58,7 @@ export interface ExerciseScreenStateSnapshot {
   lesson: LessonRunSnapshot;
 }
 
-export interface BeginRecordingOptions {
+interface BeginRecordingOptions {
   exercise: LessonExercise;
   onPitch: (displayText: string) => void;
   onComplete: (samplesHz: number[]) => void;
