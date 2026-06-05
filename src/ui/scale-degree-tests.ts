@@ -48,7 +48,7 @@ export function mountScaleDegreeSingTest(
   root: HTMLElement,
   deps?: ScaleDegreeSessionDeps & SingMountDeps,
 ): void {
-  const { cache, planner } = resolveScaleDegreeSession(deps);
+  const { sessionHistory, planner } = resolveScaleDegreeSession(deps ?? {});
   let lessonTonicMidi: number | null = null;
   const lessonBanner =
     getScaleDegreeKeyQualityLabel(
@@ -65,7 +65,7 @@ export function mountScaleDegreeSingTest(
       },
       prepareExercise: () => {
         const result = prepareScaleDegreeExercise(
-          cache.getRecords(),
+          sessionHistory.getRecords(),
           lessonTonicMidi,
           planner,
           undefined,
@@ -75,6 +75,6 @@ export function mountScaleDegreeSingTest(
         return result.exercise;
       },
     },
-    { ...deps, history: cache.historyPort },
+    { ...deps, history: sessionHistory.historyPort },
   );
 }

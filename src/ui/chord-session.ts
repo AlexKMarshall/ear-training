@@ -8,11 +8,9 @@ import {
   getEligibleInversionIds,
   getEligibleTagIds,
 } from "../curriculum/curriculum-lessons.ts";
-import {
-  createDefaultHistoryPort,
-  type HistoryPort,
-} from "../history/port.ts";
-import type { AttemptInput, AttemptRecord } from "../history/types.ts";
+import type { MountDeps } from "../history/port.ts";
+import type { SessionHistoryCache } from "../history/session-cache.ts";
+import type { AttemptRecord } from "../history/types.ts";
 import {
   createDefaultSessionPlanner,
   type SessionPlanner,
@@ -20,36 +18,10 @@ import {
 import type { LessonExercise } from "../lesson-exercise.ts";
 import { getActiveNoteRange } from "../voice-ranges.ts";
 
-export interface ChordSessionDeps {
-  history?: HistoryPort;
+export interface ChordSessionDeps
+  extends Pick<MountDeps, "sessionHistory" | "sessionCurriculumLesson"> {
   sessionPlanner?: SessionPlanner;
   rng?: () => number;
-  sessionCurriculumLesson?: CurriculumLesson;
-}
-
-export interface ChordHistoryCache {
-  getRecords(): readonly AttemptRecord[];
-  historyPort: HistoryPort;
-}
-
-export function createChordHistoryCache(
-  port: HistoryPort = createDefaultHistoryPort(),
-): ChordHistoryCache {
-  let records: AttemptRecord[] = [];
-  void port.getAllAttempts().then((loaded) => {
-    records = [...loaded];
-  });
-
-  return {
-    getRecords: () => records,
-    historyPort: {
-      getAllAttempts: async () => [...records],
-      saveAttempt: async (input: AttemptInput) => {
-        await port.saveAttempt(input);
-        records.push({ ...input });
-      },
-    },
-  };
 }
 
 export function pickRandomInversionFromTier(
@@ -87,15 +59,18 @@ export function prepareChordExercise(
   };
 }
 
-export function resolveChordSession(deps?: ChordSessionDeps): {
-  cache: ChordHistoryCache;
+export function resolveChordSession(deps: ChordSessionDeps): {
+  sessionHistory: SessionHistoryCache;
   planner: SessionPlanner;
   rng: () => number;
 } {
-  const cache = createChordHistoryCache(deps?.history);
+  if (!deps.sessionHistory) {
+    throw new Error("sessionHistory is required");
+  }
+
   return {
-    cache,
-    planner: deps?.sessionPlanner ?? createDefaultSessionPlanner(),
-    rng: deps?.rng ?? Math.random,
+    sessionHistory: deps.sessionHistory,
+    planner: deps.sessionPlanner ?? createDefaultSessionPlanner(),
+    rng: deps.rng ?? Math.random,
   };
 }

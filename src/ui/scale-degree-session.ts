@@ -1,11 +1,9 @@
 import { resolveSessionCurriculumLesson } from "../curriculum/session-step.ts";
 import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts";
 import { getEligibleTagIds } from "../curriculum/curriculum-lessons.ts";
-import {
-  createDefaultHistoryPort,
-  type HistoryPort,
-} from "../history/port.ts";
-import type { AttemptInput, AttemptRecord } from "../history/types.ts";
+import type { MountDeps } from "../history/port.ts";
+import type { SessionHistoryCache } from "../history/session-cache.ts";
+import type { AttemptRecord } from "../history/types.ts";
 import {
   getNaturalMinorSemitonesFromTonic,
   getScaleDegreeById,
@@ -22,40 +20,14 @@ import {
 import type { LessonExercise } from "../lesson-exercise.ts";
 import { getActiveNoteRange } from "../voice-ranges.ts";
 
-export interface ScaleDegreeSessionDeps {
-  history?: HistoryPort;
+export interface ScaleDegreeSessionDeps
+  extends Pick<MountDeps, "sessionHistory" | "sessionCurriculumLesson"> {
   sessionPlanner?: SessionPlanner;
-  sessionCurriculumLesson?: CurriculumLesson;
-}
-
-export interface ScaleDegreeHistoryCache {
-  getRecords(): readonly AttemptRecord[];
-  historyPort: HistoryPort;
 }
 
 export interface ScaleDegreeExerciseResult {
   exercise: LessonExercise;
   lessonTonicMidi: number;
-}
-
-export function createScaleDegreeHistoryCache(
-  port: HistoryPort = createDefaultHistoryPort(),
-): ScaleDegreeHistoryCache {
-  let records: AttemptRecord[] = [];
-  void port.getAllAttempts().then((loaded) => {
-    records = [...loaded];
-  });
-
-  return {
-    getRecords: () => records,
-    historyPort: {
-      getAllAttempts: async () => [...records],
-      saveAttempt: async (input: AttemptInput) => {
-        await port.saveAttempt(input);
-        records.push({ ...input });
-      },
-    },
-  };
 }
 
 export function prepareScaleDegreeExercise(
@@ -109,13 +81,16 @@ export function prepareScaleDegreeExercise(
   };
 }
 
-export function resolveScaleDegreeSession(deps?: ScaleDegreeSessionDeps): {
-  cache: ScaleDegreeHistoryCache;
+export function resolveScaleDegreeSession(deps: ScaleDegreeSessionDeps): {
+  sessionHistory: SessionHistoryCache;
   planner: SessionPlanner;
 } {
-  const cache = createScaleDegreeHistoryCache(deps?.history);
+  if (!deps.sessionHistory) {
+    throw new Error("sessionHistory is required");
+  }
+
   return {
-    cache,
-    planner: deps?.sessionPlanner ?? createDefaultSessionPlanner(),
+    sessionHistory: deps.sessionHistory,
+    planner: deps.sessionPlanner ?? createDefaultSessionPlanner(),
   };
 }
