@@ -20,6 +20,7 @@ import {
   passingSingleNoteHistory,
   passingStepHistory,
   passingMajorDiatonicScaleDegreeHistory,
+  passingMinorDiatonicScaleDegreeHistory,
   passingThroughHarmonic2bHistory,
   passingThroughMelodic2bHistory,
 } from "./fixtures/attempts.ts";
@@ -29,7 +30,7 @@ describe("isPracticeModeUnlocked", () => {
     expect(isPracticeModeUnlocked("single-note", [])).toBe(true);
   });
 
-  it("locks chord-middle until major diatonic scale degrees pass", () => {
+  it("locks chord-middle until minor diatonic scale degrees pass", () => {
     expect(isPracticeModeUnlocked("chord-middle", [])).toBe(false);
     expect(isPracticeModeUnlocked("chord-middle", passingLevel2History())).toBe(
       false,
@@ -39,6 +40,9 @@ describe("isPracticeModeUnlocked", () => {
     ).toBe(false);
     expect(
       isPracticeModeUnlocked("chord-middle", passingMajorDiatonicScaleDegreeHistory()),
+    ).toBe(false);
+    expect(
+      isPracticeModeUnlocked("chord-middle", passingMinorDiatonicScaleDegreeHistory()),
     ).toBe(true);
   });
 
@@ -247,11 +251,21 @@ describe("getContinueCurriculumLesson", () => {
     });
   });
 
-  it("advances to chord middle after major diatonic scale degrees complete", () => {
+  it("advances to minor diatonic scale degrees after major diatonic completes", () => {
     expect(getContinuePracticeMode(passingMajorDiatonicScaleDegreeHistory())).toBe(
-      "chord-middle",
+      "scale-degree-sing",
     );
     expect(getContinueCurriculumLesson(passingMajorDiatonicScaleDegreeHistory())).toEqual({
+      practiceModeId: "scale-degree-sing",
+      contentTierId: "degree-minor-diatonic",
+    });
+  });
+
+  it("advances to chord middle after minor diatonic scale degrees complete", () => {
+    expect(getContinuePracticeMode(passingMinorDiatonicScaleDegreeHistory())).toBe(
+      "chord-middle",
+    );
+    expect(getContinueCurriculumLesson(passingMinorDiatonicScaleDegreeHistory())).toEqual({
       practiceModeId: "chord-middle",
       contentTierId: "chord-1a",
     });
@@ -312,10 +326,20 @@ describe("getUnlockRequirement", () => {
   });
 
   it("requires major diatonic scale degrees before chord middle", () => {
+    const minorDiatonic = {
+      practiceModeId: "scale-degree-sing" as const,
+      contentTierId: "degree-minor-diatonic" as const,
+    };
+    expect(
+      isCurriculumLessonUnlocked(minorDiatonic, passingMajorDiatonicScaleDegreeHistory()),
+    ).toBe(true);
+  });
+
+  it("requires minor diatonic scale degrees before chord middle", () => {
     expect(getUnlockRequirement("chord-middle")).toEqual({
       predecessorPracticeModeId: "scale-degree-sing",
       predecessorLabel:
-        "Sing scale degrees (major key · diatonic degrees within one octave)",
+        "Sing scale degrees (natural minor key · diatonic degrees within one octave)",
       minExercisesForUnlock: MIN_EXERCISES_FOR_UNLOCK,
       minPassRatePercent: MIN_EXERCISE_PASS_RATE,
     });

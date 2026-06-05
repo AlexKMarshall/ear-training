@@ -13,6 +13,7 @@ import {
   INTERVAL_2A_IDS,
 } from "../src/interval-config.ts";
 import {
+  DEGREE_MINOR_DIATONIC_IDS,
   DEGREE_MAJOR_DIATONIC_IDS,
   DEGREE_MAJOR_INTRO_IDS,
 } from "../src/scale-degree-config.ts";
@@ -31,6 +32,7 @@ describe("curriculum steps", () => {
       "interval-harmonic-sing@interval-2b",
       "interval-harmonic-id@interval-2b",
       "scale-degree-sing@degree-major-diatonic",
+      "scale-degree-sing@degree-minor-diatonic",
       "chord-middle@chord-1a",
     ]);
   });
@@ -128,7 +130,13 @@ describe("curriculum steps", () => {
     expect(harmonicSing2b).toBe(8);
     expect(harmonicId2b).toBe(9);
     expect(majorDiatonicDegrees).toBe(10);
-    expect(chordMiddle).toBe(11);
+    expect(
+      getCurriculumLessonIndex({
+        practiceModeId: "scale-degree-sing",
+        contentTierId: "degree-minor-diatonic",
+      }),
+    ).toBe(11);
+    expect(chordMiddle).toBe(12);
     expect(melodicSing2b).toBeGreaterThan(introDegrees);
     expect(harmonicSing2b).toBeGreaterThan(melodicId2b);
     expect(harmonicId2b).toBeGreaterThan(harmonicSing2b);
@@ -148,6 +156,7 @@ describe("curriculum steps", () => {
     expect(curriculumLessonsForPracticeMode("scale-degree-sing").map((s) => s.contentTierId)).toEqual([
       "degree-major-intro",
       "degree-major-diatonic",
+      "degree-minor-diatonic",
     ]);
     expect(curriculumLessonsForPracticeMode("chord-middle").map((s) => s.contentTierId)).toEqual([
       "chord-1a",
@@ -171,6 +180,18 @@ describe("curriculum steps", () => {
       expect(diatonic).toContain(id);
     }
     expect(diatonic).toEqual([...DEGREE_MAJOR_DIATONIC_IDS]);
+  });
+
+  it("uses the same ordinal ids for major and natural minor diatonic pools", () => {
+    const major = getEligibleTagIds(
+      CURRICULUM_LESSONS.find((s) => s.contentTierId === "degree-major-diatonic")!,
+    );
+    const minor = getEligibleTagIds(
+      CURRICULUM_LESSONS.find((s) => s.contentTierId === "degree-minor-diatonic")!,
+    );
+    expect(major).toEqual([...DEGREE_MAJOR_DIATONIC_IDS]);
+    expect(minor).toEqual([...DEGREE_MINOR_DIATONIC_IDS]);
+    expect(minor).toEqual(major);
   });
 
   it("presets chord-1a types and inversions on the chord-middle step", () => {

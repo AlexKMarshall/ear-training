@@ -12,6 +12,7 @@ import {
   passingSingleNoteHistory,
   passingStepHistory,
   passingMajorDiatonicScaleDegreeHistory,
+  passingMinorDiatonicScaleDegreeHistory,
   passingThroughHarmonic2bHistory,
   passingThroughMelodic2bHistory,
 } from "./fixtures/attempts.ts";
@@ -120,11 +121,23 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
     });
   });
 
+  it("returns degree-minor-diatonic when major diatonic is complete", () => {
+    expect(
+      getSessionCurriculumLessonForPracticeMode(
+        "scale-degree-sing",
+        passingMajorDiatonicScaleDegreeHistory(),
+      ),
+    ).toEqual({
+      practiceModeId: "scale-degree-sing",
+      contentTierId: "degree-minor-diatonic",
+    });
+  });
+
   it("returns chord-1a for chord-middle when that step is unlocked", () => {
     expect(
       getSessionCurriculumLessonForPracticeMode(
         "chord-middle",
-        passingMajorDiatonicScaleDegreeHistory(),
+        passingMinorDiatonicScaleDegreeHistory(),
       ),
     ).toEqual(CHORD_MIDDLE_CURRICULUM_LESSON);
   });

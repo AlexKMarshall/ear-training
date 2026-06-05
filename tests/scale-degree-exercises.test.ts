@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   DEGREE_MAJOR_DIATONIC_IDS,
+  getNaturalMinorSemitonesFromTonic,
   getScaleDegreeById,
   SCALE_DEGREES,
 } from "../src/scale-degree-config.ts";
@@ -43,6 +44,14 @@ describe("SCALE_DEGREES registry", () => {
     expect(getScaleDegreeById("sixth")?.semitonesFromTonic).toBe(9);
     expect(getScaleDegreeById("seventh")?.semitonesFromTonic).toBe(11);
     expect(getScaleDegreeById("sixth")?.label).toBe("6th");
+  });
+
+  it("provides natural minor semitone overrides for diatonic ids", () => {
+    expect(getNaturalMinorSemitonesFromTonic("second")).toBe(2);
+    expect(getNaturalMinorSemitonesFromTonic("third")).toBe(3);
+    expect(getNaturalMinorSemitonesFromTonic("sixth")).toBe(8);
+    expect(getNaturalMinorSemitonesFromTonic("seventh")).toBe(10);
+    expect(getNaturalMinorSemitonesFromTonic("bogus")).toBeUndefined();
   });
 });
 

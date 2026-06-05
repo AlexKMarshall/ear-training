@@ -49,6 +49,18 @@ describe("getPathNodeLabels", () => {
       subtitle: "Melodic reproduction · major key · diatonic degrees within one octave",
     });
   });
+
+  it("uses family title and key-quality subtitle for minor diatonic scale degrees", () => {
+    expect(
+      getPathNodeLabels({
+        practiceModeId: "scale-degree-sing",
+        contentTierId: "degree-minor-diatonic",
+      }),
+    ).toEqual({
+      title: "Scale degrees",
+      subtitle: "Melodic reproduction · natural minor key · diatonic degrees within one octave",
+    });
+  });
 });
 
 describe("getPathNodeState", () => {

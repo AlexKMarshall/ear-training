@@ -131,6 +131,17 @@ export function passingMajorDiatonicScaleDegreeHistory(): AttemptRecord[] {
   ];
 }
 
+/** Minor diatonic scale degrees complete; chord-middle unlockable. */
+export function passingMinorDiatonicScaleDegreeHistory(): AttemptRecord[] {
+  return [
+    ...passingMajorDiatonicScaleDegreeHistory(),
+    ...passingStepHistory({
+      practiceModeId: "scale-degree-sing",
+      contentTierId: "degree-minor-diatonic",
+    }),
+  ];
+}
+
 /** @deprecated Use passingIntroScaleDegreeHistory — intro tier only until major/minor tiers ship. */
 export function passingScaleDegreeHistory(): AttemptRecord[] {
   return passingIntroScaleDegreeHistory();
@@ -139,7 +150,7 @@ export function passingScaleDegreeHistory(): AttemptRecord[] {
 /** Every shipped curriculum step meets unlock thresholds. */
 export function passingFullGuidedPathHistory(): AttemptRecord[] {
   return [
-    ...passingMajorDiatonicScaleDegreeHistory(),
+    ...passingMinorDiatonicScaleDegreeHistory(),
     ...passingStepHistory({
       practiceModeId: "chord-middle",
       contentTierId: "chord-1a",

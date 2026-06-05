@@ -7,6 +7,7 @@ import {
 import {
   attempt,
   passingIntroScaleDegreeHistory,
+  passingMajorDiatonicScaleDegreeHistory,
   passingThroughHarmonic2bHistory,
 } from "./fixtures/attempts.ts";
 import type { SessionPlanner } from "../src/session/planner.ts";
@@ -46,6 +47,23 @@ describe("prepareScaleDegreeExercise", () => {
     expect(exercise.degreeId).toBe("third");
     expect(exercise.contentTierId).toBe("degree-major-diatonic");
     expect(exercise.eligibleTagIds).toEqual(getEligibleDegreeIds("degree-major-diatonic"));
+  });
+
+  it("uses minor diatonic tier after major diatonic completes", () => {
+    const planner: SessionPlanner = {
+      planNextExerciseTag: () => "third",
+    };
+    const { exercise } = prepareScaleDegreeExercise(
+      passingMajorDiatonicScaleDegreeHistory(),
+      60,
+      planner,
+      { lowMidi: 48, highMidi: 67 },
+    );
+
+    expect(exercise.degreeId).toBe("third");
+    expect(exercise.contentTierId).toBe("degree-minor-diatonic");
+    expect(exercise.eligibleTagIds).toEqual(getEligibleDegreeIds("degree-minor-diatonic"));
+    expect(exercise.target.midi).toBe(63);
   });
 
   it("keeps the same round tonic across questions", () => {
@@ -139,6 +157,27 @@ describe("scaleDegreeQuestionForTag", () => {
       );
       expect(exercise.degreeId).toBe(id);
       expect(exercise.target.midi).toBe(60 + degree.semitonesFromTonic);
+    }
+  });
+
+  it("builds natural minor pitches for each minor diatonic degree id", () => {
+    const expectedSemitones: Record<string, number> = {
+      second: 2,
+      third: 3,
+      fourth: 5,
+      fifth: 7,
+      sixth: 8,
+      seventh: 10,
+      octave: 12,
+    };
+    for (const id of getEligibleDegreeIds("degree-minor-diatonic")) {
+      const { exercise } = prepareScaleDegreeExercise(
+        passingMajorDiatonicScaleDegreeHistory(),
+        60,
+        { planNextExerciseTag: () => id },
+      );
+      expect(exercise.degreeId).toBe(id);
+      expect(exercise.target.midi).toBe(60 + expectedSemitones[id]!);
     }
   });
 });

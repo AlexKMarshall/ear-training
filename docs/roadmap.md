@@ -75,7 +75,7 @@ Grouped by theme; order is indicative, not a commitment. Prefer tracer-bullet is
 |------|--------|
 | Interval tiers **2c+** | Chromatic within octave, compound, descending / sing-lower / both directions |
 | Per-tag tier gates | Advance tier when specific tags meet thresholds, not only step aggregates |
-| Scale degree tiers beyond **degree-3a** | Wider diatonic pools, then chromatic degree labels |
+| Scale degree tiers beyond **degree-minor-diatonic** | Chromatic degree labels, then altered/extended degree pools |
 | **Targeted practice** | Home area outside guided sequence — mixed-type lessons likely; see `CONTEXT.md` |
 | Mixed-type lessons | One lesson run drawing multiple exercise types |
 | Configurable unlock thresholds in UI | Constants in `unlock.ts` today |

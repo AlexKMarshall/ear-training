@@ -23,6 +23,17 @@ export const DEGREE_MAJOR_DIATONIC_IDS = [
   "octave",
 ] as const;
 
+/** Natural minor within one octave (same ordinal labels, minor semitone map). */
+export const DEGREE_MINOR_DIATONIC_IDS = [
+  "second",
+  "third",
+  "fourth",
+  "fifth",
+  "sixth",
+  "seventh",
+  "octave",
+] as const;
+
 /** v1 curriculum registry; tier presets select pools, not only `enabled`. */
 export const SCALE_DEGREES: readonly ScaleDegreeEntry[] = [
   {
@@ -71,4 +82,20 @@ export const SCALE_DEGREES: readonly ScaleDegreeEntry[] = [
 
 export function getScaleDegreeById(id: string): ScaleDegreeEntry | undefined {
   return SCALE_DEGREES.find((entry) => entry.id === id);
+}
+
+const NATURAL_MINOR_SEMITONES_FROM_TONIC: Partial<Record<string, number>> = {
+  second: 2,
+  third: 3,
+  fourth: 5,
+  fifth: 7,
+  sixth: 8,
+  seventh: 10,
+  octave: 12,
+};
+
+export function getNaturalMinorSemitonesFromTonic(
+  degreeId: string,
+): number | undefined {
+  return NATURAL_MINOR_SEMITONES_FROM_TONIC[degreeId];
 }
