@@ -14,6 +14,14 @@ import {
   DEGREE_MAJOR_INTRO_IDS,
   DEGREE_MINOR_DIATONIC_IDS,
 } from "../src/scale-degree-config.ts"
+import { defined } from "./helpers/defined.ts"
+
+function findCurriculumLesson(
+  predicate: (step: (typeof CURRICULUM_LESSONS)[number]) => boolean,
+  label: string,
+) {
+  return defined(CURRICULUM_LESSONS.find(predicate), label)
+}
 
 describe("curriculum steps", () => {
   it("defines guided steps in cross-mode unlock order through chord middle", () => {
@@ -46,9 +54,10 @@ describe("curriculum steps", () => {
   })
 
   it("exposes twelve tags for interval 2b steps", () => {
-    const harmonicSing2b = CURRICULUM_LESSONS.find(
+    const harmonicSing2b = findCurriculumLesson(
       (s) => s.practiceModeId === "interval-harmonic-sing" && s.contentTierId === "interval-2b",
-    )!
+      "harmonic sing 2b",
+    )
     expect(getEligibleTagIds(harmonicSing2b)).toHaveLength(12)
   })
 
@@ -155,16 +164,22 @@ describe("curriculum steps", () => {
   })
 
   it("presets degree-major-intro tags from the intro pool", () => {
-    const step = CURRICULUM_LESSONS.find((s) => s.contentTierId === "degree-major-intro")!
+    const step = findCurriculumLesson(
+      (s) => s.contentTierId === "degree-major-intro",
+      "degree-major-intro",
+    )
     expect(getEligibleTagIds(step)).toEqual([...DEGREE_MAJOR_INTRO_IDS])
   })
 
   it("places intro degree tags inside the major diatonic pool", () => {
     const intro = getEligibleTagIds(
-      CURRICULUM_LESSONS.find((s) => s.contentTierId === "degree-major-intro")!,
+      findCurriculumLesson((s) => s.contentTierId === "degree-major-intro", "degree-major-intro"),
     )
     const diatonic = getEligibleTagIds(
-      CURRICULUM_LESSONS.find((s) => s.contentTierId === "degree-major-diatonic")!,
+      findCurriculumLesson(
+        (s) => s.contentTierId === "degree-major-diatonic",
+        "degree-major-diatonic",
+      ),
     )
     expect(diatonic).toHaveLength(7)
     for (const id of intro) {
@@ -175,10 +190,16 @@ describe("curriculum steps", () => {
 
   it("uses the same ordinal ids for major and natural minor diatonic pools", () => {
     const major = getEligibleTagIds(
-      CURRICULUM_LESSONS.find((s) => s.contentTierId === "degree-major-diatonic")!,
+      findCurriculumLesson(
+        (s) => s.contentTierId === "degree-major-diatonic",
+        "degree-major-diatonic",
+      ),
     )
     const minor = getEligibleTagIds(
-      CURRICULUM_LESSONS.find((s) => s.contentTierId === "degree-minor-diatonic")!,
+      findCurriculumLesson(
+        (s) => s.contentTierId === "degree-minor-diatonic",
+        "degree-minor-diatonic",
+      ),
     )
     expect(major).toEqual([...DEGREE_MAJOR_DIATONIC_IDS])
     expect(minor).toEqual([...DEGREE_MINOR_DIATONIC_IDS])
@@ -192,7 +213,7 @@ describe("curriculum steps", () => {
       "diminished-triad-sing-middle",
     ])
     expect(getEligibleInversionIds("chord-1a")).toEqual(["root", "first", "second"])
-    const step = CURRICULUM_LESSONS.find((s) => s.practiceModeId === "chord-middle")!
+    const step = findCurriculumLesson((s) => s.practiceModeId === "chord-middle", "chord-middle")
     expect(getEligibleTagIds(step)).toEqual(getEligibleChordTypeIds("chord-1a"))
   })
 })

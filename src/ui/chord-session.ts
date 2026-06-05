@@ -10,6 +10,7 @@ import type { SessionHistoryCache } from "../history/session-cache.ts"
 import type { AttemptRecord } from "../history/types.ts"
 import type { LessonExercise } from "../lesson-exercise.ts"
 import { createDefaultSessionPlanner, type SessionPlanner } from "../session/planner.ts"
+import { pickRandom } from "../util/array.ts"
 import { getActiveNoteRange } from "../voice-ranges.ts"
 
 export interface ChordSessionDeps
@@ -20,7 +21,7 @@ export interface ChordSessionDeps
 
 export function pickRandomInversionFromTier(rng: () => number = Math.random): InversionId {
   const eligible = getEligibleInversionIds("chord-1a")
-  return eligible[Math.floor(rng() * eligible.length)]!
+  return pickRandom(eligible, rng)
 }
 
 export function prepareChordExercise(

@@ -12,6 +12,7 @@ import {
   randomIntervalExerciseForTag,
   validLowerMidis,
 } from "../src/interval-exercises.ts"
+import { defined } from "./helpers/defined.ts"
 
 describe("validLowerMidis", () => {
   it("fits perfect fifth within a tenor-like range", () => {
@@ -33,7 +34,7 @@ describe("validLowerMidis", () => {
 
 describe("buildIntervalExercise", () => {
   it("sets upper note as sing target", () => {
-    const fifth = getIntervalById("perfect-fifth")!
+    const fifth = defined(getIntervalById("perfect-fifth"), "perfect-fifth")
     const exercise = buildIntervalExercise(fifth, "melodic", 60)
     const sing = intervalToLessonExercise(exercise)
     expect(sing.target.midi).toBe(67)
@@ -47,7 +48,7 @@ describe("buildIntervalExercise", () => {
     ["tritone", 66],
     ["major-seventh", 71],
   ] as const)("builds diatonic interval %s from root 60", (intervalId, upperMidi) => {
-    const interval = getIntervalById(intervalId)!
+    const interval = defined(getIntervalById(intervalId), intervalId)
     const exercise = buildIntervalExercise(interval, "melodic", 60)
     expect(exercise.intervalId).toBe(intervalId)
     expect(exercise.upper.midi).toBe(upperMidi)
@@ -68,7 +69,7 @@ describe("randomIntervalExercise", () => {
   it("generates a question for each diatonic id in a tenor range", () => {
     const range = { lowMidi: 48, highMidi: 72 }
     for (const intervalId of DIATONIC_MAJOR_INTERVAL_IDS) {
-      const interval = getIntervalById(intervalId)!
+      const interval = defined(getIntervalById(intervalId), intervalId)
       const exercise = randomIntervalExercise("melodic", range, interval)
       expect(exercise.intervalId).toBe(intervalId)
       expect(exercise.upper.midi - exercise.lower.midi).toBe(interval.semitones)
@@ -76,7 +77,7 @@ describe("randomIntervalExercise", () => {
   })
 
   it("throws when the interval does not fit the voice range", () => {
-    const octave = getIntervalById("perfect-octave")!
+    const octave = defined(getIntervalById("perfect-octave"), "perfect-octave")
     expect(() => randomIntervalExercise("melodic", { lowMidi: 60, highMidi: 65 }, octave)).toThrow(
       /No valid root/,
     )

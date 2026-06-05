@@ -1,5 +1,6 @@
 import { percentOf } from "../lesson.ts"
 import { getPracticeMode, PRACTICE_MODES } from "../practice-modes/registry.ts"
+import { medianSorted } from "../util/array.ts"
 import {
   computeTagBreakdownForExercise,
   singAttemptsMedianAbsCents,
@@ -40,11 +41,7 @@ function lessonExerciseKey(record: AttemptRecord): string {
 function median(values: number[]): number {
   if (values.length === 0) return 0
   const sorted = [...values].sort((a, b) => a - b)
-  const mid = Math.floor(sorted.length / 2)
-  if (sorted.length % 2 === 0) {
-    return (sorted[mid - 1]! + sorted[mid]!) / 2
-  }
-  return sorted[mid]!
+  return medianSorted(sorted)
 }
 
 export function computeLessonExerciseStats(records: readonly AttemptRecord[]): {

@@ -1,6 +1,7 @@
 import type { LessonExercise } from "./lesson-exercise.ts"
 import { midiToHz, midiToNoteName, type NoteRange, type TargetNote } from "./notes.ts"
 import type { ScaleDegreeEntry } from "./scale-degree-config.ts"
+import { pickRandom } from "./util/array.ts"
 
 export interface ScaleDegreeExercise {
   degreeId: string
@@ -69,7 +70,7 @@ export function pickRandomLessonTonic(
       `No valid tonic for selected degrees in voice range (${range.lowMidi}–${range.highMidi})`,
     )
   }
-  return tonics[Math.floor(Math.random() * tonics.length)]!
+  return pickRandom(tonics)
 }
 
 export function randomScaleDegreeExerciseForTonic(
@@ -89,7 +90,7 @@ export function randomScaleDegreeExercise(
       `No valid tonic for ${degree.label} in voice range (${range.lowMidi}–${range.highMidi})`,
     )
   }
-  const tonicMidi = tonics[Math.floor(Math.random() * tonics.length)]!
+  const tonicMidi = pickRandom(tonics)
   return buildScaleDegreeExercise(degree, tonicMidi)
 }
 

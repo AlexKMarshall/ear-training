@@ -59,7 +59,10 @@ export function isCurriculumLessonUnlocked(
   if (index === 0) {
     return true
   }
-  const predecessor = CURRICULUM_LESSONS[index - 1]!
+  const predecessor = CURRICULUM_LESSONS[index - 1]
+  if (!predecessor) {
+    return false
+  }
   return meetsCurriculumLessonThreshold(predecessor, records)
 }
 
@@ -96,7 +99,11 @@ export function isLevelUnlocked(level: number, records: readonly AttemptRecord[]
   if (!def || def.practiceModeIds.length === 0) {
     return false
   }
-  return isPracticeModeUnlocked(def.practiceModeIds[0]!, records)
+  const firstPracticeModeId = def.practiceModeIds[0]
+  if (firstPracticeModeId === undefined) {
+    return false
+  }
+  return isPracticeModeUnlocked(firstPracticeModeId, records)
 }
 
 /** First unlocked curriculum step that still needs practice, or null when complete. */
@@ -125,7 +132,7 @@ export function getPredecessorCurriculumLesson(step: CurriculumLesson): Curricul
   if (index <= 0) {
     return null
   }
-  return CURRICULUM_LESSONS[index - 1]!
+  return CURRICULUM_LESSONS[index - 1] ?? null
 }
 
 /** Static unlock copy for a specific curriculum step (null for the first step). */
@@ -166,7 +173,10 @@ export function getUnlockRequirement(practiceModeId: PracticeModeId): UnlockRequ
   if (index <= 0) {
     return null
   }
-  const predecessor = CURRICULUM_LESSONS[index - 1]!
+  const predecessor = CURRICULUM_LESSONS[index - 1]
+  if (!predecessor) {
+    return null
+  }
   return {
     predecessorPracticeModeId: predecessor.practiceModeId,
     predecessorLabel: getCurriculumLessonLabel(predecessor),

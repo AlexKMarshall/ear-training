@@ -7,6 +7,7 @@ import { MIN_EXERCISE_PASS_RATE, MIN_EXERCISES_FOR_UNLOCK } from "../curriculum/
 import { computeLessonExerciseStats } from "../history/stats.ts"
 import { getTagBreakdownConfig } from "../history/tag-stats.ts"
 import type { AttemptRecord } from "../history/types.ts"
+import { pickRandom } from "../util/array.ts"
 
 /** Share of draws that target weak (under-threshold) tags vs maintenance. */
 export const WEAK_AREA_PROBABILITY = 0.7
@@ -49,19 +50,34 @@ function weakTagWeight(lessonExerciseCount: number, lessonExercisePassRatePercen
 }
 
 function pickWeighted<T>(items: readonly T[], weightFn: (item: T) => number, rng: () => number): T {
+  if (items.length === 0) {
+    throw new Error("pickWeighted: empty items")
+  }
   const weights = items.map(weightFn)
   const total = weights.reduce((sum, w) => sum + w, 0)
   if (total <= 0) {
-    return items[Math.floor(rng() * items.length)]!
+    return pickRandom(items, rng)
   }
   let roll = rng() * total
   for (let i = 0; i < items.length; i++) {
-    roll -= weights[i]!
+    const weight = weights[i]
+    if (weight === undefined) {
+      continue
+    }
+    roll -= weight
     if (roll < 0) {
-      return items[i]!
+      const item = items[i]
+      if (item === undefined) {
+        break
+      }
+      return item
     }
   }
-  return items[items.length - 1]!
+  const last = items[items.length - 1]
+  if (last === undefined) {
+    throw new Error("pickWeighted: empty items")
+  }
+  return last
 }
 
 export function planNextExerciseTag(
@@ -79,7 +95,7 @@ export function planNextExerciseTag(
 
   const config = getTagBreakdownConfig(step.practiceModeId)
   if (!config) {
-    return eligible[Math.floor(rng() * eligible.length)]!
+    return pickRandom(eligible, rng)
   }
 
   const stepRecords = filterRecordsForCurriculumLesson(records, step)
@@ -112,7 +128,7 @@ export function planNextExerciseTag(
   const pool = pickFromWeak ? weak : maintenance
 
   if (pool.length === 1) {
-    return pool[0]!
+    return pickRandom(pool, rng)
   }
 
   if (pickFromWeak) {
@@ -128,5 +144,5 @@ export function planNextExerciseTag(
     )
   }
 
-  return pool[Math.floor(rng() * pool.length)]!
+  return pickRandom(pool, rng)
 }

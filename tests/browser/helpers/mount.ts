@@ -44,6 +44,7 @@ import {
 import { mountStats } from "../../../src/ui/stats.ts"
 import { chordMiddleTestConfig, singleNoteTestConfig } from "../../../src/ui/tests.ts"
 import { resetVoiceTypePreference } from "../../../src/voice-ranges.ts"
+import { defined } from "../../helpers/defined.ts"
 import "../../../src/ui/styles.css"
 
 export function createTestSessionHistory(records: AttemptRecord[] = []): {
@@ -122,7 +123,7 @@ export async function mountStatsWithHistory(records: AttemptRecord[]): Promise<v
   await mountStats(root, { history: createMemoryHistoryPort(records) })
 }
 
-const perfectFifth = getIntervalById("perfect-fifth")!
+const perfectFifth = defined(getIntervalById("perfect-fifth"), "perfect-fifth")
 
 const fixedSingleNoteTarget = {
   name: "C4",
@@ -132,7 +133,7 @@ const fixedSingleNoteTarget = {
 
 const fixedChordExercise = buildChordExercise(MAJOR_TRIAD_SING_MIDDLE, "root", 52)
 
-const scaleDegreeFifth = getScaleDegreeById("fifth")!
+const scaleDegreeFifth = defined(getScaleDegreeById("fifth"), "fifth")
 
 export interface MountExerciseResult {
   history: HistoryPort

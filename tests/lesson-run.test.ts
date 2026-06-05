@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
 import type { LessonExercise } from "../src/lesson-exercise.ts"
 import { type AttemptScoredContext, LessonRun } from "../src/lesson-run.ts"
+import { defined } from "./helpers/defined.ts"
 
 const sampleExercise: LessonExercise = {
   target: { midi: 60, hz: 261.63, name: "C4" },
@@ -106,7 +107,9 @@ describe("LessonRun", () => {
 
   it("reset issues a fresh lesson id and clears lesson state", () => {
     const ids = ["lesson-1", "lesson-2"]
-    const run = new LessonRun({ createLessonId: () => ids.shift()! })
+    const run = new LessonRun({
+      createLessonId: () => defined(ids.shift(), "lesson id"),
+    })
     run.ensureCurrentExercise()
     run.recordScore(true)
     run.advanceAfterResult()

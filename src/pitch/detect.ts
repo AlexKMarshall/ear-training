@@ -1,5 +1,6 @@
 import { PitchDetector } from "pitchy"
 import { ANALYSER_FFT_SIZE, MIN_CLARITY, MIN_RMS } from "../config.ts"
+import { medianSorted } from "../util/array.ts"
 
 const detector = PitchDetector.forFloat32Array(ANALYSER_FFT_SIZE)
 const timeDomainBuffer = new Float32Array(ANALYSER_FFT_SIZE)
@@ -12,7 +13,11 @@ export interface PitchSample {
 export function computeRms(samples: Float32Array): number {
   let sum = 0
   for (let i = 0; i < samples.length; i++) {
-    sum += samples[i]! * samples[i]!
+    const sample = samples[i]
+    if (sample === undefined) {
+      continue
+    }
+    sum += sample * sample
   }
   return Math.sqrt(sum / samples.length)
 }
@@ -40,9 +45,5 @@ export function detectPitchFromAnalyser(
 export function median(values: number[]): number | null {
   if (values.length === 0) return null
   const sorted = [...values].sort((a, b) => a - b)
-  const mid = Math.floor(sorted.length / 2)
-  if (sorted.length % 2 === 0) {
-    return (sorted[mid - 1]! + sorted[mid]!) / 2
-  }
-  return sorted[mid]!
+  return medianSorted(sorted)
 }

@@ -83,7 +83,7 @@ describe("randomChordExercise", () => {
     const range = { lowMidi: 48, highMidi: 67 }
     for (let i = 0; i < 50; i++) {
       const exercise = randomChordExercise(MAJOR_TRIAD_SING_MIDDLE, "root", range)
-      const anchor = exercise.notes[MAJOR_TRIAD_SING_MIDDLE.rangeAnchorIndex]!
+      const anchor = chordTarget(exercise)
       expect(anchor.midi).toBeGreaterThanOrEqual(range.lowMidi)
       expect(anchor.midi).toBeLessThanOrEqual(range.highMidi)
     }
@@ -93,7 +93,7 @@ describe("randomChordExercise", () => {
     const range = { lowMidi: 48, highMidi: 67 }
     for (let i = 0; i < 50; i++) {
       const exercise = randomChordExercise(MINOR_TRIAD_SING_MIDDLE, "root", range)
-      const anchor = exercise.notes[MINOR_TRIAD_SING_MIDDLE.rangeAnchorIndex]!
+      const anchor = chordTarget(exercise)
       expect(anchor.midi).toBeGreaterThanOrEqual(range.lowMidi)
       expect(anchor.midi).toBeLessThanOrEqual(range.highMidi)
     }
@@ -103,7 +103,7 @@ describe("randomChordExercise", () => {
     const range = { lowMidi: 48, highMidi: 67 }
     for (let i = 0; i < 50; i++) {
       const exercise = randomChordExercise(DIMINISHED_TRIAD_SING_MIDDLE, "root", range)
-      const anchor = exercise.notes[DIMINISHED_TRIAD_SING_MIDDLE.rangeAnchorIndex]!
+      const anchor = chordTarget(exercise)
       expect(anchor.midi).toBeGreaterThanOrEqual(range.lowMidi)
       expect(anchor.midi).toBeLessThanOrEqual(range.highMidi)
     }

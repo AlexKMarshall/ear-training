@@ -9,6 +9,7 @@ import {
   passingMajorDiatonicScaleDegreeHistory,
   passingThroughHarmonic2bHistory,
 } from "./fixtures/attempts.ts"
+import { defined } from "./helpers/defined.ts"
 
 describe("prepareScaleDegreeExercise", () => {
   it("uses planner tag and attaches intro tier metadata", () => {
@@ -131,7 +132,7 @@ describe("prepareScaleDegreeExercise", () => {
 describe("scaleDegreeQuestionForTag", () => {
   it("builds a question for each intro tier degree", () => {
     for (const id of getEligibleDegreeIds("degree-major-intro")) {
-      const degree = getScaleDegreeById(id)!
+      const degree = defined(getScaleDegreeById(id), id)
       const { exercise } = prepareScaleDegreeExercise(
         passingIntroScaleDegreeHistory(),
         60,
@@ -146,7 +147,7 @@ describe("scaleDegreeQuestionForTag", () => {
 
   it("builds a question for each major diatonic tier degree", () => {
     for (const id of getEligibleDegreeIds("degree-major-diatonic")) {
-      const degree = getScaleDegreeById(id)!
+      const degree = defined(getScaleDegreeById(id), id)
       const { exercise } = prepareScaleDegreeExercise(passingThroughHarmonic2bHistory(), 60, {
         planNextExerciseTag: () => id,
       })
@@ -172,7 +173,7 @@ describe("scaleDegreeQuestionForTag", () => {
         { planNextExerciseTag: () => id },
       )
       expect(exercise.degreeId).toBe(id)
-      expect(exercise.target.midi).toBe(60 + expectedSemitones[id]!)
+      expect(exercise.target.midi).toBe(60 + defined(expectedSemitones[id], id))
     }
   })
 })

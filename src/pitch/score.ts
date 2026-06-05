@@ -1,4 +1,5 @@
 import { TOLERANCE_CENTS } from "../config.ts"
+import { medianSorted } from "../util/array.ts"
 import { correctHarmonicPitch } from "./harmonics.ts"
 
 export interface ScoreResult {
@@ -83,8 +84,7 @@ export function scoreFromSamples(
 
   const corrected = samplesHz.map((hz) => correctHarmonicPitch(hz, targetHz))
   const sorted = [...corrected].sort((a, b) => a - b)
-  const mid = Math.floor(sorted.length / 2)
-  const detectedHz = sorted.length % 2 === 0 ? (sorted[mid - 1]! + sorted[mid]!) / 2 : sorted[mid]!
+  const detectedHz = medianSorted(sorted)
 
   return scorePitch(detectedHz, targetHz, toleranceCents)
 }

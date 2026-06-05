@@ -23,7 +23,7 @@ Read the pull-request guide before creating or updating a PR description, especi
 ```bash
 npm test              # Vitest Node — unit tests
 npm run test:browser  # Vitest browser — UI orchestration (Playwright)
-npm run lint          # Biome — lint + format check (CI)
+npm run lint          # Biome lint + format check; warnings fail CI
 npm run lint:fix      # Biome — apply safe lint fixes + organize imports
 npm run format        # Biome — format in-scope files
 npm run typecheck     # strict tsc — src/, tests/, vite.config.ts (see docs/agents/tsconfig.md)

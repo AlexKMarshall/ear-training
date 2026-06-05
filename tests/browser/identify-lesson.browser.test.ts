@@ -40,7 +40,7 @@ test("play, correct choice, and saveAttempt via HistoryPort", async () => {
     attemptNumber: 1,
     exerciseIndex: 0,
   })
-  expect(records[0]!.lessonId).toBeTruthy()
+  expect(records[0]?.lessonId).toBeTruthy()
 })
 
 test("shows lesson progress and advances to exercise 2", async () => {
@@ -86,7 +86,7 @@ test("eligible tier pool drives multiple choice without interval picker", async 
 
   await userEvent.click(page.getByRole("button", { name: /Play interval/i }))
 
-  const label = getIntervalById("minor-sixth")!.label
+  const label = getIntervalById("minor-sixth")?.label
   await expect.element(page.getByRole("button", { name: label })).toBeVisible()
   await userEvent.click(page.getByRole("button", { name: label }))
 

@@ -6,6 +6,7 @@ import { getIntervalById } from "../../src/interval-config.ts"
 import { buildIntervalExercise, intervalToLessonExercise } from "../../src/interval-exercises.ts"
 import { mountIntervalHarmonicIdTest } from "../../src/ui/interval-tests.ts"
 import { passingStepHistory, passingThroughMelodic2bHistory } from "../fixtures/attempts.ts"
+import { defined } from "../helpers/defined.ts"
 import {
   createHarmonicSingTestConfig,
   createTestSessionHistory,
@@ -14,7 +15,7 @@ import {
 } from "./helpers/mount.ts"
 import "../../src/ui/styles.css"
 
-const perfectFifth = getIntervalById("perfect-fifth")!
+const perfectFifth = defined(getIntervalById("perfect-fifth"), "perfect-fifth")
 const harmonicSing2bStep = {
   practiceModeId: "interval-harmonic-sing" as const,
   contentTierId: "interval-2b" as const,
@@ -49,7 +50,7 @@ test("harmonic sing at interval-2b saves attempt with 2b tier metadata", async (
     passed: true,
     contentTierId: "interval-2b",
   })
-  expect(records[0]!.eligibleTagIds).toHaveLength(12)
+  expect(records[0]?.eligibleTagIds).toHaveLength(12)
 })
 
 test("harmonic identify at interval-2b saves attempt with 2b tier metadata", async () => {
@@ -61,7 +62,7 @@ test("harmonic identify at interval-2b saves attempt with 2b tier metadata", asy
     }),
   ]
   const { sessionHistory, history } = createTestSessionHistory(initialRecords)
-  const root = document.querySelector<HTMLElement>("#app")!
+  const root = defined(document.querySelector<HTMLElement>("#app"), "#app")
   mountIntervalHarmonicIdTest(root, {
     sessionHistory,
     audio: createTestAudioPort(),
@@ -76,7 +77,7 @@ test("harmonic identify at interval-2b saves attempt with 2b tier metadata", asy
   await expect.element(page.getByText("Correct", { exact: true })).toBeVisible()
 
   const records = await history.getAllAttempts()
-  const attempt = records[records.length - 1]!
+  const attempt = defined(records[records.length - 1], "attempt")
   expect(attempt).toMatchObject({
     practiceModeId: "interval-harmonic-id",
     contentTierId: "interval-2b",

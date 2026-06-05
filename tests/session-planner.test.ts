@@ -88,7 +88,7 @@ describe("filterRecordsForCurriculumLesson", () => {
       }),
     ]
     expect(filterRecordsForCurriculumLesson(records, step)).toHaveLength(1)
-    expect(filterRecordsForCurriculumLesson(records, step)[0]!.intervalId).toBe("perfect-fourth")
+    expect(filterRecordsForCurriculumLesson(records, step)[0]?.intervalId).toBe("perfect-fourth")
   })
 
   it("does not count legacy untagged attempts toward interval-2b", () => {
