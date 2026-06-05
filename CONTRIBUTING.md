@@ -23,7 +23,7 @@ Open the URL Vite prints (localhost). Microphone exercises need **localhost** in
 | `npm run lint` | Biome lint + format check (same as CI) |
 | `npm run lint:fix` | Apply safe Biome fixes and organize imports |
 | `npm run format` | Format in-scope files (`src/`, `tests/`, `vite.config.ts`) |
-| `npm run typecheck` | TypeScript (`tsc --noEmit`) |
+| `npm run typecheck` | TypeScript — `src/`, `tests/`, `vite.config.ts` |
 | `npm run build` | Production build |
 
 **Formatting:** JS/TS/JSX uses Biome with **semicolon-free** style (`semicolons: "asNeeded"`). CI enforces lint and format — there are **no pre-commit hooks**. Optional: install the [Biome VS Code extension](https://biomejs.dev/reference/vscode/) and enable format-on-save.

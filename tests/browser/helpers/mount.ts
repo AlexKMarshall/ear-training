@@ -304,12 +304,16 @@ export function mountPracticeModeInBrowser(
 
   const samplesHz = options.samplesHz ?? defaultPassSamplesHzFor(practiceModeId)
   const singDeps = options.deps as SingMountDeps | undefined
-  mountSingTest(root, createSingTestConfigFor(practiceModeId, configOverrides), {
-    history,
-    audio,
-    recording: singDeps?.recording ?? createTestRecordingPort({ samplesHz }),
-    exercisesPerLesson: singDeps?.exercisesPerLesson,
-  })
+  mountSingTest(
+    root,
+    createSingTestConfigFor(practiceModeId, configOverrides as Partial<SingTestConfig> | undefined),
+    {
+      history,
+      audio,
+      recording: singDeps?.recording ?? createTestRecordingPort({ samplesHz }),
+      exercisesPerLesson: singDeps?.exercisesPerLesson,
+    },
+  )
   return { history }
 }
 

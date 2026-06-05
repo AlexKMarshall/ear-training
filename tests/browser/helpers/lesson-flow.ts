@@ -141,7 +141,7 @@ export async function assertLessonSummaryO2(): Promise<void> {
   await expect.element(page.getByText("Lesson complete", { exact: true })).toBeVisible()
   await expect.element(page.getByText("2/3")).toBeVisible()
   await expect.element(page.getByText("correct (67%)", { exact: false })).toBeVisible()
-  const breakdown = page.getByRole("list").locator("li")
+  const breakdown = page.getByRole("list").getByRole("listitem")
   await expect.element(breakdown.nth(0)).toHaveTextContent(/First try/)
   await expect.element(breakdown.nth(0)).toHaveTextContent(/1 \(33%\)/)
   await expect.element(breakdown.nth(1)).toHaveTextContent(/After retry/)
