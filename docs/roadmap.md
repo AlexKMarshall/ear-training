@@ -142,7 +142,7 @@ Grouped by theme; order is indicative, not a commitment. Prefer tracer-bullet is
 
 New practice-mode families land faster after:
 
-- Unified **`ExerciseDefinition`** / shared lesson orchestration — **TD-001**, **TD-002**
+- Unified **`ExerciseDefinition`** / shared lesson orchestration — **TD-001**
 - Planner vs stats **tag registry** single source — **TD-007**
 - History cache ready before first draw — **TD-011**
 - Delete dead **content picker** paths in mounts — **TD-003**
