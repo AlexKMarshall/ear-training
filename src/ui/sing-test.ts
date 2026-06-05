@@ -2,19 +2,15 @@ import { createStore } from "solid-js/store";
 import { render } from "solid-js/web";
 import { createDefaultAudioPort } from "../audio/port.ts";
 import { createDefaultRecordingPort } from "../audio/recording-port.ts";
-import {
-  MAX_ATTEMPTS_PER_EXERCISE,
-  MIN_VALID_SAMPLES,
-  EXERCISES_PER_LESSON,
-} from "../config.ts";
-import { LessonRun } from "../lesson-run.ts";
-import { percentOf, summarizeLesson } from "../lesson.ts";
-import type { LessonExercise } from "../lesson-exercise.ts";
-import { getScaleDegreeById } from "../scale-degree-config.ts";
+import { ExerciseScreenState } from "../exercise-screen-state.ts";
+import type { ExerciseScreenResultView } from "../exercise-screen-state.ts";
+import { EXERCISES_PER_LESSON, MIN_VALID_SAMPLES } from "../config.ts";
 import { createDefaultHistoryPort } from "../history/port.ts";
 import { buildAttemptRecord } from "../history/serialize.ts";
+import type { LessonExercise } from "../lesson-exercise.ts";
 import { scoreFromSamples } from "../pitch/score.ts";
 import type { ScoreResult } from "../pitch/score.ts";
+import { getScaleDegreeById } from "../scale-degree-config.ts";
 import {
   getVoiceType,
   setVoiceType,
@@ -38,28 +34,30 @@ export type {
 
 export type { LessonExercise } from "../lesson-exercise.ts";
 
-type TestState =
-  | "idle"
-  | "playing"
-  | "ready"
-  | "recording"
-  | "result"
-  | "lessonSummary";
-
-function nextStepButtonLabel(isLastExerciseInLesson: boolean): string {
-  return isLastExerciseInLesson ? "Finish lesson" : "Next exercise";
-}
-
-function buildAttemptNote(
-  passed: boolean,
-  triesLeft: number,
-  nextLabel: string,
-): string | null {
-  if (passed) return null;
-  if (triesLeft > 0) {
-    return `${triesLeft} ${triesLeft === 1 ? "try" : "tries"} left on this exercise.`;
+function toSingResult(
+  result: ExerciseScreenResultView | null,
+  targetName: string,
+): SingResultView | null {
+  if (!result) return null;
+  if (result.type === "attempt") {
+    const detail = result.detail as ScoreResult | undefined;
+    return {
+      type: "attempt",
+      passed: result.passed,
+      message: detail?.message ?? "",
+      detectedHz: detail?.detectedHz ?? 0,
+      targetHz: detail?.targetHz ?? 0,
+      targetName,
+      attemptNote: result.attemptNote,
+    };
   }
-  return `No tries left — tap ${nextLabel} when you are ready.`;
+  if (result.type === "summary" || result.type === "audio-error") {
+    return result;
+  }
+  if (result.type === "scoring-error") {
+    return result;
+  }
+  return { type: "audio-error" };
 }
 
 export function mountSingTest(
@@ -73,35 +71,7 @@ export function mountSingTest(
   const exercisesPerLesson =
     deps?.exercisesPerLesson ?? EXERCISES_PER_LESSON;
 
-  let state: TestState = "idle";
-  let recordingSession: { stop: () => void } | null = null;
-  let currentExercise: LessonExercise | null = null;
-  let pendingCentsOff: number | undefined;
-  let resultView: SingResultView | null = null;
   let livePitchText = "Listening…";
-
-  const lessonRun = new LessonRun({
-    exercisesPerLesson,
-    onAttemptScored: (ctx) => {
-      if (!currentExercise || pendingCentsOff === undefined) return;
-      const record = buildAttemptRecord(
-        {
-          practiceModeId: config.practiceModeId,
-          lessonId: ctx.lessonId,
-          exerciseIndex: ctx.exerciseIndex,
-          showVoicePicker: config.showVoicePicker,
-          showChordFilters: false,
-          showIntervalFilters: false,
-          showDegreeFilters: false,
-        },
-        currentExercise,
-        pendingCentsOff,
-        ctx.passed,
-        ctx.attemptNumber,
-      );
-      void history.saveAttempt(record);
-    },
-  });
 
   const [ui, setUi] = createStore<SingUiState>({
     statusText: config.status.idle,
@@ -127,10 +97,6 @@ export function mountSingTest(
     nextRoundHidden: true,
   });
 
-  function lessonSnapshot() {
-    return lessonRun.getSnapshot();
-  }
-
   function exercisePromptText(exercise: LessonExercise | null): string | null {
     if (!exercise) return null;
     if (config.exercisePrompt) {
@@ -145,281 +111,136 @@ export function mountSingTest(
     return null;
   }
 
-  function syncUi(): void {
-    const snap = lessonSnapshot();
-    const inLessonSummary = state === "lessonSummary";
-    const settingsLocked =
-      state === "playing" || state === "recording" || inLessonSummary;
+  const screenRef: { current: ExerciseScreenState | null } = { current: null };
 
-    const showResultActions = state === "result";
-    const canRetry = showResultActions && snap.canRetry;
-    const canNext = showResultActions && snap.canAdvance;
-    const nextLabel = nextStepButtonLabel(snap.isLastExerciseInLesson);
-
-    let statusText = config.status.idle;
-    let showQuestionPrompt = false;
-    let questionPrompt = "";
-    let showLivePitch = false;
-    switch (state) {
-      case "lessonSummary":
-        statusText =
-          "Lesson finished — review your score, then start the next lesson.";
-        break;
-      case "idle":
-        statusText = config.status.idle;
-        break;
-      case "playing":
-        statusText = config.status.playing;
-        break;
-      case "ready": {
-        statusText = config.status.ready;
-        const prompt = exercisePromptText(currentExercise);
-        if (prompt) {
-          showQuestionPrompt = true;
-          questionPrompt = prompt;
-        }
-        break;
-      }
-      case "recording":
-        statusText = config.status.recording;
-        showLivePitch = true;
-        break;
-      case "result": {
-        const triesLeft = MAX_ATTEMPTS_PER_EXERCISE - snap.scoredAttemptsOnCurrent;
-        const onLastQuestion = snap.isLastExerciseInLesson;
-        if (resultView?.type === "attempt") {
-          statusText = resultView.passed
-            ? onLastQuestion
-              ? `Correct — tap ${nextLabel} when you are ready.`
-              : config.status.pass
-            : triesLeft > 0
-              ? config.status.fail
-              : onLastQuestion
-                ? `Out of tries — tap ${nextLabel} to see your lesson score.`
-                : (config.status.failExhausted ?? config.status.fail);
-        } else if (resultView?.type === "scoring-error") {
-          statusText = "Something went wrong.";
-        }
-        break;
-      }
-    }
-
-    let lessonProgressHidden = inLessonSummary;
-    let lessonProgressText = "";
-    if (!lessonProgressHidden) {
-      lessonProgressText = `Lesson — exercise ${snap.exerciseNumber} of ${exercisesPerLesson}`;
-    }
-
-    let resultClassName = "result";
-    if (resultView?.type === "attempt") {
-      resultClassName = resultView.passed
-        ? "result result-pass"
-        : "result result-fail";
-    } else if (resultView?.type === "summary") {
-      resultClassName = "result round-summary";
-    } else if (
-      resultView?.type === "scoring-error" ||
-      resultView?.type === "audio-error"
-    ) {
-      resultClassName = "result result-fail";
-    }
-
+  function syncUiFromScreen(): void {
+    if (!screenRef.current) return;
+    const snapshot = screenRef.current.getSnapshot();
     const voice = getVoiceType();
+    const targetName = snapshot.currentExercise?.target.name ?? "?";
+
+    let questionPrompt = "";
+    let showQuestionPrompt = false;
+    if (snapshot.phase === "ready") {
+      const prompt = exercisePromptText(snapshot.currentExercise);
+      if (prompt) {
+        showQuestionPrompt = true;
+        questionPrompt = prompt;
+      }
+    }
+
+    const showResultActions = snapshot.phase === "result";
+    const inLessonSummary = snapshot.phase === "lessonSummary";
 
     setUi({
-      statusText,
-      lessonProgressHidden,
-      lessonProgressText,
+      statusText: snapshot.statusText,
+      lessonProgressHidden: snapshot.lessonProgressHidden,
+      lessonProgressText: snapshot.lessonProgressText,
       questionPrompt,
       showQuestionPrompt,
       livePitchText,
-      showLivePitch,
-      resultClassName,
-      result: resultView,
+      showLivePitch: snapshot.phase === "recording",
+      resultClassName: snapshot.resultClassName,
+      result: toSingResult(snapshot.result, targetName),
       voice,
       voiceRangeHint: voiceRangeHint(voice),
-      settingsLocked,
-      playHidden: showResultActions || inLessonSummary,
-      playDisabled:
-        inLessonSummary || state === "playing" || state === "recording",
+      settingsLocked: snapshot.settingsLocked,
+      playHidden: snapshot.playHidden,
+      playDisabled: snapshot.playDisabled,
       recordHidden: showResultActions || inLessonSummary,
-      recordDisabled: state !== "ready" && state !== "recording",
-      recordLabel: state === "recording" ? "Done" : "Start singing",
-      retryHidden: !canRetry || inLessonSummary,
-      nextHidden: !canNext || inLessonSummary,
-      nextLabel,
-      nextRoundHidden: !inLessonSummary,
+      recordDisabled:
+        snapshot.phase !== "ready" && snapshot.phase !== "recording",
+      recordLabel:
+        snapshot.phase === "recording" ? "Done" : "Start singing",
+      retryHidden: snapshot.retryHidden,
+      nextHidden: snapshot.nextHidden,
+      nextLabel: snapshot.nextLabel,
+      nextRoundHidden: snapshot.nextRoundHidden,
     });
   }
 
-  function setState(next: TestState): void {
-    state = next;
-    syncUi();
-  }
+  screenRef.current = new ExerciseScreenState({
+    hooks: {
+      prepareExercise: config.prepareExercise,
+      ensurePlayback: async () => {
+        await audio.ensureReady();
+      },
+      playReference: config.playReference,
+      isPlaybackBusy: () => audio.isPlaying(),
+      beginRecording: async ({ exercise, onPitch, onComplete, onError }) => {
+        livePitchText = "Listening…";
+        syncUiFromScreen();
 
-  function resetLesson(): void {
-    lessonRun.reset();
-    currentExercise = null;
-    pendingCentsOff = undefined;
-    resultView = null;
-    config.onLessonReset?.();
-  }
+        return recording.start({
+          targetHz: exercise.target.hz,
+          onPitch: (hz, clarity) => {
+            livePitchText = `~${hz.toFixed(0)} Hz (clarity ${(clarity * 100).toFixed(0)}%)`;
+            onPitch(livePitchText);
+            syncUiFromScreen();
+          },
+          onComplete,
+          onError,
+        });
+      },
+      scoreAnswer: (exercise, response) => {
+        const samplesHz = response as number[];
+        if (samplesHz.length < MIN_VALID_SAMPLES) {
+          return {
+            kind: "error",
+            message: `Not enough clear pitch detected (${samplesHz.length} frames, need ${MIN_VALID_SAMPLES}). Hold a steady note closer to the mic.`,
+          };
+        }
 
-  function showAttemptResult(score: ScoreResult): void {
-    pendingCentsOff = score.centsOff;
-    lessonRun.recordScore(score.passed);
+        const outcome = scoreFromSamples(samplesHz, exercise.target.hz);
+        if ("error" in outcome) {
+          return { kind: "error", message: outcome.error };
+        }
 
-    const snap = lessonSnapshot();
-    const triesLeft = MAX_ATTEMPTS_PER_EXERCISE - snap.scoredAttemptsOnCurrent;
-    const nextLabel = nextStepButtonLabel(snap.isLastExerciseInLesson);
-    resultView = {
-      type: "attempt",
-      passed: score.passed,
-      message: score.message,
-      detectedHz: score.detectedHz,
-      targetHz: score.targetHz,
-      targetName: currentExercise?.target.name ?? "?",
-      attemptNote: buildAttemptNote(score.passed, triesLeft, nextLabel),
-    };
-    setState("result");
-  }
-
-  function showScoringError(message: string): void {
-    resultView = { type: "scoring-error", detail: message };
-    setState("result");
-  }
-
-  function showLessonSummary(): void {
-    const summary = summarizeLesson(lessonSnapshot().results);
-    resultView = {
-      type: "summary",
-      summary,
-      correctPct: percentOf(summary.correctCount, summary.total),
-      firstTryPct: percentOf(summary.firstTryCount, summary.total),
-      retryPct: percentOf(summary.retryCount, summary.total),
-      wrongPct: percentOf(summary.wrongCount, summary.total),
-    };
-    setState("lessonSummary");
-  }
-
-  async function handlePlay(): Promise<void> {
-    if (audio.isPlaying()) return;
-
-    try {
-      await audio.ensureReady();
-      if (state === "idle" || !currentExercise) {
-        currentExercise = config.prepareExercise();
-        lessonRun.ensureCurrentExercise();
-      }
-      setState("playing");
-      await config.playReference(currentExercise);
-      setState("ready");
-    } catch {
-      resultView = { type: "audio-error" };
-      currentExercise = null;
-      setState("idle");
-      syncUi();
-    }
-  }
-
-  async function handleRecordStart(): Promise<void> {
-    if (state === "recording") return;
-
-    try {
-      await audio.ensureReady();
-      livePitchText = "Listening…";
-      setState("recording");
-
-      recordingSession = await recording.start({
-        targetHz: currentExercise?.target.hz,
-        onPitch: (hz, clarity) => {
-          livePitchText = `~${hz.toFixed(0)} Hz (clarity ${(clarity * 100).toFixed(0)}%)`;
-          syncUi();
+        return {
+          kind: "scored",
+          passed: outcome.passed,
+          scorePayload: { centsOff: outcome.centsOff },
+          attemptDetail: outcome,
+        };
+      },
+    },
+    statusCopy: config.status,
+    responseMode: "sing",
+    exercisesPerLesson,
+    onSnapshotChange: () => syncUiFromScreen(),
+    onAttemptScored: ({ lesson, exercise, scorePayload }) => {
+      const { centsOff } = scorePayload as { centsOff: number };
+      const record = buildAttemptRecord(
+        {
+          practiceModeId: config.practiceModeId,
+          lessonId: lesson.lessonId,
+          exerciseIndex: lesson.exerciseIndex,
+          showVoicePicker: config.showVoicePicker,
+          showChordFilters: false,
+          showIntervalFilters: false,
+          showDegreeFilters: false,
         },
-        onComplete: (samples) => {
-          recordingSession = null;
-          finishScoring(samples);
-        },
-        onError: (msg) => {
-          recordingSession = null;
-          showScoringError(msg);
-        },
-      });
-    } catch (err) {
-      showScoringError(
-        err instanceof Error ? err.message : "Microphone error.",
+        exercise,
+        centsOff,
+        lesson.passed,
+        lesson.attemptNumber,
       );
-    }
-  }
+      void history.saveAttempt(record);
+    },
+    onLessonReset: config.onLessonReset,
+  });
 
-  function finishScoring(samplesHz: number[]): void {
-    if (samplesHz.length < MIN_VALID_SAMPLES) {
-      showScoringError(
-        `Not enough clear pitch detected (${samplesHz.length} frames, need ${MIN_VALID_SAMPLES}). Hold a steady note closer to the mic.`,
-      );
-      return;
-    }
+  const exerciseScreen = screenRef.current;
 
-    if (!currentExercise) {
-      showScoringError("No reference — press Play first.");
-      return;
-    }
-
-    const outcome = scoreFromSamples(samplesHz, currentExercise.target.hz);
-    if ("error" in outcome) {
-      showScoringError(outcome.error);
-      return;
-    }
-
-    showAttemptResult(outcome);
-  }
-
-  function handleRecord(): void {
-    if (state === "recording") {
-      recordingSession?.stop();
-      recordingSession = null;
-      return;
-    }
-    void handleRecordStart();
-  }
-
-  function handleRetry(): void {
+  function stopRecordingStream(): void {
     recording.stopStream();
-    lessonRun.retryCurrentExercise();
-    resultView = null;
-    void handlePlay();
-  }
-
-  function handleNextQuestion(): void {
-    recording.stopStream();
-    lessonRun.advanceAfterResult(currentExercise ?? undefined);
-    if (lessonSnapshot().isLessonComplete) {
-      showLessonSummary();
-      return;
-    }
-    currentExercise = null;
-    resultView = null;
-    setState("idle");
-    void handlePlay();
-  }
-
-  function handleNextRound(): void {
-    recording.stopStream();
-    resetLesson();
-    setState("idle");
   }
 
   function handleVoiceChange(voice: VoiceType): void {
     if (!config.showVoicePicker || voice === getVoiceType()) return;
     setVoiceType(voice);
-    resetLesson();
-    if (state === "result" || state === "lessonSummary") {
-      setState("idle");
-    } else if (state === "ready") {
-      setState("idle");
-    } else {
-      syncUi();
-    }
+    stopRecordingStream();
+    exerciseScreen.resetLesson();
   }
 
   render(
@@ -433,19 +254,28 @@ export function mountSingTest(
         showVoicePicker: config.showVoicePicker,
         onPlay: () => {
           audio.unlock();
-          void handlePlay();
+          void exerciseScreen.play();
         },
         onRecord: () => {
           audio.unlock();
-          handleRecord();
+          void exerciseScreen.toggleRecording();
         },
-        onRetry: handleRetry,
-        onNext: handleNextQuestion,
-        onNextRound: handleNextRound,
+        onRetry: () => {
+          stopRecordingStream();
+          void exerciseScreen.retry();
+        },
+        onNext: () => {
+          stopRecordingStream();
+          void exerciseScreen.advance();
+        },
+        onNextRound: () => {
+          stopRecordingStream();
+          exerciseScreen.startNextRound();
+        },
         onVoiceChange: handleVoiceChange,
       }),
     root,
   );
 
-  syncUi();
+  syncUiFromScreen();
 }
