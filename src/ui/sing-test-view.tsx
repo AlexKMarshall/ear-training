@@ -146,8 +146,7 @@ export function SingTestView(props: {
         title={props.title}
         subtitle={props.subtitle}
         lessonBanner={props.lessonBanner}
-        lessonProgressHidden={props.ui.lessonProgressHidden}
-        lessonProgressText={props.ui.lessonProgressText}
+        lessonProgress={props.ui.chrome.lessonProgress}
       />
       {props.showVoicePicker ? (
         <VoicePicker
@@ -166,17 +165,9 @@ export function SingTestView(props: {
         <SingResultPanel ui={props.ui} />
       </section>
       <ExerciseActionBar
-        playLabel={props.playButtonLabel}
-        playHidden={props.ui.playHidden}
-        playDisabled={props.ui.playDisabled}
-        recordHidden={props.ui.recordHidden}
-        recordDisabled={props.ui.recordDisabled}
-        recordLabel={props.ui.recordLabel}
+        actionBar={props.ui.chrome.actionBar}
+        playButtonLabel={props.playButtonLabel}
         onRecord={props.onRecord}
-        retryHidden={props.ui.retryHidden}
-        nextHidden={props.ui.nextHidden}
-        nextLabel={props.ui.nextLabel}
-        nextLessonHidden={props.ui.nextLessonHidden}
         onPlay={props.onPlay}
         onRetry={props.onRetry}
         onNext={props.onNext}

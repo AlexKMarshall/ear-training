@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from "vitest"
 import {
+  type ActionBarState,
   type AttemptScoredEnrichedContext,
+  type ExerciseChromeSnapshot,
+  type ExerciseScreenPhase,
   ExerciseScreenState,
   type ExerciseScreenStateHooks,
   type ExerciseScreenStateSnapshot,
@@ -97,17 +100,30 @@ function createSingState(hookOverrides: Partial<ExerciseScreenStateHooks> = {}) 
   return { state, hooks, snapshots, onAttemptScored }
 }
 
+function expectAttemptingStep(
+  actionBar: ActionBarState,
+  step: "idle" | "playing" | "ready" | "recording",
+  record?: "start" | "done",
+): void {
+  expect(actionBar).toEqual(
+    record ? { mode: "attempting", step, record } : { mode: "attempting", step },
+  )
+}
+
+function expectLessonProgressVisible(chrome: ExerciseChromeSnapshot, exerciseNumber: number): void {
+  expect(chrome.lessonProgress).toEqual({
+    visible: true,
+    text: `Lesson — exercise ${exerciseNumber} of 10`,
+  })
+}
+
 describe("ExerciseScreenState", () => {
   it("exposes idle snapshot before play", () => {
     const { state } = createSelectState()
-    expect(state.getSnapshot()).toMatchObject({
+    const snapshot = state.getSnapshot()
+    expect(snapshot).toMatchObject({
       phase: "idle",
       statusText: statusCopy.idle,
-      playHidden: false,
-      playDisabled: false,
-      retryHidden: true,
-      nextHidden: true,
-      nextLessonHidden: true,
       currentExercise: null,
       lesson: {
         lessonId: "lesson-test",
@@ -115,6 +131,8 @@ describe("ExerciseScreenState", () => {
         exerciseNumber: 1,
       },
     })
+    expectAttemptingStep(snapshot.chrome.actionBar, "idle")
+    expectLessonProgressVisible(snapshot.chrome, 1)
   })
 
   it("transitions idle → playing → ready on first play", async () => {
@@ -124,12 +142,14 @@ describe("ExerciseScreenState", () => {
     expect(hooks.prepareExercise).toHaveBeenCalledTimes(1)
     expect(hooks.ensurePlayback).toHaveBeenCalledTimes(1)
     expect(hooks.playReference).toHaveBeenCalledWith(sampleExercise)
-    expect(state.getSnapshot()).toMatchObject({
+    const snapshot = state.getSnapshot()
+    expect(snapshot).toMatchObject({
       phase: "ready",
       statusText: statusCopy.ready,
       currentExercise: sampleExercise,
       lesson: { currentExerciseIndex: 0 },
     })
+    expectAttemptingStep(snapshot.chrome.actionBar, "ready")
   })
 
   it("skips playing when requiresPlayback returns false", async () => {
@@ -168,9 +188,22 @@ describe("ExerciseScreenState", () => {
         passed: true,
         detail: { selectedLabel: "P5" },
       },
-      retryHidden: true,
-      nextHidden: false,
-      playHidden: true,
+    })
+    expect(state.getSnapshot().chrome.actionBar).toEqual({
+      mode: "result",
+      action: "next",
+      nextLabel: "Next exercise",
+    })
+  })
+
+  it("shows retry action after a failed select attempt with tries remaining", async () => {
+    const { state } = createSelectState()
+    await state.play()
+    await state.submitChoice("M3")
+
+    expect(state.getSnapshot().chrome.actionBar).toEqual({
+      mode: "result",
+      action: "retry",
     })
   })
 
@@ -232,15 +265,16 @@ describe("ExerciseScreenState", () => {
     await state.submitChoice("P5")
     await state.advance()
 
-    expect(state.getSnapshot()).toMatchObject({
+    const snapshot = state.getSnapshot()
+    expect(snapshot).toMatchObject({
       phase: "lessonSummary",
-      lessonProgressHidden: true,
-      nextLessonHidden: false,
       result: {
         type: "summary",
         summary: { total: 1, correctCount: 1 },
       },
     })
+    expect(snapshot.chrome.actionBar).toEqual({ mode: "lesson-summary" })
+    expect(snapshot.chrome.lessonProgress).toEqual({ visible: false })
   })
 
   it("resetLesson clears lesson and returns to idle", async () => {
@@ -288,11 +322,13 @@ describe("ExerciseScreenState", () => {
 
     await state.play()
 
-    expect(state.getSnapshot()).toMatchObject({
+    const snapshot = state.getSnapshot()
+    expect(snapshot).toMatchObject({
       phase: "idle",
       result: { type: "audio-error" },
       currentExercise: null,
     })
+    expectAttemptingStep(snapshot.chrome.actionBar, "idle")
   })
 
   it("locks settings on result for select response mode", async () => {
@@ -303,7 +339,7 @@ describe("ExerciseScreenState", () => {
     expect(state.getSnapshot().settingsLocked).toBe(true)
   })
 
-  it("disables play while recording for sing response mode", async () => {
+  it("projects sing record on ready and recording steps only", async () => {
     const beginRecording = vi.fn(
       ({ onPitch }: { onPitch: (text: string) => void }) =>
         new Promise<{ stop: () => void }>((resolve) => {
@@ -314,11 +350,12 @@ describe("ExerciseScreenState", () => {
     const { state } = createSingState({ beginRecording })
 
     await state.play()
-    await state.toggleRecording()
+    expectAttemptingStep(state.getSnapshot().chrome.actionBar, "ready", "start")
 
+    await state.toggleRecording()
     const recordingSnapshot = state.getSnapshot()
     expect(recordingSnapshot.phase).toBe("recording")
-    expect(recordingSnapshot.playDisabled).toBe(true)
+    expectAttemptingStep(recordingSnapshot.chrome.actionBar, "recording", "done")
   })
 
   it("startNextLesson resets lesson state", async () => {
@@ -332,5 +369,55 @@ describe("ExerciseScreenState", () => {
       phase: "idle",
       lesson: { results: [], isLessonComplete: false },
     })
+  })
+})
+
+describe("ExerciseScreenState chrome projection", () => {
+  const phaseCases: Array<{
+    phase: ExerciseScreenPhase
+    responseMode: "select" | "sing"
+    setup: (state: ExerciseScreenState) => Promise<void>
+    expectedActionBar: ActionBarState
+    lessonProgressVisible: boolean
+  }> = [
+    {
+      phase: "idle",
+      responseMode: "select",
+      setup: async () => {},
+      expectedActionBar: { mode: "attempting", step: "idle" },
+      lessonProgressVisible: true,
+    },
+    {
+      phase: "ready",
+      responseMode: "sing",
+      setup: async (state) => {
+        await state.play()
+      },
+      expectedActionBar: { mode: "attempting", step: "ready", record: "start" },
+      lessonProgressVisible: true,
+    },
+    {
+      phase: "result",
+      responseMode: "select",
+      setup: async (state) => {
+        await state.play()
+        await state.submitChoice("M3")
+      },
+      expectedActionBar: { mode: "result", action: "retry" },
+      lessonProgressVisible: true,
+    },
+  ]
+
+  it.each(phaseCases)("maps $phase ($responseMode) to action bar $expectedActionBar.mode", async ({
+    responseMode,
+    setup,
+    expectedActionBar,
+    lessonProgressVisible,
+  }) => {
+    const { state } = responseMode === "sing" ? createSingState() : createSelectState()
+    await setup(state)
+    const { chrome } = state.getSnapshot()
+    expect(chrome.actionBar).toEqual(expectedActionBar)
+    expect(chrome.lessonProgress.visible).toBe(lessonProgressVisible)
   })
 })

@@ -29,18 +29,29 @@ export type ExerciseScreenResultView =
   | { type: "scoring-error"; detail: string }
   | { type: "audio-error" }
 
+export type LessonProgressState = { visible: true; text: string } | { visible: false }
+
+export type ActionBarState =
+  | {
+      mode: "attempting"
+      step: "idle" | "playing" | "ready" | "recording"
+      record?: "start" | "done"
+    }
+  | { mode: "result"; action: "retry" }
+  | { mode: "result"; action: "next"; nextLabel: string }
+  | { mode: "result"; action: "none" }
+  | { mode: "lesson-summary" }
+
+export type ExerciseChromeSnapshot = {
+  lessonProgress: LessonProgressState
+  actionBar: ActionBarState
+}
+
 export interface ExerciseScreenStateSnapshot {
   phase: ExerciseScreenPhase
   statusText: string
-  lessonProgressHidden: boolean
-  lessonProgressText: string
   settingsLocked: boolean
-  playHidden: boolean
-  playDisabled: boolean
-  retryHidden: boolean
-  nextHidden: boolean
-  nextLabel: string
-  nextLessonHidden: boolean
+  chrome: ExerciseChromeSnapshot
   resultClassName: string
   result: ExerciseScreenResultView | null
   currentExercise: LessonExercise | null
@@ -120,6 +131,52 @@ function buildAttemptNote(passed: boolean, triesLeft: number, nextLabel: string)
   return `No tries left — tap ${nextLabel} when you are ready.`
 }
 
+function buildExerciseChrome(
+  phase: ExerciseScreenPhase,
+  lesson: LessonRunSnapshot,
+  responseMode: ResponseMode,
+  exercisesPerLesson: number,
+): ExerciseChromeSnapshot {
+  const inLessonSummary = phase === "lessonSummary"
+  const lessonProgress: LessonProgressState = inLessonSummary
+    ? { visible: false }
+    : {
+        visible: true,
+        text: `Lesson — exercise ${lesson.exerciseNumber} of ${exercisesPerLesson}`,
+      }
+
+  let actionBar: ActionBarState
+  if (inLessonSummary) {
+    actionBar = { mode: "lesson-summary" }
+  } else if (phase === "result") {
+    if (lesson.canRetry) {
+      actionBar = { mode: "result", action: "retry" }
+    } else if (lesson.canAdvance) {
+      actionBar = {
+        mode: "result",
+        action: "next",
+        nextLabel: nextStepButtonLabel(lesson.isLastExerciseInLesson),
+      }
+    } else {
+      actionBar = { mode: "result", action: "none" }
+    }
+  } else if (phase === "idle" || phase === "playing") {
+    actionBar = { mode: "attempting", step: phase }
+  } else if (phase === "ready") {
+    actionBar =
+      responseMode === "sing"
+        ? { mode: "attempting", step: "ready", record: "start" }
+        : { mode: "attempting", step: "ready" }
+  } else {
+    actionBar =
+      responseMode === "sing"
+        ? { mode: "attempting", step: "recording", record: "done" }
+        : { mode: "attempting", step: "recording" }
+  }
+
+  return { lessonProgress, actionBar }
+}
+
 export class ExerciseScreenState {
   private phase: ExerciseScreenPhase = "idle"
   private currentExercise: LessonExercise | null = null
@@ -169,10 +226,6 @@ export class ExerciseScreenState {
 
   getSnapshot(): ExerciseScreenStateSnapshot {
     const lesson = this.lessonRun.getSnapshot()
-    const inLessonSummary = this.phase === "lessonSummary"
-    const showResultActions = this.phase === "result"
-    const canRetry = showResultActions && lesson.canRetry
-    const canNext = showResultActions && lesson.canAdvance
     const nextLabel = nextStepButtonLabel(lesson.isLastExerciseInLesson)
 
     let statusText = this.statusCopy.idle
@@ -230,26 +283,11 @@ export class ExerciseScreenState {
       resultClassName = "result result-fail"
     }
 
-    const playHidden = showResultActions || inLessonSummary
-    const playDisabled =
-      inLessonSummary ||
-      this.phase === "playing" ||
-      (this.responseMode === "sing" && this.phase === "recording")
-
     return {
       phase: this.phase,
       statusText,
-      lessonProgressHidden: inLessonSummary,
-      lessonProgressText: inLessonSummary
-        ? ""
-        : `Lesson — exercise ${lesson.exerciseNumber} of ${this.exercisesPerLesson}`,
       settingsLocked,
-      playHidden,
-      playDisabled,
-      retryHidden: !canRetry || inLessonSummary,
-      nextHidden: !canNext || inLessonSummary,
-      nextLabel,
-      nextLessonHidden: !inLessonSummary,
+      chrome: buildExerciseChrome(this.phase, lesson, this.responseMode, this.exercisesPerLesson),
       resultClassName,
       result: this.resultView,
       currentExercise: this.currentExercise,

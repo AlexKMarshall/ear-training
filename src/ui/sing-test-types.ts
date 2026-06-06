@@ -1,5 +1,6 @@
 import type { AudioPort } from "../audio/port.ts"
 import type { RecordingPort } from "../audio/recording-port.ts"
+import type { ExerciseChromeSnapshot } from "../exercise-screen-state.ts"
 import type { HistoryPort } from "../history/port.ts"
 import type { PracticeModeId } from "../history/types.ts"
 import type { LessonSummary } from "../lesson.ts"
@@ -29,8 +30,7 @@ export type SingResultView =
 
 export interface SingUiState {
   statusText: string
-  lessonProgressHidden: boolean
-  lessonProgressText: string
+  chrome: ExerciseChromeSnapshot
   questionPrompt: string
   showQuestionPrompt: boolean
   livePitchText: string
@@ -40,15 +40,6 @@ export interface SingUiState {
   voice: VoiceType
   voiceRangeHint: string
   settingsLocked: boolean
-  playHidden: boolean
-  playDisabled: boolean
-  recordHidden: boolean
-  recordDisabled: boolean
-  recordLabel: string
-  retryHidden: boolean
-  nextHidden: boolean
-  nextLabel: string
-  nextLessonHidden: boolean
 }
 
 export interface SingTestConfig {

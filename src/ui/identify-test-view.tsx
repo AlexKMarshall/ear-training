@@ -148,8 +148,7 @@ export function IdentifyTestView(props: {
       <ExerciseHeader
         title={props.title}
         subtitle={props.subtitle}
-        lessonProgressHidden={props.ui.lessonProgressHidden}
-        lessonProgressText={props.ui.lessonProgressText}
+        lessonProgress={props.ui.chrome.lessonProgress}
       />
       {props.showVoicePicker ? (
         <VoicePicker
@@ -171,13 +170,8 @@ export function IdentifyTestView(props: {
         <IdentifyResultPanel ui={props.ui} />
       </section>
       <ExerciseActionBar
-        playLabel={props.playButtonLabel}
-        playHidden={props.ui.playHidden}
-        playDisabled={props.ui.playDisabled}
-        retryHidden={props.ui.retryHidden}
-        nextHidden={props.ui.nextHidden}
-        nextLabel={props.ui.nextLabel}
-        nextLessonHidden={props.ui.nextLessonHidden}
+        actionBar={props.ui.chrome.actionBar}
+        playButtonLabel={props.playButtonLabel}
         onPlay={props.onPlay}
         onRetry={props.onRetry}
         onNext={props.onNext}

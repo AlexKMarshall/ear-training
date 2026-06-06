@@ -1,4 +1,5 @@
 import type { AudioPort } from "../audio/port.ts"
+import type { ExerciseChromeSnapshot } from "../exercise-screen-state.ts"
 import type { HistoryPort } from "../history/port.ts"
 import type { PracticeModeId } from "../history/types.ts"
 import type { IntervalChoice } from "../interval-exercises.ts"
@@ -25,8 +26,7 @@ export type IdentifyResultView =
 
 export interface IdentifyUiState {
   statusText: string
-  lessonProgressHidden: boolean
-  lessonProgressText: string
+  chrome: ExerciseChromeSnapshot
   choices: IntervalChoice[]
   showChoices: boolean
   choicesDisabled: boolean
@@ -35,12 +35,6 @@ export interface IdentifyUiState {
   voice: VoiceType
   voiceRangeHint: string
   settingsLocked: boolean
-  playHidden: boolean
-  playDisabled: boolean
-  retryHidden: boolean
-  nextHidden: boolean
-  nextLabel: string
-  nextLessonHidden: boolean
 }
 
 export interface IdentifyTestConfig {
