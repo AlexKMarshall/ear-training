@@ -70,7 +70,7 @@ Show counts and a one-line summary per issue. Let the maintainer pick.
 
 5. **Apply the outcome:**
    - `ready-for-agent` — post an agent brief comment ([AGENT-BRIEF.md](AGENT-BRIEF.md)).
-   - `ready-for-human` — same structure as an agent brief, but note why it can't be delegated (judgment calls, external access, design decisions, manual testing).
+   - `ready-for-human` — do **not** post an agent brief with implementation detail. Issue body (or triage comment) should follow [`docs/agents/human-issues.md`](../../../docs/agents/human-issues.md): **Goal**, optional doc links, **Acceptance criteria** only. Note briefly why it is human-sized (onboarding, judgment, manual QA) if helpful.
    - `needs-info` — post triage notes (template below).
    - `wontfix` (bug) — polite explanation, then close.
    - `wontfix` (enhancement) — write to `.out-of-scope/`, link to it from a comment, then close ([OUT-OF-SCOPE.md](OUT-OF-SCOPE.md)).
