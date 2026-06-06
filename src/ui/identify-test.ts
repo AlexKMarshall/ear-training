@@ -56,8 +56,10 @@ export function mountIdentifyTest(
 
   const [ui, setUi] = createStore<IdentifyUiState>({
     statusText: config.status.idle,
-    lessonProgressHidden: false,
-    lessonProgressText: "",
+    chrome: {
+      lessonProgress: { visible: true, text: "" },
+      actionBar: { mode: "attempting", step: "idle" },
+    },
     choices: [],
     showChoices: false,
     choicesDisabled: false,
@@ -66,12 +68,6 @@ export function mountIdentifyTest(
     voice: getVoiceType(),
     voiceRangeHint: voiceRangeHint(getVoiceType()),
     settingsLocked: false,
-    playHidden: false,
-    playDisabled: false,
-    retryHidden: true,
-    nextHidden: true,
-    nextLabel: "Next exercise",
-    nextLessonHidden: true,
   })
 
   function rebuildChoices(exercise: LessonExercise): void {
@@ -93,8 +89,7 @@ export function mountIdentifyTest(
 
     setUi({
       statusText: snapshot.statusText,
-      lessonProgressHidden: snapshot.lessonProgressHidden,
-      lessonProgressText: snapshot.lessonProgressText,
+      chrome: snapshot.chrome,
       choices: currentChoices,
       showChoices: snapshot.phase === "ready",
       choicesDisabled,
@@ -103,12 +98,6 @@ export function mountIdentifyTest(
       voice,
       voiceRangeHint: voiceRangeHint(voice),
       settingsLocked: snapshot.settingsLocked,
-      playHidden: snapshot.playHidden,
-      playDisabled: snapshot.playDisabled,
-      retryHidden: snapshot.retryHidden,
-      nextHidden: snapshot.nextHidden,
-      nextLabel: snapshot.nextLabel,
-      nextLessonHidden: snapshot.nextLessonHidden,
     })
   }
 

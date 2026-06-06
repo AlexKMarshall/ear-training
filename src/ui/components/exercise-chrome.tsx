@@ -1,4 +1,5 @@
 import type { JSX } from "solid-js"
+import type { ActionBarState, LessonProgressState } from "../../exercise-screen-state.ts"
 
 export function ExerciseNav() {
   return (
@@ -14,82 +15,85 @@ export function ExerciseHeader(props: {
   title: string
   subtitle: string
   lessonBanner?: string
-  lessonProgressHidden: boolean
-  lessonProgressText: string
+  lessonProgress: LessonProgressState
 }) {
   return (
     <header class="header">
       <h1>{props.title}</h1>
       <p class="subtitle">{props.subtitle}</p>
       {props.lessonBanner ? <p class="lesson-banner">{props.lessonBanner}</p> : null}
-      <p class="lesson-progress" hidden={props.lessonProgressHidden}>
-        {props.lessonProgressText}
-      </p>
+      {props.lessonProgress.visible ? (
+        <p class="lesson-progress">{props.lessonProgress.text}</p>
+      ) : null}
     </header>
   )
 }
 
-export function ExerciseActionBar(props: {
-  playLabel: string
-  playHidden: boolean
-  playDisabled: boolean
-  recordHidden?: boolean
-  recordDisabled?: boolean
-  recordLabel?: string
-  onRecord?: () => void
-  retryHidden: boolean
-  nextHidden: boolean
-  nextLabel: string
-  nextLessonHidden: boolean
+const RECORD_LABELS = {
+  start: "Start singing",
+  done: "Done",
+} as const
+
+function AttemptingActionBar(props: {
+  actionBar: Extract<ActionBarState, { mode: "attempting" }>
+  playButtonLabel: string
   onPlay: () => void
+  onRecord?: () => void
+}) {
+  const inactive = props.actionBar.step === "playing" || props.actionBar.step === "recording"
+  return (
+    <>
+      <button type="button" class="btn btn-primary" disabled={inactive} onClick={props.onPlay}>
+        {props.playButtonLabel}
+      </button>
+      {props.actionBar.record && props.onRecord ? (
+        <button type="button" class="btn" onClick={props.onRecord}>
+          {RECORD_LABELS[props.actionBar.record]}
+        </button>
+      ) : null}
+    </>
+  )
+}
+
+export function ExerciseActionBar(props: {
+  actionBar: ActionBarState
+  playButtonLabel: string
+  onPlay: () => void
+  onRecord?: () => void
   onRetry: () => void
   onNext: () => void
   onNextLesson: () => void
 }) {
   return (
     <div class="actions">
-      <button
-        type="button"
-        class="btn btn-primary"
-        hidden={props.playHidden}
-        disabled={props.playDisabled}
-        onClick={props.onPlay}
-      >
-        {props.playLabel}
-      </button>
-      {props.onRecord ? (
-        <button
-          type="button"
-          class="btn"
-          hidden={props.recordHidden}
-          disabled={props.recordDisabled}
-          onClick={props.onRecord}
-        >
-          {props.recordLabel ?? "Start singing"}
+      {props.actionBar.mode === "attempting" ? (
+        <AttemptingActionBar
+          actionBar={props.actionBar}
+          playButtonLabel={props.playButtonLabel}
+          onPlay={props.onPlay}
+          onRecord={props.onRecord}
+        />
+      ) : null}
+      {props.actionBar.mode === "result" && props.actionBar.action === "retry" ? (
+        <button type="button" class="btn" onClick={props.onRetry}>
+          Try again
         </button>
       ) : null}
-      <button type="button" class="btn" hidden={props.retryHidden} onClick={props.onRetry}>
-        Try again
-      </button>
-      <button
-        type="button"
-        class="btn btn-primary"
-        hidden={props.nextHidden}
-        onClick={props.onNext}
-      >
-        {props.nextLabel}
-      </button>
-      <a class="btn btn-primary" hidden={props.nextLessonHidden} href="/">
-        Back to path
-      </a>
-      <button
-        type="button"
-        class="btn btn-secondary"
-        hidden={props.nextLessonHidden}
-        onClick={props.onNextLesson}
-      >
-        Practice again
-      </button>
+      {props.actionBar.mode === "result" && props.actionBar.action === "next" ? (
+        <button type="button" class="btn btn-primary" onClick={props.onNext}>
+          {props.actionBar.nextLabel}
+        </button>
+      ) : null}
+      {props.actionBar.mode === "lesson-summary" ? (
+        <>
+          <a class="btn btn-primary" href="/">
+            Back to path
+          </a>
+          <button type="button" class="btn btn-secondary" onClick={props.onNextLesson}>
+            Practice again
+          </button>
+        </>
+      ) : null}
     </div>
   )
 }

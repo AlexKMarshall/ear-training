@@ -96,29 +96,41 @@ export async function runSingLessonO2(playLabel: RegExp): Promise<void> {
 const wrongIntervalLabel = defined(getIntervalById("perfect-fourth"), "perfect-fourth").label
 const correctIntervalLabel = defined(getIntervalById("perfect-fifth"), "perfect-fifth").label
 
-async function identifyPlayAndChoose(label: string): Promise<void> {
+async function identifyListenAndChoose(label: string): Promise<void> {
   await userEvent.click(page.getByRole("button", { name: /Play interval/i }))
+  await expect.element(page.getByRole("button", { name: label })).toBeVisible()
   await userEvent.click(page.getByRole("button", { name: label }))
 }
 
+async function identifyChoose(label: string): Promise<void> {
+  await userEvent.click(page.getByRole("button", { name: label }))
+}
+
+async function identifyWaitForReady(): Promise<void> {
+  await expect.element(page.getByText(/Choose the interval you heard/i)).toBeVisible()
+  await expect.element(page.getByRole("button", { name: wrongIntervalLabel })).toBeVisible()
+}
+
 async function identifyPassFirstTry(): Promise<void> {
-  await identifyPlayAndChoose(correctIntervalLabel)
+  await identifyListenAndChoose(correctIntervalLabel)
   await expect.element(page.getByText("Correct", { exact: true })).toBeVisible()
 }
 
 async function identifyFailThenPass(): Promise<void> {
-  await identifyPlayAndChoose(wrongIntervalLabel)
+  await identifyChoose(wrongIntervalLabel)
   await expect.element(page.getByText("Not quite", { exact: true })).toBeVisible()
   await userEvent.click(page.getByRole("button", { name: /Try again/i }))
-  await identifyPlayAndChoose(correctIntervalLabel)
+  await expect.element(page.getByRole("button", { name: correctIntervalLabel })).toBeVisible()
+  await userEvent.click(page.getByRole("button", { name: correctIntervalLabel }))
   await expect.element(page.getByText("Correct", { exact: true })).toBeVisible()
 }
 
 async function identifyExhaustAttempts(): Promise<void> {
-  await identifyPlayAndChoose(wrongIntervalLabel)
+  await identifyChoose(wrongIntervalLabel)
   for (let attempt = 1; attempt < 3; attempt++) {
     await userEvent.click(page.getByRole("button", { name: /Try again/i }))
-    await identifyPlayAndChoose(wrongIntervalLabel)
+    await identifyWaitForReady()
+    await identifyChoose(wrongIntervalLabel)
   }
   await expect.element(page.getByRole("button", { name: /Try again/i })).not.toBeInTheDocument()
 }
@@ -134,9 +146,11 @@ export async function runIdentifyLessonO2(): Promise<void> {
 
   await identifyPassFirstTry()
   await identifyAdvanceFromResult(/Next exercise/i)
+  await identifyWaitForReady()
 
   await identifyFailThenPass()
   await identifyAdvanceFromResult(/Next exercise/i)
+  await identifyWaitForReady()
 
   await identifyExhaustAttempts()
   await identifyAdvanceFromResult(/Finish lesson/i)

@@ -69,8 +69,10 @@ export function mountSingTest(
 
   const [ui, setUi] = createStore<SingUiState>({
     statusText: config.status.idle,
-    lessonProgressHidden: false,
-    lessonProgressText: "",
+    chrome: {
+      lessonProgress: { visible: true, text: "" },
+      actionBar: { mode: "attempting", step: "idle" },
+    },
     questionPrompt: "",
     showQuestionPrompt: false,
     livePitchText: "Listening…",
@@ -80,15 +82,6 @@ export function mountSingTest(
     voice: getVoiceType(),
     voiceRangeHint: voiceRangeHint(getVoiceType()),
     settingsLocked: false,
-    playHidden: false,
-    playDisabled: false,
-    recordHidden: false,
-    recordDisabled: true,
-    recordLabel: "Start singing",
-    retryHidden: true,
-    nextHidden: true,
-    nextLabel: "Next exercise",
-    nextLessonHidden: true,
   })
 
   function exercisePromptText(exercise: LessonExercise | null): string | null {
@@ -121,13 +114,9 @@ export function mountSingTest(
       }
     }
 
-    const showResultActions = snapshot.phase === "result"
-    const inLessonSummary = snapshot.phase === "lessonSummary"
-
     setUi({
       statusText: snapshot.statusText,
-      lessonProgressHidden: snapshot.lessonProgressHidden,
-      lessonProgressText: snapshot.lessonProgressText,
+      chrome: snapshot.chrome,
       questionPrompt,
       showQuestionPrompt,
       livePitchText,
@@ -137,15 +126,6 @@ export function mountSingTest(
       voice,
       voiceRangeHint: voiceRangeHint(voice),
       settingsLocked: snapshot.settingsLocked,
-      playHidden: snapshot.playHidden,
-      playDisabled: snapshot.playDisabled,
-      recordHidden: showResultActions || inLessonSummary,
-      recordDisabled: snapshot.phase !== "ready" && snapshot.phase !== "recording",
-      recordLabel: snapshot.phase === "recording" ? "Done" : "Start singing",
-      retryHidden: snapshot.retryHidden,
-      nextHidden: snapshot.nextHidden,
-      nextLabel: snapshot.nextLabel,
-      nextLessonHidden: snapshot.nextLessonHidden,
     })
   }
 
