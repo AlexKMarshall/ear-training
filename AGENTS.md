@@ -13,6 +13,7 @@ Browser-based ear training (static site, TypeScript, Vite, Vitest). Product dire
 | **Solid pitfalls (React→Solid)** | [`docs/agents/solid-pitfalls.md`](docs/agents/solid-pitfalls.md) |
 | **TypeScript config** | [`docs/agents/tsconfig.md`](docs/agents/tsconfig.md) |
 | **Human contributing** | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
+| **Human onboarding issues** | [`docs/agents/human-issues.md`](docs/agents/human-issues.md) |
 | **Tech debt (architecture & tooling)** | [`docs/tech-debt.md`](docs/tech-debt.md) |
 | **Tech debt (agent workflow)** | [`docs/agents/tech-debt.md`](docs/agents/tech-debt.md) |
 

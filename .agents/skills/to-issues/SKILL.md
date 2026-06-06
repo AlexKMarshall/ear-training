@@ -23,7 +23,9 @@ If you have not already explored the codebase, do so to understand the current s
 
 Break the plan into **tracer bullet** issues. Each issue is a thin vertical slice that cuts through ALL integration layers end-to-end, NOT a horizontal slice of one layer.
 
-Slices may be 'HITL' or 'AFK'. HITL slices require human interaction, such as an architectural decision or a design review. AFK slices can be implemented and merged without human interaction. Prefer AFK over HITL where possible.
+Slices may be 'HITL' or 'AFK'. HITL slices require human interaction, such as an architectural decision, a design review, or **human onboarding** (first PRs on the codebase). AFK slices can be implemented and merged without human interaction. Prefer AFK over HITL where possible.
+
+**Human onboarding slices** use the **`ready-for-human`** triage label and a different issue body — see [Human onboarding issues](../../docs/agents/human-issues.md). Issue bodies are **acceptance criteria + optional doc links only**; do not include file paths, code snippets, or implementation steps.
 
 <vertical-slice-rules>
 - Each slice delivers a narrow but COMPLETE path through every layer (schema, API, UI, tests)
@@ -60,7 +62,12 @@ Implementation slice issues should reference the merged glossary PR or slice 0 i
 
 ### 6. Publish the issues to the issue tracker
 
-For each approved slice, publish a new issue to the issue tracker. Use the issue body template below. These issues are considered ready for AFK agents, so publish them with the correct triage label unless instructed otherwise.
+For each approved slice, publish a new issue to the issue tracker. Use the matching body template below. Publish with the correct triage label unless instructed otherwise:
+
+| Slice type | Triage label | Body template |
+|------------|--------------|---------------|
+| AFK (default) | `ready-for-agent` | AFK template below |
+| Human onboarding / HITL | `ready-for-human` | [Human template](../../docs/agents/human-issues.md#issue-body-template) — **no implementation detail** |
 
 Publish issues in dependency order (blockers first) so you can reference real issue identifiers in the "Blocked by" field.
 
@@ -88,6 +95,8 @@ Avoid specific file paths or code snippets — they go stale fast. Exception: if
 Or "None - can start immediately" if no blockers.
 
 </issue-template>
+
+For **`ready-for-human`** slices, do **not** use the AFK template. Use the human template in [`docs/agents/human-issues.md`](../../docs/agents/human-issues.md): **Goal**, optional **Domain context** (doc links only), **Acceptance criteria**, **Blocked by**. No **What to build**, no paths, no code.
 
 Do NOT close or modify any parent issue.
 
