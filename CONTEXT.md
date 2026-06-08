@@ -1,6 +1,6 @@
 # Ear Training
 
-Browser-based ear training for singers: a guided curriculum of lessons, each made of exercises, with progress from attempt history. No accounts yet — attempt history is device-local only; breaking schema or unlock changes are acceptable pre-launch (history can be wiped).
+Browser-based ear training for singers: a guided curriculum of lessons, each made of exercises, with progress from attempt history. No accounts yet — attempt history is device-local only; breaking schema or unlock changes are acceptable pre-launch (history can be wiped). Legacy **`chord-middle`** / **`chord-1a`** attempts are **excluded** from unlock, planner, and stats after the chord-sing rework — not migrated.
 
 ## Language
 
@@ -157,6 +157,32 @@ _Avoid_: Tier group, difficulty band, level block
 **Presentation mode**:
 How an interval task is presented and answered — melodic reproduction, harmonic reproduction, melodic identification, harmonic identification, or **named-interval reproduction**. Part of the exercise type **main** for interval work; today each presentation mode is its own practice mode and curriculum lesson on the path.
 _Avoid_: Mode alone, exercise type (when meaning the whole type — use main/sub instead)
+
+### Chords (sing)
+
+**Voicing position**:
+Which of the three simultaneous sounding pitches in a closed-voiced triad the learner must sing — **bottom** (lowest), **middle**, or **top** (highest). Drawn per exercise within a curriculum lesson via the **session planner** (one tag per position, weak-area weighted like intervals and scale degrees); persisted on attempts as **`voicingPositionId`** (`bottom` | `middle` | `top`). Scoring compares the sung pitch to that position in the played voicing. Not the same as naming a **chord member** (root / third / fifth): in an inversion, the bottom note may be the third or fifth, not the root. Chord exercises **anchor range** on the drawn voicing position so the pitch to sing always falls within the learner’s voice range.
+_Avoid_: Root note (when meaning voicing position), voice (without “voicing”), chord tone (without position)
+
+**Chord member**:
+Root, third, or fifth of the triad — the harmonic role of a pitch regardless of which **voicing position** it occupies. Chord-sing exercises on the guided path target voicing position, not chord-member labels on screen.
+_Avoid_: Bottom / middle / top (when meaning harmonic role), scale degree
+
+**Inversion**:
+Which chord member is in the **bottom** voicing position: root position (root on bottom), 1st inversion (third on bottom), or 2nd inversion (fifth on bottom). A curriculum **content tier** for chord work fixes inversion (and triad quality) for every exercise in that lesson; voicing position to sing varies per draw.
+_Avoid_: Voicing (alone), chord position, inversion number without ordinal (prefer *1st inversion*, *2nd inversion*)
+
+**Chord tier block**:
+The six curriculum lessons that establish major and minor triads in root position, 1st inversion, and 2nd inversion (one path node per quality × inversion). Learners pass each node before the next unlocks on the guided path; **diminished** and later chord work sit outside this block. Nodes are **interleaved** by approximate difficulty (other families sit between chord steps): **major root** after interval **2a** harmonic sing; **minor root** after **2a** harmonic identification; **major 1st** and **minor 1st** inside the interval **2b** block; **major 2nd** after major diatonic scale degrees; **minor 2nd** last. Quality × inversion order within the block is always major → minor at each inversion step. Chord tier ids follow `{family}-{triadQuality}-{inversion}` (e.g. `chord-major-root`, `chord-minor-first`).
+_Avoid_: chord-1a (legacy monolithic pool), chord middle (as tier name)
+
+**Chord sing** (practice mode):
+The sing **response mode** practice mode for hearing a triad and singing one **voicing position** (`chord-sing`; route `/chord-sing/`). Replaces legacy `chord-middle`. One practice mode serves all chord tier-block lessons; quality and inversion come from the curriculum **content tier**, voicing position from the session planner tag. No user content pickers for triad quality, inversion, or voicing position on the guided path (legacy chord preference modules retired). Registry title describes the family; a **persistent lesson banner** names quality and inversion for the run; a **per-exercise prompt** names the drawn voicing position (bottom / middle / top) from draw through recording.
+_Avoid_: chord-middle (legacy id), sing the middle note (as fixed product copy)
+
+**Triad quality**:
+Whether the three-note chord is major, minor, or (in later tiers) diminished. On the guided path, major and minor are separate curriculum lessons at each **inversion** step; **diminished** is not in the first chord tier block — it enters in a later content tier after major/minor inversions are established.
+_Avoid_: Chord type (when meaning quality alone), mode (without “key”)
 
 **Cross-mode sequencing**:
 Within an interval tier block, presentation modes advance in this order: melodic reproduction → **named-interval reproduction** → melodic identification → harmonic reproduction → harmonic identification. The path does not enter the next interval tier block until all five modes pass at the current tier (another exercise-type family may appear on the path between interval tiers). Other exercise-type families may define their own within-block mode order when they gain multiple presentation modes.
