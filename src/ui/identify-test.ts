@@ -111,7 +111,9 @@ export function mountIdentifyTest(
       isPlaybackBusy: () => audio.isPlaying(),
       onAfterPlayback: (exercise) => {
         choicesDisabled = false
-        rebuildChoices(exercise)
+        if (currentChoices.length === 0) {
+          rebuildChoices(exercise)
+        }
       },
       scoreAnswer: (exercise, selectedId) => {
         if (!exercise.intervalId) {
