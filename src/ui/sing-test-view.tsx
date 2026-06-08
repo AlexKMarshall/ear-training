@@ -1,5 +1,5 @@
 import { Show } from "solid-js"
-import type { LessonSummary } from "../lesson.ts"
+
 import type { VoiceType } from "../voice-ranges.ts"
 import {
   ExerciseActionBar,
@@ -8,6 +8,7 @@ import {
   ExerciseNav,
 } from "./components/exercise-chrome.tsx"
 import { VoicePicker } from "./components/voice-picker.tsx"
+import { LessonSummaryResult } from "./lesson-summary-result.tsx"
 import type { SingResultView, SingUiState } from "./sing-test-types.ts"
 
 function SingAttemptResult(props: {
@@ -27,40 +28,6 @@ function SingAttemptResult(props: {
         {props.targetName})
       </p>
       {props.attemptNote ? <p class="result-attempts">{props.attemptNote}</p> : null}
-    </>
-  )
-}
-
-function SingLessonSummaryResult(props: {
-  summary: LessonSummary
-  correctPct: number
-  firstTryPct: number
-  retryPct: number
-  wrongPct: number
-}) {
-  return (
-    <>
-      <p class="result-verdict">Lesson complete</p>
-      <p class="lesson-summary-score">
-        <span class="lesson-summary-score-value">
-          {props.summary.correctCount}/{props.summary.total}
-        </span>{" "}
-        correct ({props.correctPct}%)
-      </p>
-      <ul class="lesson-summary-breakdown">
-        <li>
-          <span class="lesson-summary-label">First try</span> {props.summary.firstTryCount} (
-          {props.firstTryPct}%)
-        </li>
-        <li>
-          <span class="lesson-summary-label">After retry</span> {props.summary.retryCount} (
-          {props.retryPct}%)
-        </li>
-        <li>
-          <span class="lesson-summary-label">Wrong</span> {props.summary.wrongCount} (
-          {props.wrongPct}%)
-        </li>
-      </ul>
     </>
   )
 }
@@ -98,7 +65,7 @@ function SingResultContent(props: { result: SingResultView }) {
   }
   if (props.result.type === "summary") {
     return (
-      <SingLessonSummaryResult
+      <LessonSummaryResult
         summary={props.result.summary}
         correctPct={props.result.correctPct}
         firstTryPct={props.result.firstTryPct}
