@@ -379,10 +379,7 @@ describe("ExerciseScreenState", () => {
     expect(state.getSnapshot().phase).toBe("result")
 
     await state.retry()
-    expect(state.getSnapshot().phase).toBe("idle")
-    expect(state.getSnapshot().currentExercise?.intervalId).toBe("first")
-
-    await state.play()
+    expect(state.getSnapshot().phase).toBe("ready")
     expect(prepareExercise).toHaveBeenCalledTimes(1)
     expect(state.getSnapshot().currentExercise?.intervalId).toBe("first")
   })
