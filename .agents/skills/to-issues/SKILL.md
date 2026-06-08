@@ -39,6 +39,7 @@ Present the proposed breakdown as a numbered list. For each slice, show:
 
 - **Title**: short descriptive name
 - **Type**: HITL / AFK
+- **Suggested branch**: `<prefix>/<kebab-slug>` per [`issue-tracker.md`](../../../docs/agents/issue-tracker.md#suggested-branch-names)
 - **Blocked by**: which other slices (if any) must complete first
 - **User stories covered**: which user stories this addresses (if the source material has them)
 
@@ -71,10 +72,16 @@ For each approved slice, publish a new issue to the issue tracker. Use the match
 
 Publish issues in dependency order (blockers first) so you can reference real issue identifiers in the "Blocked by" field.
 
+Every **slice** issue must include **Suggested branch** (epics and slice-0 glossary-only issues omit it). Naming: [`docs/agents/issue-tracker.md`](../../../docs/agents/issue-tracker.md#suggested-branch-names).
+
 <issue-template>
 ## Parent
 
 A reference to the parent issue on the issue tracker (if the source was an existing issue, otherwise omit this section).
+
+## Suggested branch
+
+`feat/short-descriptive-slug`
 
 ## What to build
 
@@ -96,7 +103,7 @@ Or "None - can start immediately" if no blockers.
 
 </issue-template>
 
-For **`ready-for-human`** slices, do **not** use the AFK template. Use the human template in [`docs/agents/human-issues.md`](../../docs/agents/human-issues.md): **Goal**, optional **Domain context** (doc links only), **Acceptance criteria**, **Blocked by**. No **What to build**, no paths, no code.
+For **`ready-for-human`** slices, do **not** use the AFK template. Use the human template in [`docs/agents/human-issues.md`](../../docs/agents/human-issues.md): **Goal**, optional **Domain context** (doc links only), **Suggested branch**, **Acceptance criteria**, **Blocked by**. No **What to build**, no paths, no code.
 
 Do NOT close or modify any parent issue.
 
@@ -107,7 +114,8 @@ Child issues are for **planning and grabbing**; GitHub does not know they belong
 When publishing, add a **parent issue comment** that states:
 
 1. **Glossary first** — merge the glossary documentation PR (or slice 0) on `main` before starting implementation slices, when `CONTEXT.md` was updated during planning.
-2. **Closing rule** (copy from [`docs/agents/pull-requests.md`](../../../docs/agents/pull-requests.md#closing-github-issues-from-a-pr)):
+2. **Slice table** — order, issue links, titles, and **Suggested branch** per slice (epic body does not duplicate branches).
+3. **Closing rule** (copy from [`docs/agents/pull-requests.md`](../../../docs/agents/pull-requests.md#closing-github-issues-from-a-pr)):
 
 | Delivery | PR `Closes` lines |
 |----------|-------------------|

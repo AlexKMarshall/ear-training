@@ -15,6 +15,25 @@ Infer the repo from `git remote -v` — `gh` does this automatically when run in
 
 Apply triage labels per `docs/agents/triage-labels.md`. Create missing labels in the repo (Settings → Labels) before agents rely on them.
 
+## Suggested branch names
+
+Every **slice** issue from `/to-issues` (and standalone `ready-for-agent` / `ready-for-human` grab work) should include a **Suggested branch** section in the issue body. **Epics omit this** — only child slices and one-off issues get a branch.
+
+| Prefix | Use for |
+|--------|---------|
+| `feat/` | New learner-visible behavior or enhancement |
+| `fix/` | Bug fix |
+| `test/` | Tests-only or tests-primary PR |
+| `docs/` | Documentation only |
+| `refactor/` | Internal restructure; no intended behavior change |
+| `tooling/` | CI, lint, format, build, dev dependencies |
+
+**Slug:** lowercase ASCII, words separated by hyphens, 2–5 words derived from the slice title. No issue numbers. Example: `feat/guided-path-back-nav`.
+
+Implementers run `git checkout -b <name>` from an up-to-date `main`. If the name collides on the remote, append a short suffix (e.g. `-2`) or use a clear variant — the issue name is a default, not a lock.
+
+When publishing an epic, add a **parent comment** table with a **Branch** column for each slice. See [`.agents/skills/to-issues/SKILL.md`](../../.agents/skills/to-issues/SKILL.md).
+
 ## When a skill says "publish to the issue tracker"
 
 Create a GitHub issue with the approved title and body. Apply `ready-for-agent` (or the label the maintainer specified) unless told otherwise.

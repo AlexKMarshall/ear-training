@@ -23,10 +23,21 @@ Human issues are **outcome contracts**, not implementation plans.
 | Goal — one short paragraph on learner-visible or product outcome | File paths, module names, function names |
 | **Acceptance criteria** — concrete, testable checkboxes | Step-by-step how to implement |
 | **Domain context** (optional) — links to glossary / agent docs | Code snippets (they go stale) |
+| **Suggested branch** — one kebab-case name for `git checkout -b` | File paths, module names, function names |
 | **Blocked by** — slice dependencies | “Open X and edit Y” |
 | **Out of scope** (optional) — adjacent work to leave alone | Agent briefs with type signatures |
 
-Contributors explore the codebase and choose their own approach. Criteria define **done**; docs hint **where to learn vocabulary and conventions**.
+Contributors explore the codebase and choose their own approach. Criteria define **done**; docs hint **where to learn vocabulary and conventions**. The suggested branch is a convenience for grabbing work — a clear variant is fine if the name is taken.
+
+## Suggested branch
+
+Every **slice** issue (not epics) published from `/to-issues` includes a **Suggested branch** section. Naming rules: [`issue-tracker.md`](issue-tracker.md#suggested-branch-names).
+
+```markdown
+## Suggested branch
+
+`feat/short-descriptive-slug`
+```
 
 ## Issue body template
 
@@ -42,6 +53,10 @@ One short paragraph: what should be true for the learner or product after this s
 ## Domain context
 
 Optional links only — e.g. [`CONTEXT.md`](../../CONTEXT.md) terms, [`docs/agents/jsx.md`](jsx.md), [`CONTRIBUTING.md`](../../CONTRIBUTING.md).
+
+## Suggested branch
+
+`feat/short-descriptive-slug`
 
 ## Acceptance criteria
 
