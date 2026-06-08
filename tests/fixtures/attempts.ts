@@ -31,26 +31,21 @@ export function passingSingleNoteHistory(): AttemptRecord[] {
   )
 }
 
-/** Passing history through interval tier 2a (four presentation modes). */
+/** Passing history through interval tier 2a (five presentation modes). */
 export function passingLevel2History(): AttemptRecord[] {
   const records: AttemptRecord[] = [...passingSingleNoteHistory()]
   for (const practiceModeId of [
     "interval-melodic-sing",
-    "interval-harmonic-sing",
+    "interval-named-sing",
     "interval-melodic-id",
+    "interval-harmonic-sing",
     "interval-harmonic-id",
   ] as const) {
     records.push(
-      ...Array.from({ length: MIN_EXERCISES_FOR_UNLOCK }, (_, i) =>
-        attempt({
-          practiceModeId,
-          passed: true,
-          attemptNumber: 1,
-          centsOff: 0,
-          exerciseIndex: i,
-          lessonId: `${practiceModeId}-${i}`,
-        }),
-      ),
+      ...passingStepHistory({
+        practiceModeId,
+        contentTierId: "interval-2a",
+      }),
     )
   }
   return records
@@ -93,10 +88,14 @@ export function passingMelodicSing2bHistory(): AttemptRecord[] {
   ]
 }
 
-/** Melodic identification at interval-2b complete; harmonic 2b steps not yet done. */
+/** Named-interval reproduction at interval-2b complete; melodic identification 2b not yet done. */
 export function passingThroughMelodic2bHistory(): AttemptRecord[] {
   return [
     ...passingMelodicSing2bHistory(),
+    ...passingStepHistory({
+      practiceModeId: "interval-named-sing",
+      contentTierId: "interval-2b",
+    }),
     ...passingStepHistory({
       practiceModeId: "interval-melodic-id",
       contentTierId: "interval-2b",
@@ -104,7 +103,7 @@ export function passingThroughMelodic2bHistory(): AttemptRecord[] {
   ]
 }
 
-/** Full interval tier 2b (all four presentation modes); major diatonic scale degrees unlockable. */
+/** Full interval tier 2b (all five presentation modes); major diatonic scale degrees unlockable. */
 export function passingThroughHarmonic2bHistory(): AttemptRecord[] {
   return [
     ...passingThroughMelodic2bHistory(),

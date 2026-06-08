@@ -28,6 +28,7 @@ const INTERVAL_MODE_LABEL: Record<
   Extract<
     PracticeModeId,
     | "interval-melodic-sing"
+    | "interval-named-sing"
     | "interval-melodic-id"
     | "interval-harmonic-sing"
     | "interval-harmonic-id"
@@ -35,6 +36,7 @@ const INTERVAL_MODE_LABEL: Record<
   string
 > = {
   "interval-melodic-sing": "Melodic reproduction",
+  "interval-named-sing": "Named-interval reproduction",
   "interval-melodic-id": "Melodic identification",
   "interval-harmonic-sing": "Harmonic reproduction",
   "interval-harmonic-id": "Harmonic identification",
@@ -58,6 +60,7 @@ function familyTitle(practiceModeId: PracticeModeId): string {
     case "single-note":
       return "Single note"
     case "interval-melodic-sing":
+    case "interval-named-sing":
     case "interval-melodic-id":
     case "interval-harmonic-sing":
     case "interval-harmonic-id":
@@ -79,6 +82,7 @@ function defaultPathNodeLabels(step: CurriculumLesson): PathNodeLabels {
 
   if (
     step.practiceModeId === "interval-melodic-sing" ||
+    step.practiceModeId === "interval-named-sing" ||
     step.practiceModeId === "interval-melodic-id" ||
     step.practiceModeId === "interval-harmonic-sing" ||
     step.practiceModeId === "interval-harmonic-id"

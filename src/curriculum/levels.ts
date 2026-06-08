@@ -17,6 +17,7 @@ export const CURRICULUM_LEVELS: readonly CurriculumLevel[] = [
     label: "Intervals",
     practiceModeIds: [
       "interval-melodic-sing",
+      "interval-named-sing",
       "interval-harmonic-sing",
       "interval-melodic-id",
       "interval-harmonic-id",

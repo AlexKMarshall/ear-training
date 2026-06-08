@@ -34,6 +34,7 @@ import {
   intervalHarmonicSingConfig,
   intervalMelodicIdConfig,
   intervalMelodicSingConfig,
+  intervalNamedSingConfig,
 } from "../../../src/ui/interval-tests.ts"
 import { scaleDegreeSingConfig } from "../../../src/ui/scale-degree-tests.ts"
 import {
@@ -147,6 +148,7 @@ function resetPreferencesFor(practiceModeId: PracticeModeId): void {
       resetInversionPreference()
       break
     case "interval-melodic-sing":
+    case "interval-named-sing":
     case "interval-harmonic-sing":
     case "interval-melodic-id":
     case "interval-harmonic-id":
@@ -192,6 +194,17 @@ function createSingTestConfigFor(
     case "interval-melodic-sing":
       return {
         ...intervalMelodicSingConfig,
+        prepareExercise: () => ({
+          ...intervalToLessonExercise(buildIntervalExercise(perfectFifth, "melodic", 60)),
+          contentTierId: "interval-2a",
+          eligibleTagIds: INTERVAL_2A_IDS,
+        }),
+        playReference: async () => {},
+        ...overrides,
+      }
+    case "interval-named-sing":
+      return {
+        ...intervalNamedSingConfig,
         prepareExercise: () => ({
           ...intervalToLessonExercise(buildIntervalExercise(perfectFifth, "melodic", 60)),
           contentTierId: "interval-2a",
@@ -254,6 +267,7 @@ export function defaultPassSamplesHzFor(practiceModeId: PracticeModeId): number[
     case "chord-middle":
       return Array(20).fill(midiToHz(chordTarget(fixedChordExercise).midi))
     case "interval-melodic-sing":
+    case "interval-named-sing":
     case "interval-harmonic-sing": {
       const q = buildIntervalExercise(
         perfectFifth,

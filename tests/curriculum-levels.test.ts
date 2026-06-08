@@ -6,6 +6,7 @@ describe("curriculum levels", () => {
     expect(CURRICULUM_PATH).toEqual([
       "single-note",
       "interval-melodic-sing",
+      "interval-named-sing",
       "interval-harmonic-sing",
       "interval-melodic-id",
       "interval-harmonic-id",

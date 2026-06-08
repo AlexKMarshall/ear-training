@@ -5,6 +5,7 @@ export type PracticeModeId =
   | "single-note"
   | "chord-middle"
   | "interval-melodic-sing"
+  | "interval-named-sing"
   | "interval-harmonic-sing"
   | "interval-melodic-id"
   | "interval-harmonic-id"
@@ -14,6 +15,7 @@ export const PRACTICE_MODE_LABELS: Record<PracticeModeId, string> = {
   "single-note": "Sing a single note",
   "chord-middle": "Sing the middle note of a chord",
   "interval-melodic-sing": "Sing melodic intervals",
+  "interval-named-sing": "Sing named intervals",
   "interval-harmonic-sing": "Sing harmonic intervals",
   "interval-melodic-id": "Identify melodic intervals",
   "interval-harmonic-id": "Identify harmonic intervals",

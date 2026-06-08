@@ -9,6 +9,7 @@ const SMOKE_IDS = [
   "single-note",
   "chord-middle",
   "interval-melodic-sing",
+  "interval-named-sing",
   "interval-harmonic-sing",
   "interval-melodic-id",
   "interval-harmonic-id",
@@ -36,7 +37,7 @@ for (const practiceModeId of SMOKE_IDS) {
     await expect.element(page.getByRole("heading", { name: entry.title })).toBeVisible()
 
     const playLabel =
-      practiceModeId === "single-note"
+      practiceModeId === "single-note" || practiceModeId === "interval-named-sing"
         ? /Play note/i
         : practiceModeId === "chord-middle"
           ? /Play chord/i

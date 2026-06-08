@@ -27,11 +27,13 @@ export interface CurriculumLesson {
 export const CURRICULUM_LESSONS: readonly CurriculumLesson[] = [
   { practiceModeId: "single-note", contentTierId: "tier-1" },
   { practiceModeId: "interval-melodic-sing", contentTierId: "interval-2a" },
+  { practiceModeId: "interval-named-sing", contentTierId: "interval-2a" },
   { practiceModeId: "interval-melodic-id", contentTierId: "interval-2a" },
   { practiceModeId: "interval-harmonic-sing", contentTierId: "interval-2a" },
   { practiceModeId: "interval-harmonic-id", contentTierId: "interval-2a" },
   { practiceModeId: "scale-degree-sing", contentTierId: "degree-major-intro" },
   { practiceModeId: "interval-melodic-sing", contentTierId: "interval-2b" },
+  { practiceModeId: "interval-named-sing", contentTierId: "interval-2b" },
   { practiceModeId: "interval-melodic-id", contentTierId: "interval-2b" },
   { practiceModeId: "interval-harmonic-sing", contentTierId: "interval-2b" },
   { practiceModeId: "interval-harmonic-id", contentTierId: "interval-2b" },

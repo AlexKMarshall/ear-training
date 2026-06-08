@@ -30,6 +30,11 @@ const TAG_CONFIG: Partial<Record<PracticeModeId, TagBreakdownConfig>> = {
     getTagId: (r) => r.intervalId,
     includeMedianCents: true,
   },
+  "interval-named-sing": {
+    kind: "interval",
+    getTagId: (r) => r.intervalId,
+    includeMedianCents: true,
+  },
   "interval-harmonic-sing": {
     kind: "interval",
     getTagId: (r) => r.intervalId,

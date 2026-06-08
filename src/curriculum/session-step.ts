@@ -14,6 +14,7 @@ export const CHORD_MIDDLE_CURRICULUM_LESSON: CurriculumLesson = {
 
 const INTERVAL_PRACTICE_MODE_IDS = [
   "interval-melodic-sing",
+  "interval-named-sing",
   "interval-harmonic-sing",
   "interval-melodic-id",
   "interval-harmonic-id",

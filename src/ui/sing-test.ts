@@ -106,7 +106,10 @@ export function mountSingTest(
 
     let questionPrompt = ""
     let showQuestionPrompt = false
-    if (snapshot.phase === "ready") {
+    const promptPhases = config.exercisePromptFromDraw
+      ? (["idle", "playing", "ready", "recording"] as const)
+      : (["ready"] as const)
+    if ((promptPhases as readonly string[]).includes(snapshot.phase)) {
       const prompt = exercisePromptText(snapshot.currentExercise)
       if (prompt) {
         showQuestionPrompt = true
@@ -198,6 +201,7 @@ export function mountSingTest(
       void history.saveAttempt(record)
     },
     onLessonReset: config.onLessonReset,
+    prepareExerciseOnIdle: config.exercisePromptFromDraw,
   })
 
   const exerciseScreen = screenRef.current

@@ -51,6 +51,8 @@ export interface SingTestConfig {
   /** Persistent banner for lesson context (e.g. key quality on scale-degree sing). */
   lessonBanner?: string
   exercisePrompt?: (exercise: LessonExercise) => string
+  /** When true, show {@link exercisePrompt} from draw through recording (not only in ready). */
+  exercisePromptFromDraw?: boolean
   status: {
     idle: string
     playing: string

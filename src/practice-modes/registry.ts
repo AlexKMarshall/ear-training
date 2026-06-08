@@ -5,6 +5,7 @@ import {
   mountIntervalHarmonicSingTest,
   mountIntervalMelodicIdTest,
   mountIntervalMelodicSingTest,
+  mountIntervalNamedSingTest,
 } from "../ui/interval-tests.ts"
 import { mountScaleDegreeSingTest } from "../ui/scale-degree-tests.ts"
 import { mountChordMiddleTest, mountSingleNoteTest } from "../ui/tests.ts"
@@ -44,6 +45,14 @@ const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
     title: "Sing melodic intervals",
     subtitle: "Hear two notes in sequence, then sing the top note",
     mount: mountIntervalMelodicSingTest,
+  },
+  {
+    id: "interval-named-sing",
+    responseMode: "sing",
+    route: "/interval-named-sing/",
+    title: "Sing named intervals",
+    subtitle: "Hear one note, then sing the named interval above it",
+    mount: mountIntervalNamedSingTest,
   },
   {
     id: "interval-harmonic-sing",
