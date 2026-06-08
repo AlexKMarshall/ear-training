@@ -77,8 +77,12 @@ How the learner answers on an exercise screen — **sing** (record pitch and sco
 _Avoid_: Presentation mode (when meaning melodic vs harmonic), practice mode (when meaning the route), identify (as a synonym for select)
 
 **Phrase response** (sing):
-Answering by singing multiple pitches as one uninterrupted musical phrase — one recording, scored once after the phrase ends, with no feedback between constituent notes. Preserves internal pitch memory across the response (e.g. singing back both notes of a melodic interval, or an interval above a reference note).
+Answering by singing multiple pitches as one uninterrupted musical phrase — one recording, scored once after the phrase ends, with no feedback between constituent notes. Preserves internal pitch memory across the response (e.g. singing back both notes of a melodic interval, or the upper note of a **named-interval reproduction** prompt).
 _Avoid_: Per-note feedback, multi-segment retry, step-by-step sing-back
+
+**Named-interval reproduction**:
+An interval **presentation mode** (sing **response mode**): hear one reference pitch, read the named interval (e.g. *Major 3rd*), then sing the corresponding upper note of an ascending interval (e.g. D3 + major 3rd → F♯3). The interval label is shown from exercise draw through recording (idle, playback, and sing phases — not only after Play). The interval is not played — only the reference pitch is (heard, not named on screen). Scored against the target upper note, like melodic reproduction.
+_Avoid_: Interval construction (without “named”), sing from reference (as product term), melodic reproduction (when meaning hear-both-notes-then-sing-top)
 
 ### Curriculum
 
@@ -95,7 +99,7 @@ The ordered sequence of curriculum lessons from first practice through the curre
 _Avoid_: Curriculum path, level grid, free practice section
 
 **Content tier**:
-A named pool of practice items (e.g. perfect 4th / 5th / octave vs full diatonic scale degrees within one octave). Often aligns with the exercise type **sub** for a curriculum lesson; several curriculum lessons can share one tier across different presentation modes. Scale-degree tier ids follow `{family}-{keyQuality}-{poolScope}` (e.g. `degree-major-intro`, `degree-major-diatonic`, `degree-minor-diatonic`; later `degree-major-chromatic`, `degree-minor-chromatic`, `degree-major-extended`, …). New pool scopes add new path tiers rather than silently widening an existing one.
+A named pool of practice items (e.g. perfect 4th / 5th / octave vs full diatonic intervals within one octave). Often aligns with the exercise type **sub** for a curriculum lesson; several curriculum lessons can share one tier across different presentation modes. **Interval** content tiers scope which interval labels the session planner may draw; they do **not** use **key quality** — prompts name the interval directly, with no scale collection to establish. Scale-degree tier ids follow `{family}-{keyQuality}-{poolScope}` (e.g. `degree-major-intro`, `degree-major-diatonic`, `degree-minor-diatonic`; later `degree-major-chromatic`, …). Interval tier ids follow `{family}-{poolScope}` (e.g. `interval-2a`, `interval-2b`). New pool scopes add new path tiers rather than silently widening an existing one.
 _Avoid_: Level (when meaning tier), difficulty setting, exercise type sub (when they are the same pool — pick one term in prose)
 
 **Key quality**:
@@ -151,11 +155,11 @@ The curriculum lessons on the guided path that share one content tier — all pr
 _Avoid_: Tier group, difficulty band, level block
 
 **Presentation mode**:
-How an interval is heard and answered — melodic sing, harmonic sing, melodic identification, or harmonic identification. Part of the exercise type **main** for interval work; today each presentation mode is its own practice mode and curriculum lesson on the path.
+How an interval task is presented and answered — melodic reproduction, harmonic reproduction, melodic identification, harmonic identification, or **named-interval reproduction**. Part of the exercise type **main** for interval work; today each presentation mode is its own practice mode and curriculum lesson on the path.
 _Avoid_: Mode alone, exercise type (when meaning the whole type — use main/sub instead)
 
 **Cross-mode sequencing**:
-Within an interval tier block, presentation modes advance in this order: melodic reproduction → melodic identification → harmonic reproduction → harmonic identification. The path does not enter the next interval tier block until all four modes pass at the current tier (another exercise-type family may appear on the path between interval tiers). Other exercise-type families may define their own within-block mode order when they gain multiple presentation modes.
+Within an interval tier block, presentation modes advance in this order: melodic reproduction → **named-interval reproduction** → melodic identification → harmonic reproduction → harmonic identification. The path does not enter the next interval tier block until all five modes pass at the current tier (another exercise-type family may appear on the path between interval tiers). Other exercise-type families may define their own within-block mode order when they gain multiple presentation modes.
 _Avoid_: Cross-practice-mode unlock, tier hopping, mode-first across tiers
 
 **Unlock requirement**:
