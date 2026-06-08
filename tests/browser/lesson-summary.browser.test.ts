@@ -2,6 +2,7 @@ import { beforeEach, expect, test } from "vitest"
 import { page } from "vitest/browser"
 import {
   assertLessonSummaryO2,
+  assertLessonSummaryPracticeAgain,
   runIdentifyLessonO2,
   runSingLessonO2,
   SHORT_LESSON_EXERCISES,
@@ -26,6 +27,7 @@ test("single-note sing shows lesson summary after shortened lesson with mixed ou
 
   await runSingLessonO2(/Play note/i)
   await assertLessonSummaryO2()
+  await assertLessonSummaryPracticeAgain()
 })
 
 test("interval melodic identify shows lesson summary after shortened lesson with mixed outcomes", async () => {
@@ -39,4 +41,5 @@ test("interval melodic identify shows lesson summary after shortened lesson with
 
   await runIdentifyLessonO2()
   await assertLessonSummaryO2()
+  await assertLessonSummaryPracticeAgain()
 })

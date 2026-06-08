@@ -167,6 +167,17 @@ export async function assertLessonSummaryO2(): Promise<void> {
   await expect.element(breakdown.nth(1)).toHaveTextContent(/1 \(33%\)/)
   await expect.element(breakdown.nth(2)).toHaveTextContent(/Wrong/)
   await expect.element(breakdown.nth(2)).toHaveTextContent(/1 \(33%\)/)
+  await expect.element(page.getByRole("link", { name: "Back to path" }).first()).toBeVisible()
+  await expect.element(page.getByRole("button", { name: "Practice again" }).first()).toBeVisible()
+}
+
+export async function assertLessonSummaryPracticeAgain(): Promise<void> {
+  const practiceAgainButton = page.getByRole("button", { name: "Practice again" }).first()
+  await expect.element(practiceAgainButton).toBeVisible()
+  await userEvent.click(practiceAgainButton)
+  await expect
+    .element(page.getByText(new RegExp(`exercise 1 of ${SHORT_LESSON_EXERCISES}`, "i")))
+    .toBeVisible()
 }
 
 export { FAIL_SAMPLES }
