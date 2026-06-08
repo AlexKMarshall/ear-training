@@ -1,8 +1,5 @@
-import type { JSX } from "solid-js";
-import type {
-  ActionBarState,
-  LessonProgressState,
-} from "../../exercise-screen-state.ts";
+import type { JSX } from "solid-js"
+import type { ActionBarState, LessonProgressState } from "../../exercise-screen-state.ts"
 
 export function ExerciseNav() {
   return (
@@ -11,50 +8,42 @@ export function ExerciseNav() {
         ← Back to path
       </a>
     </nav>
-  );
+  )
 }
 
 export function ExerciseHeader(props: {
-  title: string;
-  subtitle: string;
-  lessonBanner?: string;
-  lessonProgress: LessonProgressState;
+  title: string
+  subtitle: string
+  lessonBanner?: string
+  lessonProgress: LessonProgressState
 }) {
   return (
     <header class="header">
       <h1>{props.title}</h1>
       <p class="subtitle">{props.subtitle}</p>
-      {props.lessonBanner ? (
-        <p class="lesson-banner">{props.lessonBanner}</p>
-      ) : null}
+      {props.lessonBanner ? <p class="lesson-banner">{props.lessonBanner}</p> : null}
       {props.lessonProgress.visible ? (
         <p class="lesson-progress">{props.lessonProgress.text}</p>
       ) : null}
     </header>
-  );
+  )
 }
 
 const RECORD_LABELS = {
   start: "Start singing",
   done: "Done",
-} as const;
+} as const
 
 function AttemptingActionBar(props: {
-  actionBar: Extract<ActionBarState, { mode: "attempting" }>;
-  playButtonLabel: string;
-  onPlay: () => void;
-  onRecord?: () => void;
+  actionBar: Extract<ActionBarState, { mode: "attempting" }>
+  playButtonLabel: string
+  onPlay: () => void
+  onRecord?: () => void
 }) {
-  const inactive =
-    props.actionBar.step === "playing" || props.actionBar.step === "recording";
+  const inactive = props.actionBar.step === "playing" || props.actionBar.step === "recording"
   return (
     <>
-      <button
-        type="button"
-        class="btn btn-primary"
-        disabled={inactive}
-        onClick={props.onPlay}
-      >
+      <button type="button" class="btn btn-primary" disabled={inactive} onClick={props.onPlay}>
         {props.playButtonLabel}
       </button>
       {props.actionBar.record && props.onRecord ? (
@@ -63,17 +52,17 @@ function AttemptingActionBar(props: {
         </button>
       ) : null}
     </>
-  );
+  )
 }
 
 export function ExerciseActionBar(props: {
-  actionBar: ActionBarState;
-  playButtonLabel: string;
-  onPlay: () => void;
-  onRecord?: () => void;
-  onRetry: () => void;
-  onNext: () => void;
-  onNextLesson: () => void;
+  actionBar: ActionBarState
+  playButtonLabel: string
+  onPlay: () => void
+  onRecord?: () => void
+  onRetry: () => void
+  onNext: () => void
+  onNextLesson: () => void
 }) {
   return (
     <div class="actions">
@@ -85,14 +74,12 @@ export function ExerciseActionBar(props: {
           onRecord={props.onRecord}
         />
       ) : null}
-      {props.actionBar.mode === "result" &&
-      props.actionBar.action === "retry" ? (
+      {props.actionBar.mode === "result" && props.actionBar.action === "retry" ? (
         <button type="button" class="btn" onClick={props.onRetry}>
           Try again
         </button>
       ) : null}
-      {props.actionBar.mode === "result" &&
-      props.actionBar.action === "next" ? (
+      {props.actionBar.mode === "result" && props.actionBar.action === "next" ? (
         <button type="button" class="btn btn-primary" onClick={props.onNext}>
           {props.actionBar.nextLabel}
         </button>
@@ -102,19 +89,15 @@ export function ExerciseActionBar(props: {
           <a class="btn btn-primary" href="/">
             Back to path
           </a>
-          <button
-            type="button"
-            class="btn btn-secondary"
-            onClick={props.onNextLesson}
-          >
+          <button type="button" class="btn btn-secondary" onClick={props.onNextLesson}>
             Practice again
           </button>
         </>
       ) : null}
     </div>
-  );
+  )
 }
 
 export function ExerciseHint(props: { children: JSX.Element }) {
-  return <p class="hint">{props.children}</p>;
+  return <p class="hint">{props.children}</p>
 }
