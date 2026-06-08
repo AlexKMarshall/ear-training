@@ -108,19 +108,6 @@ function StatsOverallSection(props: { stats: DashboardStats; hasSingAttempts: bo
   )
 }
 
-function StatsPracticeLinks() {
-  return (
-    <nav class="test-list" aria-label="Practice tests">
-      <a href="/single-note/" class="test-card">
-        <span class="test-card-title">Sing a single note</span>
-      </a>
-      <a href="/chord-middle/" class="test-card">
-        <span class="test-card-title">Sing the middle note of a chord</span>
-      </a>
-    </nav>
-  )
-}
-
 export function StatsView(props: { stats: DashboardStats; hasSingAttempts: boolean }) {
   const hasData = props.stats.totalAttempts > 0
 
@@ -128,7 +115,7 @@ export function StatsView(props: { stats: DashboardStats; hasSingAttempts: boole
     <main class="app">
       <nav class="nav">
         <a href="/" class="nav-back">
-          ← All tests
+          ← Back to path
         </a>
       </nav>
 
@@ -148,12 +135,10 @@ export function StatsView(props: { stats: DashboardStats; hasSingAttempts: boole
         <section class="card">
           <p class="status">No practice history yet.</p>
           <p class="stats-hint">
-            Complete a lesson on any test — each scored attempt is saved locally in your browser.
+            Complete a lesson on the path — each scored attempt is saved locally in your browser.
           </p>
         </section>
       )}
-
-      <StatsPracticeLinks />
     </main>
   )
 }
