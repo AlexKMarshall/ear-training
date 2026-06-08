@@ -61,6 +61,29 @@ test("does not render interval picker", async () => {
   await expect.element(page.getByRole("group", { name: /Intervals/i })).not.toBeInTheDocument()
 })
 
+test("retry keeps the same multiple-choice options", async () => {
+  mountMelodicIntervalIdTest()
+
+  await userEvent.click(page.getByRole("button", { name: /Play interval/i }))
+
+  function choiceLabels(): string[] {
+    return [...document.querySelectorAll<HTMLButtonElement>(".choice-grid .choice-btn")].map(
+      (button) => button.textContent?.trim() ?? "",
+    )
+  }
+
+  const labelsBefore = choiceLabels()
+  expect(labelsBefore.length).toBeGreaterThan(1)
+
+  await userEvent.click(page.getByRole("button", { name: /Perfect 4th/i }))
+  await expect.element(page.getByText("Not quite", { exact: true })).toBeVisible()
+
+  await userEvent.click(page.getByRole("button", { name: /Try again/i }))
+  await expect.element(page.getByText(/Choose the interval you heard/i)).toBeVisible()
+
+  expect(choiceLabels()).toEqual(labelsBefore)
+})
+
 test("eligible tier pool drives multiple choice without interval picker", async () => {
   const step = {
     practiceModeId: "interval-melodic-id" as const,
