@@ -327,7 +327,7 @@ export class ExerciseScreenState {
 
     try {
       await this.hooks.ensurePlayback()
-      if (this.phase === "idle" || !this.currentExercise) {
+      if (!this.currentExercise) {
         this.currentExercise = this.hooks.prepareExercise()
         this.lessonRun.ensureCurrentExercise()
       }

@@ -339,6 +339,54 @@ describe("ExerciseScreenState", () => {
     expect(state.getSnapshot().settingsLocked).toBe(true)
   })
 
+  it("does not redraw on play when exercise was already drawn in idle", async () => {
+    let calls = 0
+    const first: LessonExercise = { ...sampleExercise, intervalId: "first" }
+    const second: LessonExercise = { ...sampleExercise, intervalId: "second" }
+    const prepareExercise = vi.fn(() => (calls++ === 0 ? first : second))
+
+    const state = new ExerciseScreenState({
+      hooks: {
+        prepareExercise,
+        ensurePlayback: vi.fn(async () => {}),
+        playReference: vi.fn(async () => {}),
+        scoreAnswer: () => ({
+          kind: "scored",
+          passed: false,
+          scorePayload: { centsOff: 50 },
+        }),
+        beginRecording: vi.fn(async ({ onComplete }) => {
+          onComplete([
+            200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215,
+          ])
+          return { stop: vi.fn() }
+        }),
+      },
+      statusCopy,
+      responseMode: "sing",
+      prepareExerciseOnIdle: true,
+      onSnapshotChange: vi.fn(),
+      onAttemptScored: vi.fn(),
+    })
+
+    expect(prepareExercise).toHaveBeenCalledTimes(1)
+    expect(state.getSnapshot().currentExercise?.intervalId).toBe("first")
+
+    await state.play()
+    expect(prepareExercise).toHaveBeenCalledTimes(1)
+
+    await state.toggleRecording()
+    expect(state.getSnapshot().phase).toBe("result")
+
+    await state.retry()
+    expect(state.getSnapshot().phase).toBe("idle")
+    expect(state.getSnapshot().currentExercise?.intervalId).toBe("first")
+
+    await state.play()
+    expect(prepareExercise).toHaveBeenCalledTimes(1)
+    expect(state.getSnapshot().currentExercise?.intervalId).toBe("first")
+  })
+
   it("projects sing record on ready and recording steps only", async () => {
     const beginRecording = vi.fn(
       ({ onPitch }: { onPitch: (text: string) => void }) =>
