@@ -28,11 +28,13 @@ describe("curriculum steps", () => {
     expect(CURRICULUM_LESSONS.map((s) => `${s.practiceModeId}@${s.contentTierId}`)).toEqual([
       "single-note@tier-1",
       "interval-melodic-sing@interval-2a",
+      "interval-named-sing@interval-2a",
       "interval-melodic-id@interval-2a",
       "interval-harmonic-sing@interval-2a",
       "interval-harmonic-id@interval-2a",
       "scale-degree-sing@degree-major-intro",
       "interval-melodic-sing@interval-2b",
+      "interval-named-sing@interval-2b",
       "interval-melodic-id@interval-2b",
       "interval-harmonic-sing@interval-2b",
       "interval-harmonic-id@interval-2b",
@@ -66,6 +68,10 @@ describe("curriculum steps", () => {
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2a",
     })
+    const namedSing2a = getCurriculumLessonIndex({
+      practiceModeId: "interval-named-sing",
+      contentTierId: "interval-2a",
+    })
     const melodicId2a = getCurriculumLessonIndex({
       practiceModeId: "interval-melodic-id",
       contentTierId: "interval-2a",
@@ -87,12 +93,14 @@ describe("curriculum steps", () => {
       contentTierId: "interval-2b",
     })
     expect(melodicSing2a).toBe(1)
-    expect(melodicId2a).toBe(2)
-    expect(harmonicSing2a).toBe(3)
-    expect(harmonicId2a).toBe(4)
-    expect(introDegrees).toBe(5)
-    expect(melodicSing2b).toBe(6)
-    expect(melodicId2a).toBeGreaterThan(melodicSing2a)
+    expect(namedSing2a).toBe(2)
+    expect(melodicId2a).toBe(3)
+    expect(harmonicSing2a).toBe(4)
+    expect(harmonicId2a).toBe(5)
+    expect(introDegrees).toBe(6)
+    expect(melodicSing2b).toBe(7)
+    expect(namedSing2a).toBeGreaterThan(melodicSing2a)
+    expect(melodicId2a).toBeGreaterThan(namedSing2a)
     expect(harmonicSing2a).toBeGreaterThan(melodicId2a)
     expect(harmonicId2a).toBeGreaterThan(harmonicSing2a)
     expect(introDegrees).toBeGreaterThan(harmonicId2a)
@@ -106,6 +114,10 @@ describe("curriculum steps", () => {
     })
     const melodicSing2b = getCurriculumLessonIndex({
       practiceModeId: "interval-melodic-sing",
+      contentTierId: "interval-2b",
+    })
+    const namedSing2b = getCurriculumLessonIndex({
+      practiceModeId: "interval-named-sing",
       contentTierId: "interval-2b",
     })
     const melodicId2b = getCurriculumLessonIndex({
@@ -128,19 +140,20 @@ describe("curriculum steps", () => {
       practiceModeId: "chord-middle",
       contentTierId: "chord-1a",
     })
-    expect(introDegrees).toBe(5)
-    expect(melodicSing2b).toBe(6)
-    expect(melodicId2b).toBe(7)
-    expect(harmonicSing2b).toBe(8)
-    expect(harmonicId2b).toBe(9)
-    expect(majorDiatonicDegrees).toBe(10)
+    expect(introDegrees).toBe(6)
+    expect(melodicSing2b).toBe(7)
+    expect(namedSing2b).toBe(8)
+    expect(melodicId2b).toBe(9)
+    expect(harmonicSing2b).toBe(10)
+    expect(harmonicId2b).toBe(11)
+    expect(majorDiatonicDegrees).toBe(12)
     expect(
       getCurriculumLessonIndex({
         practiceModeId: "scale-degree-sing",
         contentTierId: "degree-minor-diatonic",
       }),
-    ).toBe(11)
-    expect(chordMiddle).toBe(12)
+    ).toBe(13)
+    expect(chordMiddle).toBe(14)
     expect(melodicSing2b).toBeGreaterThan(introDegrees)
     expect(harmonicSing2b).toBeGreaterThan(melodicId2b)
     expect(harmonicId2b).toBeGreaterThan(harmonicSing2b)
@@ -151,6 +164,9 @@ describe("curriculum steps", () => {
   it("returns ordered steps per exercise for tier progression", () => {
     expect(
       curriculumLessonsForPracticeMode("interval-melodic-sing").map((s) => s.contentTierId),
+    ).toEqual(["interval-2a", "interval-2b"])
+    expect(
+      curriculumLessonsForPracticeMode("interval-named-sing").map((s) => s.contentTierId),
     ).toEqual(["interval-2a", "interval-2b"])
     expect(
       curriculumLessonsForPracticeMode("interval-harmonic-sing").map((s) => s.contentTierId),

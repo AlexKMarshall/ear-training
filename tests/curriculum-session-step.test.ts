@@ -38,8 +38,14 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
     })
   })
 
-  it("returns interval-2b for melodic identify after sing at 2b passes", () => {
-    const records = passingMelodicSing2bHistory()
+  it("returns interval-2b for melodic identify after named sing at 2b passes", () => {
+    const records = [
+      ...passingMelodicSing2bHistory(),
+      ...passingStepHistory({
+        practiceModeId: "interval-named-sing",
+        contentTierId: "interval-2b",
+      }),
+    ]
     expect(getSessionCurriculumLessonForPracticeMode("interval-melodic-id", records)).toEqual({
       practiceModeId: "interval-melodic-id",
       contentTierId: "interval-2b",

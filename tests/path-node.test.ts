@@ -24,6 +24,15 @@ describe("getPathNodeLabels", () => {
       title: "Intervals",
       subtitle: "Melodic reproduction · perfect 4th, 5th, octave",
     })
+    expect(
+      getPathNodeLabels({
+        practiceModeId: "interval-named-sing",
+        contentTierId: "interval-2a",
+      }),
+    ).toEqual({
+      title: "Intervals",
+      subtitle: "Named-interval reproduction · perfect 4th, 5th, octave",
+    })
   })
 
   it("uses family title and key-quality subtitle for intro scale degrees", () => {
@@ -92,7 +101,7 @@ describe("getPathNodeState", () => {
 describe("getNextLockedPathNode", () => {
   it("returns the step after the current node when practice is in progress", () => {
     expect(getNextLockedPathNode(passingSingleNoteHistory())).toEqual({
-      practiceModeId: "interval-melodic-id",
+      practiceModeId: "interval-named-sing",
       contentTierId: "interval-2a",
     })
   })
@@ -113,7 +122,7 @@ describe("formatPathNodeStatus", () => {
     ).toContain("exercises")
     expect(
       formatPathNodeStatus(
-        { practiceModeId: "interval-melodic-id", contentTierId: "interval-2a" },
+        { practiceModeId: "interval-named-sing", contentTierId: "interval-2a" },
         records,
       ),
     ).toContain("Sing melodic intervals")

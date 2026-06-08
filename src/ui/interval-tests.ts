@@ -1,5 +1,6 @@
-import { playDyad, playMelodicSequence } from "../audio/playback.ts"
+import { playDyad, playMelodicSequence, playTargetNote } from "../audio/playback.ts"
 import type { PracticeModeId } from "../history/types.ts"
+import { getIntervalById } from "../interval-config.ts"
 import type { LessonExercise } from "../lesson-exercise.ts"
 import {
   type IdentifyMountDeps,
@@ -99,11 +100,68 @@ function mountIntervalSingTest(
   )
 }
 
+const intervalNamedSingBase = {
+  practiceModeId: "interval-named-sing" as const,
+  title: "Sing named intervals",
+  subtitle: "Hear one note, then sing the named interval above it",
+  playButtonLabel: "Play note",
+  showVoicePicker: true,
+  exercisePromptFromDraw: true,
+  status: {
+    idle: "Press Play to hear the reference note.",
+    playing: "Listen to the reference note…",
+    ready: "Sing the interval shown below, then tap Start singing when ready.",
+    recording:
+      "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
+    pass: "Correct — tap Next exercise when you are ready.",
+    fail: "Try again on this exercise (up to 3 tries).",
+    failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
+  },
+  playReference: (exercise: LessonExercise) => {
+    if (!exercise.interval) {
+      throw new Error("Missing interval for playback")
+    }
+    return playTargetNote(exercise.interval.lower.midi)
+  },
+  exercisePrompt: (exercise: LessonExercise) => {
+    const label = getIntervalById(exercise.intervalId ?? "")?.label ?? exercise.intervalId ?? "?"
+    return label
+  },
+}
+
+export const intervalNamedSingConfig: SingTestConfig = {
+  ...intervalNamedSingBase,
+  prepareExercise: () => prepareIntervalExercise("interval-named-sing", "melodic", []),
+}
+
 export function mountIntervalMelodicSingTest(
   root: HTMLElement,
   deps?: IntervalSessionDeps & SingMountDeps,
 ): void {
   mountIntervalSingTest(root, "interval-melodic-sing", "melodic", intervalMelodicSingBase, deps)
+}
+
+export function mountIntervalNamedSingTest(
+  root: HTMLElement,
+  deps?: IntervalSessionDeps & SingMountDeps,
+): void {
+  const { sessionHistory, planner } = resolveIntervalSession(deps ?? {})
+  mountSingTest(
+    root,
+    {
+      ...intervalNamedSingBase,
+      prepareExercise: () =>
+        prepareIntervalExercise(
+          "interval-named-sing",
+          "melodic",
+          sessionHistory.getRecords(),
+          planner,
+          undefined,
+          deps?.sessionCurriculumLesson,
+        ),
+    },
+    { ...deps, history: sessionHistory.historyPort },
+  )
 }
 
 export function mountIntervalHarmonicSingTest(

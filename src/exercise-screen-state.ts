@@ -117,6 +117,8 @@ export interface ExerciseScreenStateOptions {
   onAttemptScored: (context: AttemptScoredEnrichedContext) => void
   onLessonReset?: () => void
   createLessonId?: () => string
+  /** Draw the next question in idle without playing (named-interval reproduction). */
+  prepareExerciseOnIdle?: boolean
 }
 
 function nextStepButtonLabel(isLastExerciseInLesson: boolean): string {
@@ -191,6 +193,7 @@ export class ExerciseScreenState {
   private readonly onSnapshotChange: (snapshot: ExerciseScreenStateSnapshot) => void
   private readonly onAttemptScored: (context: AttemptScoredEnrichedContext) => void
   private readonly onLessonReset?: () => void
+  private readonly prepareExerciseOnIdle: boolean
 
   constructor(options: ExerciseScreenStateOptions) {
     this.hooks = options.hooks
@@ -201,6 +204,7 @@ export class ExerciseScreenState {
     this.onSnapshotChange = options.onSnapshotChange
     this.onAttemptScored = options.onAttemptScored
     this.onLessonReset = options.onLessonReset
+    this.prepareExerciseOnIdle = options.prepareExerciseOnIdle ?? false
 
     this.lessonRun = new LessonRun({
       exercisesPerLesson: this.exercisesPerLesson,
@@ -219,7 +223,11 @@ export class ExerciseScreenState {
       },
     })
 
-    this.notify()
+    if (this.prepareExerciseOnIdle) {
+      this.drawExercise()
+    } else {
+      this.notify()
+    }
   }
 
   private pendingScorePayload: unknown
@@ -302,6 +310,15 @@ export class ExerciseScreenState {
 
   private notify(): void {
     this.onSnapshotChange(this.getSnapshot())
+  }
+
+  private drawExercise(): void {
+    if (this.currentExercise) {
+      return
+    }
+    this.currentExercise = this.hooks.prepareExercise()
+    this.lessonRun.ensureCurrentExercise()
+    this.notify()
   }
 
   async play(): Promise<void> {
@@ -440,6 +457,10 @@ export class ExerciseScreenState {
     this.recordingSession = null
     this.lessonRun.retryCurrentExercise()
     this.resultView = null
+    if (this.prepareExerciseOnIdle) {
+      this.setPhase("idle")
+      return
+    }
     await this.play()
   }
 
@@ -456,6 +477,10 @@ export class ExerciseScreenState {
     this.currentExercise = null
     this.resultView = null
     this.setPhase("idle")
+    if (this.prepareExerciseOnIdle) {
+      this.drawExercise()
+      return
+    }
     await this.play()
   }
 
@@ -468,6 +493,9 @@ export class ExerciseScreenState {
     this.resultView = null
     this.onLessonReset?.()
     this.setPhase("idle")
+    if (this.prepareExerciseOnIdle) {
+      this.drawExercise()
+    }
   }
 
   startNextLesson(): void {

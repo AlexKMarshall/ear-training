@@ -98,7 +98,24 @@ describe("isLevelUnlocked", () => {
 })
 
 describe("isCurriculumLessonUnlocked", () => {
-  it("locks melodic identify at 2a until melodic sing at 2a passes", () => {
+  it("locks named-interval sing at 2a until melodic sing at 2a passes", () => {
+    const named2a = {
+      practiceModeId: "interval-named-sing" as const,
+      contentTierId: "interval-2a" as const,
+    }
+    expect(isCurriculumLessonUnlocked(named2a, passingSingleNoteHistory())).toBe(false)
+    expect(
+      isCurriculumLessonUnlocked(named2a, [
+        ...passingSingleNoteHistory(),
+        ...passingStepHistory({
+          practiceModeId: "interval-melodic-sing",
+          contentTierId: "interval-2a",
+        }),
+      ]),
+    ).toBe(true)
+  })
+
+  it("locks melodic identify at 2a until named-interval sing at 2a passes", () => {
     const id2a = {
       practiceModeId: "interval-melodic-id" as const,
       contentTierId: "interval-2a" as const,
@@ -109,6 +126,19 @@ describe("isCurriculumLessonUnlocked", () => {
         ...passingSingleNoteHistory(),
         ...passingStepHistory({
           practiceModeId: "interval-melodic-sing",
+          contentTierId: "interval-2a",
+        }),
+      ]),
+    ).toBe(false)
+    expect(
+      isCurriculumLessonUnlocked(id2a, [
+        ...passingSingleNoteHistory(),
+        ...passingStepHistory({
+          practiceModeId: "interval-melodic-sing",
+          contentTierId: "interval-2a",
+        }),
+        ...passingStepHistory({
+          practiceModeId: "interval-named-sing",
           contentTierId: "interval-2a",
         }),
       ]),
@@ -128,6 +158,10 @@ describe("isCurriculumLessonUnlocked", () => {
           practiceModeId: "interval-melodic-sing",
           contentTierId: "interval-2a",
         }),
+        ...passingStepHistory({
+          practiceModeId: "interval-named-sing",
+          contentTierId: "interval-2a",
+        }),
       ]),
     ).toBe(false)
     expect(
@@ -135,6 +169,10 @@ describe("isCurriculumLessonUnlocked", () => {
         ...passingSingleNoteHistory(),
         ...passingStepHistory({
           practiceModeId: "interval-melodic-sing",
+          contentTierId: "interval-2a",
+        }),
+        ...passingStepHistory({
+          practiceModeId: "interval-named-sing",
           contentTierId: "interval-2a",
         }),
         ...passingStepHistory({
@@ -155,13 +193,22 @@ describe("isCurriculumLessonUnlocked", () => {
     expect(isCurriculumLessonUnlocked(sing2b, passingIntroScaleDegreeHistory())).toBe(true)
   })
 
-  it("locks melodic identify at 2b until melodic sing at 2b passes", () => {
+  it("locks melodic identify at 2b until named-interval sing at 2b passes", () => {
     const id2b = {
       practiceModeId: "interval-melodic-id" as const,
       contentTierId: "interval-2b" as const,
     }
     expect(isCurriculumLessonUnlocked(id2b, passingLevel2History())).toBe(false)
-    expect(isCurriculumLessonUnlocked(id2b, passingMelodicSing2bHistory())).toBe(true)
+    expect(isCurriculumLessonUnlocked(id2b, passingMelodicSing2bHistory())).toBe(false)
+    expect(
+      isCurriculumLessonUnlocked(id2b, [
+        ...passingMelodicSing2bHistory(),
+        ...passingStepHistory({
+          practiceModeId: "interval-named-sing",
+          contentTierId: "interval-2b",
+        }),
+      ]),
+    ).toBe(true)
   })
 
   it("locks harmonic sing at 2b until melodic identify at 2b passes", () => {
@@ -215,7 +262,15 @@ describe("getContinueCurriculumLesson", () => {
     })
   })
 
-  it("advances to harmonic sing at 2b after melodic 2b completes", () => {
+  it("advances to named-interval sing at 2b after melodic sing 2b completes", () => {
+    expect(getContinuePracticeMode(passingMelodicSing2bHistory())).toBe("interval-named-sing")
+    expect(getContinueCurriculumLesson(passingMelodicSing2bHistory())).toEqual({
+      practiceModeId: "interval-named-sing",
+      contentTierId: "interval-2b",
+    })
+  })
+
+  it("advances to harmonic sing at 2b after melodic identification 2b completes", () => {
     expect(getContinuePracticeMode(passingThroughMelodic2bHistory())).toBe("interval-harmonic-sing")
     expect(getContinueCurriculumLesson(passingThroughMelodic2bHistory())).toEqual({
       practiceModeId: "interval-harmonic-sing",
