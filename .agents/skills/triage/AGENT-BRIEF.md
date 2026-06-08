@@ -55,6 +55,9 @@ Be specific about edge cases and error conditions.
 - `functionName()` return type — what it currently returns vs what it should return
 - Config shape — any new configuration options needed
 
+**Suggested branch:**
+`feat/short-descriptive-slug` — per [`docs/agents/issue-tracker.md`](../../../docs/agents/issue-tracker.md#suggested-branch-names). Omit for epics; include on every grab-ready slice and standalone issue.
+
 **Acceptance criteria:**
 - [ ] Specific, testable criterion 1
 - [ ] Specific, testable criterion 2
