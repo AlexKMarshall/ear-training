@@ -5,7 +5,7 @@ export function ExerciseNav() {
   return (
     <nav class="nav">
       <a href="/" class="nav-back">
-        ← All tests
+        ← Back to path
       </a>
     </nav>
   )
