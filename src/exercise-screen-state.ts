@@ -117,7 +117,7 @@ export interface ExerciseScreenStateOptions {
   onAttemptScored: (context: AttemptScoredEnrichedContext) => void
   onLessonReset?: () => void
   createLessonId?: () => string
-  /** Draw the next question in idle without playing (named-interval reproduction). */
+  /** Draw the question in idle before the first Play so prompts can show early (named-interval reproduction). */
   prepareExerciseOnIdle?: boolean
 }
 
@@ -327,7 +327,7 @@ export class ExerciseScreenState {
 
     try {
       await this.hooks.ensurePlayback()
-      if (this.phase === "idle" || !this.currentExercise) {
+      if (!this.currentExercise) {
         this.currentExercise = this.hooks.prepareExercise()
         this.lessonRun.ensureCurrentExercise()
       }
@@ -457,10 +457,6 @@ export class ExerciseScreenState {
     this.recordingSession = null
     this.lessonRun.retryCurrentExercise()
     this.resultView = null
-    if (this.prepareExerciseOnIdle) {
-      this.setPhase("idle")
-      return
-    }
     await this.play()
   }
 
@@ -479,7 +475,6 @@ export class ExerciseScreenState {
     this.setPhase("idle")
     if (this.prepareExerciseOnIdle) {
       this.drawExercise()
-      return
     }
     await this.play()
   }
