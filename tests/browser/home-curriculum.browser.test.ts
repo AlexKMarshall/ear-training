@@ -227,6 +227,31 @@ test("after chord minor second complete: chord quality second is the current lin
     .toBeVisible()
 })
 
+test("after chord quality second complete: minor triad inversion identification is the current link", async () => {
+  await mountHomeWithHistory([
+    ...passingThroughChordInversionMajorHistory(),
+    ...passingStepHistory({
+      practiceModeId: "scale-degree-sing",
+      contentTierId: "degree-minor-diatonic",
+    }),
+    ...passingStepHistory({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-minor-second",
+    }),
+    ...passingStepHistory({
+      practiceModeId: "chord-quality-id",
+      contentTierId: "chord-quality-second",
+    }),
+  ])
+  await expect
+    .element(
+      guidedPath().getByRole("link", {
+        name: /Chords.*Inversion identification.*minor triad/i,
+      }),
+    )
+    .toBeVisible()
+})
+
 test("path complete: banner shown and stats link remains", async () => {
   await mountHomeWithHistory(passingFullGuidedPathHistory())
   await expect.element(guidedPath().getByText(/completed the guided path/i)).toBeVisible()

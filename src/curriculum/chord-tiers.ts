@@ -80,6 +80,7 @@ const CHORD_INVERSION_ID_TIER_CONFIG: Record<
   { triadQualityId: "major-triad" | "minor-triad" }
 > = {
   "chord-inversion-major": { triadQualityId: "major-triad" },
+  "chord-inversion-minor": { triadQualityId: "minor-triad" },
 }
 
 export function getChordInversionIdTierConfig(tierId: ChordInversionIdContentTierId): {
@@ -98,6 +99,8 @@ export function getChordInversionIdLessonBannerLabel(
   switch (tierId) {
     case "chord-inversion-major":
       return "Major triad"
+    case "chord-inversion-minor":
+      return "Minor triad"
   }
 }
 

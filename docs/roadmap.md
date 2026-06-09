@@ -92,8 +92,7 @@ Grouped by theme; order is indicative, not a commitment. Prefer tracer-bullet is
 | Item | Notes |
 |------|--------|
 | Scale degree identification | When answer pool diverges from interval ID |
-| Chord quality identification | Major / minor / dim / aug |
-| Chord inversion identification | Root / 1st / 2nd |
+| Chord quality identification (extended) | Dim / aug and qualities beyond major / minor triads |
 | Tonic / key exercises | Establish key → identify degree or function |
 | Note-name answer mode | Harder variant on existing exercise types |
 | Keyboard / MIDI input | For recognition exercises |
@@ -103,8 +102,6 @@ Grouped by theme; order is indicative, not a commitment. Prefer tracer-bullet is
 | Item | Notes |
 |------|--------|
 | Sing root / 3rd / 5th (beyond middle only) | Reproduction |
-| Triad quality ID | Recognition |
-| Triads + inversions — sing and ID | Levels 5–6 |
 | Seventh chords — sing tone + quality/inversion ID | Level 6 |
 
 ### Melody & advanced pitch (levels 7–9)

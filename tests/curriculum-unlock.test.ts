@@ -23,6 +23,7 @@ import {
   passingThroughChordInversionMajorHistory,
   passingThroughChordQualityFirstHistory,
   passingThroughChordQualityRootHistory,
+  passingThroughChordQualitySecondHistory,
   passingThroughHarmonic2bHistory,
   passingThroughHarmonicId2aHistory,
   passingThroughHarmonicSing2aHistory,
@@ -356,6 +357,16 @@ describe("getContinueCurriculumLesson", () => {
     })
   })
 
+  it("advances to minor triad inversion identification after chord quality second completes", () => {
+    expect(getContinuePracticeMode(passingThroughChordQualitySecondHistory())).toBe(
+      "chord-inversion-id",
+    )
+    expect(getContinueCurriculumLesson(passingThroughChordQualitySecondHistory())).toEqual({
+      practiceModeId: "chord-inversion-id",
+      contentTierId: "chord-inversion-minor",
+    })
+  })
+
   it("advances to chord major root after interval 2a harmonic sing completes", () => {
     expect(getContinuePracticeMode(passingThroughHarmonicSing2aHistory())).toBe("chord-sing")
     expect(getContinueCurriculumLesson(passingThroughHarmonicSing2aHistory())).toEqual({
@@ -510,6 +521,17 @@ describe("getUnlockRequirement", () => {
     ]
     expect(isCurriculumLessonUnlocked(qualitySecond, minorDiatonicComplete)).toBe(false)
     expect(isCurriculumLessonUnlocked(qualitySecond, passingChordMinorSecondHistory())).toBe(true)
+  })
+
+  it("locks minor triad inversion identification until chord quality second passes", () => {
+    const inversionMinor = {
+      practiceModeId: "chord-inversion-id" as const,
+      contentTierId: "chord-inversion-minor" as const,
+    }
+    expect(isCurriculumLessonUnlocked(inversionMinor, passingChordMinorSecondHistory())).toBe(false)
+    expect(
+      isCurriculumLessonUnlocked(inversionMinor, passingThroughChordQualitySecondHistory()),
+    ).toBe(true)
   })
 
   it("describes harmonic sing predecessor for chord-sing", () => {

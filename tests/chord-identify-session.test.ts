@@ -8,7 +8,11 @@ import {
   prepareChordInversionIdExercise,
   prepareChordQualityIdExercise,
 } from "../src/ui/chord-identify-session.ts"
-import { passingChordMajorSecondHistory, passingLevel2History } from "./fixtures/attempts.ts"
+import {
+  passingChordMajorSecondHistory,
+  passingLevel2History,
+  passingThroughChordQualitySecondHistory,
+} from "./fixtures/attempts.ts"
 
 describe("prepareChordQualityIdExercise", () => {
   it("draws triad quality from planner and anchors range on bottom pitch", () => {
@@ -120,5 +124,39 @@ describe("prepareChordInversionIdExercise", () => {
     expect(exercise.chordTypeId).toBe("major-triad")
     expect(exercise.contentTierId).toBe("chord-inversion-major")
     expect(exercise.inversionId).toBe("first")
+  })
+
+  it("draws inversion from planner with minor triad fixed by tier", () => {
+    const planner: SessionPlanner = {
+      planNextExerciseTag: () => "root",
+    }
+    const exercise = prepareChordInversionIdExercise(
+      passingThroughChordQualitySecondHistory(),
+      planner,
+      { lowMidi: 48, highMidi: 55 },
+      () => 0,
+    )
+
+    expect(exercise.chordTypeId).toBe("minor-triad")
+    expect(exercise.contentTierId).toBe("chord-inversion-minor")
+    expect(exercise.inversionId).toBe("root")
+    expect(exercise.eligibleTagIds).toEqual(getEligibleInversionIds())
+  })
+
+  it("respects URL curriculum lesson tier for minor triad inversion", () => {
+    const planner: SessionPlanner = {
+      planNextExerciseTag: () => "second",
+    }
+    const exercise = prepareChordInversionIdExercise(
+      [],
+      planner,
+      { lowMidi: 48, highMidi: 67 },
+      () => 0,
+      { practiceModeId: "chord-inversion-id", contentTierId: "chord-inversion-minor" },
+    )
+
+    expect(exercise.chordTypeId).toBe("minor-triad")
+    expect(exercise.contentTierId).toBe("chord-inversion-minor")
+    expect(exercise.inversionId).toBe("second")
   })
 })
