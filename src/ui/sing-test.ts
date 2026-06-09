@@ -155,8 +155,7 @@ export function mountSingTest(
           onError,
         })
       },
-      scoreAnswer: (exercise, response) => {
-        const samplesHz = response as number[]
+      scoreAnswer: (exercise, samplesHz) => {
         if (samplesHz.length < MIN_VALID_SAMPLES) {
           return {
             kind: "error",

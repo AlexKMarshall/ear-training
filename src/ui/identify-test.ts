@@ -115,9 +115,6 @@ export function mountIdentifyTest(
         }
       },
       scoreAnswer: (exercise, selectedId) => {
-        if (exercise.type !== "interval") {
-          return { kind: "error", message: "Missing interval for scoring." }
-        }
         const passed = selectedId === exercise.intervalId
         const label = currentChoices.find((c) => c.id === selectedId)?.label ?? String(selectedId)
         return {
