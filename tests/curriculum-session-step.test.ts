@@ -17,6 +17,7 @@ import {
   passingThroughHarmonicId2aHistory,
   passingThroughHarmonicSing2aHistory,
   passingThroughMelodic2bHistory,
+  passingThroughMelodicId2bHistory,
 } from "./fixtures/attempts.ts"
 
 describe("getSessionCurriculumLessonForPracticeMode", () => {
@@ -40,22 +41,16 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
     })
   })
 
-  it("returns interval-2b for melodic identify after chord minor first passes", () => {
-    const records = [
-      ...passingMelodicSing2bHistory(),
-      ...passingStepHistory({
-        practiceModeId: "chord-sing",
-        contentTierId: "chord-major-first",
-      }),
-      ...passingStepHistory({
-        practiceModeId: "interval-named-sing",
-        contentTierId: "interval-2b",
-      }),
-      ...passingStepHistory({
-        practiceModeId: "chord-sing",
-        contentTierId: "chord-minor-first",
-      }),
-    ]
+  it("returns chord-quality-first after chord minor first passes", () => {
+    const records = passingThroughMelodic2bHistory()
+    expect(getSessionCurriculumLessonForPracticeMode("chord-quality-id", records)).toEqual({
+      practiceModeId: "chord-quality-id",
+      contentTierId: "chord-quality-first",
+    })
+  })
+
+  it("returns interval-2b for melodic identify after chord quality first passes", () => {
+    const records = passingThroughMelodicId2bHistory()
     expect(getSessionCurriculumLessonForPracticeMode("interval-melodic-id", records)).toEqual({
       practiceModeId: "interval-melodic-id",
       contentTierId: "interval-2b",
@@ -75,7 +70,7 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
   })
 
   it("returns interval-2b for harmonic exercises when that tier is unlocked", () => {
-    const records = passingThroughMelodic2bHistory()
+    const records = passingThroughMelodicId2bHistory()
     expect(getSessionCurriculumLessonForPracticeMode("interval-harmonic-sing", records)).toEqual({
       practiceModeId: "interval-harmonic-sing",
       contentTierId: "interval-2b",
@@ -88,7 +83,7 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
 
   it("returns interval-2b for harmonic identify after harmonic sing at 2b passes", () => {
     const records = [
-      ...passingThroughMelodic2bHistory(),
+      ...passingThroughMelodicId2bHistory(),
       ...passingStepHistory({
         practiceModeId: "interval-harmonic-sing",
         contentTierId: "interval-2b",

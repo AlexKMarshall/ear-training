@@ -42,4 +42,21 @@ describe("prepareChordQualityIdExercise", () => {
     expect(exercise.contentTierId).toBe("chord-quality-root")
     expect(exercise.inversionId).toBe("root")
   })
+
+  it("uses 1st inversion from URL curriculum lesson tier", () => {
+    const planner: SessionPlanner = {
+      planNextExerciseTag: () => "minor-triad",
+    }
+    const exercise = prepareChordQualityIdExercise(
+      [],
+      planner,
+      { lowMidi: 48, highMidi: 67 },
+      () => 0,
+      { practiceModeId: "chord-quality-id", contentTierId: "chord-quality-first" },
+    )
+
+    expect(exercise.chordTypeId).toBe("minor-triad")
+    expect(exercise.contentTierId).toBe("chord-quality-first")
+    expect(exercise.inversionId).toBe("first")
+  })
 })

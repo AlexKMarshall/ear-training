@@ -38,6 +38,7 @@ const CHORD_QUALITY_ID_TIER_CONFIG: Record<
   { inversion: InversionId }
 > = {
   "chord-quality-root": { inversion: "root" },
+  "chord-quality-first": { inversion: "first" },
 }
 
 export function getChordQualityIdTierConfig(tierId: ChordQualityIdContentTierId): {
@@ -54,6 +55,8 @@ export function getChordQualityIdLessonBannerLabel(tierId: ChordQualityIdContent
   switch (tierId) {
     case "chord-quality-root":
       return "Root position"
+    case "chord-quality-first":
+      return "1st inversion"
   }
 }
 

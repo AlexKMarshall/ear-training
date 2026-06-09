@@ -71,6 +71,18 @@ describe("getPathNodeLabels", () => {
     })
   })
 
+  it("uses quality identification subtitle for chord quality identify steps", () => {
+    expect(
+      getPathNodeLabels({
+        practiceModeId: "chord-quality-id",
+        contentTierId: "chord-quality-first",
+      }),
+    ).toEqual({
+      title: "Chords",
+      subtitle: "Quality identification · 1st inversion",
+    })
+  })
+
   it("uses chord tier banner and any-voice subtitle for chord steps", () => {
     expect(
       getPathNodeLabels({
