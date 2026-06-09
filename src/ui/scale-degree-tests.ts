@@ -11,22 +11,24 @@ import {
 import { scoreSingFromSamples } from "./sing-scoring.ts"
 import type { SingMountDeps, SingTestConfig } from "./sing-test.ts"
 
+const scaleDegreeSingStatus = {
+  idle: "Press Play to hear the tonic for this lesson.",
+  playing: "Listen to the tonic…",
+  ready: "Sing the degree shown below, then tap Start singing when ready.",
+  recording:
+    "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
+  pass: "Correct — tap Next exercise when you are ready.",
+  fail: "Try again on this exercise (up to 3 tries).",
+  failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
+} as const
+
 const scaleDegreeSingBase = {
   practiceModeId: "scale-degree-sing" as const,
   title: "Sing scale degrees",
   subtitle: "One key per lesson — hear the tonic, then sing each requested scale degree",
   playButtonLabel: "Play tonic",
   showVoicePicker: true,
-  status: {
-    idle: "Press Play to hear the tonic for this lesson.",
-    playing: "Listen to the tonic…",
-    ready: "Sing the degree shown below, then tap Start singing when ready.",
-    recording:
-      "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
-    pass: "Correct — tap Next exercise when you are ready.",
-    fail: "Try again on this exercise (up to 3 tries).",
-    failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
-  },
+  status: scaleDegreeSingStatus,
   playReference: (exercise: Parameters<SingTestConfig["playReference"]>[0]) => {
     if (exercise.type !== "scale-degree") {
       throw new Error("Missing scale degree for playback")
@@ -58,7 +60,7 @@ export const scaleDegreeSingConfig: SingTestConfig = {
   exercisePrompt: scaleDegreeSingExerciseDefinition.exercisePrompt,
   status: {
     ...scaleDegreeSingExerciseDefinition.status,
-    recording: scaleDegreeSingExerciseDefinition.status.recording!,
+    recording: scaleDegreeSingStatus.recording,
   },
   prepareExercise: scaleDegreeSingExerciseDefinition.prepareExercise,
   playReference: scaleDegreeSingExerciseDefinition.playReference,

@@ -53,6 +53,17 @@ export const singleNoteTestConfig: SingTestConfig = {
   playReference: singleNoteExerciseDefinition.playReference,
 }
 
+const chordSingStatus = {
+  idle: "Press Play to hear the chord.",
+  playing: "Listen to the chord…",
+  ready: "Sing the prompted voice, then tap Start singing when ready.",
+  recording:
+    "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
+  pass: "Correct — tap Next exercise when you are ready.",
+  fail: "Try again on this exercise (up to 3 tries).",
+  failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
+} as const
+
 const chordSingBase = {
   practiceModeId: "chord-sing" as const,
   title: "Sing chord voices",
@@ -66,16 +77,7 @@ const chordSingBase = {
     }
     return exercisePromptForVoicingPosition(exercise.voicingPositionId)
   },
-  status: {
-    idle: "Press Play to hear the chord.",
-    playing: "Listen to the chord…",
-    ready: "Sing the prompted voice, then tap Start singing when ready.",
-    recording:
-      "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
-    pass: "Correct — tap Next exercise when you are ready.",
-    fail: "Try again on this exercise (up to 3 tries).",
-    failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
-  },
+  status: chordSingStatus,
   playReference: (exercise: Parameters<SingTestConfig["playReference"]>[0]) => {
     if (exercise.type !== "chord") {
       throw new Error("Missing chord for playback")
@@ -99,10 +101,7 @@ export const chordSingTestConfig: SingTestConfig = {
   showVoicePicker: chordSingExerciseDefinition.showVoicePicker,
   exercisePromptFromDraw: chordSingExerciseDefinition.exercisePromptFromDraw,
   exercisePrompt: chordSingExerciseDefinition.exercisePrompt,
-  status: {
-    ...chordSingExerciseDefinition.status,
-    recording: chordSingExerciseDefinition.status.recording!,
-  },
+  status: { ...chordSingExerciseDefinition.status, recording: chordSingStatus.recording },
   prepareExercise: chordSingExerciseDefinition.prepareExercise,
   playReference: chordSingExerciseDefinition.playReference,
 }

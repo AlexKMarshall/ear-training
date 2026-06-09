@@ -37,22 +37,24 @@ function intervalIdentifyChoiceHelpers() {
   }
 }
 
+const intervalMelodicSingStatus = {
+  idle: "Press Play to hear the interval.",
+  playing: "Listen to both notes…",
+  ready: "Sing the top note of the interval, then tap Start singing when ready.",
+  recording:
+    "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
+  pass: "Correct — tap Next exercise when you are ready.",
+  fail: "Try again on this exercise (up to 3 tries).",
+  failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
+} as const
+
 const intervalMelodicSingBase = {
   practiceModeId: "interval-melodic-sing" as const,
   title: "Sing melodic intervals",
   subtitle: "Hear two notes in sequence, then sing the top note",
   playButtonLabel: "Play interval",
   showVoicePicker: true,
-  status: {
-    idle: "Press Play to hear the interval.",
-    playing: "Listen to both notes…",
-    ready: "Sing the top note of the interval, then tap Start singing when ready.",
-    recording:
-      "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
-    pass: "Correct — tap Next exercise when you are ready.",
-    fail: "Try again on this exercise (up to 3 tries).",
-    failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
-  },
+  status: intervalMelodicSingStatus,
   playReference: (exercise: LessonExercise) => {
     if (exercise.type !== "interval") {
       throw new Error("Missing interval for playback")
@@ -77,11 +79,22 @@ export const intervalMelodicSingConfig: SingTestConfig = {
   showVoicePicker: intervalMelodicSingExerciseDefinition.showVoicePicker,
   status: {
     ...intervalMelodicSingExerciseDefinition.status,
-    recording: intervalMelodicSingExerciseDefinition.status.recording!,
+    recording: intervalMelodicSingStatus.recording,
   },
   prepareExercise: intervalMelodicSingExerciseDefinition.prepareExercise,
   playReference: intervalMelodicSingExerciseDefinition.playReference,
 }
+
+const intervalHarmonicSingStatus = {
+  idle: "Press Play to hear the interval.",
+  playing: "Listen to both notes…",
+  ready: "Sing the top note of the interval, then tap Start singing when ready.",
+  recording:
+    "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
+  pass: "Correct — tap Next exercise when you are ready.",
+  fail: "Try again on this exercise (up to 3 tries).",
+  failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
+} as const
 
 const intervalHarmonicSingBase = {
   practiceModeId: "interval-harmonic-sing" as const,
@@ -89,16 +102,7 @@ const intervalHarmonicSingBase = {
   subtitle: "Hear two notes together, then sing the top note",
   playButtonLabel: "Play interval",
   showVoicePicker: true,
-  status: {
-    idle: "Press Play to hear the interval.",
-    playing: "Listen to both notes…",
-    ready: "Sing the top note of the interval, then tap Start singing when ready.",
-    recording:
-      "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
-    pass: "Correct — tap Next exercise when you are ready.",
-    fail: "Try again on this exercise (up to 3 tries).",
-    failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
-  },
+  status: intervalHarmonicSingStatus,
   playReference: (exercise: LessonExercise) => {
     if (exercise.type !== "interval") {
       throw new Error("Missing interval for playback")
@@ -123,7 +127,7 @@ export const intervalHarmonicSingConfig: SingTestConfig = {
   showVoicePicker: intervalHarmonicSingExerciseDefinition.showVoicePicker,
   status: {
     ...intervalHarmonicSingExerciseDefinition.status,
-    recording: intervalHarmonicSingExerciseDefinition.status.recording!,
+    recording: intervalHarmonicSingStatus.recording,
   },
   prepareExercise: intervalHarmonicSingExerciseDefinition.prepareExercise,
   playReference: intervalHarmonicSingExerciseDefinition.playReference,
@@ -155,6 +159,17 @@ function mountIntervalSingTest(
   )
 }
 
+const intervalNamedSingStatus = {
+  idle: "Press Play to hear the reference note.",
+  playing: "Listen to the reference note…",
+  ready: "Sing the interval shown below, then tap Start singing when ready.",
+  recording:
+    "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
+  pass: "Correct — tap Next exercise when you are ready.",
+  fail: "Try again on this exercise (up to 3 tries).",
+  failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
+} as const
+
 const intervalNamedSingBase = {
   practiceModeId: "interval-named-sing" as const,
   title: "Sing named intervals",
@@ -162,16 +177,7 @@ const intervalNamedSingBase = {
   playButtonLabel: "Play note",
   showVoicePicker: true,
   exercisePromptFromDraw: true,
-  status: {
-    idle: "Press Play to hear the reference note.",
-    playing: "Listen to the reference note…",
-    ready: "Sing the interval shown below, then tap Start singing when ready.",
-    recording:
-      "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
-    pass: "Correct — tap Next exercise when you are ready.",
-    fail: "Try again on this exercise (up to 3 tries).",
-    failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
-  },
+  status: intervalNamedSingStatus,
   playReference: (exercise: LessonExercise) => {
     if (exercise.type !== "interval") {
       throw new Error("Missing interval for playback")
@@ -204,7 +210,7 @@ export const intervalNamedSingConfig: SingTestConfig = {
   exercisePrompt: intervalNamedSingExerciseDefinition.exercisePrompt,
   status: {
     ...intervalNamedSingExerciseDefinition.status,
-    recording: intervalNamedSingExerciseDefinition.status.recording!,
+    recording: intervalNamedSingStatus.recording,
   },
   prepareExercise: intervalNamedSingExerciseDefinition.prepareExercise,
   playReference: intervalNamedSingExerciseDefinition.playReference,
