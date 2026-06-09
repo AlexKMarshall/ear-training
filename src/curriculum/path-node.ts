@@ -1,9 +1,11 @@
 import type { AttemptRecord, PracticeModeId } from "../history/types.ts"
 import { getPracticeMode } from "../practice-modes/registry.ts"
 import {
+  getChordInversionIdLessonBannerLabel,
   getChordLessonBannerLabel,
   getChordQualityIdLessonBannerLabel,
   isChordContentTierId,
+  isChordInversionIdContentTierId,
   isChordQualityIdContentTierId,
 } from "./chord-tiers.ts"
 import type { CurriculumLesson } from "./curriculum-lessons.ts"
@@ -63,6 +65,7 @@ const TIER_POOL_LABEL: Record<CurriculumLesson["contentTierId"], string | null> 
   "chord-minor-second": "any voice",
   "chord-quality-root": null,
   "chord-quality-first": null,
+  "chord-inversion-major": null,
 }
 
 /** Optional per-step label overrides (full `practiceModeId:contentTierId` keys). */
@@ -82,6 +85,7 @@ function familyTitle(practiceModeId: PracticeModeId): string {
       return "Scale degrees"
     case "chord-sing":
     case "chord-quality-id":
+    case "chord-inversion-id":
       return "Chords"
   }
 }
@@ -129,6 +133,16 @@ function defaultPathNodeLabels(step: CurriculumLesson): PathNodeLabels {
     return {
       title,
       subtitle: `Quality identification · ${getChordQualityIdLessonBannerLabel(step.contentTierId).toLowerCase()}`,
+    }
+  }
+
+  if (
+    step.practiceModeId === "chord-inversion-id" &&
+    isChordInversionIdContentTierId(step.contentTierId)
+  ) {
+    return {
+      title,
+      subtitle: `Inversion identification · ${getChordInversionIdLessonBannerLabel(step.contentTierId).toLowerCase()}`,
     }
   }
 

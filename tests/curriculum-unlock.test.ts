@@ -19,6 +19,7 @@ import {
   passingMelodicSing2bHistory,
   passingSingleNoteHistory,
   passingStepHistory,
+  passingThroughChordInversionMajorHistory,
   passingThroughChordQualityFirstHistory,
   passingThroughChordQualityRootHistory,
   passingThroughHarmonic2bHistory,
@@ -328,9 +329,19 @@ describe("getContinueCurriculumLesson", () => {
     })
   })
 
-  it("advances to minor diatonic scale degrees after chord major second completes", () => {
-    expect(getContinuePracticeMode(passingChordMajorSecondHistory())).toBe("scale-degree-sing")
+  it("advances to major triad inversion identification after chord major second completes", () => {
+    expect(getContinuePracticeMode(passingChordMajorSecondHistory())).toBe("chord-inversion-id")
     expect(getContinueCurriculumLesson(passingChordMajorSecondHistory())).toEqual({
+      practiceModeId: "chord-inversion-id",
+      contentTierId: "chord-inversion-major",
+    })
+  })
+
+  it("advances to minor diatonic scale degrees after major triad inversion identification completes", () => {
+    expect(getContinuePracticeMode(passingThroughChordInversionMajorHistory())).toBe(
+      "scale-degree-sing",
+    )
+    expect(getContinueCurriculumLesson(passingThroughChordInversionMajorHistory())).toEqual({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-minor-diatonic",
     })
@@ -447,16 +458,27 @@ describe("getUnlockRequirement", () => {
     ).toBe(true)
   })
 
+  it("locks major triad inversion identification until chord major second passes", () => {
+    const inversionMajor = {
+      practiceModeId: "chord-inversion-id" as const,
+      contentTierId: "chord-inversion-major" as const,
+    }
+    expect(
+      isCurriculumLessonUnlocked(inversionMajor, passingMajorDiatonicScaleDegreeHistory()),
+    ).toBe(false)
+    expect(isCurriculumLessonUnlocked(inversionMajor, passingChordMajorSecondHistory())).toBe(true)
+  })
+
   it("requires minor diatonic scale degrees before chord minor second", () => {
     const chordMinorSecond = {
       practiceModeId: "chord-sing" as const,
       contentTierId: "chord-minor-second" as const,
     }
-    expect(isCurriculumLessonUnlocked(chordMinorSecond, passingChordMajorSecondHistory())).toBe(
-      false,
-    )
+    expect(
+      isCurriculumLessonUnlocked(chordMinorSecond, passingThroughChordInversionMajorHistory()),
+    ).toBe(false)
     const minorDiatonicComplete = [
-      ...passingChordMajorSecondHistory(),
+      ...passingThroughChordInversionMajorHistory(),
       ...passingStepHistory({
         practiceModeId: "scale-degree-sing",
         contentTierId: "degree-minor-diatonic",

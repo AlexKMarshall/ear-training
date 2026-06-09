@@ -31,7 +31,8 @@ function assertSessionPracticeMode(practiceModeId: PracticeModeId): void {
     !isIntervalPracticeMode(practiceModeId) &&
     practiceModeId !== "scale-degree-sing" &&
     practiceModeId !== "chord-sing" &&
-    practiceModeId !== "chord-quality-id"
+    practiceModeId !== "chord-quality-id" &&
+    practiceModeId !== "chord-inversion-id"
   ) {
     throw new Error(`No session curriculum lesson for practice mode: ${practiceModeId}`)
   }

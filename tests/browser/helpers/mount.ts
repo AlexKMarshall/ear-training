@@ -21,6 +21,7 @@ import {
   scaleDegreeToLessonExercise,
 } from "../../../src/scale-degree-exercises.ts"
 import { resetScaleDegreePreference } from "../../../src/scale-degree-preference.ts"
+import { chordInversionIdConfig } from "../../../src/ui/chord-inversion-id-tests.ts"
 import { chordQualityIdConfig } from "../../../src/ui/chord-quality-id-tests.ts"
 import { mountPracticeModePage } from "../../../src/ui/exercise-page.ts"
 import { mountHome } from "../../../src/ui/home.tsx"
@@ -145,6 +146,7 @@ function resetPreferencesFor(practiceModeId: PracticeModeId): void {
   switch (practiceModeId) {
     case "chord-sing":
     case "chord-quality-id":
+    case "chord-inversion-id":
       break
     case "interval-melodic-sing":
     case "interval-named-sing":
@@ -255,6 +257,24 @@ function createIdentifyTestConfigFor(
         inversionId: "root",
         contentTierId: "chord-quality-root",
         eligibleTagIds: [MAJOR_TRIAD.id, MINOR_TRIAD.id],
+      }),
+      playReference: async () => {},
+      ...overrides,
+    }
+  }
+
+  if (practiceModeId === "chord-inversion-id") {
+    const fixedChord = buildChordExercise(MAJOR_TRIAD, "root", 0, 48)
+    return {
+      ...chordInversionIdConfig,
+      prepareExercise: () => ({
+        type: "chord",
+        target: chordTarget(fixedChord),
+        chord: fixedChord,
+        chordTypeId: MAJOR_TRIAD.id,
+        inversionId: "root",
+        contentTierId: "chord-inversion-major",
+        eligibleTagIds: ["root", "first", "second"],
       }),
       playReference: async () => {},
       ...overrides,

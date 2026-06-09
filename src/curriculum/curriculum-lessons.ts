@@ -8,11 +8,14 @@ import {
   DEGREE_MINOR_DIATONIC_IDS,
 } from "../scale-degree-config.ts"
 import {
+  getChordInversionIdLessonBannerLabel,
   getChordLessonBannerLabel,
   getChordQualityIdLessonBannerLabel,
+  getEligibleInversionIds,
   getEligibleTriadQualityIds,
   getEligibleVoicingPositionIds,
   isChordContentTierId,
+  isChordInversionIdContentTierId,
   isChordQualityIdContentTierId,
 } from "./chord-tiers.ts"
 import { DEGREE_TIER_POOL_LABEL } from "./scale-degree-tiers.ts"
@@ -32,6 +35,7 @@ export type ContentTierId =
   | "chord-minor-second"
   | "chord-quality-root"
   | "chord-quality-first"
+  | "chord-inversion-major"
 
 export interface CurriculumLesson {
   practiceModeId: PracticeModeId
@@ -59,6 +63,7 @@ export const CURRICULUM_LESSONS: readonly CurriculumLesson[] = [
   { practiceModeId: "interval-harmonic-id", contentTierId: "interval-2b" },
   { practiceModeId: "scale-degree-sing", contentTierId: "degree-major-diatonic" },
   { practiceModeId: "chord-sing", contentTierId: "chord-major-second" },
+  { practiceModeId: "chord-inversion-id", contentTierId: "chord-inversion-major" },
   { practiceModeId: "scale-degree-sing", contentTierId: "degree-minor-diatonic" },
   { practiceModeId: "chord-sing", contentTierId: "chord-minor-second" },
 ] as const
@@ -142,6 +147,12 @@ export function getCurriculumLessonLabel(step: CurriculumLesson): string {
   ) {
     return `${title} (${getChordQualityIdLessonBannerLabel(step.contentTierId)})`
   }
+  if (
+    step.practiceModeId === "chord-inversion-id" &&
+    isChordInversionIdContentTierId(step.contentTierId)
+  ) {
+    return `${title} (${getChordInversionIdLessonBannerLabel(step.contentTierId)})`
+  }
   return title
 }
 
@@ -166,5 +177,7 @@ export function getEligibleTagIds(step: CurriculumLesson): readonly string[] {
     case "chord-quality-root":
     case "chord-quality-first":
       return getEligibleTriadQualityIds()
+    case "chord-inversion-major":
+      return getEligibleInversionIds()
   }
 }

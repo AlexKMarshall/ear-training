@@ -83,6 +83,18 @@ describe("getPathNodeLabels", () => {
     })
   })
 
+  it("uses inversion identification subtitle for chord inversion identify steps", () => {
+    expect(
+      getPathNodeLabels({
+        practiceModeId: "chord-inversion-id",
+        contentTierId: "chord-inversion-major",
+      }),
+    ).toEqual({
+      title: "Chords",
+      subtitle: "Inversion identification · major triad",
+    })
+  })
+
   it("uses chord tier banner and any-voice subtitle for chord steps", () => {
     expect(
       getPathNodeLabels({

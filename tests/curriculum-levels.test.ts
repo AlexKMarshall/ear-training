@@ -13,6 +13,7 @@ describe("curriculum levels", () => {
       "scale-degree-sing",
       "chord-sing",
       "chord-quality-id",
+      "chord-inversion-id",
     ])
   })
 

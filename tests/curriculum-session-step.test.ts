@@ -12,6 +12,7 @@ import {
   passingMelodicSing2bHistory,
   passingSingleNoteHistory,
   passingStepHistory,
+  passingThroughChordInversionMajorHistory,
   passingThroughChordQualityRootHistory,
   passingThroughHarmonic2bHistory,
   passingThroughHarmonicId2aHistory,
@@ -127,11 +128,23 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
     })
   })
 
-  it("returns degree-minor-diatonic when chord major second is complete", () => {
+  it("returns chord-inversion-major when chord major second is complete", () => {
+    expect(
+      getSessionCurriculumLessonForPracticeMode(
+        "chord-inversion-id",
+        passingChordMajorSecondHistory(),
+      ),
+    ).toEqual({
+      practiceModeId: "chord-inversion-id",
+      contentTierId: "chord-inversion-major",
+    })
+  })
+
+  it("returns degree-minor-diatonic when major triad inversion identification is complete", () => {
     expect(
       getSessionCurriculumLessonForPracticeMode(
         "scale-degree-sing",
-        passingChordMajorSecondHistory(),
+        passingThroughChordInversionMajorHistory(),
       ),
     ).toEqual({
       practiceModeId: "scale-degree-sing",
@@ -141,7 +154,7 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
 
   it("returns chord-minor-second when minor diatonic is complete", () => {
     const records = [
-      ...passingChordMajorSecondHistory(),
+      ...passingThroughChordInversionMajorHistory(),
       ...passingStepHistory({
         practiceModeId: "scale-degree-sing",
         contentTierId: "degree-minor-diatonic",

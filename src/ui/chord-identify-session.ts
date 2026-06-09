@@ -2,7 +2,9 @@ import { getChordTypeById } from "../chord-config.ts"
 import { randomChordExercise } from "../chord-types.ts"
 import { chordTarget } from "../chords.ts"
 import {
+  getChordInversionIdTierConfig,
   getChordQualityIdTierConfig,
+  isChordInversionIdContentTierId,
   isChordQualityIdContentTierId,
 } from "../curriculum/chord-tiers.ts"
 import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts"
@@ -48,6 +50,41 @@ export function prepareChordQualityIdExercise(
     chord,
     chordTypeId: type.id,
     inversionId: tierConfig.inversion,
+    contentTierId: step.contentTierId,
+    eligibleTagIds,
+  }
+}
+
+export function prepareChordInversionIdExercise(
+  records: readonly AttemptRecord[],
+  planner: SessionPlanner = createDefaultSessionPlanner(),
+  range = getActiveNoteRange(),
+  _rng: () => number = Math.random,
+  sessionCurriculumLesson?: CurriculumLesson,
+): ChordLessonExercise {
+  const step = resolveSessionCurriculumLesson("chord-inversion-id", records, {
+    urlCurriculumLesson: sessionCurriculumLesson,
+  })
+  const eligibleTagIds = getEligibleTagIds(step)
+  const inversionId = planner.planNextExerciseTag(
+    step,
+    records,
+  ) as ChordLessonExercise["inversionId"]
+  if (!isChordInversionIdContentTierId(step.contentTierId)) {
+    throw new Error(`Not a chord inversion identify tier: ${step.contentTierId}`)
+  }
+  const tierConfig = getChordInversionIdTierConfig(step.contentTierId)
+  const type = getChordTypeById(tierConfig.triadQualityId)
+  if (!type) {
+    throw new Error(`Unknown chord type id: ${tierConfig.triadQualityId}`)
+  }
+  const chord = randomChordExercise(type, inversionId, 0, range)
+  return {
+    type: "chord",
+    target: chordTarget(chord),
+    chord,
+    chordTypeId: type.id,
+    inversionId,
     contentTierId: step.contentTierId,
     eligibleTagIds,
   }
