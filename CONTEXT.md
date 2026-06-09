@@ -158,7 +158,7 @@ _Avoid_: Tier group, difficulty band, level block
 How an interval task is presented and answered — melodic reproduction, harmonic reproduction, melodic identification, harmonic identification, or **named-interval reproduction**. Part of the exercise type **main** for interval work; today each presentation mode is its own practice mode and curriculum lesson on the path.
 _Avoid_: Mode alone, exercise type (when meaning the whole type — use main/sub instead)
 
-### Chords (sing)
+### Chords
 
 **Voicing position**:
 Which of the three simultaneous sounding pitches in a closed-voiced triad the learner must sing — **bottom** (lowest), **middle**, or **top** (highest). Drawn per exercise within a curriculum lesson via the **session planner** (one tag per position, weak-area weighted like intervals and scale degrees); persisted on attempts as **`voicingPositionId`** (`bottom` | `middle` | `top`). Scoring compares the sung pitch to that position in the played voicing. Not the same as naming a **chord member** (root / third / fifth): in an inversion, the bottom note may be the third or fifth, not the root. Chord exercises **anchor range** on the drawn voicing position so the pitch to sing always falls within the learner’s voice range.
@@ -169,23 +169,55 @@ Root, third, or fifth of the triad — the harmonic role of a pitch regardless o
 _Avoid_: Bottom / middle / top (when meaning harmonic role), scale degree
 
 **Inversion**:
-Which chord member is in the **bottom** voicing position: root position (root on bottom), 1st inversion (third on bottom), or 2nd inversion (fifth on bottom). A curriculum **content tier** for chord work fixes inversion (and triad quality) for every exercise in that lesson; voicing position to sing varies per draw.
+Which chord member is in the **bottom** voicing position: root position (root on bottom), 1st inversion (third on bottom), or 2nd inversion (fifth on bottom). On **chord sing**, a curriculum **content tier** fixes inversion and triad quality for every exercise; voicing position to sing varies per draw. On **chord identify**, inversion is either fixed (quality identification) or drawn from the eligible pool (inversion identification).
 _Avoid_: Voicing (alone), chord position, inversion number without ordinal (prefer *1st inversion*, *2nd inversion*)
 
 **Chord tier block**:
-The six curriculum lessons that establish major and minor triads in root position, 1st inversion, and 2nd inversion (one path node per quality × inversion). Learners pass each node before the next unlocks on the guided path; **diminished** and later chord work sit outside this block. Nodes are **interleaved** by approximate difficulty (other families sit between chord steps): **major root** after interval **2a** harmonic sing; **minor root** after **2a** harmonic identification; **major 1st** and **minor 1st** inside the interval **2b** block; **major 2nd** after major diatonic scale degrees; **minor 2nd** last. Quality × inversion order within the block is always major → minor at each inversion step. Chord tier ids follow `{family}-{triadQuality}-{inversion}` (e.g. `chord-major-root`, `chord-minor-first`).
+The six **chord sing** curriculum lessons that establish major and minor triads in root position, 1st inversion, and 2nd inversion (one path node per quality × inversion). Learners pass each node before the next unlocks on the guided path; **diminished** and later chord work sit outside this block. Nodes are **interleaved** by approximate difficulty (other families sit between chord steps): **major root** after interval **2a** harmonic sing; **minor root** after **2a** harmonic identification; **major 1st** and **minor 1st** inside the interval **2b** block; **major 2nd** after major diatonic scale degrees; **minor 2nd** last among sing steps. Quality × inversion order within the block is always major → minor at each inversion step. Sing chord tier ids follow `{family}-{triadQuality}-{inversion}` (e.g. `chord-major-root`, `chord-minor-first`). **Chord identify** lessons are separate path nodes inserted when their sing prerequisites are met — not part of this six-lesson count.
 _Avoid_: chord-1a (legacy monolithic pool), chord middle (as tier name)
+
+**Chord identify path placement**:
+Where **chord identify** nodes land on the guided path relative to **chord sing** (other families may sit between any adjacent rows): after **chord-minor-root** → **quality identification** (`chord-quality-root`); after **chord-minor-first** → **quality identification** (`chord-quality-first`); after **chord-major-second** → **inversion identification** (`chord-inversion-major`); after **chord-minor-second** → **quality identification** (`chord-quality-second`), then **inversion identification** (`chord-inversion-minor`). **Inversion identification** for a quality unlocks as soon as that quality’s three sing lessons are complete in path order — it does not wait for the other quality’s sing lessons at the same inversion step.
+_Avoid_: Batched identify block after all six sing lessons, inversion ID gated on minor sing at same inversion
 
 **Chord sing** (practice mode):
 The sing **response mode** practice mode for hearing a triad and singing one **voicing position** (`chord-sing`; route `/chord-sing/`). Replaces legacy `chord-middle`. One practice mode serves all chord tier-block lessons; quality and inversion come from the curriculum **content tier**, voicing position from the session planner tag. No user content pickers for triad quality, inversion, or voicing position on the guided path (legacy chord preference modules retired). Registry title describes the family; a **persistent lesson banner** names quality and inversion for the run; a **per-exercise prompt** names the drawn voicing position (bottom / middle / top) from draw through recording.
 _Avoid_: chord-middle (legacy id), sing the middle note (as fixed product copy)
 
 **Triad quality**:
-Whether the three-note chord is major, minor, or (in later tiers) diminished. On the guided path, major and minor are separate curriculum lessons at each **inversion** step; **diminished** is not in the first chord tier block — it enters in a later content tier after major/minor inversions are established.
+Whether the three-note chord is major, minor, or (in later tiers) diminished. On **chord sing**, major and minor are separate curriculum lessons at each **inversion** step. On **chord identify** (**quality identification**), triad quality is the answer and varies per draw within the lesson pool; **diminished** is not in the first chord tier block — it enters in a later content tier after major/minor inversions are established.
 _Avoid_: Chord type (when meaning quality alone), mode (without “key”)
 
+**Chord presentation mode** (identify):
+How a chord identification exercise fixes one axis and tests the other — **quality identification** (inversion fixed by content tier; learner selects major vs minor) or **inversion identification** (triad quality fixed by content tier; learner selects root position vs 1st vs 2nd inversion). Each mode is its own practice mode and curriculum lesson on the path, like interval presentation modes. Orthogonal to **chord sing** (voicing-position reproduction).
+_Avoid_: Chord type identification (without quality/inversion scope), identify quality and inversion together on one exercise
+
+**Quality identification** (chord):
+A **chord presentation mode** (select **response mode**): hear a triad, choose **triad quality**. **Inversion** is fixed for the lesson (persistent lesson banner); the session planner draws major and minor triads at that inversion. Session planner tags are **`major-triad`** and **`minor-triad`** (same ids as **`chordTypeId`** on attempts) for weak-area weighting. Unlocks after the learner has passed the corresponding major and minor **chord sing** lessons at that inversion.
+_Avoid_: Chord quality ID (without “identification”), major/minor ID (without chord scope)
+
+**Inversion identification** (chord):
+A **chord presentation mode** (select **response mode**): hear a triad, choose **inversion**. **Triad quality** is fixed for the lesson (persistent lesson banner); the session planner draws root, 1st, and 2nd inversions at that quality. Session planner tags are **`root`**, **`first`**, and **`second`** (same ids as **`inversionId`** on attempts) for weak-area weighting. Unlocks after the learner has passed all three **chord sing** lessons for that quality (root, 1st, 2nd).
+_Avoid_: Chord inversion ID (without “identification”), voicing identification (conflicts with **voicing position** on sing)
+
+**Chord quality identification** (practice mode):
+Select **response mode** practice mode for **quality identification** (`chord-quality-id`; route `/chord-quality-id/`). Content tier ids name the fixed **inversion**: `chord-quality-root`, `chord-quality-first`, `chord-quality-second`. Distinct from sing tiers (`chord-major-root`, …), which fix both quality and inversion.
+_Avoid_: chord-identify (when meaning this mode only), chord-quality-id tier ids on sing lessons
+
+**Chord inversion identification** (practice mode):
+Select **response mode** practice mode for **inversion identification** (`chord-inversion-id`; route `/chord-inversion-id/`). Content tier ids name the fixed **triad quality**: `chord-inversion-major`, `chord-inversion-minor`.
+_Avoid_: chord-identify (when meaning this mode only), reusing sing tier ids for identify pools
+
+**Chord identify labels**:
+**Path node subtitle** follows the interval identification pattern: `{presentation mode} · {fixed axis}` (e.g. *Quality identification · root position*, *Inversion identification · major triad*). **Path node title** stays *Chords*. **Persistent lesson banner** on the exercise screen names only the fixed axis (e.g. *Root position*, *Major triad*) — not the answer pool. No per-exercise sing-style prompt; choice buttons carry the answer labels (e.g. *Major* / *Minor*; *Root position* / *1st inversion* / *2nd inversion*).
+_Avoid_: Sing-style “any voice” suffix on identify subtitles, lesson banner repeating “identification”
+
+**Chord identify** (practice mode family):
+Select **response mode** chord work — **chord quality identification** and **chord inversion identification** — distinct from **chord sing**. One practice mode per **chord presentation mode** (interval pattern); content tier and lesson banner name the fixed axis; the session planner draws the answer axis from the eligible pool. Reference playback is a simultaneous harmonic triad (same sonority as **chord sing**). Answer choices are exactly the eligible pool — two options (major / minor) for **quality identification**, three (root / 1st / 2nd) for **inversion identification** — not padded to four like interval identification. Draws **anchor range** on the bottom sounding pitch (lowest note of the voicing) within the learner’s active voice range — same voice picker as other exercises; no sung target, but register stays comfortable and bass-led for **inversion identification**. Wrong-answer **result** copy matches interval identification: no reveal of the correct quality or inversion — learner retries by listening again.
+_Avoid_: chord-id (without presentation mode), identify (as a synonym for select)
+
 **Cross-mode sequencing**:
-Within an interval tier block, presentation modes advance in this order: melodic reproduction → **named-interval reproduction** → melodic identification → harmonic reproduction → harmonic identification. The path does not enter the next interval tier block until all five modes pass at the current tier (another exercise-type family may appear on the path between interval tiers). Other exercise-type families may define their own within-block mode order when they gain multiple presentation modes.
+Within an interval tier block, presentation modes advance in this order: melodic reproduction → **named-interval reproduction** → melodic identification → harmonic reproduction → harmonic identification. The path does not enter the next interval tier block until all five modes pass at the current tier (another exercise-type family may appear on the path between interval tiers). Within the chord tier block, **chord sing** precedes **quality identification** at each inversion step (major sing → minor sing → quality identification for that inversion), with other exercise-type families interleaved on the path between steps as today. **Inversion identification** for a quality follows that quality’s three **chord sing** lessons (root, 1st, 2nd), inserted on the path per **chord identify path placement** — not deferred until the whole tier block finishes. Linear **unlock requirement** on the path enforces the sing prerequisites because sing lessons precede each identification lesson in sequence.
 _Avoid_: Cross-practice-mode unlock, tier hopping, mode-first across tiers
 
 **Unlock requirement**:
