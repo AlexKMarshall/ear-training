@@ -144,7 +144,7 @@ export function passingMajorDiatonicScaleDegreeHistory(): AttemptRecord[] {
 }
 
 /** Minor diatonic scale degrees complete. */
-export function passingMinorDiatonicScaleDegreeHistory(): AttemptRecord[] {
+function passingMinorDiatonicScaleDegreeHistory(): AttemptRecord[] {
   return [
     ...passingMajorDiatonicScaleDegreeHistory(),
     ...passingStepHistory({
