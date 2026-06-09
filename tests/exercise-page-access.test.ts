@@ -3,7 +3,7 @@ import { formatLessonLinkUrl } from "../src/curriculum/lesson-link.ts"
 import { resolveAccessCurriculumLesson } from "../src/curriculum/session-step.ts"
 import { getPredecessorCurriculumLesson } from "../src/curriculum/unlock.ts"
 import { getPracticeMode } from "../src/practice-modes/registry.ts"
-import { passingLevel2History } from "./fixtures/attempts.ts"
+import { passingLevel2History, passingThroughChordQualityRootHistory } from "./fixtures/attempts.ts"
 import { defined } from "./helpers/defined.ts"
 
 describe("resolveAccessCurriculumLesson", () => {
@@ -29,7 +29,11 @@ describe("resolveAccessCurriculumLesson", () => {
       contentTierId: "interval-2a",
     })
     expect(
-      resolveAccessCurriculumLesson("scale-degree-sing", passingLevel2History(), null),
+      resolveAccessCurriculumLesson(
+        "scale-degree-sing",
+        passingThroughChordQualityRootHistory(),
+        null,
+      ),
     ).toEqual({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-intro",
@@ -52,14 +56,14 @@ describe("getPredecessorCurriculumLesson", () => {
     }
     const predecessor = getPredecessorCurriculumLesson(step)
     expect(predecessor).toEqual({
-      practiceModeId: "chord-sing",
-      contentTierId: "chord-minor-root",
+      practiceModeId: "chord-quality-id",
+      contentTierId: "chord-quality-root",
     })
     expect(
       formatLessonLinkUrl(
         getPracticeMode(defined(predecessor, "predecessor").practiceModeId).route,
         defined(predecessor, "predecessor"),
       ),
-    ).toBe("/chord-sing/?step=chord-sing%3Achord-minor-root")
+    ).toBe("/chord-quality-id/?step=chord-quality-id%3Achord-quality-root")
   })
 })

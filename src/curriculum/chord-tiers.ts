@@ -2,7 +2,12 @@ import type { InversionId } from "../chord-inversions.ts"
 import { VOICING_POSITION_IDS } from "../voicing-position.ts"
 import type { ContentTierId } from "./curriculum-lessons.ts"
 
-export type ChordContentTierId = Extract<ContentTierId, `chord-${string}`>
+export type ChordContentTierId = Extract<
+  ContentTierId,
+  `chord-major-${string}` | `chord-minor-${string}`
+>
+
+export type ChordQualityIdContentTierId = Extract<ContentTierId, `chord-quality-${string}`>
 
 export interface ChordTierConfig {
   triadQualityId: "major-triad" | "minor-triad"
@@ -19,7 +24,41 @@ const CHORD_TIER_CONFIG: Record<ChordContentTierId, ChordTierConfig> = {
 }
 
 export function isChordContentTierId(tierId: ContentTierId): tierId is ChordContentTierId {
-  return tierId.startsWith("chord-")
+  return tierId.startsWith("chord-major-") || tierId.startsWith("chord-minor-")
+}
+
+export function isChordQualityIdContentTierId(
+  tierId: ContentTierId,
+): tierId is ChordQualityIdContentTierId {
+  return tierId.startsWith("chord-quality-")
+}
+
+const CHORD_QUALITY_ID_TIER_CONFIG: Record<
+  ChordQualityIdContentTierId,
+  { inversion: InversionId }
+> = {
+  "chord-quality-root": { inversion: "root" },
+}
+
+export function getChordQualityIdTierConfig(tierId: ChordQualityIdContentTierId): {
+  inversion: InversionId
+} {
+  const config = CHORD_QUALITY_ID_TIER_CONFIG[tierId]
+  if (!config) {
+    throw new Error(`Unknown chord quality identify tier: ${tierId}`)
+  }
+  return config
+}
+
+export function getChordQualityIdLessonBannerLabel(tierId: ChordQualityIdContentTierId): string {
+  switch (tierId) {
+    case "chord-quality-root":
+      return "Root position"
+  }
+}
+
+export function getEligibleTriadQualityIds(): readonly ["major-triad", "minor-triad"] {
+  return ["major-triad", "minor-triad"]
 }
 
 export function getChordTierConfig(tierId: ChordContentTierId): ChordTierConfig {

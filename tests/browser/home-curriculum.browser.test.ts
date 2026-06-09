@@ -56,12 +56,12 @@ test("after single-note complete: melodic 2a step is the current link", async ()
     .toBeVisible()
 })
 
-test("after interval 2a complete: scale-degree intro is the current link", async () => {
+test("after chord minor root complete: chord quality root is the current link", async () => {
   await mountHomeWithHistory(passingLevel2History())
   await expect
     .element(
       guidedPath().getByRole("link", {
-        name: /Scale degrees.*Melodic reproduction.*major key.*4th, 5th, octave/i,
+        name: /Chords.*Quality identification.*root position/i,
       }),
     )
     .toBeVisible()

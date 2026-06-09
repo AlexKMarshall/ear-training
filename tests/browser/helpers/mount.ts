@@ -1,6 +1,6 @@
 import { createTestAudioPort } from "../../../src/audio/port.ts"
 import { createTestRecordingPort } from "../../../src/audio/recording-port.ts"
-import { MAJOR_TRIAD } from "../../../src/chord-config.ts"
+import { MAJOR_TRIAD, MINOR_TRIAD } from "../../../src/chord-config.ts"
 import { buildChordExercise } from "../../../src/chord-types.ts"
 import { chordTarget } from "../../../src/chords.ts"
 import { getChordLessonBannerLabel } from "../../../src/curriculum/chord-tiers.ts"
@@ -21,6 +21,7 @@ import {
   scaleDegreeToLessonExercise,
 } from "../../../src/scale-degree-exercises.ts"
 import { resetScaleDegreePreference } from "../../../src/scale-degree-preference.ts"
+import { chordQualityIdConfig } from "../../../src/ui/chord-quality-id-tests.ts"
 import { mountPracticeModePage } from "../../../src/ui/exercise-page.ts"
 import { mountHome } from "../../../src/ui/home.tsx"
 import {
@@ -143,6 +144,7 @@ function resetPreferencesFor(practiceModeId: PracticeModeId): void {
   resetVoiceTypePreference()
   switch (practiceModeId) {
     case "chord-sing":
+    case "chord-quality-id":
       break
     case "interval-melodic-sing":
     case "interval-named-sing":
@@ -241,6 +243,24 @@ function createIdentifyTestConfigFor(
   practiceModeId: PracticeModeId,
   overrides?: Partial<IdentifyTestConfig>,
 ): IdentifyTestConfig {
+  if (practiceModeId === "chord-quality-id") {
+    const fixedChord = buildChordExercise(MAJOR_TRIAD, "root", 0, 48)
+    return {
+      ...chordQualityIdConfig,
+      prepareExercise: () => ({
+        type: "chord",
+        target: chordTarget(fixedChord),
+        chord: fixedChord,
+        chordTypeId: MAJOR_TRIAD.id,
+        inversionId: "root",
+        contentTierId: "chord-quality-root",
+        eligibleTagIds: [MAJOR_TRIAD.id, MINOR_TRIAD.id],
+      }),
+      playReference: async () => {},
+      ...overrides,
+    }
+  }
+
   const base =
     practiceModeId === "interval-harmonic-id" ? intervalHarmonicIdConfig : intervalMelodicIdConfig
   const presentation = practiceModeId === "interval-harmonic-id" ? "harmonic" : "melodic"

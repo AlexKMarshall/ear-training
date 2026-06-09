@@ -37,6 +37,7 @@ describe("curriculum steps", () => {
       "chord-sing@chord-major-root",
       "interval-harmonic-id@interval-2a",
       "chord-sing@chord-minor-root",
+      "chord-quality-id@chord-quality-root",
       "scale-degree-sing@degree-major-intro",
       "interval-melodic-sing@interval-2b",
       "chord-sing@chord-major-first",
@@ -100,6 +101,10 @@ describe("curriculum steps", () => {
       practiceModeId: "chord-sing",
       contentTierId: "chord-minor-root",
     })
+    const chordQualityRoot = getCurriculumLessonIndex({
+      practiceModeId: "chord-quality-id",
+      contentTierId: "chord-quality-root",
+    })
     const introDegrees = getCurriculumLessonIndex({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-intro",
@@ -115,12 +120,14 @@ describe("curriculum steps", () => {
     expect(chordMajorRoot).toBe(5)
     expect(harmonicId2a).toBe(6)
     expect(chordMinorRoot).toBe(7)
-    expect(introDegrees).toBe(8)
-    expect(melodicSing2b).toBe(9)
+    expect(chordQualityRoot).toBe(8)
+    expect(introDegrees).toBe(9)
+    expect(melodicSing2b).toBe(10)
     expect(chordMajorRoot).toBeGreaterThan(harmonicSing2a)
     expect(harmonicId2a).toBeGreaterThan(chordMajorRoot)
     expect(chordMinorRoot).toBeGreaterThan(harmonicId2a)
-    expect(introDegrees).toBeGreaterThan(chordMinorRoot)
+    expect(chordQualityRoot).toBeGreaterThan(chordMinorRoot)
+    expect(introDegrees).toBeGreaterThan(chordQualityRoot)
     expect(melodicSing2b).toBeGreaterThan(introDegrees)
   })
 
@@ -161,15 +168,15 @@ describe("curriculum steps", () => {
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-diatonic",
     })
-    expect(introDegrees).toBe(8)
-    expect(melodicSing2b).toBe(9)
-    expect(chordMajorFirst).toBe(10)
-    expect(namedSing2b).toBe(11)
-    expect(chordMinorFirst).toBe(12)
-    expect(melodicId2b).toBe(13)
-    expect(harmonicSing2b).toBe(14)
-    expect(harmonicId2b).toBe(15)
-    expect(majorDiatonicDegrees).toBe(16)
+    expect(introDegrees).toBe(9)
+    expect(melodicSing2b).toBe(10)
+    expect(chordMajorFirst).toBe(11)
+    expect(namedSing2b).toBe(12)
+    expect(chordMinorFirst).toBe(13)
+    expect(melodicId2b).toBe(14)
+    expect(harmonicSing2b).toBe(15)
+    expect(harmonicId2b).toBe(16)
+    expect(majorDiatonicDegrees).toBe(17)
     const chordMajorSecond = getCurriculumLessonIndex({
       practiceModeId: "chord-sing",
       contentTierId: "chord-major-second",
@@ -182,9 +189,9 @@ describe("curriculum steps", () => {
       practiceModeId: "chord-sing",
       contentTierId: "chord-minor-second",
     })
-    expect(chordMajorSecond).toBe(17)
-    expect(minorDiatonicDegrees).toBe(18)
-    expect(chordMinorSecond).toBe(19)
+    expect(chordMajorSecond).toBe(18)
+    expect(minorDiatonicDegrees).toBe(19)
+    expect(chordMinorSecond).toBe(20)
     expect(melodicSing2b).toBeGreaterThan(introDegrees)
     expect(chordMajorFirst).toBeGreaterThan(melodicSing2b)
     expect(namedSing2b).toBeGreaterThan(chordMajorFirst)

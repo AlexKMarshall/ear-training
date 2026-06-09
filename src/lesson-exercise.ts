@@ -33,7 +33,8 @@ export interface ChordLessonExercise extends LessonExerciseBase {
   chord: ChordExercise
   chordTypeId: string
   inversionId: InversionId
-  voicingPositionId: VoicingPositionId
+  /** Set for chord sing; omitted for chord identify (anchor is bottom pitch). */
+  voicingPositionId?: VoicingPositionId
 }
 
 export type LessonExercise =

@@ -1,12 +1,12 @@
 import { createStore } from "solid-js/store"
 import { render } from "solid-js/web"
 import { createDefaultAudioPort } from "../audio/port.ts"
+import type { ExerciseChoice } from "../chord-identify-choices.ts"
 import { EXERCISES_PER_LESSON } from "../config.ts"
 import type { ExerciseScreenResultView } from "../exercise-screen-state.ts"
 import { ExerciseScreenState } from "../exercise-screen-state.ts"
 import { createDefaultHistoryPort } from "../history/port.ts"
 import { buildAttemptRecord } from "../history/serialize.ts"
-import { buildIntervalChoices, type IntervalChoice } from "../interval-exercises.ts"
 import type { LessonExercise } from "../lesson-exercise.ts"
 import { getVoiceType, setVoiceType, type VoiceType } from "../voice-ranges.ts"
 import { voiceRangeHint } from "./components/voice-picker.tsx"
@@ -25,7 +25,10 @@ export type {
   IdentifyUiState,
 } from "./identify-test-types.ts"
 
-function toIdentifyResult(result: ExerciseScreenResultView | null): IdentifyResultView | null {
+function toIdentifyResult(
+  result: ExerciseScreenResultView | null,
+  failRetryDetail: string,
+): IdentifyResultView | null {
   if (!result) return null
   if (result.type === "attempt") {
     const detail = result.detail as { selectedLabel?: string } | undefined
@@ -34,12 +37,19 @@ function toIdentifyResult(result: ExerciseScreenResultView | null): IdentifyResu
       passed: result.passed,
       selectedLabel: detail?.selectedLabel ?? "?",
       attemptNote: result.attemptNote,
+      failRetryDetail,
     }
   }
   if (result.type === "summary" || result.type === "audio-error") {
     return result
   }
   return { type: "audio-error" }
+}
+
+function isSelectableExercise(
+  exercise: LessonExercise | null,
+): exercise is Extract<LessonExercise, { type: "interval" } | { type: "chord" }> {
+  return exercise?.type === "interval" || exercise?.type === "chord"
 }
 
 export function mountIdentifyTest(
@@ -50,8 +60,10 @@ export function mountIdentifyTest(
   const history = deps?.history ?? createDefaultHistoryPort()
   const audio = deps?.audio ?? createDefaultAudioPort()
   const exercisesPerLesson = deps?.exercisesPerLesson ?? EXERCISES_PER_LESSON
+  const failRetryDetail =
+    config.failRetryDetail ?? "That wasn't right — tap Try again to listen and pick again."
 
-  let currentChoices: IntervalChoice[] = []
+  let currentChoices: ExerciseChoice[] = []
   let choicesDisabled = false
 
   const [ui, setUi] = createStore<IdentifyUiState>({
@@ -71,12 +83,7 @@ export function mountIdentifyTest(
   })
 
   function rebuildChoices(exercise: LessonExercise): void {
-    if (exercise.type !== "interval") {
-      currentChoices = []
-      return
-    }
-    const eligibleIds = exercise.eligibleTagIds ?? [exercise.intervalId]
-    currentChoices = buildIntervalChoices(exercise.intervalId, eligibleIds)
+    currentChoices = config.buildChoices(exercise)
   }
 
   const screenRef: { current: ExerciseScreenState | null } = { current: null }
@@ -93,7 +100,7 @@ export function mountIdentifyTest(
       showChoices: snapshot.phase === "ready",
       choicesDisabled,
       resultClassName: snapshot.resultClassName,
-      result: toIdentifyResult(snapshot.result),
+      result: toIdentifyResult(snapshot.result, failRetryDetail),
       voice,
       voiceRangeHint: voiceRangeHint(voice),
       settingsLocked: snapshot.settingsLocked,
@@ -115,7 +122,7 @@ export function mountIdentifyTest(
         }
       },
       scoreAnswer: (exercise, selectedId) => {
-        const passed = selectedId === exercise.intervalId
+        const passed = selectedId === config.correctChoiceId(exercise)
         const label = currentChoices.find((c) => c.id === selectedId)?.label ?? String(selectedId)
         return {
           kind: "scored",
@@ -154,7 +161,7 @@ export function mountIdentifyTest(
 
   async function handleChoice(selectedId: string): Promise<void> {
     const snapshot = exerciseScreen.getSnapshot()
-    if (snapshot.phase !== "ready" || snapshot.currentExercise?.type !== "interval") {
+    if (snapshot.phase !== "ready" || !isSelectableExercise(snapshot.currentExercise)) {
       return
     }
 
@@ -177,6 +184,7 @@ export function mountIdentifyTest(
         ui,
         title: config.title,
         subtitle: config.subtitle,
+        lessonBanner: config.lessonBanner,
         playButtonLabel: config.playButtonLabel,
         showVoicePicker: config.showVoicePicker,
         onPlay: () => {
