@@ -1,6 +1,6 @@
 import { EXERCISES_PER_LESSON, MAX_ATTEMPTS_PER_EXERCISE } from "./config.ts"
 import { type LessonSummary, percentOf, summarizeLesson } from "./lesson.ts"
-import type { LessonExercise } from "./lesson-exercise.ts"
+import type { IntervalLessonExercise, LessonExercise } from "./lesson-exercise.ts"
 import { type AttemptScoredContext, LessonRun, type LessonRunSnapshot } from "./lesson-run.ts"
 
 export type ExerciseScreenPhase =
@@ -74,19 +74,29 @@ export type ScoreAnswerResult =
     }
   | { kind: "error"; message: string }
 
-export interface ExerciseScreenStateHooks {
+interface ExerciseScreenStateHooksBase {
   prepareExercise(): LessonExercise
   ensurePlayback(): Promise<void>
   requiresPlayback?(exercise: LessonExercise): boolean
   playReference(exercise: LessonExercise): Promise<void>
   /** Called after reference playback, before entering ready (e.g. rebuild choice pool). */
   onAfterPlayback?(exercise: LessonExercise): void | Promise<void>
+  isPlaybackBusy?(): boolean
+}
+
+export interface SingExerciseScreenStateHooks extends ExerciseScreenStateHooksBase {
   scoreAnswer(
     exercise: LessonExercise,
-    response: unknown,
+    samplesHz: number[],
   ): ScoreAnswerResult | Promise<ScoreAnswerResult>
-  beginRecording?(options: BeginRecordingOptions): Promise<{ stop: () => void } | undefined>
-  isPlaybackBusy?(): boolean
+  beginRecording(options: BeginRecordingOptions): Promise<{ stop: () => void } | undefined>
+}
+
+export interface SelectExerciseScreenStateHooks extends ExerciseScreenStateHooksBase {
+  scoreAnswer(
+    exercise: IntervalLessonExercise,
+    selectedId: string,
+  ): ScoreAnswerResult | Promise<ScoreAnswerResult>
 }
 
 export interface ExerciseScreenStatusCopy {
@@ -107,10 +117,8 @@ export interface AttemptScoredEnrichedContext {
 
 export type ResponseMode = "sing" | "select"
 
-export interface ExerciseScreenStateOptions {
-  hooks: ExerciseScreenStateHooks
+interface ExerciseScreenStateOptionsBase {
   statusCopy: ExerciseScreenStatusCopy
-  responseMode: ResponseMode
   exercisesPerLesson?: number
   maxAttemptsPerExercise?: number
   onSnapshotChange: (snapshot: ExerciseScreenStateSnapshot) => void
@@ -120,6 +128,16 @@ export interface ExerciseScreenStateOptions {
   /** Draw the question in idle before the first Play so prompts can show early (named-interval reproduction). */
   prepareExerciseOnIdle?: boolean
 }
+
+export type ExerciseScreenStateOptions =
+  | (ExerciseScreenStateOptionsBase & {
+      responseMode: "sing"
+      hooks: SingExerciseScreenStateHooks
+    })
+  | (ExerciseScreenStateOptionsBase & {
+      responseMode: "select"
+      hooks: SelectExerciseScreenStateHooks
+    })
 
 function nextStepButtonLabel(isLastExerciseInLesson: boolean): string {
   return isLastExerciseInLesson ? "Finish lesson" : "Next exercise"
@@ -185,7 +203,7 @@ export class ExerciseScreenState {
   private resultView: ExerciseScreenResultView | null = null
   private recordingSession: { stop: () => void } | null = null
   private readonly lessonRun: LessonRun
-  private readonly hooks: ExerciseScreenStateHooks
+  private readonly hooks: SingExerciseScreenStateHooks | SelectExerciseScreenStateHooks
   private readonly statusCopy: ExerciseScreenStatusCopy
   private readonly responseMode: ResponseMode
   private readonly exercisesPerLesson: number
@@ -338,9 +356,15 @@ export class ExerciseScreenState {
   }
 
   async submitChoice(selectedId: string): Promise<void> {
-    if (this.phase !== "ready" || !this.currentExercise) return
+    if (this.phase !== "ready" || this.responseMode !== "select") return
 
-    const outcome = await this.hooks.scoreAnswer(this.currentExercise, selectedId)
+    const exercise = this.currentExercise
+    if (exercise?.type !== "interval") return
+
+    const outcome = await (this.hooks as SelectExerciseScreenStateHooks).scoreAnswer(
+      exercise,
+      selectedId,
+    )
     if (outcome.kind === "error") {
       this.showScoringError(outcome.message)
       return
@@ -350,7 +374,8 @@ export class ExerciseScreenState {
   }
 
   async toggleRecording(): Promise<void> {
-    if (!this.hooks.beginRecording) return
+    if (this.responseMode !== "sing") return
+    const singHooks = this.hooks as SingExerciseScreenStateHooks
 
     if (this.phase === "recording") {
       this.recordingSession?.stop()
@@ -364,7 +389,7 @@ export class ExerciseScreenState {
       await this.hooks.ensurePlayback()
       this.setPhase("recording")
 
-      const session = await this.hooks.beginRecording({
+      const session = await singHooks.beginRecording({
         exercise: this.currentExercise,
         onPitch: () => {
           // Adapter may update live pitch presentation locally.
@@ -393,7 +418,10 @@ export class ExerciseScreenState {
       return
     }
 
-    const outcome = await this.hooks.scoreAnswer(this.currentExercise, samplesHz)
+    const outcome = await (this.hooks as SingExerciseScreenStateHooks).scoreAnswer(
+      this.currentExercise,
+      samplesHz,
+    )
     if (outcome.kind === "error") {
       this.showScoringError(outcome.message)
       return

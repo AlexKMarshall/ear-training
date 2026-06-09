@@ -5,8 +5,9 @@ import {
   type ExerciseChromeSnapshot,
   type ExerciseScreenPhase,
   ExerciseScreenState,
-  type ExerciseScreenStateHooks,
   type ExerciseScreenStateSnapshot,
+  type SelectExerciseScreenStateHooks,
+  type SingExerciseScreenStateHooks,
 } from "../src/exercise-screen-state.ts"
 import type { LessonExercise } from "../src/lesson-exercise.ts"
 
@@ -34,7 +35,7 @@ const statusCopy = {
 }
 
 function createSelectState(
-  hookOverrides: Partial<ExerciseScreenStateHooks> = {},
+  hookOverrides: Partial<SelectExerciseScreenStateHooks> = {},
   options: {
     exercisesPerLesson?: number
     onAttemptScored?: (context: AttemptScoredEnrichedContext) => void
@@ -51,16 +52,16 @@ function createSelectState(
     context: AttemptScoredEnrichedContext,
   ) => void
 
-  const hooks: ExerciseScreenStateHooks = {
+  const hooks: SelectExerciseScreenStateHooks = {
     prepareExercise: vi.fn(() => sampleExercise),
     ensurePlayback: vi.fn(async () => {}),
     playReference: vi.fn(async () => {}),
-    scoreAnswer: (_exercise, selectedId) => ({
-      kind: "scored",
+    scoreAnswer: vi.fn((_exercise, selectedId) => ({
+      kind: "scored" as const,
       passed: selectedId === "P5",
       scorePayload: { selectedId },
       attemptDetail: { selectedLabel: selectedId },
-    }),
+    })),
     ...hookOverrides,
   }
 
@@ -77,18 +78,18 @@ function createSelectState(
   return { state, hooks, snapshots, onAttemptScored, onSnapshotChange }
 }
 
-function createSingState(hookOverrides: Partial<ExerciseScreenStateHooks> = {}) {
+function createSingState(hookOverrides: Partial<SingExerciseScreenStateHooks> = {}) {
   const snapshots: ExerciseScreenStateSnapshot[] = []
   const onAttemptScored = vi.fn()
-  const hooks: ExerciseScreenStateHooks = {
+  const hooks: SingExerciseScreenStateHooks = {
     prepareExercise: () => sampleExercise,
     ensurePlayback: vi.fn(async () => {}),
     playReference: vi.fn(async () => {}),
-    scoreAnswer: () => ({
-      kind: "scored",
-      passed: true,
+    scoreAnswer: vi.fn((_exercise, samplesHz) => ({
+      kind: "scored" as const,
+      passed: samplesHz.length >= 16,
       scorePayload: { centsOff: 5 },
-    }),
+    })),
     beginRecording: vi.fn(async ({ onComplete }) => {
       onComplete([200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215])
       return { stop: vi.fn() }
@@ -173,11 +174,12 @@ describe("ExerciseScreenState", () => {
 
   it("scores a select choice and fires enriched attempt scored", async () => {
     const onAttemptScored = vi.fn()
-    const { state } = createSelectState({}, { onAttemptScored })
+    const { state, hooks } = createSelectState({}, { onAttemptScored })
 
     await state.play()
     await state.submitChoice("P5")
 
+    expect(hooks.scoreAnswer).toHaveBeenCalledWith(sampleExercise, "P5")
     expect(onAttemptScored).toHaveBeenCalledTimes(1)
     expect(onAttemptScored.mock.calls[0]?.[0]).toMatchObject({
       exercise: sampleExercise,
@@ -204,6 +206,34 @@ describe("ExerciseScreenState", () => {
     })
   })
 
+  it("shows scoring error when select scoreAnswer returns error", async () => {
+    const { state } = createSelectState({
+      scoreAnswer: () => ({ kind: "error", message: "bad choice" }),
+    })
+
+    await state.play()
+    await state.submitChoice("P5")
+
+    expect(state.getSnapshot()).toMatchObject({
+      phase: "result",
+      result: { type: "scoring-error", detail: "bad choice" },
+    })
+  })
+
+  it("shows scoring error when sing scoreAnswer returns error", async () => {
+    const { state } = createSingState({
+      scoreAnswer: () => ({ kind: "error", message: "not enough pitch" }),
+    })
+
+    await state.play()
+    await state.toggleRecording()
+
+    expect(state.getSnapshot()).toMatchObject({
+      phase: "result",
+      result: { type: "scoring-error", detail: "not enough pitch" },
+    })
+  })
+
   it("shows retry action after a failed select attempt with tries remaining", async () => {
     const { state } = createSelectState()
     await state.play()
@@ -216,11 +246,15 @@ describe("ExerciseScreenState", () => {
   })
 
   it("transitions sing recording via toggleRecording", async () => {
-    const { state, onAttemptScored } = createSingState()
+    const { state, hooks, onAttemptScored } = createSingState()
+    const expectedSamples = [
+      200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215,
+    ]
 
     await state.play()
     await state.toggleRecording()
 
+    expect(hooks.scoreAnswer).toHaveBeenCalledWith(sampleExercise, expectedSamples)
     expect(state.getSnapshot()).toMatchObject({
       phase: "result",
       result: { type: "attempt", passed: true },
@@ -294,10 +328,10 @@ describe("ExerciseScreenState", () => {
         prepareExercise: () => sampleExercise,
         ensurePlayback: vi.fn(async () => {}),
         playReference: vi.fn(async () => {}),
-        scoreAnswer: () => ({
+        scoreAnswer: (_exercise, selectedId) => ({
           kind: "scored",
-          passed: true,
-          scorePayload: {},
+          passed: selectedId === "P5",
+          scorePayload: { selectedId },
         }),
       },
       statusCopy,
@@ -366,10 +400,10 @@ describe("ExerciseScreenState", () => {
         prepareExercise,
         ensurePlayback: vi.fn(async () => {}),
         playReference: vi.fn(async () => {}),
-        scoreAnswer: () => ({
+        scoreAnswer: (_exercise, samplesHz) => ({
           kind: "scored",
           passed: false,
-          scorePayload: { centsOff: 50 },
+          scorePayload: { centsOff: 50, frameCount: samplesHz.length },
         }),
         beginRecording: vi.fn(async ({ onComplete }) => {
           onComplete([
