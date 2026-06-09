@@ -13,7 +13,7 @@ import {
 } from "./chord-session.ts"
 import { mountExercise } from "./mount-exercise.ts"
 import { scoreSingFromSamples } from "./sing-scoring.ts"
-import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts"
+import type { SingMountDeps, SingTestConfig } from "./sing-test.ts"
 
 const singleNoteStatus = {
   idle: "Press Play to hear the reference note.",
@@ -84,9 +84,27 @@ const chordSingBase = {
   },
 }
 
-export const chordSingTestConfig: SingTestConfig = {
+export const chordSingExerciseDefinition: SingExerciseDefinition = {
   ...chordSingBase,
+  responseMode: "sing",
+  scoreAnswer: scoreSingFromSamples,
   prepareExercise: () => prepareChordExercise([]),
+}
+
+export const chordSingTestConfig: SingTestConfig = {
+  practiceModeId: chordSingExerciseDefinition.practiceModeId,
+  title: chordSingExerciseDefinition.title,
+  subtitle: chordSingExerciseDefinition.subtitle,
+  playButtonLabel: chordSingExerciseDefinition.playButtonLabel,
+  showVoicePicker: chordSingExerciseDefinition.showVoicePicker,
+  exercisePromptFromDraw: chordSingExerciseDefinition.exercisePromptFromDraw,
+  exercisePrompt: chordSingExerciseDefinition.exercisePrompt,
+  status: {
+    ...chordSingExerciseDefinition.status,
+    recording: chordSingExerciseDefinition.status.recording!,
+  },
+  prepareExercise: chordSingExerciseDefinition.prepareExercise,
+  playReference: chordSingExerciseDefinition.playReference,
 }
 
 export function mountSingleNoteTest(root: HTMLElement, deps?: MountDeps & SingMountDeps): void {
@@ -101,10 +119,10 @@ export function mountChordSingTest(
   const tierId = deps?.sessionCurriculumLesson?.contentTierId ?? "chord-major-root"
   const lessonBanner = isChordContentTierId(tierId) ? getChordLessonBannerLabel(tierId) : undefined
 
-  mountSingTest(
+  mountExercise(
     root,
     {
-      ...chordSingBase,
+      ...chordSingExerciseDefinition,
       lessonBanner,
       prepareExercise: () =>
         prepareChordExercise(

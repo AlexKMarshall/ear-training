@@ -1,12 +1,15 @@
 import { playTargetNote } from "../audio/playback.ts"
 import { getScaleDegreeKeyQualityLabel } from "../curriculum/scale-degree-tiers.ts"
+import type { SingExerciseDefinition } from "../exercise-definition.ts"
 import { getScaleDegreeById } from "../scale-degree-config.ts"
+import { mountExercise } from "./mount-exercise.ts"
 import {
   prepareScaleDegreeExercise,
   resolveScaleDegreeSession,
   type ScaleDegreeSessionDeps,
 } from "./scale-degree-session.ts"
-import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts"
+import { scoreSingFromSamples } from "./sing-scoring.ts"
+import type { SingMountDeps, SingTestConfig } from "./sing-test.ts"
 
 const scaleDegreeSingBase = {
   practiceModeId: "scale-degree-sing" as const,
@@ -39,9 +42,26 @@ const scaleDegreeSingBase = {
   },
 }
 
-export const scaleDegreeSingConfig: SingTestConfig = {
+export const scaleDegreeSingExerciseDefinition: SingExerciseDefinition = {
   ...scaleDegreeSingBase,
+  responseMode: "sing",
+  scoreAnswer: scoreSingFromSamples,
   prepareExercise: () => prepareScaleDegreeExercise([], null).exercise,
+}
+
+export const scaleDegreeSingConfig: SingTestConfig = {
+  practiceModeId: scaleDegreeSingExerciseDefinition.practiceModeId,
+  title: scaleDegreeSingExerciseDefinition.title,
+  subtitle: scaleDegreeSingExerciseDefinition.subtitle,
+  playButtonLabel: scaleDegreeSingExerciseDefinition.playButtonLabel,
+  showVoicePicker: scaleDegreeSingExerciseDefinition.showVoicePicker,
+  exercisePrompt: scaleDegreeSingExerciseDefinition.exercisePrompt,
+  status: {
+    ...scaleDegreeSingExerciseDefinition.status,
+    recording: scaleDegreeSingExerciseDefinition.status.recording!,
+  },
+  prepareExercise: scaleDegreeSingExerciseDefinition.prepareExercise,
+  playReference: scaleDegreeSingExerciseDefinition.playReference,
 }
 
 export function mountScaleDegreeSingTest(
@@ -55,10 +75,10 @@ export function mountScaleDegreeSingTest(
       deps?.sessionCurriculumLesson?.contentTierId ?? "degree-major-intro",
     ) ?? undefined
 
-  mountSingTest(
+  mountExercise(
     root,
     {
-      ...scaleDegreeSingBase,
+      ...scaleDegreeSingExerciseDefinition,
       lessonBanner,
       onLessonReset: () => {
         lessonTonicMidi = null
