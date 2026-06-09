@@ -280,6 +280,8 @@ describe("planNextExerciseTag", () => {
     "chord-minor-root",
     "chord-major-first",
     "chord-minor-first",
+    "chord-major-second",
+    "chord-minor-second",
   ] as const)("draws voicing positions from the %s pool", (contentTierId) => {
     const step = {
       practiceModeId: "chord-sing" as const,

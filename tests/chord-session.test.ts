@@ -3,6 +3,7 @@ import { getEligibleVoicingPositionIds } from "../src/curriculum/chord-tiers.ts"
 import type { SessionPlanner } from "../src/session/planner.ts"
 import { prepareChordExercise } from "../src/ui/chord-session.ts"
 import {
+  passingChordMajorSecondHistory,
   passingMelodicSing2bHistory,
   passingThroughHarmonicSing2aHistory,
 } from "./fixtures/attempts.ts"
@@ -77,5 +78,22 @@ describe("prepareChordExercise", () => {
     expect(exercise.chordTypeId).toBe("minor-triad")
     expect(exercise.contentTierId).toBe("chord-minor-root")
     expect(exercise.inversionId).toBe("root")
+  })
+
+  it("draws major triad second inversion for chord-major-second tier", () => {
+    const planner: SessionPlanner = {
+      planNextExerciseTag: () => "bottom",
+    }
+    const exercise = prepareChordExercise(
+      passingChordMajorSecondHistory(),
+      planner,
+      { lowMidi: 48, highMidi: 67 },
+      () => 0,
+      { practiceModeId: "chord-sing", contentTierId: "chord-major-second" },
+    )
+
+    expect(exercise.chordTypeId).toBe("major-triad")
+    expect(exercise.contentTierId).toBe("chord-major-second")
+    expect(exercise.inversionId).toBe("second")
   })
 })

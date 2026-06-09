@@ -27,7 +27,7 @@ function findCurriculumLesson(
 }
 
 describe("curriculum steps", () => {
-  it("defines guided steps in cross-mode unlock order through minor diatonic degrees", () => {
+  it("defines guided steps in cross-mode unlock order through chord minor second", () => {
     expect(CURRICULUM_LESSONS.map((s) => `${s.practiceModeId}@${s.contentTierId}`)).toEqual([
       "single-note@tier-1",
       "interval-melodic-sing@interval-2a",
@@ -46,7 +46,9 @@ describe("curriculum steps", () => {
       "interval-harmonic-sing@interval-2b",
       "interval-harmonic-id@interval-2b",
       "scale-degree-sing@degree-major-diatonic",
+      "chord-sing@chord-major-second",
       "scale-degree-sing@degree-minor-diatonic",
+      "chord-sing@chord-minor-second",
     ])
   })
 
@@ -168,12 +170,21 @@ describe("curriculum steps", () => {
     expect(harmonicSing2b).toBe(14)
     expect(harmonicId2b).toBe(15)
     expect(majorDiatonicDegrees).toBe(16)
-    expect(
-      getCurriculumLessonIndex({
-        practiceModeId: "scale-degree-sing",
-        contentTierId: "degree-minor-diatonic",
-      }),
-    ).toBe(17)
+    const chordMajorSecond = getCurriculumLessonIndex({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-major-second",
+    })
+    const minorDiatonicDegrees = getCurriculumLessonIndex({
+      practiceModeId: "scale-degree-sing",
+      contentTierId: "degree-minor-diatonic",
+    })
+    const chordMinorSecond = getCurriculumLessonIndex({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-minor-second",
+    })
+    expect(chordMajorSecond).toBe(17)
+    expect(minorDiatonicDegrees).toBe(18)
+    expect(chordMinorSecond).toBe(19)
     expect(melodicSing2b).toBeGreaterThan(introDegrees)
     expect(chordMajorFirst).toBeGreaterThan(melodicSing2b)
     expect(namedSing2b).toBeGreaterThan(chordMajorFirst)
@@ -182,6 +193,9 @@ describe("curriculum steps", () => {
     expect(harmonicSing2b).toBeGreaterThan(melodicId2b)
     expect(harmonicId2b).toBeGreaterThan(harmonicSing2b)
     expect(majorDiatonicDegrees).toBeGreaterThan(harmonicId2b)
+    expect(chordMajorSecond).toBeGreaterThan(majorDiatonicDegrees)
+    expect(minorDiatonicDegrees).toBeGreaterThan(chordMajorSecond)
+    expect(chordMinorSecond).toBeGreaterThan(minorDiatonicDegrees)
   })
 
   it("returns ordered steps per exercise for tier progression", () => {
@@ -202,6 +216,8 @@ describe("curriculum steps", () => {
       "chord-minor-root",
       "chord-major-first",
       "chord-minor-first",
+      "chord-major-second",
+      "chord-minor-second",
     ])
   })
 
@@ -254,6 +270,8 @@ describe("curriculum steps", () => {
       "chord-minor-root",
       "chord-major-first",
       "chord-minor-first",
+      "chord-major-second",
+      "chord-minor-second",
     ] as const) {
       const step = findCurriculumLesson(
         (s) => s.practiceModeId === "chord-sing" && s.contentTierId === contentTierId,
@@ -280,6 +298,14 @@ describe("curriculum steps", () => {
       triadQualityId: "minor-triad",
       inversion: "first",
     })
+    expect(getChordTierConfig("chord-major-second")).toEqual({
+      triadQualityId: "major-triad",
+      inversion: "second",
+    })
+    expect(getChordTierConfig("chord-minor-second")).toEqual({
+      triadQualityId: "minor-triad",
+      inversion: "second",
+    })
   })
 
   it("labels chord lesson banners with quality and inversion", () => {
@@ -287,5 +313,7 @@ describe("curriculum steps", () => {
     expect(getChordLessonBannerLabel("chord-minor-root")).toBe("Minor triad · root position")
     expect(getChordLessonBannerLabel("chord-major-first")).toBe("Major triad · 1st inversion")
     expect(getChordLessonBannerLabel("chord-minor-first")).toBe("Minor triad · 1st inversion")
+    expect(getChordLessonBannerLabel("chord-major-second")).toBe("Major triad · 2nd inversion")
+    expect(getChordLessonBannerLabel("chord-minor-second")).toBe("Minor triad · 2nd inversion")
   })
 })

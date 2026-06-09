@@ -6,6 +6,7 @@ import {
   singExhaustAttempts,
   singPlayRecordFail,
 } from "./helpers/lesson-flow.ts"
+import { getChordLessonBannerLabel } from "../../src/curriculum/chord-tiers.ts"
 import { mountPracticeModeInBrowser } from "./helpers/mount.ts"
 
 beforeEach(() => {
@@ -58,7 +59,17 @@ test("chord sing: fail shows retry and records failed attempt", async () => {
   })
 })
 
-test("chord middle: exhausts attempts and advances", async () => {
+test("chord sing minor second: shows 2nd inversion lesson banner", async () => {
+  mountPracticeModeInBrowser("chord-sing", {
+    config: {
+      lessonBanner: getChordLessonBannerLabel("chord-minor-second"),
+    },
+  })
+
+  await expect.element(page.getByText(/Minor triad · 2nd inversion/i)).toBeVisible()
+})
+
+test("chord sing: exhausts attempts and advances", async () => {
   mountPracticeModeInBrowser("chord-sing", {
     samplesHz: FAIL_SAMPLES,
   })

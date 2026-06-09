@@ -82,6 +82,18 @@ describe("getPathNodeLabels", () => {
       subtitle: "Minor triad · 1st inversion · any voice",
     })
   })
+
+  it("labels second-inversion chord steps", () => {
+    expect(
+      getPathNodeLabels({
+        practiceModeId: "chord-sing",
+        contentTierId: "chord-major-second",
+      }),
+    ).toEqual({
+      title: "Chords",
+      subtitle: "Major triad · 2nd inversion · any voice",
+    })
+  })
 })
 
 describe("getPathNodeState", () => {

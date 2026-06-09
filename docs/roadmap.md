@@ -79,8 +79,6 @@ Grouped by theme; order is indicative, not a commitment. Prefer tracer-bullet is
 | **Targeted practice** | Home area outside guided sequence — mixed-type lessons likely; see `CONTEXT.md` |
 | Mixed-type lessons | One lesson run drawing multiple exercise types |
 | Configurable unlock thresholds in UI | Constants in `unlock.ts` today |
-| Insert Level 4+ lessons mid-path | Chord / triad family currently at path tail only |
-
 ### Interval & reproduction depth
 
 | Item | Notes |

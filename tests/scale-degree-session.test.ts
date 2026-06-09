@@ -6,6 +6,7 @@ import { prepareScaleDegreeExercise } from "../src/ui/scale-degree-session.ts"
 import {
   attempt,
   passingIntroScaleDegreeHistory,
+  passingChordMajorSecondHistory,
   passingMajorDiatonicScaleDegreeHistory,
   passingThroughHarmonic2bHistory,
 } from "./fixtures/attempts.ts"
@@ -48,12 +49,12 @@ describe("prepareScaleDegreeExercise", () => {
     expect(exercise.eligibleTagIds).toEqual(getEligibleDegreeIds("degree-major-diatonic"))
   })
 
-  it("uses minor diatonic tier after major diatonic completes", () => {
+  it("uses minor diatonic tier after chord major second completes", () => {
     const planner: SessionPlanner = {
       planNextExerciseTag: () => "third",
     }
     const { exercise } = prepareScaleDegreeExercise(
-      passingMajorDiatonicScaleDegreeHistory(),
+      passingChordMajorSecondHistory(),
       60,
       planner,
       { lowMidi: 48, highMidi: 67 },
@@ -168,7 +169,7 @@ describe("scaleDegreeQuestionForTag", () => {
     }
     for (const id of getEligibleDegreeIds("degree-minor-diatonic")) {
       const { exercise } = prepareScaleDegreeExercise(
-        passingMajorDiatonicScaleDegreeHistory(),
+        passingChordMajorSecondHistory(),
         60,
         { planNextExerciseTag: () => id },
       )
