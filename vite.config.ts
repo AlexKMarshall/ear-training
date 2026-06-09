@@ -13,6 +13,7 @@ export default defineConfig({
         singleNote: resolve(__dirname, "single-note/index.html"),
         chordSing: resolve(__dirname, "chord-sing/index.html"),
         chordQualityId: resolve(__dirname, "chord-quality-id/index.html"),
+        chordInversionId: resolve(__dirname, "chord-inversion-id/index.html"),
         intervalMelodicSing: resolve(__dirname, "interval-melodic-sing/index.html"),
         intervalNamedSing: resolve(__dirname, "interval-named-sing/index.html"),
         intervalHarmonicSing: resolve(__dirname, "interval-harmonic-sing/index.html"),

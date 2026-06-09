@@ -17,7 +17,12 @@ export interface TagStats {
   medianAbsCents: number | null
 }
 
-export type TagBreakdownKind = "interval" | "degree" | "voicing-position" | "triad-quality"
+export type TagBreakdownKind =
+  | "interval"
+  | "degree"
+  | "voicing-position"
+  | "triad-quality"
+  | "inversion"
 
 export interface TagBreakdownConfig {
   kind: TagBreakdownKind
@@ -66,6 +71,11 @@ const TAG_CONFIG: Partial<Record<PracticeModeId, TagBreakdownConfig>> = {
     getTagId: (r) => r.chordTypeId,
     includeMedianCents: false,
   },
+  "chord-inversion-id": {
+    kind: "inversion",
+    getTagId: (r) => r.inversionId,
+    includeMedianCents: false,
+  },
 }
 
 export function getTagBreakdownConfig(
@@ -84,6 +94,8 @@ export function tagBreakdownHeading(kind: TagBreakdownKind): string {
       return "By voicing position"
     case "triad-quality":
       return "By triad quality"
+    case "inversion":
+      return "By inversion"
   }
 }
 
@@ -97,6 +109,17 @@ function resolveTagLabel(kind: TagBreakdownKind, tagId: string): string {
       return voicingPositionStatsLabel(tagId as VoicingPositionId)
     case "triad-quality":
       return getChordTypeById(tagId)?.label ?? tagId
+    case "inversion":
+      switch (tagId) {
+        case "root":
+          return "Root position"
+        case "first":
+          return "1st inversion"
+        case "second":
+          return "2nd inversion"
+        default:
+          return tagId
+      }
   }
 }
 

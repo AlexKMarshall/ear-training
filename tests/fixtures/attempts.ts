@@ -203,7 +203,7 @@ export function passingMajorDiatonicScaleDegreeHistory(): AttemptRecord[] {
   ]
 }
 
-/** Chord major second complete; minor diatonic scale degrees unlockable. */
+/** Chord major second complete; major triad inversion identification unlockable. */
 export function passingChordMajorSecondHistory(): AttemptRecord[] {
   return [
     ...passingMajorDiatonicScaleDegreeHistory(),
@@ -214,10 +214,21 @@ export function passingChordMajorSecondHistory(): AttemptRecord[] {
   ]
 }
 
+/** Major triad inversion identification complete; minor diatonic scale degrees unlockable. */
+export function passingThroughChordInversionMajorHistory(): AttemptRecord[] {
+  return [
+    ...passingChordMajorSecondHistory(),
+    ...passingStepHistory({
+      practiceModeId: "chord-inversion-id",
+      contentTierId: "chord-inversion-major",
+    }),
+  ]
+}
+
 /** Minor diatonic scale degrees complete; chord minor second unlockable. */
 function passingMinorDiatonicScaleDegreeHistory(): AttemptRecord[] {
   return [
-    ...passingChordMajorSecondHistory(),
+    ...passingThroughChordInversionMajorHistory(),
     ...passingStepHistory({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-minor-diatonic",

@@ -9,6 +9,8 @@ export type ChordContentTierId = Extract<
 
 export type ChordQualityIdContentTierId = Extract<ContentTierId, `chord-quality-${string}`>
 
+export type ChordInversionIdContentTierId = Extract<ContentTierId, `chord-inversion-${string}`>
+
 export interface ChordTierConfig {
   triadQualityId: "major-triad" | "minor-triad"
   inversion: InversionId
@@ -31,6 +33,12 @@ export function isChordQualityIdContentTierId(
   tierId: ContentTierId,
 ): tierId is ChordQualityIdContentTierId {
   return tierId.startsWith("chord-quality-")
+}
+
+export function isChordInversionIdContentTierId(
+  tierId: ContentTierId,
+): tierId is ChordInversionIdContentTierId {
+  return tierId.startsWith("chord-inversion-")
 }
 
 const CHORD_QUALITY_ID_TIER_CONFIG: Record<
@@ -62,6 +70,34 @@ export function getChordQualityIdLessonBannerLabel(tierId: ChordQualityIdContent
 
 export function getEligibleTriadQualityIds(): readonly ["major-triad", "minor-triad"] {
   return ["major-triad", "minor-triad"]
+}
+
+const CHORD_INVERSION_ID_TIER_CONFIG: Record<
+  ChordInversionIdContentTierId,
+  { triadQualityId: "major-triad" | "minor-triad" }
+> = {
+  "chord-inversion-major": { triadQualityId: "major-triad" },
+}
+
+export function getChordInversionIdTierConfig(tierId: ChordInversionIdContentTierId): {
+  triadQualityId: "major-triad" | "minor-triad"
+} {
+  const config = CHORD_INVERSION_ID_TIER_CONFIG[tierId]
+  if (!config) {
+    throw new Error(`Unknown chord inversion identify tier: ${tierId}`)
+  }
+  return config
+}
+
+export function getChordInversionIdLessonBannerLabel(tierId: ChordInversionIdContentTierId): string {
+  switch (tierId) {
+    case "chord-inversion-major":
+      return "Major triad"
+  }
+}
+
+export function getEligibleInversionIds(): readonly InversionId[] {
+  return ["root", "first", "second"]
 }
 
 export function getChordTierConfig(tierId: ChordContentTierId): ChordTierConfig {

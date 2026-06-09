@@ -1,5 +1,6 @@
 import type { MountDeps } from "../history/port.ts"
 import type { PracticeModeId } from "../history/types.ts"
+import { mountChordInversionIdTest } from "../ui/chord-inversion-id-tests.ts"
 import { mountChordQualityIdTest } from "../ui/chord-quality-id-tests.ts"
 import {
   mountIntervalHarmonicIdTest,
@@ -46,6 +47,14 @@ const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
     title: "Chords",
     subtitle: "Quality identification · root position",
     mount: mountChordQualityIdTest,
+  },
+  {
+    id: "chord-inversion-id",
+    responseMode: "select",
+    route: "/chord-inversion-id/",
+    title: "Chords",
+    subtitle: "Inversion identification · major triad",
+    mount: mountChordInversionIdTest,
   },
   {
     id: "interval-melodic-sing",

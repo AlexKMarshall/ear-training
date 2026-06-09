@@ -9,6 +9,7 @@ const SMOKE_IDS = [
   "single-note",
   "chord-sing",
   "chord-quality-id",
+  "chord-inversion-id",
   "interval-melodic-sing",
   "interval-named-sing",
   "interval-harmonic-sing",
@@ -40,7 +41,9 @@ for (const practiceModeId of SMOKE_IDS) {
     const playLabel =
       practiceModeId === "single-note" || practiceModeId === "interval-named-sing"
         ? /Play note/i
-        : practiceModeId === "chord-sing" || practiceModeId === "chord-quality-id"
+        : practiceModeId === "chord-sing" ||
+            practiceModeId === "chord-quality-id" ||
+            practiceModeId === "chord-inversion-id"
           ? /Play chord/i
           : practiceModeId === "scale-degree-sing"
             ? /Play tonic/i
@@ -48,7 +51,12 @@ for (const practiceModeId of SMOKE_IDS) {
     await userEvent.click(page.getByRole("button", { name: playLabel }))
 
     if (entry.responseMode === "select") {
-      const choiceLabel = practiceModeId === "chord-quality-id" ? /Major/i : /Perfect 5th/i
+      const choiceLabel =
+        practiceModeId === "chord-quality-id"
+          ? /Major/i
+          : practiceModeId === "chord-inversion-id"
+            ? /Root position/i
+            : /Perfect 5th/i
       await userEvent.click(page.getByRole("button", { name: choiceLabel }))
     } else {
       await userEvent.click(page.getByRole("button", { name: /Start singing/i }))

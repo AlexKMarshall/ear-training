@@ -96,6 +96,18 @@ test("locked chord-quality-id deep link is rejected", async () => {
   setCurriculumLessonSearch(null)
 })
 
+test("locked chord-inversion-id deep link is rejected", async () => {
+  setCurriculumLessonSearch({
+    practiceModeId: "chord-inversion-id",
+    contentTierId: "chord-inversion-major",
+  })
+  await mountPracticeModePageWithHistory("chord-inversion-id", passingSingleNoteHistory(), {
+    locationSearch: window.location.search,
+  })
+  await expect.element(page.getByRole("heading", { name: "Locked" })).toBeVisible()
+  setCurriculumLessonSearch(null)
+})
+
 test("unlocked step deep link mounts the exercise", async () => {
   setCurriculumLessonSearch({
     practiceModeId: "interval-melodic-sing",

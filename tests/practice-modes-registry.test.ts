@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { CURRICULUM_PATH } from "../src/curriculum/levels.ts"
 import { PRACTICE_MODE_LABELS, type PracticeModeId } from "../src/history/types.ts"
 import { PRACTICE_MODES, type ResponseMode } from "../src/practice-modes/registry.ts"
+import { chordInversionIdConfig } from "../src/ui/chord-inversion-id-tests.ts"
 import { chordQualityIdConfig } from "../src/ui/chord-quality-id-tests.ts"
 import type { IdentifyTestConfig } from "../src/ui/identify-test.ts"
 import {
@@ -24,6 +25,7 @@ const SING_CONFIGS: Record<PracticeModeId, SingTestConfig | undefined> = {
   "interval-melodic-id": undefined,
   "interval-harmonic-id": undefined,
   "chord-quality-id": undefined,
+  "chord-inversion-id": undefined,
   "scale-degree-sing": scaleDegreeSingConfig,
 }
 
@@ -36,6 +38,7 @@ const IDENTIFY_CONFIGS: Record<PracticeModeId, IdentifyTestConfig | undefined> =
   "interval-melodic-id": intervalMelodicIdConfig,
   "interval-harmonic-id": intervalHarmonicIdConfig,
   "chord-quality-id": chordQualityIdConfig,
+  "chord-inversion-id": chordInversionIdConfig,
   "scale-degree-sing": undefined,
 }
 

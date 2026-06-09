@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest"
 import { page } from "vitest/browser"
 import {
   passingChordMajorSecondHistory,
+  passingThroughChordInversionMajorHistory,
   passingFullGuidedPathHistory,
   passingIntroScaleDegreeHistory,
   passingLevel2History,
@@ -122,17 +123,6 @@ test("after harmonic 2b complete: major diatonic scale degrees is the current li
     .toBeVisible()
 })
 
-test("after chord major second complete: minor diatonic is the current link", async () => {
-  await mountHomeWithHistory(passingChordMajorSecondHistory())
-  await expect
-    .element(
-      guidedPath().getByRole("link", {
-        name: /Scale degrees.*Melodic reproduction.*natural minor key.*diatonic degrees within one octave/i,
-      }),
-    )
-    .toBeVisible()
-})
-
 test("after harmonic sing 2a complete: chord major root is the current link", async () => {
   await mountHomeWithHistory(passingThroughHarmonicSing2aHistory())
   await expect
@@ -177,6 +167,17 @@ test("after major diatonic complete: chord major second is the current link", as
     .toBeVisible()
 })
 
+test("after chord major second complete: inversion identification is the current link", async () => {
+  await mountHomeWithHistory(passingChordMajorSecondHistory())
+  await expect
+    .element(
+      guidedPath().getByRole("link", {
+        name: /Chords.*Inversion identification.*major triad/i,
+      }),
+    )
+    .toBeVisible()
+})
+
 test("after melodic identify 2b complete: harmonic sing at 2b is current", async () => {
   await mountHomeWithHistory(passingThroughMelodicId2bHistory())
   await expect
@@ -190,7 +191,7 @@ test("after melodic identify 2b complete: harmonic sing at 2b is current", async
 
 test("after minor diatonic complete: chord minor second is the current link", async () => {
   await mountHomeWithHistory([
-    ...passingChordMajorSecondHistory(),
+    ...passingThroughChordInversionMajorHistory(),
     ...passingStepHistory({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-minor-diatonic",
