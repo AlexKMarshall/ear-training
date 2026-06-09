@@ -27,7 +27,7 @@ The unified, rules-only controller for one ten-exercise lesson: exercise index, 
 _Avoid_: Lesson (when meaning the controller module), test state machine
 
 **Attempt scored** (callback):
-Hook fired when the learner completes a scored try on the current exercise. The lesson run updates lesson rules; the adapter (mount or session wiring) builds and persists the history record — not the lesson run itself.
+Hook fired when the learner completes a scored try on the current exercise. The lesson run updates lesson rules; the **exercise orchestrator** builds and persists the history record from the definition’s score payload — not the lesson run or the definition itself.
 _Avoid_: Save attempt (when meaning the callback event), score event
 
 **Presentation implementation**:
@@ -45,6 +45,18 @@ _Avoid_: UI rewrite, framework migration
 **Exercise screen state extraction**:
 Refactor that introduces the shared **exercise screen state** module (phase machine, shared chrome snapshot, injected playback/scoring hooks) and rewires practice-mode mounts to use it while leaving presentation authoring unchanged. Delivered as separate pull requests: module with unit tests first, then one PR per mount (identify, then sing) for reviewability. Does not ship new exercise types (e.g. **phrase response** dictation) — only removes duplication and keeps future playback/scoring variants behind the injected seam.
 _Avoid_: UI rewrite, framework migration, phrase response (as in-scope work for this extract)
+
+**Exercise definition**:
+Per-**practice mode** behaviour behind one interface: draw (`prepareExercise`), reference playback (`playReference`), scoring (`scoreAnswer`), and presentation copy (status strings, lesson banner, prompts). A discriminated union on **response mode** — sing branch (recording, pitch scoring, exercise prompt) vs select branch (choice pool, correct answer id) — with shared fields for ids, titles, and voice-picker visibility. Co-located with family builders (e.g. interval behaviour stays in `interval-tests.ts`). The practice-mode **registry** holds one definition per mode; it does not duplicate orchestration.
+_Avoid_: SingTestConfig / IdentifyTestConfig (legacy parallel configs), exercise config blob (without “definition”)
+
+**Exercise orchestrator** (`mountExercise`):
+Single lesson-screen mount module wired by the **page mount**: owns **exercise screen state**, response-mode internal adapters (sing recording vs select choices), Solid presentation wiring, and **attempt scored** persistence (`buildAttemptRecord` + history port). Definitions supply behaviour; the orchestrator does not branch on practice mode for persistence. Replaces parallel `mountSingTest` / `mountIdentifyTest` entry points.
+_Avoid_: Per-mode mount functions in the registry, mountSingTest / mountIdentifyTest (legacy)
+
+**Exercise definition extraction**:
+Refactor that introduces **exercise definition** and **exercise orchestrator**, then rewires practice-mode registry entries while leaving presentation components unchanged. Delivered incrementally: type + orchestrator with unit tests, migrate `single-note` first, then remaining sing modes, then select modes, then delete legacy mount/config types. Closes **TD-001**.
+_Avoid_: UI rewrite, framework migration, big-bang registry swap
 
 **Presentation migration**:
 Moving remaining **page mounts** from string-built markup to Solid JSX inside each mount. Rewires presentation only — not shared exercise screen state (TD-002), exercise-definition unification (TD-001), or a SPA router. Delivers **migrated mount** criteria and retires interval/chord/degree content pickers on sing/identify as those files convert. Each PR is verified by existing **browser tests** (plus typecheck/unit/build as today), not a new JSX test harness.
