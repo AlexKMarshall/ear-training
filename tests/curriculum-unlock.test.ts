@@ -303,7 +303,9 @@ describe("getContinueCurriculumLesson", () => {
   })
 
   it("advances to harmonic sing at 2b after melodic identification 2b completes", () => {
-    expect(getContinuePracticeMode(passingThroughMelodicId2bHistory())).toBe("interval-harmonic-sing")
+    expect(getContinuePracticeMode(passingThroughMelodicId2bHistory())).toBe(
+      "interval-harmonic-sing",
+    )
     expect(getContinueCurriculumLesson(passingThroughMelodicId2bHistory())).toEqual({
       practiceModeId: "interval-harmonic-sing",
       contentTierId: "interval-2b",

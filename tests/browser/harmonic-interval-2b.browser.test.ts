@@ -5,10 +5,7 @@ import { getEligibleTagIds } from "../../src/curriculum/curriculum-lessons.ts"
 import { getIntervalById } from "../../src/interval-config.ts"
 import { buildIntervalExercise, intervalToLessonExercise } from "../../src/interval-exercises.ts"
 import { mountIntervalHarmonicIdTest } from "../../src/ui/interval-tests.ts"
-import {
-  passingStepHistory,
-  passingThroughMelodicId2bHistory,
-} from "../fixtures/attempts.ts"
+import { passingStepHistory, passingThroughMelodicId2bHistory } from "../fixtures/attempts.ts"
 import { defined } from "../helpers/defined.ts"
 import {
   createHarmonicSingTestConfig,
