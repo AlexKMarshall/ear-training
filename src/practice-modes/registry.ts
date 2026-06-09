@@ -1,3 +1,4 @@
+import type { ExerciseDefinition } from "../exercise-definition.ts"
 import type { MountDeps } from "../history/port.ts"
 import type { PracticeModeId } from "../history/types.ts"
 import { mountChordInversionIdTest } from "../ui/chord-inversion-id-tests.ts"
@@ -9,8 +10,9 @@ import {
   mountIntervalMelodicSingTest,
   mountIntervalNamedSingTest,
 } from "../ui/interval-tests.ts"
+import { mountExercise } from "../ui/mount-exercise.ts"
 import { mountScaleDegreeSingTest } from "../ui/scale-degree-tests.ts"
-import { mountChordSingTest, mountSingleNoteTest } from "../ui/tests.ts"
+import { mountChordSingTest, singleNoteExerciseDefinition } from "../ui/tests.ts"
 
 export type ResponseMode = "sing" | "select"
 
@@ -20,6 +22,7 @@ export interface PracticeModeEntry {
   route: string
   title: string
   subtitle: string
+  definition?: ExerciseDefinition
   mount: (root: HTMLElement, deps?: MountDeps) => void
 }
 
@@ -30,7 +33,8 @@ const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
     route: "/single-note/",
     title: "Sing a single note",
     subtitle: "Sing back the note you hear",
-    mount: mountSingleNoteTest,
+    definition: singleNoteExerciseDefinition,
+    mount: (root, deps) => mountExercise(root, singleNoteExerciseDefinition, deps),
   },
   {
     id: "chord-sing",
