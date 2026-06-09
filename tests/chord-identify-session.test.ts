@@ -65,6 +65,23 @@ describe("prepareChordQualityIdExercise", () => {
     expect(exercise.contentTierId).toBe("chord-quality-first")
     expect(exercise.inversionId).toBe("first")
   })
+
+  it("uses 2nd inversion from URL curriculum lesson tier", () => {
+    const planner: SessionPlanner = {
+      planNextExerciseTag: () => "major-triad",
+    }
+    const exercise = prepareChordQualityIdExercise(
+      [],
+      planner,
+      { lowMidi: 48, highMidi: 67 },
+      () => 0,
+      { practiceModeId: "chord-quality-id", contentTierId: "chord-quality-second" },
+    )
+
+    expect(exercise.chordTypeId).toBe("major-triad")
+    expect(exercise.contentTierId).toBe("chord-quality-second")
+    expect(exercise.inversionId).toBe("second")
+  })
 })
 
 describe("prepareChordInversionIdExercise", () => {

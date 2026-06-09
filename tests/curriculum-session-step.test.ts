@@ -166,6 +166,24 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
     })
   })
 
+  it("returns chord-quality-second after chord minor second passes", () => {
+    const records = [
+      ...passingThroughChordInversionMajorHistory(),
+      ...passingStepHistory({
+        practiceModeId: "scale-degree-sing",
+        contentTierId: "degree-minor-diatonic",
+      }),
+      ...passingStepHistory({
+        practiceModeId: "chord-sing",
+        contentTierId: "chord-minor-second",
+      }),
+    ]
+    expect(getSessionCurriculumLessonForPracticeMode("chord-quality-id", records)).toEqual({
+      practiceModeId: "chord-quality-id",
+      contentTierId: "chord-quality-second",
+    })
+  })
+
   it("returns chord-major-root for chord-sing when that step is unlocked", () => {
     expect(
       getSessionCurriculumLessonForPracticeMode(

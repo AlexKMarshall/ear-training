@@ -236,8 +236,8 @@ function passingMinorDiatonicScaleDegreeHistory(): AttemptRecord[] {
   ]
 }
 
-/** Chord minor second complete; guided path complete. */
-function passingChordMinorSecondHistory(): AttemptRecord[] {
+/** Chord minor second complete; chord quality second unlockable. */
+export function passingChordMinorSecondHistory(): AttemptRecord[] {
   return [
     ...passingMinorDiatonicScaleDegreeHistory(),
     ...passingStepHistory({
@@ -247,7 +247,18 @@ function passingChordMinorSecondHistory(): AttemptRecord[] {
   ]
 }
 
+/** Chord quality second complete; guided path complete. */
+function passingThroughChordQualitySecondHistory(): AttemptRecord[] {
+  return [
+    ...passingChordMinorSecondHistory(),
+    ...passingStepHistory({
+      practiceModeId: "chord-quality-id",
+      contentTierId: "chord-quality-second",
+    }),
+  ]
+}
+
 /** Every shipped curriculum step meets unlock thresholds. */
 export function passingFullGuidedPathHistory(): AttemptRecord[] {
-  return passingChordMinorSecondHistory()
+  return passingThroughChordQualitySecondHistory()
 }

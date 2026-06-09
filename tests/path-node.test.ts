@@ -81,6 +81,15 @@ describe("getPathNodeLabels", () => {
       title: "Chords",
       subtitle: "Quality identification · 1st inversion",
     })
+    expect(
+      getPathNodeLabels({
+        practiceModeId: "chord-quality-id",
+        contentTierId: "chord-quality-second",
+      }),
+    ).toEqual({
+      title: "Chords",
+      subtitle: "Quality identification · 2nd inversion",
+    })
   })
 
   it("uses inversion identification subtitle for chord inversion identify steps", () => {

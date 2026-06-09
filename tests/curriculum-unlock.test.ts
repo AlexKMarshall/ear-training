@@ -12,6 +12,7 @@ import {
 } from "../src/curriculum/unlock.ts"
 import {
   passingChordMajorSecondHistory,
+  passingChordMinorSecondHistory,
   passingFullGuidedPathHistory,
   passingIntroScaleDegreeHistory,
   passingLevel2History,
@@ -347,6 +348,14 @@ describe("getContinueCurriculumLesson", () => {
     })
   })
 
+  it("advances to chord quality second after chord minor second completes", () => {
+    expect(getContinuePracticeMode(passingChordMinorSecondHistory())).toBe("chord-quality-id")
+    expect(getContinueCurriculumLesson(passingChordMinorSecondHistory())).toEqual({
+      practiceModeId: "chord-quality-id",
+      contentTierId: "chord-quality-second",
+    })
+  })
+
   it("advances to chord major root after interval 2a harmonic sing completes", () => {
     expect(getContinuePracticeMode(passingThroughHarmonicSing2aHistory())).toBe("chord-sing")
     expect(getContinueCurriculumLesson(passingThroughHarmonicSing2aHistory())).toEqual({
@@ -485,6 +494,22 @@ describe("getUnlockRequirement", () => {
       }),
     ]
     expect(isCurriculumLessonUnlocked(chordMinorSecond, minorDiatonicComplete)).toBe(true)
+  })
+
+  it("locks chord quality second until chord minor second passes", () => {
+    const qualitySecond = {
+      practiceModeId: "chord-quality-id" as const,
+      contentTierId: "chord-quality-second" as const,
+    }
+    const minorDiatonicComplete = [
+      ...passingThroughChordInversionMajorHistory(),
+      ...passingStepHistory({
+        practiceModeId: "scale-degree-sing",
+        contentTierId: "degree-minor-diatonic",
+      }),
+    ]
+    expect(isCurriculumLessonUnlocked(qualitySecond, minorDiatonicComplete)).toBe(false)
+    expect(isCurriculumLessonUnlocked(qualitySecond, passingChordMinorSecondHistory())).toBe(true)
   })
 
   it("describes harmonic sing predecessor for chord-sing", () => {

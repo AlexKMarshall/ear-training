@@ -65,6 +65,7 @@ const TIER_POOL_LABEL: Record<CurriculumLesson["contentTierId"], string | null> 
   "chord-minor-second": "any voice",
   "chord-quality-root": null,
   "chord-quality-first": null,
+  "chord-quality-second": null,
   "chord-inversion-major": null,
 }
 
