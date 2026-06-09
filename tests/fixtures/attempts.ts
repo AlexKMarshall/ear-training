@@ -248,7 +248,7 @@ export function passingChordMinorSecondHistory(): AttemptRecord[] {
 }
 
 /** Chord quality second complete; guided path complete. */
-export function passingThroughChordQualitySecondHistory(): AttemptRecord[] {
+function passingThroughChordQualitySecondHistory(): AttemptRecord[] {
   return [
     ...passingChordMinorSecondHistory(),
     ...passingStepHistory({

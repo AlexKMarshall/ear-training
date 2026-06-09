@@ -8,7 +8,7 @@ For work split across several merge-gated PRs (status table, merge gates, final 
 
 1. **Sync `main`** — `git fetch origin main && git checkout main && git pull origin main`, then branch. If the issue has a **Suggested branch** section, use that name (`git checkout -b feat/…`); see [`issue-tracker.md`](issue-tracker.md#suggested-branch-names).
 2. **Scope** — One logical change per PR. Do not bundle unrelated refactors or sneak ahead on a multi-step plan unless the user asks to combine.
-3. **Verify** — Run `npm run lint`, `npm run typecheck`, and `npm test` (and `npm run build` if the change touches build, routes, or static assets). When browser tests exist, run `npm run test:browser` for PRs that touch `src/ui/` or mount/orchestration code — see [`docs/agents/testing.md`](testing.md). After config or import changes, run `npm run knip:production` then `npm run knip`. Confirm GitHub Actions **CI** is green on the PR. Do not claim checks pass without running them locally and without a green CI check.
+3. **Verify** — Run `npm run lint`, `npm run typecheck`, `npm run knip:production`, `npm run knip`, and `npm test` (and `npm run build` if the change touches build, routes, or static assets). When browser tests exist, run `npm run test:browser` for PRs that touch `src/ui/` or mount/orchestration code — see [`docs/agents/testing.md`](testing.md). Confirm GitHub Actions **CI** is green on the PR. Do not claim checks pass without running them locally and without a green CI check.
 4. **Commits** — Only commit when the user asks. Use clear messages focused on *why* (1–2 sentences).
 5. **Roadmaps** — Update [`docs/roadmap.md`](../roadmap.md) when planned product work is added, removed, or reprioritized. Update [`docs/tech-debt.md`](../tech-debt.md) when the PR **adds or pays down** tech debt (see [Tech debt registry](#tech-debt-registry)). New features include their own tests in the feature PR (see [`testing.md`](testing.md)).
 
@@ -71,8 +71,8 @@ Use `gh pr create` with a HEREDOC body. Default structure:
 - [ ] `npm run lint` — Biome lint + format; warnings fail CI
 - [ ] `npm run typecheck` — all pass
 - [ ] `npm test` — all pass
+- [ ] `npm run knip:production` and `npm run knip` — dead code and unused exports
 - [ ] (when applicable) `npm run test:browser` — changes to `src/ui/`, mount functions, or `tests/browser/`
-- [ ] (when applicable) `npm run knip:production` and `npm run knip` — config or import changes
 - [ ] (optional) `npm run build` — if relevant
 - [ ] GitHub Actions `CI` workflow green on the PR
 

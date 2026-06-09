@@ -40,10 +40,13 @@ All seven shipped `practiceModeId`s have a one-question pass smoke in `registry-
 ## Quick commands
 
 ```bash
-npm run lint          # Biome lint + format check; warnings fail CI
-npm test              # Vitest Node — domain unit tests
-npm run test:browser  # Vitest browser — UI orchestration (Playwright)
-npm run build         # production build; run when routes or static assets change
+npm run lint              # Biome lint + format check; warnings fail CI
+npm run typecheck         # strict tsc
+npm run knip:production   # dead shipped code (run before full knip)
+npm run knip              # test helpers, devDependencies, tooling
+npm test                  # Vitest Node — domain unit tests
+npm run test:browser      # Vitest browser — UI orchestration (Playwright)
+npm run build             # production build; run when routes or static assets change
 ```
 
 After `npm ci`, `postinstall` runs `playwright install chromium` into the project (`PLAYWRIGHT_BROWSERS_PATH=0`, [Playwright’s hermetic install](https://playwright.dev/docs/browsers#hermetic-install--ci)). Re-run if needed:
