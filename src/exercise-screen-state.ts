@@ -210,17 +210,6 @@ export class ExerciseScreenState {
       exercisesPerLesson: this.exercisesPerLesson,
       maxAttemptsPerExercise: this.maxAttemptsPerExercise,
       createLessonId: options.createLessonId,
-      onAttemptScored: (lesson) => {
-        if (!this.currentExercise || this.pendingScorePayload === undefined) {
-          return
-        }
-        this.onAttemptScored({
-          lesson,
-          exercise: this.currentExercise,
-          scorePayload: this.pendingScorePayload,
-        })
-        this.pendingScorePayload = undefined
-      },
     })
 
     if (this.prepareExerciseOnIdle) {
@@ -229,8 +218,6 @@ export class ExerciseScreenState {
       this.notify()
     }
   }
-
-  private pendingScorePayload: unknown
 
   getSnapshot(): ExerciseScreenStateSnapshot {
     const lesson = this.lessonRun.getSnapshot()
@@ -418,8 +405,12 @@ export class ExerciseScreenState {
   private applyScoredAttempt(outcome: Extract<ScoreAnswerResult, { kind: "scored" }>): void {
     if (!this.currentExercise) return
 
-    this.pendingScorePayload = outcome.scorePayload
-    this.lessonRun.recordScore(outcome.passed)
+    const lessonContext = this.lessonRun.recordScore(outcome.passed)
+    this.onAttemptScored({
+      lesson: lessonContext,
+      exercise: this.currentExercise,
+      scorePayload: outcome.scorePayload,
+    })
 
     const lesson = this.lessonRun.getSnapshot()
     const triesLeft = this.maxAttemptsPerExercise - lesson.scoredAttemptsOnCurrent
@@ -484,7 +475,6 @@ export class ExerciseScreenState {
     this.recordingSession = null
     this.lessonRun.reset()
     this.currentExercise = null
-    this.pendingScorePayload = undefined
     this.resultView = null
     this.onLessonReset?.()
     this.setPhase("idle")
