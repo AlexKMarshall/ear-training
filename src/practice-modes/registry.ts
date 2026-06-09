@@ -1,5 +1,6 @@
 import type { MountDeps } from "../history/port.ts"
 import type { PracticeModeId } from "../history/types.ts"
+import { mountChordQualityIdTest } from "../ui/chord-quality-id-tests.ts"
 import {
   mountIntervalHarmonicIdTest,
   mountIntervalHarmonicSingTest,
@@ -37,6 +38,14 @@ const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
     title: "Sing chord voices",
     subtitle: "Hear a triad and sing the prompted voice",
     mount: mountChordSingTest,
+  },
+  {
+    id: "chord-quality-id",
+    responseMode: "select",
+    route: "/chord-quality-id/",
+    title: "Chords",
+    subtitle: "Quality identification · root position",
+    mount: mountChordQualityIdTest,
   },
   {
     id: "interval-melodic-sing",

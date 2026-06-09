@@ -1,6 +1,7 @@
 import { playDyad, playMelodicSequence, playTargetNote } from "../audio/playback.ts"
 import type { PracticeModeId } from "../history/types.ts"
 import { getIntervalById } from "../interval-config.ts"
+import { buildIntervalChoices } from "../interval-exercises.ts"
 import type { LessonExercise } from "../lesson-exercise.ts"
 import {
   type IdentifyMountDeps,
@@ -13,6 +14,25 @@ import {
   resolveIntervalSession,
 } from "./interval-session.ts"
 import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts"
+
+function intervalIdentifyChoiceHelpers() {
+  return {
+    buildChoices: (exercise: LessonExercise) => {
+      if (exercise.type !== "interval") {
+        throw new Error("Missing interval for choices")
+      }
+      const eligibleIds = exercise.eligibleTagIds ?? [exercise.intervalId]
+      return buildIntervalChoices(exercise.intervalId, eligibleIds)
+    },
+    correctChoiceId: (exercise: LessonExercise) => {
+      if (exercise.type !== "interval") {
+        throw new Error("Missing interval for scoring")
+      }
+      return exercise.intervalId
+    },
+    failRetryDetail: "That wasn't right — tap Try again to hear the interval and pick again.",
+  }
+}
 
 const intervalMelodicSingBase = {
   practiceModeId: "interval-melodic-sing" as const,
@@ -180,6 +200,7 @@ const intervalMelodicIdBase = {
   subtitle: "Hear two notes in sequence, then choose the interval",
   playButtonLabel: "Play interval",
   showVoicePicker: true,
+  ...intervalIdentifyChoiceHelpers(),
   status: {
     idle: "Press Play to hear the interval.",
     playing: "Listen to both notes…",
@@ -206,6 +227,7 @@ const intervalHarmonicIdBase = {
   subtitle: "Hear two notes together, then choose the interval",
   playButtonLabel: "Play interval",
   showVoicePicker: true,
+  ...intervalIdentifyChoiceHelpers(),
   status: {
     idle: "Press Play to hear the interval.",
     playing: "Listen to both notes…",

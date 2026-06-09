@@ -12,6 +12,7 @@ describe("curriculum levels", () => {
       "interval-harmonic-id",
       "scale-degree-sing",
       "chord-sing",
+      "chord-quality-id",
     ])
   })
 

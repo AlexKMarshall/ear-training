@@ -76,6 +76,17 @@ export function passingLevel2History(): AttemptRecord[] {
   ]
 }
 
+/** Chord quality identification at root complete; intro scale degrees unlockable. */
+export function passingThroughChordQualityRootHistory(): AttemptRecord[] {
+  return [
+    ...passingLevel2History(),
+    ...passingStepHistory({
+      practiceModeId: "chord-quality-id",
+      contentTierId: "chord-quality-root",
+    }),
+  ]
+}
+
 /** Passing history for one curriculum step (tier tagged when provided). */
 export function passingStepHistory(step: CurriculumLesson): AttemptRecord[] {
   return Array.from({ length: MIN_EXERCISES_FOR_UNLOCK }, (_, i) =>
@@ -94,7 +105,7 @@ export function passingStepHistory(step: CurriculumLesson): AttemptRecord[] {
 /** Intro scale degrees complete; interval 2b block unlockable. */
 export function passingIntroScaleDegreeHistory(): AttemptRecord[] {
   return [
-    ...passingLevel2History(),
+    ...passingThroughChordQualityRootHistory(),
     ...passingStepHistory({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-intro",

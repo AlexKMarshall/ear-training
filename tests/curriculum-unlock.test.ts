@@ -19,6 +19,7 @@ import {
   passingMelodicSing2bHistory,
   passingSingleNoteHistory,
   passingStepHistory,
+  passingThroughChordQualityRootHistory,
   passingThroughHarmonic2bHistory,
   passingThroughHarmonicId2aHistory,
   passingThroughHarmonicSing2aHistory,
@@ -47,10 +48,20 @@ describe("isPracticeModeUnlocked", () => {
     expect(isPracticeModeUnlocked("interval-melodic-sing", records)).toBe(true)
   })
 
-  it("locks scale-degree-sing until harmonic identify at 2a passes", () => {
+  it("locks scale-degree-sing until chord quality root passes", () => {
     expect(isPracticeModeUnlocked("scale-degree-sing", passingSingleNoteHistory())).toBe(false)
-    expect(isPracticeModeUnlocked("scale-degree-sing", passingLevel2History())).toBe(true)
+    expect(isPracticeModeUnlocked("scale-degree-sing", passingLevel2History())).toBe(false)
+    expect(
+      isPracticeModeUnlocked("scale-degree-sing", passingThroughChordQualityRootHistory()),
+    ).toBe(true)
     expect(isPracticeModeUnlocked("scale-degree-sing", passingThroughMelodic2bHistory())).toBe(true)
+  })
+
+  it("locks chord-quality-id until chord minor root passes", () => {
+    expect(isPracticeModeUnlocked("chord-quality-id", passingThroughHarmonicId2aHistory())).toBe(
+      false,
+    )
+    expect(isPracticeModeUnlocked("chord-quality-id", passingLevel2History())).toBe(true)
   })
 
   describe("?unlock=all", () => {
@@ -88,9 +99,10 @@ describe("isLevelUnlocked", () => {
     expect(isLevelUnlocked(2, passingSingleNoteHistory())).toBe(true)
   })
 
-  it("locks level 3 until harmonic identify at 2a passes", () => {
+  it("locks level 3 until chord quality root passes", () => {
     expect(isLevelUnlocked(3, passingSingleNoteHistory())).toBe(false)
-    expect(isLevelUnlocked(3, passingLevel2History())).toBe(true)
+    expect(isLevelUnlocked(3, passingLevel2History())).toBe(false)
+    expect(isLevelUnlocked(3, passingThroughChordQualityRootHistory())).toBe(true)
   })
 })
 
@@ -264,9 +276,19 @@ describe("getContinueCurriculumLesson", () => {
     })
   })
 
-  it("advances to intro scale degrees after interval 2a completes", () => {
-    expect(getContinuePracticeMode(passingLevel2History())).toBe("scale-degree-sing")
+  it("advances to chord quality root after chord minor root completes", () => {
+    expect(getContinuePracticeMode(passingLevel2History())).toBe("chord-quality-id")
     expect(getContinueCurriculumLesson(passingLevel2History())).toEqual({
+      practiceModeId: "chord-quality-id",
+      contentTierId: "chord-quality-root",
+    })
+  })
+
+  it("advances to intro scale degrees after chord quality root completes", () => {
+    expect(getContinuePracticeMode(passingThroughChordQualityRootHistory())).toBe(
+      "scale-degree-sing",
+    )
+    expect(getContinueCurriculumLesson(passingThroughChordQualityRootHistory())).toEqual({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-intro",
     })
@@ -367,8 +389,8 @@ describe("getUnlockRequirement", () => {
 
   it("includes tier pool in predecessor label for scale-degree sing", () => {
     expect(getUnlockRequirement("scale-degree-sing")).toEqual({
-      predecessorPracticeModeId: "chord-sing",
-      predecessorLabel: "Sing chord voices (Minor triad · root position)",
+      predecessorPracticeModeId: "chord-quality-id",
+      predecessorLabel: "Identify chord quality (Root position)",
       minExercisesForUnlock: MIN_EXERCISES_FOR_UNLOCK,
       minPassRatePercent: MIN_EXERCISE_PASS_RATE,
     })

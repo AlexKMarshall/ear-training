@@ -43,7 +43,7 @@ const chordSingBase = {
   showVoicePicker: true,
   exercisePromptFromDraw: true,
   exercisePrompt: (exercise: Parameters<NonNullable<SingTestConfig["exercisePrompt"]>>[0]) => {
-    if (exercise.type !== "chord") {
+    if (exercise.type !== "chord" || exercise.voicingPositionId === undefined) {
       throw new Error("Missing voicing position for chord exercise")
     }
     return exercisePromptForVoicingPosition(exercise.voicingPositionId)

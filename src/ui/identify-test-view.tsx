@@ -1,5 +1,5 @@
 import { Show } from "solid-js"
-import type { IntervalChoice } from "../interval-exercises.ts"
+import type { ExerciseChoice } from "../chord-identify-choices.ts"
 import type { VoiceType } from "../voice-ranges.ts"
 import {
   ExerciseActionBar,
@@ -12,7 +12,7 @@ import type { IdentifyResultView, IdentifyUiState } from "./identify-test-types.
 import { LessonSummaryResult } from "./lesson-summary-result.tsx"
 
 function ChoiceGrid(props: {
-  choices: IntervalChoice[]
+  choices: ExerciseChoice[]
   disabled: boolean
   onChoice: (choiceId: string) => void
 }) {
@@ -36,14 +36,13 @@ function IdentifyAttemptResult(props: {
   passed: boolean
   selectedLabel: string
   attemptNote: string | null
+  failRetryDetail: string
 }) {
   return (
     <>
       <p class="result-verdict">{props.passed ? "Correct" : "Not quite"}</p>
       <p class="result-detail">
-        {props.passed
-          ? `You chose ${props.selectedLabel}.`
-          : "That wasn't right — tap Try again to hear the interval and pick again."}
+        {props.passed ? `You chose ${props.selectedLabel}.` : props.failRetryDetail}
       </p>
       {props.attemptNote ? <p class="result-attempts">{props.attemptNote}</p> : null}
     </>
@@ -66,6 +65,7 @@ function IdentifyResultContent(props: { result: IdentifyResultView }) {
         passed={props.result.passed}
         selectedLabel={props.result.selectedLabel}
         attemptNote={props.result.attemptNote}
+        failRetryDetail={props.result.failRetryDetail}
       />
     )
   }
@@ -99,6 +99,7 @@ export function IdentifyTestView(props: {
   ui: IdentifyUiState
   title: string
   subtitle: string
+  lessonBanner?: string
   playButtonLabel: string
   showVoicePicker: boolean
   onPlay: () => void
@@ -114,6 +115,7 @@ export function IdentifyTestView(props: {
       <ExerciseHeader
         title={props.title}
         subtitle={props.subtitle}
+        lessonBanner={props.lessonBanner}
         lessonProgress={props.ui.chrome.lessonProgress}
       />
       {props.showVoicePicker ? (

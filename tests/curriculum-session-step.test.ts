@@ -8,11 +8,11 @@ import {
 import {
   passingChordMajorSecondHistory,
   passingIntroScaleDegreeHistory,
-  passingLevel2History,
   passingMajorDiatonicScaleDegreeHistory,
   passingMelodicSing2bHistory,
   passingSingleNoteHistory,
   passingStepHistory,
+  passingThroughChordQualityRootHistory,
   passingThroughHarmonic2bHistory,
   passingThroughHarmonicId2aHistory,
   passingThroughHarmonicSing2aHistory,
@@ -100,8 +100,8 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
     })
   })
 
-  it("returns degree-major-intro for scale-degree sing when interval 2a path is complete", () => {
-    const records = passingLevel2History()
+  it("returns degree-major-intro for scale-degree sing when chord quality root passes", () => {
+    const records = passingThroughChordQualityRootHistory()
     expect(getSessionCurriculumLessonForPracticeMode("scale-degree-sing", records)).toEqual({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-intro",

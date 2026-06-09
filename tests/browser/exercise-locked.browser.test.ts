@@ -79,9 +79,21 @@ test("locked scale-degree default step uses predecessor lesson link", async () =
   await mountPracticeModePageWithHistory("scale-degree-sing", [])
   await expect.element(page.getByRole("heading", { name: "Locked" })).toBeVisible()
   const cta = page.getByRole("link", {
-    name: /Go to Sing chord voices \(Minor triad · root position\)/i,
+    name: /Go to Identify chord quality \(Root position\)/i,
   })
   await expect.element(cta).toHaveAttribute("href", expectedHref)
+})
+
+test("locked chord-quality-id deep link is rejected", async () => {
+  setCurriculumLessonSearch({
+    practiceModeId: "chord-quality-id",
+    contentTierId: "chord-quality-root",
+  })
+  await mountPracticeModePageWithHistory("chord-quality-id", passingSingleNoteHistory(), {
+    locationSearch: window.location.search,
+  })
+  await expect.element(page.getByRole("heading", { name: "Locked" })).toBeVisible()
+  setCurriculumLessonSearch(null)
 })
 
 test("unlocked step deep link mounts the exercise", async () => {

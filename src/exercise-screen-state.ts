@@ -1,6 +1,6 @@
 import { EXERCISES_PER_LESSON, MAX_ATTEMPTS_PER_EXERCISE } from "./config.ts"
 import { type LessonSummary, percentOf, summarizeLesson } from "./lesson.ts"
-import type { IntervalLessonExercise, LessonExercise } from "./lesson-exercise.ts"
+import type { LessonExercise } from "./lesson-exercise.ts"
 import { type AttemptScoredContext, LessonRun, type LessonRunSnapshot } from "./lesson-run.ts"
 
 export type ExerciseScreenPhase =
@@ -94,7 +94,7 @@ export interface SingExerciseScreenStateHooks extends ExerciseScreenStateHooksBa
 
 export interface SelectExerciseScreenStateHooks extends ExerciseScreenStateHooksBase {
   scoreAnswer(
-    exercise: IntervalLessonExercise,
+    exercise: LessonExercise,
     selectedId: string,
   ): ScoreAnswerResult | Promise<ScoreAnswerResult>
 }
@@ -359,7 +359,7 @@ export class ExerciseScreenState {
     if (this.phase !== "ready" || this.responseMode !== "select") return
 
     const exercise = this.currentExercise
-    if (exercise?.type !== "interval") return
+    if (!exercise || (exercise.type !== "interval" && exercise.type !== "chord")) return
 
     const outcome = await (this.hooks as SelectExerciseScreenStateHooks).scoreAnswer(
       exercise,
