@@ -4,6 +4,9 @@ import type { PracticeModeId } from "../history/types.ts"
 import { mountChordInversionIdTest } from "../ui/chord-inversion-id-tests.ts"
 import { mountChordQualityIdTest } from "../ui/chord-quality-id-tests.ts"
 import {
+  intervalHarmonicSingExerciseDefinition,
+  intervalMelodicSingExerciseDefinition,
+  intervalNamedSingExerciseDefinition,
   mountIntervalHarmonicIdTest,
   mountIntervalHarmonicSingTest,
   mountIntervalMelodicIdTest,
@@ -11,8 +14,15 @@ import {
   mountIntervalNamedSingTest,
 } from "../ui/interval-tests.ts"
 import { mountExercise } from "../ui/mount-exercise.ts"
-import { mountScaleDegreeSingTest } from "../ui/scale-degree-tests.ts"
-import { mountChordSingTest, singleNoteExerciseDefinition } from "../ui/tests.ts"
+import {
+  mountScaleDegreeSingTest,
+  scaleDegreeSingExerciseDefinition,
+} from "../ui/scale-degree-tests.ts"
+import {
+  chordSingExerciseDefinition,
+  mountChordSingTest,
+  singleNoteExerciseDefinition,
+} from "../ui/tests.ts"
 
 export type ResponseMode = "sing" | "select"
 
@@ -33,7 +43,9 @@ const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
     route: "/single-note/",
     title: "Sing a single note",
     subtitle: "Sing back the note you hear",
-    definition: singleNoteExerciseDefinition,
+    get definition() {
+      return singleNoteExerciseDefinition
+    },
     mount: (root, deps) => mountExercise(root, singleNoteExerciseDefinition, deps),
   },
   {
@@ -42,6 +54,9 @@ const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
     route: "/chord-sing/",
     title: "Sing chord voices",
     subtitle: "Hear a triad and sing the prompted voice",
+    get definition() {
+      return chordSingExerciseDefinition
+    },
     mount: mountChordSingTest,
   },
   {
@@ -66,6 +81,9 @@ const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
     route: "/interval-melodic-sing/",
     title: "Sing melodic intervals",
     subtitle: "Hear two notes in sequence, then sing the top note",
+    get definition() {
+      return intervalMelodicSingExerciseDefinition
+    },
     mount: mountIntervalMelodicSingTest,
   },
   {
@@ -74,6 +92,9 @@ const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
     route: "/interval-named-sing/",
     title: "Sing named intervals",
     subtitle: "Hear one note, then sing the named interval above it",
+    get definition() {
+      return intervalNamedSingExerciseDefinition
+    },
     mount: mountIntervalNamedSingTest,
   },
   {
@@ -82,6 +103,9 @@ const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
     route: "/interval-harmonic-sing/",
     title: "Sing harmonic intervals",
     subtitle: "Hear two notes together, then sing the top note",
+    get definition() {
+      return intervalHarmonicSingExerciseDefinition
+    },
     mount: mountIntervalHarmonicSingTest,
   },
   {
@@ -106,6 +130,9 @@ const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
     route: "/scale-degree-sing/",
     title: "Sing scale degrees",
     subtitle: "One key per lesson — hear the tonic, then sing each requested scale degree",
+    get definition() {
+      return scaleDegreeSingExerciseDefinition
+    },
     mount: mountScaleDegreeSingTest,
   },
 ]

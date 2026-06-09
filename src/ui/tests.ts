@@ -13,7 +13,7 @@ import {
 } from "./chord-session.ts"
 import { mountExercise } from "./mount-exercise.ts"
 import { scoreSingFromSamples } from "./sing-scoring.ts"
-import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts"
+import type { SingMountDeps, SingTestConfig } from "./sing-test.ts"
 
 const singleNoteStatus = {
   idle: "Press Play to hear the reference note.",
@@ -53,6 +53,17 @@ export const singleNoteTestConfig: SingTestConfig = {
   playReference: singleNoteExerciseDefinition.playReference,
 }
 
+const chordSingStatus = {
+  idle: "Press Play to hear the chord.",
+  playing: "Listen to the chord…",
+  ready: "Sing the prompted voice, then tap Start singing when ready.",
+  recording:
+    "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
+  pass: "Correct — tap Next exercise when you are ready.",
+  fail: "Try again on this exercise (up to 3 tries).",
+  failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
+} as const
+
 const chordSingBase = {
   practiceModeId: "chord-sing" as const,
   title: "Sing chord voices",
@@ -66,16 +77,7 @@ const chordSingBase = {
     }
     return exercisePromptForVoicingPosition(exercise.voicingPositionId)
   },
-  status: {
-    idle: "Press Play to hear the chord.",
-    playing: "Listen to the chord…",
-    ready: "Sing the prompted voice, then tap Start singing when ready.",
-    recording:
-      "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
-    pass: "Correct — tap Next exercise when you are ready.",
-    fail: "Try again on this exercise (up to 3 tries).",
-    failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
-  },
+  status: chordSingStatus,
   playReference: (exercise: Parameters<SingTestConfig["playReference"]>[0]) => {
     if (exercise.type !== "chord") {
       throw new Error("Missing chord for playback")
@@ -84,9 +86,24 @@ const chordSingBase = {
   },
 }
 
-export const chordSingTestConfig: SingTestConfig = {
+export const chordSingExerciseDefinition: SingExerciseDefinition = {
   ...chordSingBase,
+  responseMode: "sing",
+  scoreAnswer: scoreSingFromSamples,
   prepareExercise: () => prepareChordExercise([]),
+}
+
+export const chordSingTestConfig: SingTestConfig = {
+  practiceModeId: chordSingExerciseDefinition.practiceModeId,
+  title: chordSingExerciseDefinition.title,
+  subtitle: chordSingExerciseDefinition.subtitle,
+  playButtonLabel: chordSingExerciseDefinition.playButtonLabel,
+  showVoicePicker: chordSingExerciseDefinition.showVoicePicker,
+  exercisePromptFromDraw: chordSingExerciseDefinition.exercisePromptFromDraw,
+  exercisePrompt: chordSingExerciseDefinition.exercisePrompt,
+  status: { ...chordSingExerciseDefinition.status, recording: chordSingStatus.recording },
+  prepareExercise: chordSingExerciseDefinition.prepareExercise,
+  playReference: chordSingExerciseDefinition.playReference,
 }
 
 export function mountSingleNoteTest(root: HTMLElement, deps?: MountDeps & SingMountDeps): void {
@@ -101,10 +118,10 @@ export function mountChordSingTest(
   const tierId = deps?.sessionCurriculumLesson?.contentTierId ?? "chord-major-root"
   const lessonBanner = isChordContentTierId(tierId) ? getChordLessonBannerLabel(tierId) : undefined
 
-  mountSingTest(
+  mountExercise(
     root,
     {
-      ...chordSingBase,
+      ...chordSingExerciseDefinition,
       lessonBanner,
       prepareExercise: () =>
         prepareChordExercise(

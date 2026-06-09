@@ -1,12 +1,26 @@
 import { playTargetNote } from "../audio/playback.ts"
 import { getScaleDegreeKeyQualityLabel } from "../curriculum/scale-degree-tiers.ts"
+import type { SingExerciseDefinition } from "../exercise-definition.ts"
 import { getScaleDegreeById } from "../scale-degree-config.ts"
+import { mountExercise } from "./mount-exercise.ts"
 import {
   prepareScaleDegreeExercise,
   resolveScaleDegreeSession,
   type ScaleDegreeSessionDeps,
 } from "./scale-degree-session.ts"
-import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts"
+import { scoreSingFromSamples } from "./sing-scoring.ts"
+import type { SingMountDeps, SingTestConfig } from "./sing-test.ts"
+
+const scaleDegreeSingStatus = {
+  idle: "Press Play to hear the tonic for this lesson.",
+  playing: "Listen to the tonic…",
+  ready: "Sing the degree shown below, then tap Start singing when ready.",
+  recording:
+    "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
+  pass: "Correct — tap Next exercise when you are ready.",
+  fail: "Try again on this exercise (up to 3 tries).",
+  failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
+} as const
 
 const scaleDegreeSingBase = {
   practiceModeId: "scale-degree-sing" as const,
@@ -14,16 +28,7 @@ const scaleDegreeSingBase = {
   subtitle: "One key per lesson — hear the tonic, then sing each requested scale degree",
   playButtonLabel: "Play tonic",
   showVoicePicker: true,
-  status: {
-    idle: "Press Play to hear the tonic for this lesson.",
-    playing: "Listen to the tonic…",
-    ready: "Sing the degree shown below, then tap Start singing when ready.",
-    recording:
-      "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
-    pass: "Correct — tap Next exercise when you are ready.",
-    fail: "Try again on this exercise (up to 3 tries).",
-    failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
-  },
+  status: scaleDegreeSingStatus,
   playReference: (exercise: Parameters<SingTestConfig["playReference"]>[0]) => {
     if (exercise.type !== "scale-degree") {
       throw new Error("Missing scale degree for playback")
@@ -39,9 +44,26 @@ const scaleDegreeSingBase = {
   },
 }
 
-export const scaleDegreeSingConfig: SingTestConfig = {
+export const scaleDegreeSingExerciseDefinition: SingExerciseDefinition = {
   ...scaleDegreeSingBase,
+  responseMode: "sing",
+  scoreAnswer: scoreSingFromSamples,
   prepareExercise: () => prepareScaleDegreeExercise([], null).exercise,
+}
+
+export const scaleDegreeSingConfig: SingTestConfig = {
+  practiceModeId: scaleDegreeSingExerciseDefinition.practiceModeId,
+  title: scaleDegreeSingExerciseDefinition.title,
+  subtitle: scaleDegreeSingExerciseDefinition.subtitle,
+  playButtonLabel: scaleDegreeSingExerciseDefinition.playButtonLabel,
+  showVoicePicker: scaleDegreeSingExerciseDefinition.showVoicePicker,
+  exercisePrompt: scaleDegreeSingExerciseDefinition.exercisePrompt,
+  status: {
+    ...scaleDegreeSingExerciseDefinition.status,
+    recording: scaleDegreeSingStatus.recording,
+  },
+  prepareExercise: scaleDegreeSingExerciseDefinition.prepareExercise,
+  playReference: scaleDegreeSingExerciseDefinition.playReference,
 }
 
 export function mountScaleDegreeSingTest(
@@ -55,10 +77,10 @@ export function mountScaleDegreeSingTest(
       deps?.sessionCurriculumLesson?.contentTierId ?? "degree-major-intro",
     ) ?? undefined
 
-  mountSingTest(
+  mountExercise(
     root,
     {
-      ...scaleDegreeSingBase,
+      ...scaleDegreeSingExerciseDefinition,
       lessonBanner,
       onLessonReset: () => {
         lessonTonicMidi = null

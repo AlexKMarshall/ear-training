@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { CURRICULUM_PATH } from "../src/curriculum/levels.ts"
+import type { SingExerciseDefinition } from "../src/exercise-definition.ts"
 import { PRACTICE_MODE_LABELS, type PracticeModeId } from "../src/history/types.ts"
 import { PRACTICE_MODES, type ResponseMode } from "../src/practice-modes/registry.ts"
 import { chordInversionIdConfig } from "../src/ui/chord-inversion-id-tests.ts"
@@ -7,30 +8,25 @@ import { chordQualityIdConfig } from "../src/ui/chord-quality-id-tests.ts"
 import type { IdentifyTestConfig } from "../src/ui/identify-test.ts"
 import {
   intervalHarmonicIdConfig,
-  intervalHarmonicSingConfig,
+  intervalHarmonicSingExerciseDefinition,
   intervalMelodicIdConfig,
-  intervalMelodicSingConfig,
-  intervalNamedSingConfig,
+  intervalMelodicSingExerciseDefinition,
+  intervalNamedSingExerciseDefinition,
 } from "../src/ui/interval-tests.ts"
-import { scaleDegreeSingConfig } from "../src/ui/scale-degree-tests.ts"
-import type { SingTestConfig } from "../src/ui/sing-test.ts"
-import {
-  chordSingTestConfig,
-  singleNoteExerciseDefinition,
-  singleNoteTestConfig,
-} from "../src/ui/tests.ts"
+import { scaleDegreeSingExerciseDefinition } from "../src/ui/scale-degree-tests.ts"
+import { chordSingExerciseDefinition, singleNoteExerciseDefinition } from "../src/ui/tests.ts"
 
-const SING_CONFIGS: Record<PracticeModeId, SingTestConfig | undefined> = {
-  "single-note": singleNoteTestConfig,
-  "chord-sing": chordSingTestConfig,
-  "interval-melodic-sing": intervalMelodicSingConfig,
-  "interval-named-sing": intervalNamedSingConfig,
-  "interval-harmonic-sing": intervalHarmonicSingConfig,
+const SING_DEFINITIONS: Record<PracticeModeId, SingExerciseDefinition | undefined> = {
+  "single-note": singleNoteExerciseDefinition,
+  "chord-sing": chordSingExerciseDefinition,
+  "interval-melodic-sing": intervalMelodicSingExerciseDefinition,
+  "interval-named-sing": intervalNamedSingExerciseDefinition,
+  "interval-harmonic-sing": intervalHarmonicSingExerciseDefinition,
   "interval-melodic-id": undefined,
   "interval-harmonic-id": undefined,
   "chord-quality-id": undefined,
   "chord-inversion-id": undefined,
-  "scale-degree-sing": scaleDegreeSingConfig,
+  "scale-degree-sing": scaleDegreeSingExerciseDefinition,
 }
 
 const IDENTIFY_CONFIGS: Record<PracticeModeId, IdentifyTestConfig | undefined> = {
@@ -46,13 +42,16 @@ const IDENTIFY_CONFIGS: Record<PracticeModeId, IdentifyTestConfig | undefined> =
   "scale-degree-sing": undefined,
 }
 
-function configFor(id: PracticeModeId, mode: ResponseMode): SingTestConfig | IdentifyTestConfig {
+function definitionFor(
+  id: PracticeModeId,
+  mode: ResponseMode,
+): SingExerciseDefinition | IdentifyTestConfig {
   if (mode === "sing") {
-    const config = SING_CONFIGS[id]
-    if (!config) {
-      throw new Error(`Missing sing config for ${id}`)
+    const definition = SING_DEFINITIONS[id]
+    if (!definition) {
+      throw new Error(`Missing sing definition for ${id}`)
     }
-    return config
+    return definition
   }
   const config = IDENTIFY_CONFIGS[id]
   if (!config) {
@@ -86,22 +85,25 @@ describe("exercise registry contract", () => {
   it.each(
     PRACTICE_MODES.map((e) => [e.id, e.responseMode, e.title, e.subtitle] as const),
   )("%s matches UI config practiceModeId, titles, and response mode", (id, responseMode, title, subtitle) => {
-    const config = configFor(id, responseMode)
-    expect(config.practiceModeId).toBe(id)
-    expect(config.title).toBe(title)
-    expect(config.subtitle).toBe(subtitle)
+    const definition = definitionFor(id, responseMode)
+    expect(definition.practiceModeId).toBe(id)
+    expect(definition.title).toBe(title)
+    expect(definition.subtitle).toBe(subtitle)
     if (responseMode === "sing") {
-      expect(SING_CONFIGS[id]).toBeDefined()
+      expect(SING_DEFINITIONS[id]).toBeDefined()
       expect(IDENTIFY_CONFIGS[id]).toBeUndefined()
     } else {
       expect(IDENTIFY_CONFIGS[id]).toBeDefined()
-      expect(SING_CONFIGS[id]).toBeUndefined()
+      expect(SING_DEFINITIONS[id]).toBeUndefined()
     }
   })
 
-  it("holds exercise definition for migrated single-note mode", () => {
-    const entry = PRACTICE_MODES.find((e) => e.id === "single-note")
-    expect(entry?.definition).toBe(singleNoteExerciseDefinition)
-    expect(entry?.definition?.responseMode).toBe("sing")
+  it.each(
+    PRACTICE_MODES.filter((e) => e.responseMode === "sing").map(
+      (e) => [e.id, e.definition] as const,
+    ),
+  )("%s holds exercise definition wired through registry", (id, definition) => {
+    expect(definition).toBe(SING_DEFINITIONS[id])
+    expect(definition?.responseMode).toBe("sing")
   })
 })
