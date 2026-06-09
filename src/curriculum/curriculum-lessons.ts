@@ -22,6 +22,9 @@ export type ContentTierId =
   | "degree-major-diatonic"
   | "degree-minor-diatonic"
   | "chord-major-root"
+  | "chord-minor-root"
+  | "chord-major-first"
+  | "chord-minor-first"
 
 export interface CurriculumLesson {
   practiceModeId: PracticeModeId
@@ -36,9 +39,12 @@ export const CURRICULUM_LESSONS: readonly CurriculumLesson[] = [
   { practiceModeId: "interval-harmonic-sing", contentTierId: "interval-2a" },
   { practiceModeId: "chord-sing", contentTierId: "chord-major-root" },
   { practiceModeId: "interval-harmonic-id", contentTierId: "interval-2a" },
+  { practiceModeId: "chord-sing", contentTierId: "chord-minor-root" },
   { practiceModeId: "scale-degree-sing", contentTierId: "degree-major-intro" },
   { practiceModeId: "interval-melodic-sing", contentTierId: "interval-2b" },
+  { practiceModeId: "chord-sing", contentTierId: "chord-major-first" },
   { practiceModeId: "interval-named-sing", contentTierId: "interval-2b" },
+  { practiceModeId: "chord-sing", contentTierId: "chord-minor-first" },
   { practiceModeId: "interval-melodic-id", contentTierId: "interval-2b" },
   { practiceModeId: "interval-harmonic-sing", contentTierId: "interval-2b" },
   { practiceModeId: "interval-harmonic-id", contentTierId: "interval-2b" },
@@ -134,6 +140,9 @@ export function getEligibleTagIds(step: CurriculumLesson): readonly string[] {
     case "degree-minor-diatonic":
       return getEligibleDegreeIds(step.contentTierId)
     case "chord-major-root":
+    case "chord-minor-root":
+    case "chord-major-first":
+    case "chord-minor-first":
       return getEligibleVoicingPositionIds()
   }
 }

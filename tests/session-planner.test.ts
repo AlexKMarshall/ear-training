@@ -275,10 +275,15 @@ describe("planNextExerciseTag", () => {
     ).toBe(true)
   })
 
-  it("draws voicing positions from the chord-major-root pool", () => {
+  it.each([
+    "chord-major-root",
+    "chord-minor-root",
+    "chord-major-first",
+    "chord-minor-first",
+  ] as const)("draws voicing positions from the %s pool", (contentTierId) => {
     const step = {
       practiceModeId: "chord-sing" as const,
-      contentTierId: "chord-major-root" as const,
+      contentTierId,
     }
     const counts = new Set<string>()
     for (let i = 0; i < 30; i++) {

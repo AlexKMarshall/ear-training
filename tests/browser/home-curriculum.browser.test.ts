@@ -5,8 +5,10 @@ import {
   passingIntroScaleDegreeHistory,
   passingLevel2History,
   passingMajorDiatonicScaleDegreeHistory,
+  passingMelodicSing2bHistory,
   passingSingleNoteHistory,
   passingThroughHarmonic2bHistory,
+  passingThroughHarmonicId2aHistory,
   passingThroughHarmonicSing2aHistory,
   passingThroughMelodic2bHistory,
 } from "../fixtures/attempts.ts"
@@ -134,6 +136,28 @@ test("after harmonic sing 2a complete: chord major root is the current link", as
     .element(
       guidedPath().getByRole("link", {
         name: /Chords.*Major triad.*root position/i,
+      }),
+    )
+    .toBeVisible()
+})
+
+test("after harmonic identify 2a complete: chord minor root is the current link", async () => {
+  await mountHomeWithHistory(passingThroughHarmonicId2aHistory())
+  await expect
+    .element(
+      guidedPath().getByRole("link", {
+        name: /Chords.*Minor triad.*root position/i,
+      }),
+    )
+    .toBeVisible()
+})
+
+test("after melodic sing 2b complete: chord major first is the current link", async () => {
+  await mountHomeWithHistory(passingMelodicSing2bHistory())
+  await expect
+    .element(
+      guidedPath().getByRole("link", {
+        name: /Chords.*Major triad.*1st inversion/i,
       }),
     )
     .toBeVisible()

@@ -70,6 +70,18 @@ describe("getPathNodeLabels", () => {
       subtitle: "Melodic reproduction · natural minor key · diatonic degrees within one octave",
     })
   })
+
+  it("uses chord tier banner and any-voice subtitle for chord steps", () => {
+    expect(
+      getPathNodeLabels({
+        practiceModeId: "chord-sing",
+        contentTierId: "chord-minor-first",
+      }),
+    ).toEqual({
+      title: "Chords",
+      subtitle: "Minor triad · 1st inversion · any voice",
+    })
+  })
 })
 
 describe("getPathNodeState", () => {

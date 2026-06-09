@@ -51,6 +51,9 @@ const TIER_POOL_LABEL: Record<CurriculumLesson["contentTierId"], string | null> 
   "degree-major-diatonic": "major key · diatonic degrees within one octave",
   "degree-minor-diatonic": "natural minor key · diatonic degrees within one octave",
   "chord-major-root": "any voice",
+  "chord-minor-root": "any voice",
+  "chord-major-first": "any voice",
+  "chord-minor-first": "any voice",
 }
 
 /** Optional per-step label overrides (full `practiceModeId:contentTierId` keys). */

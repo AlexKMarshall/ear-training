@@ -19,6 +19,7 @@ import {
   passingSingleNoteHistory,
   passingStepHistory,
   passingThroughHarmonic2bHistory,
+  passingThroughHarmonicId2aHistory,
   passingThroughHarmonicSing2aHistory,
   passingThroughMelodic2bHistory,
 } from "./fixtures/attempts.ts"
@@ -188,7 +189,7 @@ describe("isCurriculumLessonUnlocked", () => {
     expect(isCurriculumLessonUnlocked(sing2b, passingIntroScaleDegreeHistory())).toBe(true)
   })
 
-  it("locks melodic identify at 2b until named-interval sing at 2b passes", () => {
+  it("locks melodic identify at 2b until chord minor first passes", () => {
     const id2b = {
       practiceModeId: "interval-melodic-id" as const,
       contentTierId: "interval-2b" as const,
@@ -199,8 +200,29 @@ describe("isCurriculumLessonUnlocked", () => {
       isCurriculumLessonUnlocked(id2b, [
         ...passingMelodicSing2bHistory(),
         ...passingStepHistory({
+          practiceModeId: "chord-sing",
+          contentTierId: "chord-major-first",
+        }),
+        ...passingStepHistory({
           practiceModeId: "interval-named-sing",
           contentTierId: "interval-2b",
+        }),
+      ]),
+    ).toBe(false)
+    expect(
+      isCurriculumLessonUnlocked(id2b, [
+        ...passingMelodicSing2bHistory(),
+        ...passingStepHistory({
+          practiceModeId: "chord-sing",
+          contentTierId: "chord-major-first",
+        }),
+        ...passingStepHistory({
+          practiceModeId: "interval-named-sing",
+          contentTierId: "interval-2b",
+        }),
+        ...passingStepHistory({
+          practiceModeId: "chord-sing",
+          contentTierId: "chord-minor-first",
         }),
       ]),
     ).toBe(true)
@@ -257,11 +279,11 @@ describe("getContinueCurriculumLesson", () => {
     })
   })
 
-  it("advances to named-interval sing at 2b after melodic sing 2b completes", () => {
-    expect(getContinuePracticeMode(passingMelodicSing2bHistory())).toBe("interval-named-sing")
+  it("advances to chord major first after melodic sing 2b completes", () => {
+    expect(getContinuePracticeMode(passingMelodicSing2bHistory())).toBe("chord-sing")
     expect(getContinueCurriculumLesson(passingMelodicSing2bHistory())).toEqual({
-      practiceModeId: "interval-named-sing",
-      contentTierId: "interval-2b",
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-major-first",
     })
   })
 
@@ -298,6 +320,14 @@ describe("getContinueCurriculumLesson", () => {
       contentTierId: "chord-major-root",
     })
   })
+
+  it("advances to chord minor root after interval 2a harmonic identification completes", () => {
+    expect(getContinuePracticeMode(passingThroughHarmonicId2aHistory())).toBe("chord-sing")
+    expect(getContinueCurriculumLesson(passingThroughHarmonicId2aHistory())).toEqual({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-minor-root",
+    })
+  })
 })
 
 describe("getContinuePracticeMode", () => {
@@ -330,8 +360,8 @@ describe("getUnlockRequirement", () => {
 
   it("includes tier pool in predecessor label for scale-degree sing", () => {
     expect(getUnlockRequirement("scale-degree-sing")).toEqual({
-      predecessorPracticeModeId: "interval-harmonic-id",
-      predecessorLabel: "Identify harmonic intervals (perfect 4th, 5th, octave)",
+      predecessorPracticeModeId: "chord-sing",
+      predecessorLabel: "Sing chord voices (Minor triad · root position)",
       minExercisesForUnlock: MIN_EXERCISES_FOR_UNLOCK,
       minPassRatePercent: MIN_EXERCISE_PASS_RATE,
     })
@@ -355,6 +385,30 @@ describe("getUnlockRequirement", () => {
     expect(isCurriculumLessonUnlocked(chordMajorRoot, passingThroughHarmonicSing2aHistory())).toBe(
       true,
     )
+  })
+
+  it("requires harmonic identify at 2a before chord minor root", () => {
+    const chordMinorRoot = {
+      practiceModeId: "chord-sing" as const,
+      contentTierId: "chord-minor-root" as const,
+    }
+    expect(isCurriculumLessonUnlocked(chordMinorRoot, passingThroughHarmonicSing2aHistory())).toBe(
+      false,
+    )
+    expect(isCurriculumLessonUnlocked(chordMinorRoot, passingThroughHarmonicId2aHistory())).toBe(
+      true,
+    )
+  })
+
+  it("requires melodic sing at 2b before chord major first", () => {
+    const chordMajorFirst = {
+      practiceModeId: "chord-sing" as const,
+      contentTierId: "chord-major-first" as const,
+    }
+    expect(isCurriculumLessonUnlocked(chordMajorFirst, passingIntroScaleDegreeHistory())).toBe(
+      false,
+    )
+    expect(isCurriculumLessonUnlocked(chordMajorFirst, passingMelodicSing2bHistory())).toBe(true)
   })
 
   it("describes harmonic sing predecessor for chord-sing", () => {
