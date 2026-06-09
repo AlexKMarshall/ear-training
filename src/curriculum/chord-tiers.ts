@@ -14,6 +14,8 @@ const CHORD_TIER_CONFIG: Record<ChordContentTierId, ChordTierConfig> = {
   "chord-minor-root": { triadQualityId: "minor-triad", inversion: "root" },
   "chord-major-first": { triadQualityId: "major-triad", inversion: "first" },
   "chord-minor-first": { triadQualityId: "minor-triad", inversion: "first" },
+  "chord-major-second": { triadQualityId: "major-triad", inversion: "second" },
+  "chord-minor-second": { triadQualityId: "minor-triad", inversion: "second" },
 }
 
 export function isChordContentTierId(tierId: ContentTierId): tierId is ChordContentTierId {
@@ -38,6 +40,10 @@ export function getChordLessonBannerLabel(tierId: ChordContentTierId): string {
       return "Major triad · 1st inversion"
     case "chord-minor-first":
       return "Minor triad · 1st inversion"
+    case "chord-major-second":
+      return "Major triad · 2nd inversion"
+    case "chord-minor-second":
+      return "Minor triad · 2nd inversion"
   }
 }
 

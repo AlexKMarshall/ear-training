@@ -1,12 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test } from "vitest"
 import { page } from "vitest/browser"
 import {
+  passingChordMajorSecondHistory,
   passingFullGuidedPathHistory,
   passingIntroScaleDegreeHistory,
   passingLevel2History,
   passingMajorDiatonicScaleDegreeHistory,
   passingMelodicSing2bHistory,
   passingSingleNoteHistory,
+  passingStepHistory,
   passingThroughHarmonic2bHistory,
   passingThroughHarmonicId2aHistory,
   passingThroughHarmonicSing2aHistory,
@@ -119,8 +121,8 @@ test("after harmonic 2b complete: major diatonic scale degrees is the current li
     .toBeVisible()
 })
 
-test("after major diatonic scale degrees complete: minor diatonic is the current link", async () => {
-  await mountHomeWithHistory(passingMajorDiatonicScaleDegreeHistory())
+test("after chord major second complete: minor diatonic is the current link", async () => {
+  await mountHomeWithHistory(passingChordMajorSecondHistory())
   await expect
     .element(
       guidedPath().getByRole("link", {
@@ -163,12 +165,40 @@ test("after melodic sing 2b complete: chord major first is the current link", as
     .toBeVisible()
 })
 
+test("after major diatonic complete: chord major second is the current link", async () => {
+  await mountHomeWithHistory(passingMajorDiatonicScaleDegreeHistory())
+  await expect
+    .element(
+      guidedPath().getByRole("link", {
+        name: /Chords.*Major triad.*2nd inversion/i,
+      }),
+    )
+    .toBeVisible()
+})
+
 test("after melodic 2b: current node is harmonic sing at 2b tier", async () => {
   await mountHomeWithHistory(passingThroughMelodic2bHistory())
   await expect
     .element(
       guidedPath().getByRole("link", {
         name: /Intervals.*Harmonic reproduction.*diatonic intervals/i,
+      }),
+    )
+    .toBeVisible()
+})
+
+test("after minor diatonic complete: chord minor second is the current link", async () => {
+  await mountHomeWithHistory([
+    ...passingChordMajorSecondHistory(),
+    ...passingStepHistory({
+      practiceModeId: "scale-degree-sing",
+      contentTierId: "degree-minor-diatonic",
+    }),
+  ])
+  await expect
+    .element(
+      guidedPath().getByRole("link", {
+        name: /Chords.*Minor triad.*2nd inversion/i,
       }),
     )
     .toBeVisible()

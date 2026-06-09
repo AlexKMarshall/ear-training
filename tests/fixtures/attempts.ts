@@ -151,7 +151,7 @@ export function passingThroughHarmonic2bHistory(): AttemptRecord[] {
   ]
 }
 
-/** Major diatonic scale degrees complete. */
+/** Major diatonic scale degrees complete; chord major second unlockable. */
 export function passingMajorDiatonicScaleDegreeHistory(): AttemptRecord[] {
   return [
     ...passingThroughHarmonic2bHistory(),
@@ -162,10 +162,21 @@ export function passingMajorDiatonicScaleDegreeHistory(): AttemptRecord[] {
   ]
 }
 
-/** Minor diatonic scale degrees complete. */
-function passingMinorDiatonicScaleDegreeHistory(): AttemptRecord[] {
+/** Chord major second complete; minor diatonic scale degrees unlockable. */
+export function passingChordMajorSecondHistory(): AttemptRecord[] {
   return [
     ...passingMajorDiatonicScaleDegreeHistory(),
+    ...passingStepHistory({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-major-second",
+    }),
+  ]
+}
+
+/** Minor diatonic scale degrees complete; chord minor second unlockable. */
+function passingMinorDiatonicScaleDegreeHistory(): AttemptRecord[] {
+  return [
+    ...passingChordMajorSecondHistory(),
     ...passingStepHistory({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-minor-diatonic",
@@ -173,7 +184,18 @@ function passingMinorDiatonicScaleDegreeHistory(): AttemptRecord[] {
   ]
 }
 
+/** Chord minor second complete; guided path complete. */
+function passingChordMinorSecondHistory(): AttemptRecord[] {
+  return [
+    ...passingMinorDiatonicScaleDegreeHistory(),
+    ...passingStepHistory({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-minor-second",
+    }),
+  ]
+}
+
 /** Every shipped curriculum step meets unlock thresholds. */
 export function passingFullGuidedPathHistory(): AttemptRecord[] {
-  return passingMinorDiatonicScaleDegreeHistory()
+  return passingChordMinorSecondHistory()
 }

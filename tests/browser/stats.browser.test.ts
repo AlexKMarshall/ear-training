@@ -1,11 +1,18 @@
 import { expect, test } from "vitest"
 import { page } from "vitest/browser"
-import { intervalWeaknessHistory } from "../fixtures/stats-history.ts"
+import { chordVoicingWeaknessHistory, intervalWeaknessHistory } from "../fixtures/stats-history.ts"
 import { mountStatsWithHistory } from "./helpers/mount.ts"
 
 test("empty history shows no practice copy", async () => {
   await mountStatsWithHistory([])
   await expect.element(page.getByText(/No practice history yet/i)).toBeVisible()
+})
+
+test("shows voicing-position breakdown for chord-sing history", async () => {
+  await mountStatsWithHistory(chordVoicingWeaknessHistory())
+  await expect.element(page.getByText(/By voicing position/i)).toBeVisible()
+  await expect.element(page.getByText("Bottom")).toBeVisible()
+  await expect.element(page.getByText("Top")).toBeVisible()
 })
 
 test("shows interval weakness breakdown for sing history", async () => {

@@ -6,6 +6,7 @@ import {
   resolveSessionCurriculumLesson,
 } from "../src/curriculum/session-step.ts"
 import {
+  passingChordMajorSecondHistory,
   passingIntroScaleDegreeHistory,
   passingLevel2History,
   passingMajorDiatonicScaleDegreeHistory,
@@ -119,15 +120,41 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
     })
   })
 
-  it("returns degree-minor-diatonic when major diatonic is complete", () => {
+  it("returns chord-major-second when major diatonic is complete", () => {
+    expect(
+      getSessionCurriculumLessonForPracticeMode(
+        "chord-sing",
+        passingMajorDiatonicScaleDegreeHistory(),
+      ),
+    ).toEqual({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-major-second",
+    })
+  })
+
+  it("returns degree-minor-diatonic when chord major second is complete", () => {
     expect(
       getSessionCurriculumLessonForPracticeMode(
         "scale-degree-sing",
-        passingMajorDiatonicScaleDegreeHistory(),
+        passingChordMajorSecondHistory(),
       ),
     ).toEqual({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-minor-diatonic",
+    })
+  })
+
+  it("returns chord-minor-second when minor diatonic is complete", () => {
+    const records = [
+      ...passingChordMajorSecondHistory(),
+      ...passingStepHistory({
+        practiceModeId: "scale-degree-sing",
+        contentTierId: "degree-minor-diatonic",
+      }),
+    ]
+    expect(getSessionCurriculumLessonForPracticeMode("chord-sing", records)).toEqual({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-minor-second",
     })
   })
 

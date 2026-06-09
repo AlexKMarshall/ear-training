@@ -11,6 +11,7 @@ import {
   MIN_EXERCISES_FOR_UNLOCK,
 } from "../src/curriculum/unlock.ts"
 import {
+  passingChordMajorSecondHistory,
   passingFullGuidedPathHistory,
   passingIntroScaleDegreeHistory,
   passingLevel2History,
@@ -303,11 +304,17 @@ describe("getContinueCurriculumLesson", () => {
     })
   })
 
-  it("advances to minor diatonic scale degrees after major diatonic completes", () => {
-    expect(getContinuePracticeMode(passingMajorDiatonicScaleDegreeHistory())).toBe(
-      "scale-degree-sing",
-    )
+  it("advances to chord major second after major diatonic scale degrees complete", () => {
+    expect(getContinuePracticeMode(passingMajorDiatonicScaleDegreeHistory())).toBe("chord-sing")
     expect(getContinueCurriculumLesson(passingMajorDiatonicScaleDegreeHistory())).toEqual({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-major-second",
+    })
+  })
+
+  it("advances to minor diatonic scale degrees after chord major second completes", () => {
+    expect(getContinuePracticeMode(passingChordMajorSecondHistory())).toBe("scale-degree-sing")
+    expect(getContinueCurriculumLesson(passingChordMajorSecondHistory())).toEqual({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-minor-diatonic",
     })
@@ -409,6 +416,37 @@ describe("getUnlockRequirement", () => {
       false,
     )
     expect(isCurriculumLessonUnlocked(chordMajorFirst, passingMelodicSing2bHistory())).toBe(true)
+  })
+
+  it("requires major diatonic scale degrees before chord major second", () => {
+    const chordMajorSecond = {
+      practiceModeId: "chord-sing" as const,
+      contentTierId: "chord-major-second" as const,
+    }
+    expect(isCurriculumLessonUnlocked(chordMajorSecond, passingThroughHarmonic2bHistory())).toBe(
+      false,
+    )
+    expect(
+      isCurriculumLessonUnlocked(chordMajorSecond, passingMajorDiatonicScaleDegreeHistory()),
+    ).toBe(true)
+  })
+
+  it("requires minor diatonic scale degrees before chord minor second", () => {
+    const chordMinorSecond = {
+      practiceModeId: "chord-sing" as const,
+      contentTierId: "chord-minor-second" as const,
+    }
+    expect(isCurriculumLessonUnlocked(chordMinorSecond, passingChordMajorSecondHistory())).toBe(
+      false,
+    )
+    const minorDiatonicComplete = [
+      ...passingChordMajorSecondHistory(),
+      ...passingStepHistory({
+        practiceModeId: "scale-degree-sing",
+        contentTierId: "degree-minor-diatonic",
+      }),
+    ]
+    expect(isCurriculumLessonUnlocked(chordMinorSecond, minorDiatonicComplete)).toBe(true)
   })
 
   it("describes harmonic sing predecessor for chord-sing", () => {

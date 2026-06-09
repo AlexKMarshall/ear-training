@@ -5,8 +5,8 @@ import type { SessionPlanner } from "../src/session/planner.ts"
 import { prepareScaleDegreeExercise } from "../src/ui/scale-degree-session.ts"
 import {
   attempt,
+  passingChordMajorSecondHistory,
   passingIntroScaleDegreeHistory,
-  passingMajorDiatonicScaleDegreeHistory,
   passingThroughHarmonic2bHistory,
 } from "./fixtures/attempts.ts"
 import { defined } from "./helpers/defined.ts"
@@ -48,16 +48,14 @@ describe("prepareScaleDegreeExercise", () => {
     expect(exercise.eligibleTagIds).toEqual(getEligibleDegreeIds("degree-major-diatonic"))
   })
 
-  it("uses minor diatonic tier after major diatonic completes", () => {
+  it("uses minor diatonic tier after chord major second completes", () => {
     const planner: SessionPlanner = {
       planNextExerciseTag: () => "third",
     }
-    const { exercise } = prepareScaleDegreeExercise(
-      passingMajorDiatonicScaleDegreeHistory(),
-      60,
-      planner,
-      { lowMidi: 48, highMidi: 67 },
-    )
+    const { exercise } = prepareScaleDegreeExercise(passingChordMajorSecondHistory(), 60, planner, {
+      lowMidi: 48,
+      highMidi: 67,
+    })
 
     expect(exercise.degreeId).toBe("third")
     expect(exercise.contentTierId).toBe("degree-minor-diatonic")
@@ -167,11 +165,9 @@ describe("scaleDegreeQuestionForTag", () => {
       octave: 12,
     }
     for (const id of getEligibleDegreeIds("degree-minor-diatonic")) {
-      const { exercise } = prepareScaleDegreeExercise(
-        passingMajorDiatonicScaleDegreeHistory(),
-        60,
-        { planNextExerciseTag: () => id },
-      )
+      const { exercise } = prepareScaleDegreeExercise(passingChordMajorSecondHistory(), 60, {
+        planNextExerciseTag: () => id,
+      })
       expect(exercise.degreeId).toBe(id)
       expect(exercise.target.midi).toBe(60 + defined(expectedSemitones[id], id))
     }
