@@ -58,6 +58,7 @@ describe("curriculum steps", () => {
       "chord-inversion-id@chord-inversion-major",
       "scale-degree-sing@degree-minor-diatonic",
       "chord-sing@chord-minor-second",
+      "chord-quality-id@chord-quality-second",
     ])
   })
 
@@ -209,7 +210,12 @@ describe("curriculum steps", () => {
     expect(chordMajorSecond).toBe(19)
     expect(chordInversionMajor).toBe(20)
     expect(minorDiatonicDegrees).toBe(21)
+    const chordQualitySecond = getCurriculumLessonIndex({
+      practiceModeId: "chord-quality-id",
+      contentTierId: "chord-quality-second",
+    })
     expect(chordMinorSecond).toBe(22)
+    expect(chordQualitySecond).toBe(23)
     expect(melodicSing2b).toBeGreaterThan(introDegrees)
     expect(chordMajorFirst).toBeGreaterThan(melodicSing2b)
     expect(namedSing2b).toBeGreaterThan(chordMajorFirst)
@@ -223,6 +229,7 @@ describe("curriculum steps", () => {
     expect(chordInversionMajor).toBeGreaterThan(chordMajorSecond)
     expect(minorDiatonicDegrees).toBeGreaterThan(chordInversionMajor)
     expect(chordMinorSecond).toBeGreaterThan(minorDiatonicDegrees)
+    expect(chordQualitySecond).toBeGreaterThan(chordMinorSecond)
   })
 
   it("returns ordered steps per exercise for tier progression", () => {
@@ -248,7 +255,7 @@ describe("curriculum steps", () => {
     ])
     expect(
       curriculumLessonsForPracticeMode("chord-quality-id").map((s) => s.contentTierId),
-    ).toEqual(["chord-quality-root", "chord-quality-first"])
+    ).toEqual(["chord-quality-root", "chord-quality-first", "chord-quality-second"])
     expect(
       curriculumLessonsForPracticeMode("chord-inversion-id").map((s) => s.contentTierId),
     ).toEqual(["chord-inversion-major"])
@@ -344,13 +351,15 @@ describe("curriculum steps", () => {
   it("fixes inversion per chord quality identify tier and exposes triad quality tags", () => {
     expect(getChordQualityIdTierConfig("chord-quality-root")).toEqual({ inversion: "root" })
     expect(getChordQualityIdTierConfig("chord-quality-first")).toEqual({ inversion: "first" })
+    expect(getChordQualityIdTierConfig("chord-quality-second")).toEqual({ inversion: "second" })
     expect(getChordQualityIdLessonBannerLabel("chord-quality-root")).toBe("Root position")
     expect(getChordQualityIdLessonBannerLabel("chord-quality-first")).toBe("1st inversion")
-    const qualityFirst = findCurriculumLesson(
-      (s) => s.practiceModeId === "chord-quality-id" && s.contentTierId === "chord-quality-first",
-      "chord-quality-first",
+    expect(getChordQualityIdLessonBannerLabel("chord-quality-second")).toBe("2nd inversion")
+    const qualitySecond = findCurriculumLesson(
+      (s) => s.practiceModeId === "chord-quality-id" && s.contentTierId === "chord-quality-second",
+      "chord-quality-second",
     )
-    expect(getEligibleTagIds(qualityFirst)).toEqual(getEligibleTriadQualityIds())
+    expect(getEligibleTagIds(qualitySecond)).toEqual(getEligibleTriadQualityIds())
   })
 
   it("fixes triad quality per chord inversion identify tier and exposes inversion tags", () => {
