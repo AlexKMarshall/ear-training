@@ -11,10 +11,10 @@ import {
   MIN_EXERCISES_FOR_UNLOCK,
 } from "../src/curriculum/unlock.ts"
 import {
+  passingChordMajorSecondHistory,
   passingFullGuidedPathHistory,
   passingIntroScaleDegreeHistory,
   passingLevel2History,
-  passingChordMajorSecondHistory,
   passingMajorDiatonicScaleDegreeHistory,
   passingMelodicSing2bHistory,
   passingSingleNoteHistory,

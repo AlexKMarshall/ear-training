@@ -1,12 +1,12 @@
 import { beforeEach, expect, test } from "vitest"
 import { page } from "vitest/browser"
+import { getChordLessonBannerLabel } from "../../src/curriculum/chord-tiers.ts"
 import {
   FAIL_SAMPLES,
   singAdvanceFromResult,
   singExhaustAttempts,
   singPlayRecordFail,
 } from "./helpers/lesson-flow.ts"
-import { getChordLessonBannerLabel } from "../../src/curriculum/chord-tiers.ts"
 import { mountPracticeModeInBrowser } from "./helpers/mount.ts"
 
 beforeEach(() => {

@@ -6,9 +6,9 @@ import {
   resolveSessionCurriculumLesson,
 } from "../src/curriculum/session-step.ts"
 import {
+  passingChordMajorSecondHistory,
   passingIntroScaleDegreeHistory,
   passingLevel2History,
-  passingChordMajorSecondHistory,
   passingMajorDiatonicScaleDegreeHistory,
   passingMelodicSing2bHistory,
   passingSingleNoteHistory,

@@ -1,17 +1,17 @@
 import { afterEach, beforeEach, describe, expect, test } from "vitest"
 import { page } from "vitest/browser"
 import {
+  passingChordMajorSecondHistory,
   passingFullGuidedPathHistory,
   passingIntroScaleDegreeHistory,
   passingLevel2History,
-  passingChordMajorSecondHistory,
   passingMajorDiatonicScaleDegreeHistory,
   passingMelodicSing2bHistory,
   passingSingleNoteHistory,
+  passingStepHistory,
   passingThroughHarmonic2bHistory,
   passingThroughHarmonicId2aHistory,
   passingThroughHarmonicSing2aHistory,
-  passingStepHistory,
   passingThroughMelodic2bHistory,
 } from "../fixtures/attempts.ts"
 import { mountHomeWithHistory, setUnlockAllSearch } from "./helpers/mount.ts"
