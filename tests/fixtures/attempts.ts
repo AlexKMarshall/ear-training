@@ -87,6 +87,29 @@ export function passingThroughChordQualityRootHistory(): AttemptRecord[] {
   ]
 }
 
+/** Chord quality identification at 1st inversion complete; melodic identify 2b unlockable. */
+export function passingThroughChordQualityFirstHistory(): AttemptRecord[] {
+  return [
+    ...passingMelodicSing2bHistory(),
+    ...passingStepHistory({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-major-first",
+    }),
+    ...passingStepHistory({
+      practiceModeId: "interval-named-sing",
+      contentTierId: "interval-2b",
+    }),
+    ...passingStepHistory({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-minor-first",
+    }),
+    ...passingStepHistory({
+      practiceModeId: "chord-quality-id",
+      contentTierId: "chord-quality-first",
+    }),
+  ]
+}
+
 /** Passing history for one curriculum step (tier tagged when provided). */
 export function passingStepHistory(step: CurriculumLesson): AttemptRecord[] {
   return Array.from({ length: MIN_EXERCISES_FOR_UNLOCK }, (_, i) =>
@@ -124,7 +147,7 @@ export function passingMelodicSing2bHistory(): AttemptRecord[] {
   ]
 }
 
-/** Named-interval reproduction at interval-2b complete; melodic identification 2b not yet done. */
+/** Named-interval reproduction at interval-2b complete; chord quality first not yet done. */
 export function passingThroughMelodic2bHistory(): AttemptRecord[] {
   return [
     ...passingMelodicSing2bHistory(),
@@ -140,6 +163,13 @@ export function passingThroughMelodic2bHistory(): AttemptRecord[] {
       practiceModeId: "chord-sing",
       contentTierId: "chord-minor-first",
     }),
+  ]
+}
+
+/** Melodic identification at interval-2b complete; harmonic sing 2b not yet done. */
+export function passingThroughMelodicId2bHistory(): AttemptRecord[] {
+  return [
+    ...passingThroughChordQualityFirstHistory(),
     ...passingStepHistory({
       practiceModeId: "interval-melodic-id",
       contentTierId: "interval-2b",
@@ -150,7 +180,7 @@ export function passingThroughMelodic2bHistory(): AttemptRecord[] {
 /** Full interval tier 2b (all five presentation modes); major diatonic scale degrees unlockable. */
 export function passingThroughHarmonic2bHistory(): AttemptRecord[] {
   return [
-    ...passingThroughMelodic2bHistory(),
+    ...passingThroughMelodicId2bHistory(),
     ...passingStepHistory({
       practiceModeId: "interval-harmonic-sing",
       contentTierId: "interval-2b",

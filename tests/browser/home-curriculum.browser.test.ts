@@ -13,6 +13,7 @@ import {
   passingThroughHarmonicId2aHistory,
   passingThroughHarmonicSing2aHistory,
   passingThroughMelodic2bHistory,
+  passingThroughMelodicId2bHistory,
 } from "../fixtures/attempts.ts"
 import { mountHomeWithHistory, setUnlockAllSearch } from "./helpers/mount.ts"
 
@@ -85,22 +86,22 @@ test("after intro scale degrees complete: melodic 2b step is the current link", 
     .toBeVisible()
 })
 
-test("after melodic 2b complete: harmonic sing at 2b is current; intro scale degrees passed", async () => {
+test("after chord minor first complete: chord quality first is the current link", async () => {
   await mountHomeWithHistory(passingThroughMelodic2bHistory())
   await expect
     .element(
       guidedPath().getByRole("link", {
-        name: /Scale degrees.*Complete/i,
+        name: /Chords.*Quality identification.*1st inversion/i,
       }),
     )
     .toBeVisible()
   await expect
     .element(
       guidedPath().getByRole("link", {
-        name: /Intervals.*Harmonic reproduction.*diatonic intervals/i,
+        name: /Intervals.*Melodic identification.*diatonic intervals/i,
       }),
     )
-    .toBeVisible()
+    .not.toBeInTheDocument()
 })
 
 test("after harmonic 2b complete: major diatonic scale degrees is the current link", async () => {
@@ -176,8 +177,8 @@ test("after major diatonic complete: chord major second is the current link", as
     .toBeVisible()
 })
 
-test("after melodic 2b: current node is harmonic sing at 2b tier", async () => {
-  await mountHomeWithHistory(passingThroughMelodic2bHistory())
+test("after melodic identify 2b complete: harmonic sing at 2b is current", async () => {
+  await mountHomeWithHistory(passingThroughMelodicId2bHistory())
   await expect
     .element(
       guidedPath().getByRole("link", {

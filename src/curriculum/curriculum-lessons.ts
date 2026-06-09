@@ -31,6 +31,7 @@ export type ContentTierId =
   | "chord-major-second"
   | "chord-minor-second"
   | "chord-quality-root"
+  | "chord-quality-first"
 
 export interface CurriculumLesson {
   practiceModeId: PracticeModeId
@@ -52,6 +53,7 @@ export const CURRICULUM_LESSONS: readonly CurriculumLesson[] = [
   { practiceModeId: "chord-sing", contentTierId: "chord-major-first" },
   { practiceModeId: "interval-named-sing", contentTierId: "interval-2b" },
   { practiceModeId: "chord-sing", contentTierId: "chord-minor-first" },
+  { practiceModeId: "chord-quality-id", contentTierId: "chord-quality-first" },
   { practiceModeId: "interval-melodic-id", contentTierId: "interval-2b" },
   { practiceModeId: "interval-harmonic-sing", contentTierId: "interval-2b" },
   { practiceModeId: "interval-harmonic-id", contentTierId: "interval-2b" },
@@ -162,6 +164,7 @@ export function getEligibleTagIds(step: CurriculumLesson): readonly string[] {
     case "chord-minor-second":
       return getEligibleVoicingPositionIds()
     case "chord-quality-root":
+    case "chord-quality-first":
       return getEligibleTriadQualityIds()
   }
 }

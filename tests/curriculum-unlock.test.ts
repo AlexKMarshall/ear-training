@@ -19,11 +19,13 @@ import {
   passingMelodicSing2bHistory,
   passingSingleNoteHistory,
   passingStepHistory,
+  passingThroughChordQualityFirstHistory,
   passingThroughChordQualityRootHistory,
   passingThroughHarmonic2bHistory,
   passingThroughHarmonicId2aHistory,
   passingThroughHarmonicSing2aHistory,
   passingThroughMelodic2bHistory,
+  passingThroughMelodicId2bHistory,
 } from "./fixtures/attempts.ts"
 
 describe("isPracticeModeUnlocked", () => {
@@ -202,43 +204,15 @@ describe("isCurriculumLessonUnlocked", () => {
     expect(isCurriculumLessonUnlocked(sing2b, passingIntroScaleDegreeHistory())).toBe(true)
   })
 
-  it("locks melodic identify at 2b until chord minor first passes", () => {
+  it("locks melodic identify at 2b until chord quality first passes", () => {
     const id2b = {
       practiceModeId: "interval-melodic-id" as const,
       contentTierId: "interval-2b" as const,
     }
     expect(isCurriculumLessonUnlocked(id2b, passingLevel2History())).toBe(false)
     expect(isCurriculumLessonUnlocked(id2b, passingMelodicSing2bHistory())).toBe(false)
-    expect(
-      isCurriculumLessonUnlocked(id2b, [
-        ...passingMelodicSing2bHistory(),
-        ...passingStepHistory({
-          practiceModeId: "chord-sing",
-          contentTierId: "chord-major-first",
-        }),
-        ...passingStepHistory({
-          practiceModeId: "interval-named-sing",
-          contentTierId: "interval-2b",
-        }),
-      ]),
-    ).toBe(false)
-    expect(
-      isCurriculumLessonUnlocked(id2b, [
-        ...passingMelodicSing2bHistory(),
-        ...passingStepHistory({
-          practiceModeId: "chord-sing",
-          contentTierId: "chord-major-first",
-        }),
-        ...passingStepHistory({
-          practiceModeId: "interval-named-sing",
-          contentTierId: "interval-2b",
-        }),
-        ...passingStepHistory({
-          practiceModeId: "chord-sing",
-          contentTierId: "chord-minor-first",
-        }),
-      ]),
-    ).toBe(true)
+    expect(isCurriculumLessonUnlocked(id2b, passingThroughMelodic2bHistory())).toBe(false)
+    expect(isCurriculumLessonUnlocked(id2b, passingThroughChordQualityFirstHistory())).toBe(true)
   })
 
   it("locks harmonic sing at 2b until melodic identify at 2b passes", () => {
@@ -247,7 +221,7 @@ describe("isCurriculumLessonUnlocked", () => {
       contentTierId: "interval-2b" as const,
     }
     expect(isCurriculumLessonUnlocked(sing2b, passingMelodicSing2bHistory())).toBe(false)
-    expect(isCurriculumLessonUnlocked(sing2b, passingThroughMelodic2bHistory())).toBe(true)
+    expect(isCurriculumLessonUnlocked(sing2b, passingThroughMelodicId2bHistory())).toBe(true)
   })
 
   it("locks harmonic identify at 2b until harmonic sing at 2b passes", () => {
@@ -255,10 +229,10 @@ describe("isCurriculumLessonUnlocked", () => {
       practiceModeId: "interval-harmonic-id" as const,
       contentTierId: "interval-2b" as const,
     }
-    expect(isCurriculumLessonUnlocked(id2b, passingThroughMelodic2bHistory())).toBe(false)
+    expect(isCurriculumLessonUnlocked(id2b, passingThroughMelodicId2bHistory())).toBe(false)
     expect(
       isCurriculumLessonUnlocked(id2b, [
-        ...passingThroughMelodic2bHistory(),
+        ...passingThroughMelodicId2bHistory(),
         ...passingStepHistory({
           practiceModeId: "interval-harmonic-sing",
           contentTierId: "interval-2b",
@@ -310,9 +284,29 @@ describe("getContinueCurriculumLesson", () => {
     })
   })
 
-  it("advances to harmonic sing at 2b after melodic identification 2b completes", () => {
-    expect(getContinuePracticeMode(passingThroughMelodic2bHistory())).toBe("interval-harmonic-sing")
+  it("advances to chord quality first after chord minor first completes", () => {
+    expect(getContinuePracticeMode(passingThroughMelodic2bHistory())).toBe("chord-quality-id")
     expect(getContinueCurriculumLesson(passingThroughMelodic2bHistory())).toEqual({
+      practiceModeId: "chord-quality-id",
+      contentTierId: "chord-quality-first",
+    })
+  })
+
+  it("advances to melodic identify at 2b after chord quality first completes", () => {
+    expect(getContinuePracticeMode(passingThroughChordQualityFirstHistory())).toBe(
+      "interval-melodic-id",
+    )
+    expect(getContinueCurriculumLesson(passingThroughChordQualityFirstHistory())).toEqual({
+      practiceModeId: "interval-melodic-id",
+      contentTierId: "interval-2b",
+    })
+  })
+
+  it("advances to harmonic sing at 2b after melodic identification 2b completes", () => {
+    expect(getContinuePracticeMode(passingThroughMelodicId2bHistory())).toBe(
+      "interval-harmonic-sing",
+    )
+    expect(getContinueCurriculumLesson(passingThroughMelodicId2bHistory())).toEqual({
       practiceModeId: "interval-harmonic-sing",
       contentTierId: "interval-2b",
     })

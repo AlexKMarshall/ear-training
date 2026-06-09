@@ -5,7 +5,7 @@ import { getEligibleTagIds } from "../../src/curriculum/curriculum-lessons.ts"
 import { getIntervalById } from "../../src/interval-config.ts"
 import { buildIntervalExercise, intervalToLessonExercise } from "../../src/interval-exercises.ts"
 import { mountIntervalHarmonicIdTest } from "../../src/ui/interval-tests.ts"
-import { passingStepHistory, passingThroughMelodic2bHistory } from "../fixtures/attempts.ts"
+import { passingStepHistory, passingThroughMelodicId2bHistory } from "../fixtures/attempts.ts"
 import { defined } from "../helpers/defined.ts"
 import {
   createHarmonicSingTestConfig,
@@ -55,7 +55,7 @@ test("harmonic sing at interval-2b saves attempt with 2b tier metadata", async (
 
 test("harmonic identify at interval-2b saves attempt with 2b tier metadata", async () => {
   const initialRecords = [
-    ...passingThroughMelodic2bHistory(),
+    ...passingThroughMelodicId2bHistory(),
     ...passingStepHistory({
       practiceModeId: "interval-harmonic-sing",
       contentTierId: "interval-2b",
