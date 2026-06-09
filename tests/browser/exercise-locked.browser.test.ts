@@ -79,7 +79,7 @@ test("locked scale-degree default step uses predecessor lesson link", async () =
   await mountPracticeModePageWithHistory("scale-degree-sing", [])
   await expect.element(page.getByRole("heading", { name: "Locked" })).toBeVisible()
   const cta = page.getByRole("link", {
-    name: /Go to Identify harmonic intervals \(perfect 4th, 5th, octave\)/i,
+    name: /Go to Sing chord voices \(Minor triad · root position\)/i,
   })
   await expect.element(cta).toHaveAttribute("href", expectedHref)
 })

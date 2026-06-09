@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { getEligibleVoicingPositionIds } from "../src/curriculum/chord-tiers.ts"
+import {
+  getChordLessonBannerLabel,
+  getChordTierConfig,
+  getEligibleVoicingPositionIds,
+} from "../src/curriculum/chord-tiers.ts"
 import {
   CURRICULUM_LESSONS,
   curriculumLessonsForPracticeMode,
@@ -32,9 +36,12 @@ describe("curriculum steps", () => {
       "interval-harmonic-sing@interval-2a",
       "chord-sing@chord-major-root",
       "interval-harmonic-id@interval-2a",
+      "chord-sing@chord-minor-root",
       "scale-degree-sing@degree-major-intro",
       "interval-melodic-sing@interval-2b",
+      "chord-sing@chord-major-first",
       "interval-named-sing@interval-2b",
+      "chord-sing@chord-minor-first",
       "interval-melodic-id@interval-2b",
       "interval-harmonic-sing@interval-2b",
       "interval-harmonic-id@interval-2b",
@@ -87,6 +94,10 @@ describe("curriculum steps", () => {
       practiceModeId: "interval-harmonic-id",
       contentTierId: "interval-2a",
     })
+    const chordMinorRoot = getCurriculumLessonIndex({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-minor-root",
+    })
     const introDegrees = getCurriculumLessonIndex({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-intro",
@@ -101,15 +112,17 @@ describe("curriculum steps", () => {
     expect(harmonicSing2a).toBe(4)
     expect(chordMajorRoot).toBe(5)
     expect(harmonicId2a).toBe(6)
-    expect(introDegrees).toBe(7)
-    expect(melodicSing2b).toBe(8)
+    expect(chordMinorRoot).toBe(7)
+    expect(introDegrees).toBe(8)
+    expect(melodicSing2b).toBe(9)
     expect(chordMajorRoot).toBeGreaterThan(harmonicSing2a)
     expect(harmonicId2a).toBeGreaterThan(chordMajorRoot)
-    expect(introDegrees).toBeGreaterThan(harmonicId2a)
+    expect(chordMinorRoot).toBeGreaterThan(harmonicId2a)
+    expect(introDegrees).toBeGreaterThan(chordMinorRoot)
     expect(melodicSing2b).toBeGreaterThan(introDegrees)
   })
 
-  it("orders 2b steps in cross-mode sequence after intro scale degrees", () => {
+  it("orders 2b steps in cross-mode sequence with chord tiers interleaved", () => {
     const introDegrees = getCurriculumLessonIndex({
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-intro",
@@ -118,9 +131,17 @@ describe("curriculum steps", () => {
       practiceModeId: "interval-melodic-sing",
       contentTierId: "interval-2b",
     })
+    const chordMajorFirst = getCurriculumLessonIndex({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-major-first",
+    })
     const namedSing2b = getCurriculumLessonIndex({
       practiceModeId: "interval-named-sing",
       contentTierId: "interval-2b",
+    })
+    const chordMinorFirst = getCurriculumLessonIndex({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-minor-first",
     })
     const melodicId2b = getCurriculumLessonIndex({
       practiceModeId: "interval-melodic-id",
@@ -138,20 +159,26 @@ describe("curriculum steps", () => {
       practiceModeId: "scale-degree-sing",
       contentTierId: "degree-major-diatonic",
     })
-    expect(introDegrees).toBe(7)
-    expect(melodicSing2b).toBe(8)
-    expect(namedSing2b).toBe(9)
-    expect(melodicId2b).toBe(10)
-    expect(harmonicSing2b).toBe(11)
-    expect(harmonicId2b).toBe(12)
-    expect(majorDiatonicDegrees).toBe(13)
+    expect(introDegrees).toBe(8)
+    expect(melodicSing2b).toBe(9)
+    expect(chordMajorFirst).toBe(10)
+    expect(namedSing2b).toBe(11)
+    expect(chordMinorFirst).toBe(12)
+    expect(melodicId2b).toBe(13)
+    expect(harmonicSing2b).toBe(14)
+    expect(harmonicId2b).toBe(15)
+    expect(majorDiatonicDegrees).toBe(16)
     expect(
       getCurriculumLessonIndex({
         practiceModeId: "scale-degree-sing",
         contentTierId: "degree-minor-diatonic",
       }),
-    ).toBe(14)
+    ).toBe(17)
     expect(melodicSing2b).toBeGreaterThan(introDegrees)
+    expect(chordMajorFirst).toBeGreaterThan(melodicSing2b)
+    expect(namedSing2b).toBeGreaterThan(chordMajorFirst)
+    expect(chordMinorFirst).toBeGreaterThan(namedSing2b)
+    expect(melodicId2b).toBeGreaterThan(chordMinorFirst)
     expect(harmonicSing2b).toBeGreaterThan(melodicId2b)
     expect(harmonicId2b).toBeGreaterThan(harmonicSing2b)
     expect(majorDiatonicDegrees).toBeGreaterThan(harmonicId2b)
@@ -172,6 +199,9 @@ describe("curriculum steps", () => {
     ).toEqual(["degree-major-intro", "degree-major-diatonic", "degree-minor-diatonic"])
     expect(curriculumLessonsForPracticeMode("chord-sing").map((s) => s.contentTierId)).toEqual([
       "chord-major-root",
+      "chord-minor-root",
+      "chord-major-first",
+      "chord-minor-first",
     ])
   })
 
@@ -218,11 +248,44 @@ describe("curriculum steps", () => {
     expect(minor).toEqual(major)
   })
 
-  it("presets voicing position tags on chord-major-root", () => {
-    const step = findCurriculumLesson(
-      (s) => s.practiceModeId === "chord-sing" && s.contentTierId === "chord-major-root",
+  it("presets voicing position tags on each chord tier", () => {
+    for (const contentTierId of [
       "chord-major-root",
-    )
-    expect(getEligibleTagIds(step)).toEqual(getEligibleVoicingPositionIds())
+      "chord-minor-root",
+      "chord-major-first",
+      "chord-minor-first",
+    ] as const) {
+      const step = findCurriculumLesson(
+        (s) => s.practiceModeId === "chord-sing" && s.contentTierId === contentTierId,
+        contentTierId,
+      )
+      expect(getEligibleTagIds(step)).toEqual(getEligibleVoicingPositionIds())
+    }
+  })
+
+  it("fixes triad quality and inversion per chord content tier", () => {
+    expect(getChordTierConfig("chord-major-root")).toEqual({
+      triadQualityId: "major-triad",
+      inversion: "root",
+    })
+    expect(getChordTierConfig("chord-minor-root")).toEqual({
+      triadQualityId: "minor-triad",
+      inversion: "root",
+    })
+    expect(getChordTierConfig("chord-major-first")).toEqual({
+      triadQualityId: "major-triad",
+      inversion: "first",
+    })
+    expect(getChordTierConfig("chord-minor-first")).toEqual({
+      triadQualityId: "minor-triad",
+      inversion: "first",
+    })
+  })
+
+  it("labels chord lesson banners with quality and inversion", () => {
+    expect(getChordLessonBannerLabel("chord-major-root")).toBe("Major triad · root position")
+    expect(getChordLessonBannerLabel("chord-minor-root")).toBe("Minor triad · root position")
+    expect(getChordLessonBannerLabel("chord-major-first")).toBe("Major triad · 1st inversion")
+    expect(getChordLessonBannerLabel("chord-minor-first")).toBe("Minor triad · 1st inversion")
   })
 })

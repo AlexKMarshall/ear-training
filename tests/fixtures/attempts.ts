@@ -50,8 +50,8 @@ export function passingThroughHarmonicSing2aHistory(): AttemptRecord[] {
   return records
 }
 
-/** Passing history through interval tier 2a (five presentation modes). */
-export function passingLevel2History(): AttemptRecord[] {
+/** Interval 2a through harmonic identification (chord minor root unlockable). */
+export function passingThroughHarmonicId2aHistory(): AttemptRecord[] {
   return [
     ...passingThroughHarmonicSing2aHistory(),
     ...passingStepHistory({
@@ -61,6 +61,17 @@ export function passingLevel2History(): AttemptRecord[] {
     ...passingStepHistory({
       practiceModeId: "interval-harmonic-id",
       contentTierId: "interval-2a",
+    }),
+  ]
+}
+
+/** Passing history through interval tier 2a and chord minor root. */
+export function passingLevel2History(): AttemptRecord[] {
+  return [
+    ...passingThroughHarmonicId2aHistory(),
+    ...passingStepHistory({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-minor-root",
     }),
   ]
 }
@@ -107,8 +118,16 @@ export function passingThroughMelodic2bHistory(): AttemptRecord[] {
   return [
     ...passingMelodicSing2bHistory(),
     ...passingStepHistory({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-major-first",
+    }),
+    ...passingStepHistory({
       practiceModeId: "interval-named-sing",
       contentTierId: "interval-2b",
+    }),
+    ...passingStepHistory({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-minor-first",
     }),
     ...passingStepHistory({
       practiceModeId: "interval-melodic-id",

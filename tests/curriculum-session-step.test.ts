@@ -13,6 +13,7 @@ import {
   passingSingleNoteHistory,
   passingStepHistory,
   passingThroughHarmonic2bHistory,
+  passingThroughHarmonicId2aHistory,
   passingThroughHarmonicSing2aHistory,
   passingThroughMelodic2bHistory,
 } from "./fixtures/attempts.ts"
@@ -38,12 +39,20 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
     })
   })
 
-  it("returns interval-2b for melodic identify after named sing at 2b passes", () => {
+  it("returns interval-2b for melodic identify after chord minor first passes", () => {
     const records = [
       ...passingMelodicSing2bHistory(),
       ...passingStepHistory({
+        practiceModeId: "chord-sing",
+        contentTierId: "chord-major-first",
+      }),
+      ...passingStepHistory({
         practiceModeId: "interval-named-sing",
         contentTierId: "interval-2b",
+      }),
+      ...passingStepHistory({
+        practiceModeId: "chord-sing",
+        contentTierId: "chord-minor-first",
       }),
     ]
     expect(getSessionCurriculumLessonForPracticeMode("interval-melodic-id", records)).toEqual({
@@ -129,6 +138,42 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
         passingThroughHarmonicSing2aHistory(),
       ),
     ).toEqual(CHORD_SING_MAJOR_ROOT_LESSON)
+  })
+
+  it("returns chord-minor-root after harmonic identify at 2a passes", () => {
+    expect(
+      getSessionCurriculumLessonForPracticeMode("chord-sing", passingThroughHarmonicId2aHistory()),
+    ).toEqual({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-minor-root",
+    })
+  })
+
+  it("returns chord-major-first after melodic sing at 2b passes", () => {
+    expect(
+      getSessionCurriculumLessonForPracticeMode("chord-sing", passingMelodicSing2bHistory()),
+    ).toEqual({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-major-first",
+    })
+  })
+
+  it("returns chord-minor-first after named sing at 2b passes", () => {
+    const records = [
+      ...passingMelodicSing2bHistory(),
+      ...passingStepHistory({
+        practiceModeId: "chord-sing",
+        contentTierId: "chord-major-first",
+      }),
+      ...passingStepHistory({
+        practiceModeId: "interval-named-sing",
+        contentTierId: "interval-2b",
+      }),
+    ]
+    expect(getSessionCurriculumLessonForPracticeMode("chord-sing", records)).toEqual({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-minor-first",
+    })
   })
 
   it("uses guided default (first incomplete tier) instead of highest unlocked", () => {

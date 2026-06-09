@@ -52,14 +52,14 @@ describe("getPredecessorCurriculumLesson", () => {
     }
     const predecessor = getPredecessorCurriculumLesson(step)
     expect(predecessor).toEqual({
-      practiceModeId: "interval-harmonic-id",
-      contentTierId: "interval-2a",
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-minor-root",
     })
     expect(
       formatLessonLinkUrl(
         getPracticeMode(defined(predecessor, "predecessor").practiceModeId).route,
         defined(predecessor, "predecessor"),
       ),
-    ).toBe("/interval-harmonic-id/?step=interval-harmonic-id%3Ainterval-2a")
+    ).toBe("/chord-sing/?step=chord-sing%3Achord-minor-root")
   })
 })
