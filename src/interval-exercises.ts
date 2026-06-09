@@ -73,7 +73,9 @@ export function randomIntervalExercise(
   return buildIntervalExercise(interval, presentation, lowerMidi)
 }
 
-export function intervalToLessonExercise(intervalExercise: IntervalExercise): IntervalLessonExercise {
+export function intervalToLessonExercise(
+  intervalExercise: IntervalExercise,
+): IntervalLessonExercise {
   return {
     type: "interval",
     target: intervalExercise.upper,
