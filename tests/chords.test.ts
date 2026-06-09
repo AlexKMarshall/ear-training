@@ -1,46 +1,49 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
 import {
   cDiminishedTriadAtC3,
   cMajorTriadAtC3,
   cMinorTriadAtC3,
-  DIMINISHED_TRIAD_SING_MIDDLE,
+  DIMINISHED_TRIAD,
   enabledChordTypes,
-  MAJOR_TRIAD_SING_MIDDLE,
-  MINOR_TRIAD_SING_MIDDLE,
-  majorTriadAtMiddle,
+  MAJOR_TRIAD,
+  MINOR_TRIAD,
+  majorTriadAtVoicingPosition,
   randomDiminishedTriadWithMiddleInRange,
   randomMajorTriadWithMiddleInRange,
   randomMinorTriadWithMiddleInRange,
 } from "../src/chord-config.ts"
-import {
-  getActiveInversions,
-  pickRandomInversion,
-  resetInversionPreference,
-  setInversionSelected,
-} from "../src/chord-inversion-preference.ts"
-import { voicingOffsetsForInversion } from "../src/chord-inversions.ts"
-import {
-  getActiveChordTypes,
-  pickRandomChordType,
-  randomEnabledChordExercise,
-  resetChordTypePreference,
-  setChordTypeSelected,
-} from "../src/chord-type-preference.ts"
+import { voicingOffsetsForInversion, voicingOffsetsFromAnchor } from "../src/chord-inversions.ts"
 import { buildChordExercise, randomChordExercise } from "../src/chord-types.ts"
 import { chordFrequenciesHz, chordTarget } from "../src/chords.ts"
 import { midiToHz } from "../src/notes.ts"
 
 describe("buildChordExercise", () => {
   it("applies root-position voicing from the middle note (major)", () => {
-    const exercise = buildChordExercise(MAJOR_TRIAD_SING_MIDDLE, "root", 52)
+    const exercise = buildChordExercise(MAJOR_TRIAD, "root", 1, 52)
 
     expect(exercise.notes.map((n) => n.name)).toEqual(["C3", "E3", "G3"])
     expect(exercise.targetIndex).toBe(1)
     expect(chordTarget(exercise).name).toBe("E3")
   })
 
+  it("applies root-position voicing from the bottom note (major)", () => {
+    const exercise = buildChordExercise(MAJOR_TRIAD, "root", 0, 48)
+
+    expect(exercise.notes.map((n) => n.name)).toEqual(["C3", "E3", "G3"])
+    expect(exercise.targetIndex).toBe(0)
+    expect(chordTarget(exercise).name).toBe("C3")
+  })
+
+  it("applies root-position voicing from the top note (major)", () => {
+    const exercise = buildChordExercise(MAJOR_TRIAD, "root", 2, 55)
+
+    expect(exercise.notes.map((n) => n.name)).toEqual(["C3", "E3", "G3"])
+    expect(exercise.targetIndex).toBe(2)
+    expect(chordTarget(exercise).name).toBe("G3")
+  })
+
   it("applies root-position voicing from the middle note (minor)", () => {
-    const exercise = buildChordExercise(MINOR_TRIAD_SING_MIDDLE, "root", 51)
+    const exercise = buildChordExercise(MINOR_TRIAD, "root", 1, 51)
 
     expect(exercise.notes.map((n) => n.name)).toEqual(["C3", "D#3", "G3"])
     expect(exercise.targetIndex).toBe(1)
@@ -48,7 +51,7 @@ describe("buildChordExercise", () => {
   })
 
   it("applies root-position voicing from the middle note (diminished)", () => {
-    const exercise = buildChordExercise(DIMINISHED_TRIAD_SING_MIDDLE, "root", 51)
+    const exercise = buildChordExercise(DIMINISHED_TRIAD, "root", 1, 51)
 
     expect(exercise.notes.map((n) => n.name)).toEqual(["C3", "D#3", "F#3"])
     expect(exercise.targetIndex).toBe(1)
@@ -56,53 +59,57 @@ describe("buildChordExercise", () => {
   })
 
   it("voices major 1st inversion with the fifth as the middle note", () => {
-    const exercise = majorTriadAtMiddle("first", 55)
+    const exercise = majorTriadAtVoicingPosition("first", 1, 55)
 
     expect(exercise.notes.map((n) => n.name)).toEqual(["E3", "G3", "C4"])
     expect(chordTarget(exercise).name).toBe("G3")
   })
 
   it("voices major 2nd inversion with the root as the middle note", () => {
-    const exercise = majorTriadAtMiddle("second", 60)
+    const exercise = majorTriadAtVoicingPosition("second", 1, 60)
 
     expect(exercise.notes.map((n) => n.name)).toEqual(["G3", "C4", "E4"])
     expect(chordTarget(exercise).name).toBe("C4")
   })
 })
 
-describe("voicingOffsetsForInversion", () => {
-  it("matches legacy root-position offsets for each quality", () => {
+describe("voicingOffsetsFromAnchor", () => {
+  it("matches legacy root-position middle-anchor offsets for each quality", () => {
+    expect(voicingOffsetsFromAnchor([0, 4, 7], "root", 1)).toEqual([-4, 0, 3])
+    expect(voicingOffsetsFromAnchor([0, 3, 7], "root", 1)).toEqual([-3, 0, 4])
+    expect(voicingOffsetsFromAnchor([0, 3, 6], "root", 1)).toEqual([-3, 0, 3])
+  })
+
+  it("matches deprecated voicingOffsetsForInversion helper", () => {
     expect(voicingOffsetsForInversion([0, 4, 7], "root")).toEqual([-4, 0, 3])
-    expect(voicingOffsetsForInversion([0, 3, 7], "root")).toEqual([-3, 0, 4])
-    expect(voicingOffsetsForInversion([0, 3, 6], "root")).toEqual([-3, 0, 3])
   })
 })
 
 describe("randomChordExercise", () => {
-  it("keeps the range anchor note within the given range (major)", () => {
+  it("keeps the range anchor note within the given range (major, middle)", () => {
     const range = { lowMidi: 48, highMidi: 67 }
     for (let i = 0; i < 50; i++) {
-      const exercise = randomChordExercise(MAJOR_TRIAD_SING_MIDDLE, "root", range)
+      const exercise = randomChordExercise(MAJOR_TRIAD, "root", 1, range)
       const anchor = chordTarget(exercise)
       expect(anchor.midi).toBeGreaterThanOrEqual(range.lowMidi)
       expect(anchor.midi).toBeLessThanOrEqual(range.highMidi)
     }
   })
 
-  it("keeps the range anchor note within the given range (minor)", () => {
+  it("keeps the range anchor note within the given range (major, bottom)", () => {
     const range = { lowMidi: 48, highMidi: 67 }
     for (let i = 0; i < 50; i++) {
-      const exercise = randomChordExercise(MINOR_TRIAD_SING_MIDDLE, "root", range)
+      const exercise = randomChordExercise(MAJOR_TRIAD, "root", 0, range)
       const anchor = chordTarget(exercise)
       expect(anchor.midi).toBeGreaterThanOrEqual(range.lowMidi)
       expect(anchor.midi).toBeLessThanOrEqual(range.highMidi)
     }
   })
 
-  it("keeps the range anchor note within the given range (diminished)", () => {
+  it("keeps the range anchor note within the given range (major, top)", () => {
     const range = { lowMidi: 48, highMidi: 67 }
     for (let i = 0; i < 50; i++) {
-      const exercise = randomChordExercise(DIMINISHED_TRIAD_SING_MIDDLE, "root", range)
+      const exercise = randomChordExercise(MAJOR_TRIAD, "root", 2, range)
       const anchor = chordTarget(exercise)
       expect(anchor.midi).toBeGreaterThanOrEqual(range.lowMidi)
       expect(anchor.midi).toBeLessThanOrEqual(range.highMidi)
@@ -201,53 +208,10 @@ describe("randomDiminishedTriadWithMiddleInRange", () => {
 })
 
 describe("chord config", () => {
-  beforeEach(() => {
-    resetChordTypePreference()
-    resetInversionPreference()
-  })
-
-  afterEach(() => {
-    resetChordTypePreference()
-    resetInversionPreference()
-  })
-
-  it("includes major, minor, and diminished triads when enabled", () => {
+  it("includes major and minor triads when enabled", () => {
     const ids = enabledChordTypes().map((t) => t.id)
-    expect(ids).toContain("major-triad-sing-middle")
-    expect(ids).toContain("minor-triad-sing-middle")
-    expect(ids).toContain("diminished-triad-sing-middle")
-  })
-
-  it("randomEnabledChordExercise uses only selected types", () => {
-    const range = { lowMidi: 48, highMidi: 67 }
-    const activeIds = new Set(getActiveChordTypes().map((t) => t.id))
-    for (let i = 0; i < 80; i++) {
-      expect(activeIds).toContain(pickRandomChordType().id)
-      randomEnabledChordExercise(range)
-    }
-  })
-
-  it("respects user chord type selection", () => {
-    setChordTypeSelected("major-triad-sing-middle", false)
-    setChordTypeSelected("minor-triad-sing-middle", false)
-
-    const activeIds = getActiveChordTypes().map((t) => t.id)
-    expect(activeIds).toEqual(["diminished-triad-sing-middle"])
-
-    for (let i = 0; i < 30; i++) {
-      expect(pickRandomChordType().id).toBe("diminished-triad-sing-middle")
-    }
-  })
-
-  it("respects user inversion selection", () => {
-    setInversionSelected("root", false)
-    setInversionSelected("second", false)
-
-    const activeIds = getActiveInversions().map((inv) => inv.id)
-    expect(activeIds).toEqual(["first"])
-
-    for (let i = 0; i < 30; i++) {
-      expect(pickRandomInversion()).toBe("first")
-    }
+    expect(ids).toContain("major-triad")
+    expect(ids).toContain("minor-triad")
+    expect(ids).not.toContain("diminished-triad")
   })
 })

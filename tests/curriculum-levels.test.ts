@@ -11,7 +11,7 @@ describe("curriculum levels", () => {
       "interval-melodic-id",
       "interval-harmonic-id",
       "scale-degree-sing",
-      "chord-middle",
+      "chord-sing",
     ])
   })
 

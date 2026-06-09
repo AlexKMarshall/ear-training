@@ -8,7 +8,7 @@ import {
   mountIntervalNamedSingTest,
 } from "../ui/interval-tests.ts"
 import { mountScaleDegreeSingTest } from "../ui/scale-degree-tests.ts"
-import { mountChordMiddleTest, mountSingleNoteTest } from "../ui/tests.ts"
+import { mountChordSingTest, mountSingleNoteTest } from "../ui/tests.ts"
 
 export type ResponseMode = "sing" | "select"
 
@@ -31,12 +31,12 @@ const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
     mount: mountSingleNoteTest,
   },
   {
-    id: "chord-middle",
+    id: "chord-sing",
     responseMode: "sing",
-    route: "/chord-middle/",
-    title: "Sing the middle note",
-    subtitle: "Hear a chord and sing the middle note",
-    mount: mountChordMiddleTest,
+    route: "/chord-sing/",
+    title: "Sing chord voices",
+    subtitle: "Hear a triad and sing the prompted voice",
+    mount: mountChordSingTest,
   },
   {
     id: "interval-melodic-sing",

@@ -5,9 +5,9 @@ import {
   passingIntroScaleDegreeHistory,
   passingLevel2History,
   passingMajorDiatonicScaleDegreeHistory,
-  passingMinorDiatonicScaleDegreeHistory,
   passingSingleNoteHistory,
   passingThroughHarmonic2bHistory,
+  passingThroughHarmonicSing2aHistory,
   passingThroughMelodic2bHistory,
 } from "../fixtures/attempts.ts"
 import { mountHomeWithHistory, setUnlockAllSearch } from "./helpers/mount.ts"
@@ -111,10 +111,10 @@ test("after harmonic 2b complete: major diatonic scale degrees is the current li
   await expect
     .element(
       guidedPath().getByRole("link", {
-        name: /Chords.*major vs minor/i,
+        name: /Chords.*Major triad.*root position.*Complete/i,
       }),
     )
-    .not.toBeInTheDocument()
+    .toBeVisible()
 })
 
 test("after major diatonic scale degrees complete: minor diatonic is the current link", async () => {
@@ -128,12 +128,12 @@ test("after major diatonic scale degrees complete: minor diatonic is the current
     .toBeVisible()
 })
 
-test("after minor diatonic scale degrees complete: chord step is a link", async () => {
-  await mountHomeWithHistory(passingMinorDiatonicScaleDegreeHistory())
+test("after harmonic sing 2a complete: chord major root is the current link", async () => {
+  await mountHomeWithHistory(passingThroughHarmonicSing2aHistory())
   await expect
     .element(
       guidedPath().getByRole("link", {
-        name: /Chords.*major vs minor/i,
+        name: /Chords.*Major triad.*root position/i,
       }),
     )
     .toBeVisible()

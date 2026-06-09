@@ -3,17 +3,6 @@ export type ChordQualityIntervals = readonly [number, number, number]
 
 export type InversionId = "root" | "first" | "second"
 
-export interface ChordInversion {
-  id: InversionId
-  label: string
-}
-
-export const CHORD_INVERSIONS: readonly ChordInversion[] = [
-  { id: "root", label: "Root position" },
-  { id: "first", label: "1st inversion" },
-  { id: "second", label: "2nd inversion" },
-] as const
-
 function inversionIndex(id: InversionId): 0 | 1 | 2 {
   if (id === "root") return 0
   if (id === "first") return 1
@@ -32,13 +21,23 @@ function rotatedTones(
 }
 
 /**
- * Low-to-high voicing offsets relative to the middle pitch (index 1).
- * The middle pitch is always the note the user should sing.
+ * Low-to-high voicing offsets relative to the anchor pitch at `anchorIndex`.
+ * The anchor is the pitch the learner sings and must fall within voice range.
  */
+export function voicingOffsetsFromAnchor(
+  quality: ChordQualityIntervals,
+  inversion: InversionId,
+  anchorIndex: 0 | 1 | 2,
+): [number, number, number] {
+  const [low, mid, high] = rotatedTones(quality, inversionIndex(inversion))
+  const anchor = anchorIndex === 0 ? low : anchorIndex === 1 ? mid : high
+  return [low - anchor, mid - anchor, high - anchor]
+}
+
+/** @deprecated Use {@link voicingOffsetsFromAnchor} with anchor index 1. */
 export function voicingOffsetsForInversion(
   quality: ChordQualityIntervals,
   inversion: InversionId,
 ): [number, number, number] {
-  const [low, mid, high] = rotatedTones(quality, inversionIndex(inversion))
-  return [low - mid, 0, high - mid]
+  return voicingOffsetsFromAnchor(quality, inversion, 1)
 }

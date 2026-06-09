@@ -7,9 +7,9 @@ import {
   meetsCurriculumLessonThreshold,
 } from "./unlock.ts"
 
-export const CHORD_MIDDLE_CURRICULUM_LESSON: CurriculumLesson = {
-  practiceModeId: "chord-middle",
-  contentTierId: "chord-1a",
+export const CHORD_SING_MAJOR_ROOT_LESSON: CurriculumLesson = {
+  practiceModeId: "chord-sing",
+  contentTierId: "chord-major-root",
 }
 
 const INTERVAL_PRACTICE_MODE_IDS = [
@@ -30,7 +30,7 @@ function assertSessionPracticeMode(practiceModeId: PracticeModeId): void {
   if (
     !isIntervalPracticeMode(practiceModeId) &&
     practiceModeId !== "scale-degree-sing" &&
-    practiceModeId !== "chord-middle"
+    practiceModeId !== "chord-sing"
   ) {
     throw new Error(`No session curriculum lesson for practice mode: ${practiceModeId}`)
   }

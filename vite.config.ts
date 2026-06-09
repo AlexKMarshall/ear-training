@@ -11,7 +11,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, "index.html"),
         singleNote: resolve(__dirname, "single-note/index.html"),
-        chordMiddle: resolve(__dirname, "chord-middle/index.html"),
+        chordSing: resolve(__dirname, "chord-sing/index.html"),
         intervalMelodicSing: resolve(__dirname, "interval-melodic-sing/index.html"),
         intervalNamedSing: resolve(__dirname, "interval-named-sing/index.html"),
         intervalHarmonicSing: resolve(__dirname, "interval-harmonic-sing/index.html"),

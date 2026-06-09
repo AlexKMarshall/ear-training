@@ -16,10 +16,10 @@ import {
   passingLevel2History,
   passingMajorDiatonicScaleDegreeHistory,
   passingMelodicSing2bHistory,
-  passingMinorDiatonicScaleDegreeHistory,
   passingSingleNoteHistory,
   passingStepHistory,
   passingThroughHarmonic2bHistory,
+  passingThroughHarmonicSing2aHistory,
   passingThroughMelodic2bHistory,
 } from "./fixtures/attempts.ts"
 
@@ -28,16 +28,11 @@ describe("isPracticeModeUnlocked", () => {
     expect(isPracticeModeUnlocked("single-note", [])).toBe(true)
   })
 
-  it("locks chord-middle until minor diatonic scale degrees pass", () => {
-    expect(isPracticeModeUnlocked("chord-middle", [])).toBe(false)
-    expect(isPracticeModeUnlocked("chord-middle", passingLevel2History())).toBe(false)
-    expect(isPracticeModeUnlocked("chord-middle", passingThroughHarmonic2bHistory())).toBe(false)
-    expect(isPracticeModeUnlocked("chord-middle", passingMajorDiatonicScaleDegreeHistory())).toBe(
-      false,
-    )
-    expect(isPracticeModeUnlocked("chord-middle", passingMinorDiatonicScaleDegreeHistory())).toBe(
-      true,
-    )
+  it("locks chord-sing until interval 2a harmonic sing passes", () => {
+    expect(isPracticeModeUnlocked("chord-sing", [])).toBe(false)
+    expect(isPracticeModeUnlocked("chord-sing", passingSingleNoteHistory())).toBe(false)
+    expect(isPracticeModeUnlocked("chord-sing", passingThroughHarmonicSing2aHistory())).toBe(true)
+    expect(isPracticeModeUnlocked("chord-sing", passingThroughHarmonic2bHistory())).toBe(true)
   })
 
   it("locks path successors until the predecessor meets thresholds", () => {
@@ -296,11 +291,11 @@ describe("getContinueCurriculumLesson", () => {
     })
   })
 
-  it("advances to chord middle after minor diatonic scale degrees complete", () => {
-    expect(getContinuePracticeMode(passingMinorDiatonicScaleDegreeHistory())).toBe("chord-middle")
-    expect(getContinueCurriculumLesson(passingMinorDiatonicScaleDegreeHistory())).toEqual({
-      practiceModeId: "chord-middle",
-      contentTierId: "chord-1a",
+  it("advances to chord major root after interval 2a harmonic sing completes", () => {
+    expect(getContinuePracticeMode(passingThroughHarmonicSing2aHistory())).toBe("chord-sing")
+    expect(getContinueCurriculumLesson(passingThroughHarmonicSing2aHistory())).toEqual({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-major-root",
     })
   })
 })
@@ -351,21 +346,21 @@ describe("getUnlockRequirement", () => {
     expect(isCurriculumLessonUnlocked(majorDiatonic, passingThroughHarmonic2bHistory())).toBe(true)
   })
 
-  it("requires major diatonic scale degrees before chord middle", () => {
-    const minorDiatonic = {
-      practiceModeId: "scale-degree-sing" as const,
-      contentTierId: "degree-minor-diatonic" as const,
+  it("requires harmonic sing at 2a before chord major root", () => {
+    const chordMajorRoot = {
+      practiceModeId: "chord-sing" as const,
+      contentTierId: "chord-major-root" as const,
     }
-    expect(
-      isCurriculumLessonUnlocked(minorDiatonic, passingMajorDiatonicScaleDegreeHistory()),
-    ).toBe(true)
+    expect(isCurriculumLessonUnlocked(chordMajorRoot, passingSingleNoteHistory())).toBe(false)
+    expect(isCurriculumLessonUnlocked(chordMajorRoot, passingThroughHarmonicSing2aHistory())).toBe(
+      true,
+    )
   })
 
-  it("requires minor diatonic scale degrees before chord middle", () => {
-    expect(getUnlockRequirement("chord-middle")).toEqual({
-      predecessorPracticeModeId: "scale-degree-sing",
-      predecessorLabel:
-        "Sing scale degrees (natural minor key · diatonic degrees within one octave)",
+  it("describes harmonic sing predecessor for chord-sing", () => {
+    expect(getUnlockRequirement("chord-sing")).toEqual({
+      predecessorPracticeModeId: "interval-harmonic-sing",
+      predecessorLabel: "Sing harmonic intervals (perfect 4th, 5th, octave)",
       minExercisesForUnlock: MIN_EXERCISES_FOR_UNLOCK,
       minPassRatePercent: MIN_EXERCISE_PASS_RATE,
     })

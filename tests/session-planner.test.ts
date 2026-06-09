@@ -275,23 +275,15 @@ describe("planNextExerciseTag", () => {
     ).toBe(true)
   })
 
-  it("draws chord types from the chord-1a pool", () => {
+  it("draws voicing positions from the chord-major-root pool", () => {
     const step = {
-      practiceModeId: "chord-middle" as const,
-      contentTierId: "chord-1a" as const,
+      practiceModeId: "chord-sing" as const,
+      contentTierId: "chord-major-root" as const,
     }
     const counts = new Set<string>()
     for (let i = 0; i < 30; i++) {
       counts.add(planNextExerciseTag(step, []))
     }
-    expect(
-      [...counts].every((id) =>
-        [
-          "major-triad-sing-middle",
-          "minor-triad-sing-middle",
-          "diminished-triad-sing-middle",
-        ].includes(id),
-      ),
-    ).toBe(true)
+    expect([...counts].every((id) => ["bottom", "middle", "top"].includes(id))).toBe(true)
   })
 })
