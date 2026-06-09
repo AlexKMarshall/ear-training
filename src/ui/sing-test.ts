@@ -89,8 +89,8 @@ export function mountSingTest(
     if (config.exercisePrompt) {
       return config.exercisePrompt(exercise)
     }
-    if (exercise.scaleDegree) {
-      const label = getScaleDegreeById(exercise.degreeId ?? "")?.label ?? exercise.degreeId
+    if (exercise.type === "scale-degree") {
+      const label = getScaleDegreeById(exercise.degreeId)?.label ?? exercise.degreeId
       return label ? `Sing the ${label}` : null
     }
     return null

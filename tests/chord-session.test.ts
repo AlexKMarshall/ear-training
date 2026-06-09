@@ -43,7 +43,7 @@ describe("prepareChordExercise", () => {
 
     expect(exercise.voicingPositionId).toBe("top")
     expect(exercise.target.midi).toBe(55)
-    expect(exercise.chord?.targetIndex).toBe(2)
+    expect(exercise.chord.targetIndex).toBe(2)
   })
 
   it("draws major triad first inversion for chord-major-first tier", () => {

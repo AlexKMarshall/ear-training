@@ -71,12 +71,11 @@ export function mountIdentifyTest(
   })
 
   function rebuildChoices(exercise: LessonExercise): void {
-    if (!exercise.intervalId) {
+    if (exercise.type !== "interval") {
       currentChoices = []
       return
     }
-    const eligibleIds =
-      exercise.eligibleTagIds ?? (exercise.intervalId ? [exercise.intervalId] : [])
+    const eligibleIds = exercise.eligibleTagIds ?? [exercise.intervalId]
     currentChoices = buildIntervalChoices(exercise.intervalId, eligibleIds)
   }
 
@@ -116,7 +115,7 @@ export function mountIdentifyTest(
         }
       },
       scoreAnswer: (exercise, selectedId) => {
-        if (!exercise.intervalId) {
+        if (exercise.type !== "interval") {
           return { kind: "error", message: "Missing interval for scoring." }
         }
         const passed = selectedId === exercise.intervalId
@@ -158,7 +157,7 @@ export function mountIdentifyTest(
 
   async function handleChoice(selectedId: string): Promise<void> {
     const snapshot = exerciseScreen.getSnapshot()
-    if (snapshot.phase !== "ready" || !snapshot.currentExercise?.intervalId) {
+    if (snapshot.phase !== "ready" || snapshot.currentExercise?.type !== "interval") {
       return
     }
 

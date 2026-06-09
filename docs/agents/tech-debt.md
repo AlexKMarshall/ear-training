@@ -40,7 +40,7 @@ When a feature PR touches an area with open debt:
 Examples:
 
 - **Session planner work** — consider TD-003, TD-005, TD-007, TD-011 in scope.
-- **New identify exercise** — TD-001, TD-006 are likely blockers; do not add another one-off identify mount without a plan.
+- **New identify exercise** — TD-001 is a likely blocker; do not add another one-off identify mount without a plan.
 - **Tooling PR** — TD-014 / TD-015 can be one focused PR series.
 
 ---

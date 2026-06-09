@@ -166,7 +166,7 @@ function createSingTestConfigFor(
     case "single-note":
       return {
         ...singleNoteTestConfig,
-        prepareExercise: () => ({ target: { ...fixedSingleNoteTarget } }),
+        prepareExercise: () => ({ type: "single-note", target: { ...fixedSingleNoteTarget } }),
         playReference: async () => {},
         ...overrides,
       }
@@ -175,6 +175,7 @@ function createSingTestConfigFor(
         ...chordSingTestConfig,
         lessonBanner: getChordLessonBannerLabel("chord-major-root"),
         prepareExercise: () => ({
+          type: "chord",
           target: chordTarget(fixedChordExercise),
           chord: fixedChordExercise,
           chordTypeId: MAJOR_TRIAD.id,

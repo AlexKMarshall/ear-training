@@ -29,6 +29,7 @@ export const singleNoteTestConfig: SingTestConfig = {
     failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
   },
   prepareExercise: () => ({
+    type: "single-note",
     target: randomNoteInRange(getActiveNoteRange()),
   }),
   playReference: (exercise) => playTargetNote(exercise.target.midi),
@@ -42,7 +43,7 @@ const chordSingBase = {
   showVoicePicker: true,
   exercisePromptFromDraw: true,
   exercisePrompt: (exercise: Parameters<NonNullable<SingTestConfig["exercisePrompt"]>>[0]) => {
-    if (!exercise.voicingPositionId) {
+    if (exercise.type !== "chord") {
       throw new Error("Missing voicing position for chord exercise")
     }
     return exercisePromptForVoicingPosition(exercise.voicingPositionId)
@@ -58,7 +59,7 @@ const chordSingBase = {
     failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
   },
   playReference: (exercise: Parameters<SingTestConfig["playReference"]>[0]) => {
-    if (!exercise.chord) {
+    if (exercise.type !== "chord") {
       throw new Error("Missing chord for playback")
     }
     return playChord(chordMidis(exercise.chord))

@@ -65,7 +65,8 @@ describe("buildScaleDegreeExercise", () => {
     expect(sing.target.midi).toBe(67)
     expect(exercise.degreeId).toBe("fifth")
     expect(sing.degreeId).toBe("fifth")
-    expect(sing.scaleDegree?.tonic.midi).toBe(60)
+    expect(sing.type).toBe("scale-degree")
+    expect(sing.scaleDegree.tonic.midi).toBe(60)
   })
 })
 
