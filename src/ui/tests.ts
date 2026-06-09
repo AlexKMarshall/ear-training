@@ -1,6 +1,7 @@
 import { playChord, playTargetNote } from "../audio/playback.ts"
 import { chordMidis } from "../chords.ts"
 import { getChordLessonBannerLabel, isChordContentTierId } from "../curriculum/chord-tiers.ts"
+import type { SingExerciseDefinition } from "../exercise-definition.ts"
 import type { MountDeps } from "../history/port.ts"
 import { randomNoteInRange } from "../notes.ts"
 import { getActiveNoteRange } from "../voice-ranges.ts"
@@ -10,29 +11,46 @@ import {
   prepareChordExercise,
   resolveChordSession,
 } from "./chord-session.ts"
+import { mountExercise } from "./mount-exercise.ts"
+import { scoreSingFromSamples } from "./sing-scoring.ts"
 import { mountSingTest, type SingMountDeps, type SingTestConfig } from "./sing-test.ts"
 
-export const singleNoteTestConfig: SingTestConfig = {
+const singleNoteStatus = {
+  idle: "Press Play to hear the reference note.",
+  playing: "Listen…",
+  ready: "Sing the note you heard, then tap Start singing when ready.",
+  recording:
+    "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
+  pass: "Correct — tap Next exercise when you are ready.",
+  fail: "Try again on this exercise (up to 3 tries).",
+  failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
+} as const
+
+export const singleNoteExerciseDefinition: SingExerciseDefinition = {
   practiceModeId: "single-note",
+  responseMode: "sing",
   title: "Sing a single note",
   subtitle: "Sing back the note you hear",
   playButtonLabel: "Play note",
   showVoicePicker: true,
-  status: {
-    idle: "Press Play to hear the reference note.",
-    playing: "Listen…",
-    ready: "Sing the note you heard, then tap Start singing when ready.",
-    recording:
-      "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
-    pass: "Correct — tap Next exercise when you are ready.",
-    fail: "Try again on this exercise (up to 3 tries).",
-    failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
-  },
+  status: singleNoteStatus,
   prepareExercise: () => ({
     type: "single-note",
     target: randomNoteInRange(getActiveNoteRange()),
   }),
   playReference: (exercise) => playTargetNote(exercise.target.midi),
+  scoreAnswer: scoreSingFromSamples,
+}
+
+export const singleNoteTestConfig: SingTestConfig = {
+  practiceModeId: singleNoteExerciseDefinition.practiceModeId,
+  title: singleNoteExerciseDefinition.title,
+  subtitle: singleNoteExerciseDefinition.subtitle,
+  playButtonLabel: singleNoteExerciseDefinition.playButtonLabel,
+  showVoicePicker: singleNoteExerciseDefinition.showVoicePicker,
+  status: { ...singleNoteExerciseDefinition.status, recording: singleNoteStatus.recording },
+  prepareExercise: singleNoteExerciseDefinition.prepareExercise,
+  playReference: singleNoteExerciseDefinition.playReference,
 }
 
 const chordSingBase = {
@@ -71,8 +89,8 @@ export const chordSingTestConfig: SingTestConfig = {
   prepareExercise: () => prepareChordExercise([]),
 }
 
-export function mountSingleNoteTest(root: HTMLElement, _deps?: MountDeps & SingMountDeps): void {
-  mountSingTest(root, singleNoteTestConfig)
+export function mountSingleNoteTest(root: HTMLElement, deps?: MountDeps & SingMountDeps): void {
+  mountExercise(root, singleNoteExerciseDefinition, deps)
 }
 
 export function mountChordSingTest(

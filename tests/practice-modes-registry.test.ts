@@ -14,7 +14,11 @@ import {
 } from "../src/ui/interval-tests.ts"
 import { scaleDegreeSingConfig } from "../src/ui/scale-degree-tests.ts"
 import type { SingTestConfig } from "../src/ui/sing-test.ts"
-import { chordSingTestConfig, singleNoteTestConfig } from "../src/ui/tests.ts"
+import {
+  chordSingTestConfig,
+  singleNoteExerciseDefinition,
+  singleNoteTestConfig,
+} from "../src/ui/tests.ts"
 
 const SING_CONFIGS: Record<PracticeModeId, SingTestConfig | undefined> = {
   "single-note": singleNoteTestConfig,
@@ -93,5 +97,11 @@ describe("exercise registry contract", () => {
       expect(IDENTIFY_CONFIGS[id]).toBeDefined()
       expect(SING_CONFIGS[id]).toBeUndefined()
     }
+  })
+
+  it("holds exercise definition for migrated single-note mode", () => {
+    const entry = PRACTICE_MODES.find((e) => e.id === "single-note")
+    expect(entry?.definition).toBe(singleNoteExerciseDefinition)
+    expect(entry?.definition?.responseMode).toBe("sing")
   })
 })
