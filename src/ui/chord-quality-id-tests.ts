@@ -6,17 +6,15 @@ import {
   getChordQualityIdLessonBannerLabel,
   isChordQualityIdContentTierId,
 } from "../curriculum/chord-tiers.ts"
+import type { SelectExerciseDefinition } from "../exercise-definition.ts"
+import { selectScoreFromChoice } from "../exercise-definition.ts"
 import type { LessonExercise } from "../lesson-exercise.ts"
 import {
   type ChordIdentifySessionDeps,
   prepareChordQualityIdExercise,
   resolveChordIdentifySession,
 } from "./chord-identify-session.ts"
-import {
-  type IdentifyMountDeps,
-  type IdentifyTestConfig,
-  mountIdentifyTest,
-} from "./identify-test.ts"
+import { type ExerciseMountDeps, mountExercise } from "./mount-exercise.ts"
 
 const chordQualityIdBase = {
   practiceModeId: "chord-quality-id" as const,
@@ -53,14 +51,16 @@ const chordQualityIdBase = {
   },
 }
 
-export const chordQualityIdConfig: IdentifyTestConfig = {
+export const chordQualityIdExerciseDefinition: SelectExerciseDefinition = {
   ...chordQualityIdBase,
+  responseMode: "select",
+  scoreAnswer: selectScoreFromChoice(chordQualityIdBase),
   prepareExercise: () => prepareChordQualityIdExercise([]),
 }
 
 export function mountChordQualityIdTest(
   root: HTMLElement,
-  deps?: ChordIdentifySessionDeps & IdentifyMountDeps,
+  deps?: ChordIdentifySessionDeps & ExerciseMountDeps,
 ): void {
   const { sessionHistory, planner, rng } = resolveChordIdentifySession(deps ?? {})
   const tierId = deps?.sessionCurriculumLesson?.contentTierId ?? "chord-quality-root"
@@ -71,10 +71,10 @@ export function mountChordQualityIdTest(
     ? getChordQualityIdExerciseSubtitle(tierId)
     : chordQualityIdBase.subtitle
 
-  mountIdentifyTest(
+  mountExercise(
     root,
     {
-      ...chordQualityIdBase,
+      ...chordQualityIdExerciseDefinition,
       subtitle,
       lessonBanner,
       prepareExercise: () =>

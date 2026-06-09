@@ -3,6 +3,7 @@ import { chordMidis } from "../chords.ts"
 import { getChordLessonBannerLabel, isChordContentTierId } from "../curriculum/chord-tiers.ts"
 import type { SingExerciseDefinition } from "../exercise-definition.ts"
 import type { MountDeps } from "../history/port.ts"
+import type { LessonExercise } from "../lesson-exercise.ts"
 import { randomNoteInRange } from "../notes.ts"
 import { getActiveNoteRange } from "../voice-ranges.ts"
 import { exercisePromptForVoicingPosition } from "../voicing-position.ts"
@@ -11,9 +12,8 @@ import {
   prepareChordExercise,
   resolveChordSession,
 } from "./chord-session.ts"
-import { mountExercise } from "./mount-exercise.ts"
+import { type ExerciseMountDeps, mountExercise } from "./mount-exercise.ts"
 import { scoreSingFromSamples } from "./sing-scoring.ts"
-import type { SingMountDeps, SingTestConfig } from "./sing-test.ts"
 
 const singleNoteStatus = {
   idle: "Press Play to hear the reference note.",
@@ -42,17 +42,6 @@ export const singleNoteExerciseDefinition: SingExerciseDefinition = {
   scoreAnswer: scoreSingFromSamples,
 }
 
-export const singleNoteTestConfig: SingTestConfig = {
-  practiceModeId: singleNoteExerciseDefinition.practiceModeId,
-  title: singleNoteExerciseDefinition.title,
-  subtitle: singleNoteExerciseDefinition.subtitle,
-  playButtonLabel: singleNoteExerciseDefinition.playButtonLabel,
-  showVoicePicker: singleNoteExerciseDefinition.showVoicePicker,
-  status: { ...singleNoteExerciseDefinition.status, recording: singleNoteStatus.recording },
-  prepareExercise: singleNoteExerciseDefinition.prepareExercise,
-  playReference: singleNoteExerciseDefinition.playReference,
-}
-
 const chordSingStatus = {
   idle: "Press Play to hear the chord.",
   playing: "Listen to the chord…",
@@ -71,14 +60,14 @@ const chordSingBase = {
   playButtonLabel: "Play chord",
   showVoicePicker: true,
   exercisePromptFromDraw: true,
-  exercisePrompt: (exercise: Parameters<NonNullable<SingTestConfig["exercisePrompt"]>>[0]) => {
+  exercisePrompt: (exercise: LessonExercise) => {
     if (exercise.type !== "chord" || exercise.voicingPositionId === undefined) {
       throw new Error("Missing voicing position for chord exercise")
     }
     return exercisePromptForVoicingPosition(exercise.voicingPositionId)
   },
   status: chordSingStatus,
-  playReference: (exercise: Parameters<SingTestConfig["playReference"]>[0]) => {
+  playReference: (exercise: LessonExercise) => {
     if (exercise.type !== "chord") {
       throw new Error("Missing chord for playback")
     }
@@ -93,26 +82,13 @@ export const chordSingExerciseDefinition: SingExerciseDefinition = {
   prepareExercise: () => prepareChordExercise([]),
 }
 
-export const chordSingTestConfig: SingTestConfig = {
-  practiceModeId: chordSingExerciseDefinition.practiceModeId,
-  title: chordSingExerciseDefinition.title,
-  subtitle: chordSingExerciseDefinition.subtitle,
-  playButtonLabel: chordSingExerciseDefinition.playButtonLabel,
-  showVoicePicker: chordSingExerciseDefinition.showVoicePicker,
-  exercisePromptFromDraw: chordSingExerciseDefinition.exercisePromptFromDraw,
-  exercisePrompt: chordSingExerciseDefinition.exercisePrompt,
-  status: { ...chordSingExerciseDefinition.status, recording: chordSingStatus.recording },
-  prepareExercise: chordSingExerciseDefinition.prepareExercise,
-  playReference: chordSingExerciseDefinition.playReference,
-}
-
-export function mountSingleNoteTest(root: HTMLElement, deps?: MountDeps & SingMountDeps): void {
+export function mountSingleNoteTest(root: HTMLElement, deps?: MountDeps & ExerciseMountDeps): void {
   mountExercise(root, singleNoteExerciseDefinition, deps)
 }
 
 export function mountChordSingTest(
   root: HTMLElement,
-  deps?: ChordSessionDeps & SingMountDeps,
+  deps?: ChordSessionDeps & ExerciseMountDeps,
 ): void {
   const { sessionHistory, planner, rng } = resolveChordSession(deps ?? {})
   const tierId = deps?.sessionCurriculumLesson?.contentTierId ?? "chord-major-root"

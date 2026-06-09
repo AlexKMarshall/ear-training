@@ -1,10 +1,18 @@
 import type { ExerciseDefinition } from "../exercise-definition.ts"
 import type { MountDeps } from "../history/port.ts"
 import type { PracticeModeId } from "../history/types.ts"
-import { mountChordInversionIdTest } from "../ui/chord-inversion-id-tests.ts"
-import { mountChordQualityIdTest } from "../ui/chord-quality-id-tests.ts"
 import {
+  chordInversionIdExerciseDefinition,
+  mountChordInversionIdTest,
+} from "../ui/chord-inversion-id-tests.ts"
+import {
+  chordQualityIdExerciseDefinition,
+  mountChordQualityIdTest,
+} from "../ui/chord-quality-id-tests.ts"
+import {
+  intervalHarmonicIdExerciseDefinition,
   intervalHarmonicSingExerciseDefinition,
+  intervalMelodicIdExerciseDefinition,
   intervalMelodicSingExerciseDefinition,
   intervalNamedSingExerciseDefinition,
   mountIntervalHarmonicIdTest,
@@ -65,6 +73,9 @@ const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
     route: "/chord-quality-id/",
     title: "Chords",
     subtitle: "Quality identification · root position",
+    get definition() {
+      return chordQualityIdExerciseDefinition
+    },
     mount: mountChordQualityIdTest,
   },
   {
@@ -73,6 +84,9 @@ const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
     route: "/chord-inversion-id/",
     title: "Chords",
     subtitle: "Inversion identification · major triad",
+    get definition() {
+      return chordInversionIdExerciseDefinition
+    },
     mount: mountChordInversionIdTest,
   },
   {
@@ -114,6 +128,9 @@ const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
     route: "/interval-melodic-id/",
     title: "Identify melodic intervals",
     subtitle: "Hear two notes in sequence, then choose the interval",
+    get definition() {
+      return intervalMelodicIdExerciseDefinition
+    },
     mount: mountIntervalMelodicIdTest,
   },
   {
@@ -122,6 +139,9 @@ const PRACTICE_MODE_ENTRIES: readonly PracticeModeEntry[] = [
     route: "/interval-harmonic-id/",
     title: "Identify harmonic intervals",
     subtitle: "Hear two notes together, then choose the interval",
+    get definition() {
+      return intervalHarmonicIdExerciseDefinition
+    },
     mount: mountIntervalHarmonicIdTest,
   },
   {
