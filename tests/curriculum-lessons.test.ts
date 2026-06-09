@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest"
 import {
+  getChordInversionIdExerciseSubtitle,
   getChordInversionIdLessonBannerLabel,
   getChordInversionIdTierConfig,
   getChordLessonBannerLabel,
+  getChordQualityIdExerciseSubtitle,
   getChordQualityIdLessonBannerLabel,
   getChordQualityIdTierConfig,
   getChordTierConfig,
@@ -378,6 +380,12 @@ describe("curriculum steps", () => {
     })
     expect(getChordInversionIdLessonBannerLabel("chord-inversion-major")).toBe("Major triad")
     expect(getChordInversionIdLessonBannerLabel("chord-inversion-minor")).toBe("Minor triad")
+    expect(getChordQualityIdExerciseSubtitle("chord-quality-second")).toBe(
+      "Quality identification · 2nd inversion",
+    )
+    expect(getChordInversionIdExerciseSubtitle("chord-inversion-minor")).toBe(
+      "Inversion identification · minor triad",
+    )
     const inversionMajor = findCurriculumLesson(
       (s) =>
         s.practiceModeId === "chord-inversion-id" && s.contentTierId === "chord-inversion-major",

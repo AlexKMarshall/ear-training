@@ -71,6 +71,10 @@ export function getChordQualityIdLessonBannerLabel(tierId: ChordQualityIdContent
   }
 }
 
+export function getChordQualityIdExerciseSubtitle(tierId: ChordQualityIdContentTierId): string {
+  return `Quality identification · ${getChordQualityIdLessonBannerLabel(tierId).toLowerCase()}`
+}
+
 export function getEligibleTriadQualityIds(): readonly ["major-triad", "minor-triad"] {
   return ["major-triad", "minor-triad"]
 }
@@ -102,6 +106,10 @@ export function getChordInversionIdLessonBannerLabel(
     case "chord-inversion-minor":
       return "Minor triad"
   }
+}
+
+export function getChordInversionIdExerciseSubtitle(tierId: ChordInversionIdContentTierId): string {
+  return `Inversion identification · ${getChordInversionIdLessonBannerLabel(tierId).toLowerCase()}`
 }
 
 export function getEligibleInversionIds(): readonly InversionId[] {

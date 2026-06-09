@@ -1,9 +1,9 @@
 import type { AttemptRecord, PracticeModeId } from "../history/types.ts"
 import { getPracticeMode } from "../practice-modes/registry.ts"
 import {
-  getChordInversionIdLessonBannerLabel,
+  getChordInversionIdExerciseSubtitle,
   getChordLessonBannerLabel,
-  getChordQualityIdLessonBannerLabel,
+  getChordQualityIdExerciseSubtitle,
   isChordContentTierId,
   isChordInversionIdContentTierId,
   isChordQualityIdContentTierId,
@@ -134,7 +134,7 @@ function defaultPathNodeLabels(step: CurriculumLesson): PathNodeLabels {
   ) {
     return {
       title,
-      subtitle: `Quality identification · ${getChordQualityIdLessonBannerLabel(step.contentTierId).toLowerCase()}`,
+      subtitle: getChordQualityIdExerciseSubtitle(step.contentTierId),
     }
   }
 
@@ -144,7 +144,7 @@ function defaultPathNodeLabels(step: CurriculumLesson): PathNodeLabels {
   ) {
     return {
       title,
-      subtitle: `Inversion identification · ${getChordInversionIdLessonBannerLabel(step.contentTierId).toLowerCase()}`,
+      subtitle: getChordInversionIdExerciseSubtitle(step.contentTierId),
     }
   }
 

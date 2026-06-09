@@ -3,6 +3,7 @@ import { buildInversionChoices } from "../chord-identify-choices.ts"
 import type { InversionId } from "../chord-inversions.ts"
 import { chordMidis } from "../chords.ts"
 import {
+  getChordInversionIdExerciseSubtitle,
   getChordInversionIdLessonBannerLabel,
   isChordInversionIdContentTierId,
 } from "../curriculum/chord-tiers.ts"
@@ -67,11 +68,15 @@ export function mountChordInversionIdTest(
   const lessonBanner = isChordInversionIdContentTierId(tierId)
     ? getChordInversionIdLessonBannerLabel(tierId)
     : undefined
+  const subtitle = isChordInversionIdContentTierId(tierId)
+    ? getChordInversionIdExerciseSubtitle(tierId)
+    : chordInversionIdBase.subtitle
 
   mountIdentifyTest(
     root,
     {
       ...chordInversionIdBase,
+      subtitle,
       lessonBanner,
       prepareExercise: () =>
         prepareChordInversionIdExercise(

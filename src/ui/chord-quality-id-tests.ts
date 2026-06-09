@@ -2,6 +2,7 @@ import { playChord } from "../audio/playback.ts"
 import { buildTriadQualityChoices } from "../chord-identify-choices.ts"
 import { chordMidis } from "../chords.ts"
 import {
+  getChordQualityIdExerciseSubtitle,
   getChordQualityIdLessonBannerLabel,
   isChordQualityIdContentTierId,
 } from "../curriculum/chord-tiers.ts"
@@ -66,11 +67,15 @@ export function mountChordQualityIdTest(
   const lessonBanner = isChordQualityIdContentTierId(tierId)
     ? getChordQualityIdLessonBannerLabel(tierId)
     : undefined
+  const subtitle = isChordQualityIdContentTierId(tierId)
+    ? getChordQualityIdExerciseSubtitle(tierId)
+    : chordQualityIdBase.subtitle
 
   mountIdentifyTest(
     root,
     {
       ...chordQualityIdBase,
+      subtitle,
       lessonBanner,
       prepareExercise: () =>
         prepareChordQualityIdExercise(
