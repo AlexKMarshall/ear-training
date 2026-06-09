@@ -7,17 +7,15 @@ import {
   getChordInversionIdLessonBannerLabel,
   isChordInversionIdContentTierId,
 } from "../curriculum/chord-tiers.ts"
+import type { SelectExerciseDefinition } from "../exercise-definition.ts"
+import { selectScoreFromChoice } from "../exercise-definition.ts"
 import type { LessonExercise } from "../lesson-exercise.ts"
 import {
   type ChordIdentifySessionDeps,
   prepareChordInversionIdExercise,
   resolveChordIdentifySession,
 } from "./chord-identify-session.ts"
-import {
-  type IdentifyMountDeps,
-  type IdentifyTestConfig,
-  mountIdentifyTest,
-} from "./identify-test.ts"
+import { type ExerciseMountDeps, mountExercise } from "./mount-exercise.ts"
 
 const chordInversionIdBase = {
   practiceModeId: "chord-inversion-id" as const,
@@ -54,14 +52,16 @@ const chordInversionIdBase = {
   },
 }
 
-export const chordInversionIdConfig: IdentifyTestConfig = {
+export const chordInversionIdExerciseDefinition: SelectExerciseDefinition = {
   ...chordInversionIdBase,
+  responseMode: "select",
+  scoreAnswer: selectScoreFromChoice(chordInversionIdBase),
   prepareExercise: () => prepareChordInversionIdExercise([]),
 }
 
 export function mountChordInversionIdTest(
   root: HTMLElement,
-  deps?: ChordIdentifySessionDeps & IdentifyMountDeps,
+  deps?: ChordIdentifySessionDeps & ExerciseMountDeps,
 ): void {
   const { sessionHistory, planner, rng } = resolveChordIdentifySession(deps ?? {})
   const tierId = deps?.sessionCurriculumLesson?.contentTierId ?? "chord-inversion-major"
@@ -72,10 +72,10 @@ export function mountChordInversionIdTest(
     ? getChordInversionIdExerciseSubtitle(tierId)
     : chordInversionIdBase.subtitle
 
-  mountIdentifyTest(
+  mountExercise(
     root,
     {
-      ...chordInversionIdBase,
+      ...chordInversionIdExerciseDefinition,
       subtitle,
       lessonBanner,
       prepareExercise: () =>

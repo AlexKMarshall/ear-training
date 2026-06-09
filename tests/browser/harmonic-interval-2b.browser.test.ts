@@ -8,7 +8,7 @@ import { mountIntervalHarmonicIdTest } from "../../src/ui/interval-tests.ts"
 import { passingStepHistory, passingThroughMelodicId2bHistory } from "../fixtures/attempts.ts"
 import { defined } from "../helpers/defined.ts"
 import {
-  createHarmonicSingTestConfig,
+  createHarmonicSingDefinition,
   createTestSessionHistory,
   defaultPassSamplesHzFor,
   mountPracticeModeInBrowser,
@@ -27,7 +27,7 @@ beforeEach(() => {
 
 test("harmonic sing at interval-2b saves attempt with 2b tier metadata", async () => {
   const { history } = mountPracticeModeInBrowser("interval-harmonic-sing", {
-    config: createHarmonicSingTestConfig({
+    definition: createHarmonicSingDefinition({
       prepareExercise: () => ({
         ...intervalToLessonExercise(buildIntervalExercise(perfectFifth, "harmonic", 60)),
         contentTierId: harmonicSing2bStep.contentTierId,

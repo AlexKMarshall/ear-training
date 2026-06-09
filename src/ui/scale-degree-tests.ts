@@ -1,15 +1,15 @@
 import { playTargetNote } from "../audio/playback.ts"
 import { getScaleDegreeKeyQualityLabel } from "../curriculum/scale-degree-tiers.ts"
 import type { SingExerciseDefinition } from "../exercise-definition.ts"
+import type { LessonExercise } from "../lesson-exercise.ts"
 import { getScaleDegreeById } from "../scale-degree-config.ts"
-import { mountExercise } from "./mount-exercise.ts"
+import { type ExerciseMountDeps, mountExercise } from "./mount-exercise.ts"
 import {
   prepareScaleDegreeExercise,
   resolveScaleDegreeSession,
   type ScaleDegreeSessionDeps,
 } from "./scale-degree-session.ts"
 import { scoreSingFromSamples } from "./sing-scoring.ts"
-import type { SingMountDeps, SingTestConfig } from "./sing-test.ts"
 
 const scaleDegreeSingStatus = {
   idle: "Press Play to hear the tonic for this lesson.",
@@ -29,13 +29,13 @@ const scaleDegreeSingBase = {
   playButtonLabel: "Play tonic",
   showVoicePicker: true,
   status: scaleDegreeSingStatus,
-  playReference: (exercise: Parameters<SingTestConfig["playReference"]>[0]) => {
+  playReference: (exercise: LessonExercise) => {
     if (exercise.type !== "scale-degree") {
       throw new Error("Missing scale degree for playback")
     }
     return playTargetNote(exercise.scaleDegree.tonic.midi)
   },
-  exercisePrompt: (exercise: Parameters<NonNullable<SingTestConfig["exercisePrompt"]>>[0]) => {
+  exercisePrompt: (exercise: LessonExercise) => {
     if (exercise.type !== "scale-degree") {
       throw new Error("Missing scale degree for prompt")
     }
@@ -51,24 +51,9 @@ export const scaleDegreeSingExerciseDefinition: SingExerciseDefinition = {
   prepareExercise: () => prepareScaleDegreeExercise([], null).exercise,
 }
 
-export const scaleDegreeSingConfig: SingTestConfig = {
-  practiceModeId: scaleDegreeSingExerciseDefinition.practiceModeId,
-  title: scaleDegreeSingExerciseDefinition.title,
-  subtitle: scaleDegreeSingExerciseDefinition.subtitle,
-  playButtonLabel: scaleDegreeSingExerciseDefinition.playButtonLabel,
-  showVoicePicker: scaleDegreeSingExerciseDefinition.showVoicePicker,
-  exercisePrompt: scaleDegreeSingExerciseDefinition.exercisePrompt,
-  status: {
-    ...scaleDegreeSingExerciseDefinition.status,
-    recording: scaleDegreeSingStatus.recording,
-  },
-  prepareExercise: scaleDegreeSingExerciseDefinition.prepareExercise,
-  playReference: scaleDegreeSingExerciseDefinition.playReference,
-}
-
 export function mountScaleDegreeSingTest(
   root: HTMLElement,
-  deps?: ScaleDegreeSessionDeps & SingMountDeps,
+  deps?: ScaleDegreeSessionDeps & ExerciseMountDeps,
 ): void {
   const { sessionHistory, planner } = resolveScaleDegreeSession(deps ?? {})
   let lessonTonicMidi: number | null = null

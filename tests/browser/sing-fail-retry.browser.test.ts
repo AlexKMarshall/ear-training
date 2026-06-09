@@ -61,7 +61,7 @@ test("chord sing: fail shows retry and records failed attempt", async () => {
 
 test("chord sing minor second: shows 2nd inversion lesson banner", async () => {
   mountPracticeModeInBrowser("chord-sing", {
-    config: {
+    definition: {
       lessonBanner: getChordLessonBannerLabel("chord-minor-second"),
     },
   })

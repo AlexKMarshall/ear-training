@@ -1,15 +1,18 @@
 import { describe, expect, it } from "vitest"
 import { CURRICULUM_PATH } from "../src/curriculum/levels.ts"
-import type { SingExerciseDefinition } from "../src/exercise-definition.ts"
+import type {
+  ExerciseDefinition,
+  SelectExerciseDefinition,
+  SingExerciseDefinition,
+} from "../src/exercise-definition.ts"
 import { PRACTICE_MODE_LABELS, type PracticeModeId } from "../src/history/types.ts"
 import { PRACTICE_MODES, type ResponseMode } from "../src/practice-modes/registry.ts"
-import { chordInversionIdConfig } from "../src/ui/chord-inversion-id-tests.ts"
-import { chordQualityIdConfig } from "../src/ui/chord-quality-id-tests.ts"
-import type { IdentifyTestConfig } from "../src/ui/identify-test.ts"
+import { chordInversionIdExerciseDefinition } from "../src/ui/chord-inversion-id-tests.ts"
+import { chordQualityIdExerciseDefinition } from "../src/ui/chord-quality-id-tests.ts"
 import {
-  intervalHarmonicIdConfig,
+  intervalHarmonicIdExerciseDefinition,
   intervalHarmonicSingExerciseDefinition,
-  intervalMelodicIdConfig,
+  intervalMelodicIdExerciseDefinition,
   intervalMelodicSingExerciseDefinition,
   intervalNamedSingExerciseDefinition,
 } from "../src/ui/interval-tests.ts"
@@ -29,23 +32,20 @@ const SING_DEFINITIONS: Record<PracticeModeId, SingExerciseDefinition | undefine
   "scale-degree-sing": scaleDegreeSingExerciseDefinition,
 }
 
-const IDENTIFY_CONFIGS: Record<PracticeModeId, IdentifyTestConfig | undefined> = {
+const SELECT_DEFINITIONS: Record<PracticeModeId, SelectExerciseDefinition | undefined> = {
   "single-note": undefined,
   "chord-sing": undefined,
   "interval-melodic-sing": undefined,
   "interval-named-sing": undefined,
   "interval-harmonic-sing": undefined,
-  "interval-melodic-id": intervalMelodicIdConfig,
-  "interval-harmonic-id": intervalHarmonicIdConfig,
-  "chord-quality-id": chordQualityIdConfig,
-  "chord-inversion-id": chordInversionIdConfig,
+  "interval-melodic-id": intervalMelodicIdExerciseDefinition,
+  "interval-harmonic-id": intervalHarmonicIdExerciseDefinition,
+  "chord-quality-id": chordQualityIdExerciseDefinition,
+  "chord-inversion-id": chordInversionIdExerciseDefinition,
   "scale-degree-sing": undefined,
 }
 
-function definitionFor(
-  id: PracticeModeId,
-  mode: ResponseMode,
-): SingExerciseDefinition | IdentifyTestConfig {
+function definitionFor(id: PracticeModeId, mode: ResponseMode): ExerciseDefinition {
   if (mode === "sing") {
     const definition = SING_DEFINITIONS[id]
     if (!definition) {
@@ -53,11 +53,11 @@ function definitionFor(
     }
     return definition
   }
-  const config = IDENTIFY_CONFIGS[id]
-  if (!config) {
-    throw new Error(`Missing identify config for ${id}`)
+  const definition = SELECT_DEFINITIONS[id]
+  if (!definition) {
+    throw new Error(`Missing select definition for ${id}`)
   }
-  return config
+  return definition
 }
 
 describe("exercise registry contract", () => {
@@ -91,19 +91,22 @@ describe("exercise registry contract", () => {
     expect(definition.subtitle).toBe(subtitle)
     if (responseMode === "sing") {
       expect(SING_DEFINITIONS[id]).toBeDefined()
-      expect(IDENTIFY_CONFIGS[id]).toBeUndefined()
+      expect(SELECT_DEFINITIONS[id]).toBeUndefined()
     } else {
-      expect(IDENTIFY_CONFIGS[id]).toBeDefined()
+      expect(SELECT_DEFINITIONS[id]).toBeDefined()
       expect(SING_DEFINITIONS[id]).toBeUndefined()
     }
   })
 
   it.each(
-    PRACTICE_MODES.filter((e) => e.responseMode === "sing").map(
-      (e) => [e.id, e.definition] as const,
-    ),
+    PRACTICE_MODES.map((e) => [e.id, e.definition] as const),
   )("%s holds exercise definition wired through registry", (id, definition) => {
-    expect(definition).toBe(SING_DEFINITIONS[id])
-    expect(definition?.responseMode).toBe("sing")
+    const expected = SING_DEFINITIONS[id] ?? SELECT_DEFINITIONS[id]
+    expect(definition).toBe(expected)
+    expect(definition?.responseMode).toBe(getPracticeModeResponseMode(id))
   })
 })
+
+function getPracticeModeResponseMode(id: PracticeModeId): ResponseMode {
+  return PRACTICE_MODES.find((e) => e.id === id)?.responseMode ?? "sing"
+}

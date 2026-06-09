@@ -2,8 +2,14 @@ import { createStore } from "solid-js/store"
 import { render } from "solid-js/web"
 import { createDefaultAudioPort } from "../audio/port.ts"
 import { createDefaultRecordingPort } from "../audio/recording-port.ts"
+import type { ExerciseChoice } from "../chord-identify-choices.ts"
 import { EXERCISES_PER_LESSON } from "../config.ts"
-import type { SingExerciseDefinition } from "../exercise-definition.ts"
+import type {
+  ExerciseDefinition,
+  SelectExerciseDefinition,
+  SingExerciseDefinition,
+} from "../exercise-definition.ts"
+import { isSingExerciseDefinition } from "../exercise-definition.ts"
 import type { ExerciseScreenResultView } from "../exercise-screen-state.ts"
 import { ExerciseScreenState } from "../exercise-screen-state.ts"
 import { createDefaultHistoryPort } from "../history/port.ts"
@@ -13,10 +19,16 @@ import type { ScoreResult } from "../pitch/score.ts"
 import { getScaleDegreeById } from "../scale-degree-config.ts"
 import { getVoiceType, setVoiceType, type VoiceType } from "../voice-ranges.ts"
 import { voiceRangeHint } from "./components/voice-picker.tsx"
+import type {
+  IdentifyMountDeps,
+  IdentifyResultView,
+  IdentifyUiState,
+} from "./identify-test-types.ts"
+import { IdentifyTestView } from "./identify-test-view.tsx"
 import type { SingMountDeps, SingResultView, SingUiState } from "./sing-test-types.ts"
 import { SingTestView } from "./sing-test-view.tsx"
 
-export interface ExerciseMountDeps extends SingMountDeps {}
+export interface ExerciseMountDeps extends SingMountDeps, IdentifyMountDeps {}
 
 function toSingResult(
   result: ExerciseScreenResultView | null,
@@ -204,7 +216,181 @@ export function createSingExerciseOrchestrator(
   }
 }
 
-export function mountExercise(
+function toIdentifyResult(
+  result: ExerciseScreenResultView | null,
+  failRetryDetail: string,
+): IdentifyResultView | null {
+  if (!result) return null
+  if (result.type === "attempt") {
+    const detail = result.detail as { selectedLabel?: string } | undefined
+    return {
+      type: "attempt",
+      passed: result.passed,
+      selectedLabel: detail?.selectedLabel ?? "?",
+      attemptNote: result.attemptNote,
+      failRetryDetail,
+    }
+  }
+  if (result.type === "summary" || result.type === "audio-error") {
+    return result
+  }
+  return { type: "audio-error" }
+}
+
+function isSelectableExercise(
+  exercise: LessonExercise | null,
+): exercise is Extract<LessonExercise, { type: "interval" } | { type: "chord" }> {
+  return exercise?.type === "interval" || exercise?.type === "chord"
+}
+
+export interface SelectExerciseOrchestrator {
+  ui: IdentifyUiState
+  screen: ExerciseScreenState
+  syncUiFromScreen: () => void
+  handleVoiceChange: (voice: VoiceType) => void
+  handleChoice: (selectedId: string) => Promise<void>
+  enableChoicesForRetry: () => void
+  resetChoiceState: () => void
+}
+
+export function createSelectExerciseOrchestrator(
+  definition: SelectExerciseDefinition,
+  deps: ExerciseMountDeps = {},
+): SelectExerciseOrchestrator {
+  const history = deps.history ?? createDefaultHistoryPort()
+  const audio = deps.audio ?? createDefaultAudioPort()
+  const exercisesPerLesson = deps.exercisesPerLesson ?? EXERCISES_PER_LESSON
+  const failRetryDetail =
+    definition.failRetryDetail ?? "That wasn't right — tap Try again to listen and pick again."
+
+  let currentChoices: ExerciseChoice[] = []
+  let choicesDisabled = false
+
+  const [ui, setUi] = createStore<IdentifyUiState>({
+    statusText: definition.status.idle,
+    chrome: {
+      lessonProgress: { visible: true, text: "" },
+      actionBar: { mode: "attempting", step: "idle" },
+    },
+    choices: [],
+    showChoices: false,
+    choicesDisabled: false,
+    resultClassName: "result",
+    result: null,
+    voice: getVoiceType(),
+    voiceRangeHint: voiceRangeHint(getVoiceType()),
+    settingsLocked: false,
+  })
+
+  function rebuildChoices(exercise: LessonExercise): void {
+    currentChoices = definition.buildChoices(exercise)
+  }
+
+  const screenRef: { current: ExerciseScreenState | null } = { current: null }
+
+  function syncUiFromScreen(): void {
+    if (!screenRef.current) return
+    const snapshot = screenRef.current.getSnapshot()
+    const voice = getVoiceType()
+
+    setUi({
+      statusText: snapshot.statusText,
+      chrome: snapshot.chrome,
+      choices: currentChoices,
+      showChoices: snapshot.phase === "ready",
+      choicesDisabled,
+      resultClassName: snapshot.resultClassName,
+      result: toIdentifyResult(snapshot.result, failRetryDetail),
+      voice,
+      voiceRangeHint: voiceRangeHint(voice),
+      settingsLocked: snapshot.settingsLocked,
+    })
+  }
+
+  screenRef.current = new ExerciseScreenState({
+    hooks: {
+      prepareExercise: definition.prepareExercise,
+      ensurePlayback: async () => {
+        await audio.ensureReady()
+      },
+      playReference: definition.playReference,
+      isPlaybackBusy: () => audio.isPlaying(),
+      onAfterPlayback: (exercise) => {
+        choicesDisabled = false
+        if (currentChoices.length === 0) {
+          rebuildChoices(exercise)
+        }
+      },
+      scoreAnswer: definition.scoreAnswer,
+    },
+    statusCopy: definition.status,
+    responseMode: "select",
+    exercisesPerLesson,
+    onSnapshotChange: () => syncUiFromScreen(),
+    onAttemptScored: ({ lesson, exercise, scorePayload }) => {
+      const { selectedId } = scorePayload as { selectedId: string }
+      const record = buildAttemptRecord(
+        {
+          practiceModeId: definition.practiceModeId,
+          lessonId: lesson.lessonId,
+          exerciseIndex: lesson.exerciseIndex,
+          showVoicePicker: definition.showVoicePicker,
+          showIntervalFilters: definition.showIntervalFilters ?? false,
+          showDegreeFilters: definition.showDegreeFilters ?? false,
+        },
+        exercise,
+        0,
+        lesson.passed,
+        lesson.attemptNumber,
+        selectedId,
+      )
+      void history.saveAttempt(record)
+    },
+    onLessonReset: definition.onLessonReset,
+  })
+
+  const exerciseScreen = screenRef.current
+
+  async function handleChoice(selectedId: string): Promise<void> {
+    const snapshot = exerciseScreen.getSnapshot()
+    if (snapshot.phase !== "ready" || !isSelectableExercise(snapshot.currentExercise)) {
+      return
+    }
+
+    choicesDisabled = true
+    syncUiFromScreen()
+    await exerciseScreen.submitChoice(selectedId)
+  }
+
+  function enableChoicesForRetry(): void {
+    choicesDisabled = false
+    syncUiFromScreen()
+  }
+
+  function resetChoiceState(): void {
+    currentChoices = []
+    choicesDisabled = false
+  }
+
+  function handleVoiceChange(voice: VoiceType): void {
+    if (!definition.showVoicePicker || voice === getVoiceType()) return
+    setVoiceType(voice)
+    resetChoiceState()
+    exerciseScreen.resetLesson()
+  }
+
+  return {
+    ui,
+    screen: exerciseScreen,
+    syncUiFromScreen,
+    handleVoiceChange,
+    handleChoice,
+    enableChoicesForRetry,
+    resetChoiceState,
+  }
+}
+
+function mountSingExercise(
   root: HTMLElement,
   definition: SingExerciseDefinition,
   deps?: ExerciseMountDeps,
@@ -255,4 +441,68 @@ export function mountExercise(
   )
 
   syncUiFromScreen()
+}
+
+function mountSelectExercise(
+  root: HTMLElement,
+  definition: SelectExerciseDefinition,
+  deps?: ExerciseMountDeps,
+): void {
+  const audio = deps?.audio ?? createDefaultAudioPort()
+  const {
+    ui,
+    screen: exerciseScreen,
+    syncUiFromScreen,
+    handleVoiceChange,
+    handleChoice,
+    enableChoicesForRetry,
+    resetChoiceState,
+  } = createSelectExerciseOrchestrator(definition, deps)
+
+  render(
+    () =>
+      IdentifyTestView({
+        ui,
+        title: definition.title,
+        subtitle: definition.subtitle,
+        lessonBanner: definition.lessonBanner,
+        playButtonLabel: definition.playButtonLabel,
+        showVoicePicker: definition.showVoicePicker,
+        onPlay: () => {
+          audio.unlock()
+          void exerciseScreen.play()
+        },
+        onRetry: () => {
+          enableChoicesForRetry()
+          void exerciseScreen.retry()
+        },
+        onNext: () => {
+          resetChoiceState()
+          void exerciseScreen.advance()
+        },
+        onNextLesson: () => {
+          resetChoiceState()
+          exerciseScreen.startNextLesson()
+        },
+        onVoiceChange: handleVoiceChange,
+        onChoice: (choiceId) => {
+          void handleChoice(choiceId)
+        },
+      }),
+    root,
+  )
+
+  syncUiFromScreen()
+}
+
+export function mountExercise(
+  root: HTMLElement,
+  definition: ExerciseDefinition,
+  deps?: ExerciseMountDeps,
+): void {
+  if (isSingExerciseDefinition(definition)) {
+    mountSingExercise(root, definition, deps)
+    return
+  }
+  mountSelectExercise(root, definition, deps)
 }

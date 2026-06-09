@@ -7,7 +7,7 @@ import {
   randomIntervalExerciseForTag,
 } from "../../src/interval-exercises.ts"
 import { getActiveNoteRange } from "../../src/voice-ranges.ts"
-import { createMelodicIdTestConfig, mountMelodicIntervalIdTest } from "./helpers/mount.ts"
+import { createMelodicIdDefinition, mountMelodicIntervalIdTest } from "./helpers/mount.ts"
 
 beforeEach(() => {
   document.body.innerHTML = ""
@@ -91,7 +91,7 @@ test("eligible tier pool drives multiple choice without interval picker", async 
   }
   const eligibleTagIds = getEligibleTagIds(step)
   mountMelodicIntervalIdTest({
-    config: createMelodicIdTestConfig({
+    definition: createMelodicIdDefinition({
       prepareExercise: () => {
         const intervalQuestion = randomIntervalExerciseForTag(
           "minor-sixth",
