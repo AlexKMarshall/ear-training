@@ -4,8 +4,16 @@ import { type AttemptScoredContext, LessonRun } from "../src/lesson-run.ts"
 import { defined } from "./helpers/defined.ts"
 
 const sampleExercise: LessonExercise = {
+  type: "interval",
   target: { midi: 60, hz: 261.63, name: "C4" },
   intervalId: "P5",
+  interval: {
+    intervalId: "P5",
+    semitones: 7,
+    presentation: "melodic",
+    lower: { midi: 53, hz: 220, name: "A3" },
+    upper: { midi: 60, hz: 261.63, name: "C4" },
+  },
 }
 
 function runThroughLesson(run: LessonRun, outcomes: boolean[], exercise = sampleExercise): void {

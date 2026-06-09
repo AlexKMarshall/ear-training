@@ -11,8 +11,16 @@ import {
 import type { LessonExercise } from "../src/lesson-exercise.ts"
 
 const sampleExercise: LessonExercise = {
+  type: "interval",
   target: { midi: 60, hz: 261.63, name: "C4" },
   intervalId: "P5",
+  interval: {
+    intervalId: "P5",
+    semitones: 7,
+    presentation: "melodic",
+    lower: { midi: 53, hz: 220, name: "A3" },
+    upper: { midi: 60, hz: 261.63, name: "C4" },
+  },
 }
 
 const statusCopy = {
@@ -341,8 +349,16 @@ describe("ExerciseScreenState", () => {
 
   it("does not redraw on play when exercise was already drawn in idle", async () => {
     let calls = 0
-    const first: LessonExercise = { ...sampleExercise, intervalId: "first" }
-    const second: LessonExercise = { ...sampleExercise, intervalId: "second" }
+    const first: LessonExercise = {
+      ...sampleExercise,
+      intervalId: "first",
+      interval: { ...sampleExercise.interval, intervalId: "first" },
+    }
+    const second: LessonExercise = {
+      ...sampleExercise,
+      intervalId: "second",
+      interval: { ...sampleExercise.interval, intervalId: "second" },
+    }
     const prepareExercise = vi.fn(() => (calls++ === 0 ? first : second))
 
     const state = new ExerciseScreenState({
@@ -370,7 +386,10 @@ describe("ExerciseScreenState", () => {
     })
 
     expect(prepareExercise).toHaveBeenCalledTimes(1)
-    expect(state.getSnapshot().currentExercise?.intervalId).toBe("first")
+    const drawnExercise = state.getSnapshot().currentExercise
+    expect(drawnExercise?.type).toBe("interval")
+    if (drawnExercise?.type !== "interval") throw new Error("expected interval exercise")
+    expect(drawnExercise.intervalId).toBe("first")
 
     await state.play()
     expect(prepareExercise).toHaveBeenCalledTimes(1)
@@ -381,7 +400,9 @@ describe("ExerciseScreenState", () => {
     await state.retry()
     expect(state.getSnapshot().phase).toBe("ready")
     expect(prepareExercise).toHaveBeenCalledTimes(1)
-    expect(state.getSnapshot().currentExercise?.intervalId).toBe("first")
+    const retriedExercise = state.getSnapshot().currentExercise
+    if (retriedExercise?.type !== "interval") throw new Error("expected interval exercise")
+    expect(retriedExercise.intervalId).toBe("first")
   })
 
   it("projects sing record on ready and recording steps only", async () => {

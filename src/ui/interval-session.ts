@@ -9,7 +9,7 @@ import {
   intervalToLessonExercise,
   randomIntervalExerciseForTag,
 } from "../interval-exercises.ts"
-import type { LessonExercise } from "../lesson-exercise.ts"
+import type { IntervalLessonExercise } from "../lesson-exercise.ts"
 import { createDefaultSessionPlanner, type SessionPlanner } from "../session/planner.ts"
 import { getActiveNoteRange } from "../voice-ranges.ts"
 
@@ -25,7 +25,7 @@ export function prepareIntervalExercise(
   planner: SessionPlanner = createDefaultSessionPlanner(),
   range = getActiveNoteRange(),
   sessionCurriculumLesson?: CurriculumLesson,
-): LessonExercise {
+): IntervalLessonExercise {
   const step = resolveSessionCurriculumLesson(practiceModeId, records, {
     urlCurriculumLesson: sessionCurriculumLesson,
   })

@@ -25,13 +25,16 @@ const scaleDegreeSingBase = {
     failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
   },
   playReference: (exercise: Parameters<SingTestConfig["playReference"]>[0]) => {
-    if (!exercise.scaleDegree) {
+    if (exercise.type !== "scale-degree") {
       throw new Error("Missing scale degree for playback")
     }
     return playTargetNote(exercise.scaleDegree.tonic.midi)
   },
   exercisePrompt: (exercise: Parameters<NonNullable<SingTestConfig["exercisePrompt"]>>[0]) => {
-    const label = getScaleDegreeById(exercise.degreeId ?? "")?.label ?? exercise.degreeId
+    if (exercise.type !== "scale-degree") {
+      throw new Error("Missing scale degree for prompt")
+    }
+    const label = getScaleDegreeById(exercise.degreeId)?.label ?? exercise.degreeId
     return `Sing the ${label}`
   },
 }

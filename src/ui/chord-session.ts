@@ -8,7 +8,7 @@ import { resolveSessionCurriculumLesson } from "../curriculum/session-step.ts"
 import type { MountDeps } from "../history/port.ts"
 import type { SessionHistoryCache } from "../history/session-cache.ts"
 import type { AttemptRecord } from "../history/types.ts"
-import type { LessonExercise } from "../lesson-exercise.ts"
+import type { ChordLessonExercise } from "../lesson-exercise.ts"
 import { createDefaultSessionPlanner, type SessionPlanner } from "../session/planner.ts"
 import { getActiveNoteRange } from "../voice-ranges.ts"
 import { type VoicingPositionId, voicingPositionIndex } from "../voicing-position.ts"
@@ -25,7 +25,7 @@ export function prepareChordExercise(
   range = getActiveNoteRange(),
   _rng: () => number = Math.random,
   sessionCurriculumLesson?: CurriculumLesson,
-): LessonExercise {
+): ChordLessonExercise {
   const step = resolveSessionCurriculumLesson("chord-sing", records, {
     urlCurriculumLesson: sessionCurriculumLesson,
   })
@@ -42,6 +42,7 @@ export function prepareChordExercise(
   const targetIndex = voicingPositionIndex(voicingPositionId)
   const chord = randomChordExercise(type, tierConfig.inversion, targetIndex, range)
   return {
+    type: "chord",
     target: chordTarget(chord),
     chord,
     chordTypeId: type.id,

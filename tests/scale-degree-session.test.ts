@@ -28,7 +28,7 @@ describe("prepareScaleDegreeExercise", () => {
     expect(exercise.degreeId).toBe("fifth")
     expect(exercise.contentTierId).toBe("degree-major-intro")
     expect(exercise.eligibleTagIds).toEqual(getEligibleDegreeIds("degree-major-intro"))
-    expect(exercise.scaleDegree?.tonic.midi).toBe(lessonTonicMidi)
+    expect(exercise.scaleDegree.tonic.midi).toBe(lessonTonicMidi)
     expect(exercise.target.midi).toBe(lessonTonicMidi + 7)
   })
 
@@ -95,7 +95,7 @@ describe("prepareScaleDegreeExercise", () => {
 
     expect(second.lessonTonicMidi).toBe(first.lessonTonicMidi)
     expect(second.exercise.degreeId).toBe("fifth")
-    expect(second.exercise.scaleDegree?.tonic.midi).toBe(first.lessonTonicMidi)
+    expect(second.exercise.scaleDegree.tonic.midi).toBe(first.lessonTonicMidi)
   })
 
   it("resets tonic when lesson state is cleared", () => {

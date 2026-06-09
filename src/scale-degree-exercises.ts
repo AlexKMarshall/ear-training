@@ -1,4 +1,4 @@
-import type { LessonExercise } from "./lesson-exercise.ts"
+import type { ScaleDegreeLessonExercise } from "./lesson-exercise.ts"
 import { midiToHz, midiToNoteName, type NoteRange, type TargetNote } from "./notes.ts"
 import type { ScaleDegreeEntry } from "./scale-degree-config.ts"
 import { pickRandom } from "./util/array.ts"
@@ -96,8 +96,9 @@ export function randomScaleDegreeExercise(
 
 export function scaleDegreeToLessonExercise(
   scaleDegreeQuestion: ScaleDegreeExercise,
-): LessonExercise {
+): ScaleDegreeLessonExercise {
   return {
+    type: "scale-degree",
     target: scaleDegreeQuestion.target,
     scaleDegree: scaleDegreeQuestion,
     degreeId: scaleDegreeQuestion.degreeId,

@@ -1,5 +1,5 @@
 import { getIntervalById, getIntervalsByIds, type IntervalEntry } from "./interval-config.ts"
-import type { LessonExercise } from "./lesson-exercise.ts"
+import type { IntervalLessonExercise } from "./lesson-exercise.ts"
 import { midiToHz, midiToNoteName, type NoteRange, type TargetNote } from "./notes.ts"
 import { pickRandom } from "./util/array.ts"
 
@@ -73,8 +73,9 @@ export function randomIntervalExercise(
   return buildIntervalExercise(interval, presentation, lowerMidi)
 }
 
-export function intervalToLessonExercise(intervalExercise: IntervalExercise): LessonExercise {
+export function intervalToLessonExercise(intervalExercise: IntervalExercise): IntervalLessonExercise {
   return {
+    type: "interval",
     target: intervalExercise.upper,
     interval: intervalExercise,
     intervalId: intervalExercise.intervalId,

@@ -31,7 +31,7 @@ const intervalMelodicSingBase = {
     failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
   },
   playReference: (exercise: LessonExercise) => {
-    if (!exercise.interval) {
+    if (exercise.type !== "interval") {
       throw new Error("Missing interval for playback")
     }
     const { lower, upper } = exercise.interval
@@ -61,7 +61,7 @@ const intervalHarmonicSingBase = {
     failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
   },
   playReference: (exercise: LessonExercise) => {
-    if (!exercise.interval) {
+    if (exercise.type !== "interval") {
       throw new Error("Missing interval for playback")
     }
     const { lower, upper } = exercise.interval
@@ -118,13 +118,16 @@ const intervalNamedSingBase = {
     failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
   },
   playReference: (exercise: LessonExercise) => {
-    if (!exercise.interval) {
+    if (exercise.type !== "interval") {
       throw new Error("Missing interval for playback")
     }
     return playTargetNote(exercise.interval.lower.midi)
   },
   exercisePrompt: (exercise: LessonExercise) => {
-    const label = getIntervalById(exercise.intervalId ?? "")?.label ?? exercise.intervalId ?? "?"
+    if (exercise.type !== "interval") {
+      throw new Error("Missing interval for prompt")
+    }
+    const label = getIntervalById(exercise.intervalId)?.label ?? exercise.intervalId
     return label
   },
 }
@@ -186,7 +189,7 @@ const intervalMelodicIdBase = {
     failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
   },
   playReference: (exercise: LessonExercise) => {
-    if (!exercise.interval) throw new Error("Missing interval for playback")
+    if (exercise.type !== "interval") throw new Error("Missing interval for playback")
     const { lower, upper } = exercise.interval
     return playMelodicSequence([lower.midi, upper.midi])
   },
@@ -212,7 +215,7 @@ const intervalHarmonicIdBase = {
     failExhausted: "Out of tries — tap Next exercise to continue the lesson.",
   },
   playReference: (exercise: LessonExercise) => {
-    if (!exercise.interval) throw new Error("Missing interval for playback")
+    if (exercise.type !== "interval") throw new Error("Missing interval for playback")
     const { lower, upper } = exercise.interval
     return playDyad([lower.midi, upper.midi])
   },

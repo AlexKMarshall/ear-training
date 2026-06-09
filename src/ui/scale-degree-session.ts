@@ -4,7 +4,7 @@ import { resolveSessionCurriculumLesson } from "../curriculum/session-step.ts"
 import type { MountDeps } from "../history/port.ts"
 import type { SessionHistoryCache } from "../history/session-cache.ts"
 import type { AttemptRecord } from "../history/types.ts"
-import type { LessonExercise } from "../lesson-exercise.ts"
+import type { ScaleDegreeLessonExercise } from "../lesson-exercise.ts"
 import { getNaturalMinorSemitonesFromTonic, getScaleDegreeById } from "../scale-degree-config.ts"
 import {
   buildScaleDegreeExercise,
@@ -20,7 +20,7 @@ export interface ScaleDegreeSessionDeps
 }
 
 export interface ScaleDegreeExerciseResult {
-  exercise: LessonExercise
+  exercise: ScaleDegreeLessonExercise
   lessonTonicMidi: number
 }
 
