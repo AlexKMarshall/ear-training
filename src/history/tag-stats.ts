@@ -1,7 +1,7 @@
-import { getChordTypeById } from "../chord-config.ts"
 import { getIntervalById } from "../interval-config.ts"
 import { getPracticeMode } from "../practice-modes/registry.ts"
 import { getScaleDegreeById } from "../scale-degree-config.ts"
+import { type VoicingPositionId, voicingPositionStatsLabel } from "../voicing-position.ts"
 import { computeLessonExerciseStats, computeMedianAbsCents } from "./stats.ts"
 import type { AttemptRecord, PracticeModeId } from "./types.ts"
 
@@ -16,7 +16,7 @@ export interface TagStats {
   medianAbsCents: number | null
 }
 
-export type TagBreakdownKind = "interval" | "degree" | "chord-type"
+export type TagBreakdownKind = "interval" | "degree" | "voicing-position"
 
 export interface TagBreakdownConfig {
   kind: TagBreakdownKind
@@ -55,9 +55,9 @@ const TAG_CONFIG: Partial<Record<PracticeModeId, TagBreakdownConfig>> = {
     getTagId: (r) => r.degreeId,
     includeMedianCents: true,
   },
-  "chord-middle": {
-    kind: "chord-type",
-    getTagId: (r) => r.chordTypeId,
+  "chord-sing": {
+    kind: "voicing-position",
+    getTagId: (r) => r.voicingPositionId,
     includeMedianCents: true,
   },
 }
@@ -74,8 +74,8 @@ export function tagBreakdownHeading(kind: TagBreakdownKind): string {
       return "By interval"
     case "degree":
       return "By scale degree"
-    case "chord-type":
-      return "By chord type"
+    case "voicing-position":
+      return "By voicing position"
   }
 }
 
@@ -85,8 +85,8 @@ function resolveTagLabel(kind: TagBreakdownKind, tagId: string): string {
       return getIntervalById(tagId)?.label ?? tagId
     case "degree":
       return getScaleDegreeById(tagId)?.label ?? tagId
-    case "chord-type":
-      return getChordTypeById(tagId)?.label ?? tagId
+    case "voicing-position":
+      return voicingPositionStatsLabel(tagId as VoicingPositionId)
   }
 }
 

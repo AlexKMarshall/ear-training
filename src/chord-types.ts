@@ -1,5 +1,5 @@
 import type { ChordQualityIntervals, InversionId } from "./chord-inversions.ts"
-import { voicingOffsetsForInversion } from "./chord-inversions.ts"
+import { voicingOffsetsFromAnchor } from "./chord-inversions.ts"
 import type { ChordExercise } from "./chords.ts"
 import {
   midiToHz,
@@ -14,40 +14,34 @@ export interface ChordType {
   id: string
   /** Root, third, and fifth as semitone offsets from the chord root. */
   quality: ChordQualityIntervals
-  /** Index into the voiced chord of the pitch the user should sing (always middle). */
-  targetIndex: 1
-  /** Index whose MIDI must fall within range when randomizing (always middle). */
-  rangeAnchorIndex: 1
-}
-
-function voicingFor(type: ChordType, inversion: InversionId): [number, number, number] {
-  return voicingOffsetsForInversion(type.quality, inversion)
 }
 
 function targetNote(midi: number): TargetNote {
   return { midi, hz: midiToHz(midi), name: midiToNoteName(midi) }
 }
 
-/** Build a chord question from a type, inversion, and middle-note MIDI. */
+/** Build a chord question from a type, inversion, target voicing index, and anchor MIDI. */
 export function buildChordExercise(
   type: ChordType,
   inversion: InversionId,
-  middleMidi: number,
+  targetIndex: 0 | 1 | 2,
+  anchorMidi: number,
 ): ChordExercise {
-  const voicing = voicingFor(type, inversion)
-  const midis = voicing.map((offset) => middleMidi + offset) as [number, number, number]
+  const voicing = voicingOffsetsFromAnchor(type.quality, inversion, targetIndex)
+  const midis = voicing.map((offset) => anchorMidi + offset) as [number, number, number]
   return {
     notes: midis.map(targetNote) as [TargetNote, TargetNote, TargetNote],
-    targetIndex: type.targetIndex,
+    targetIndex,
   }
 }
 
-/** Randomize the middle note within `range`, then build a chord question. */
+/** Randomize the anchor note within `range`, then build a chord question. */
 export function randomChordExercise(
   type: ChordType,
   inversion: InversionId,
+  targetIndex: 0 | 1 | 2,
   range: NoteRange,
 ): ChordExercise {
-  const middle = randomNoteInRange(range)
-  return buildChordExercise(type, inversion, middle.midi)
+  const anchor = randomNoteInRange(range)
+  return buildChordExercise(type, inversion, targetIndex, anchor.midi)
 }

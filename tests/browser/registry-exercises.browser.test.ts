@@ -7,7 +7,7 @@ import { defaultPassSamplesHzFor, mountPracticeModeInBrowser } from "./helpers/m
 
 const SMOKE_IDS = [
   "single-note",
-  "chord-middle",
+  "chord-sing",
   "interval-melodic-sing",
   "interval-named-sing",
   "interval-harmonic-sing",
@@ -39,7 +39,7 @@ for (const practiceModeId of SMOKE_IDS) {
     const playLabel =
       practiceModeId === "single-note" || practiceModeId === "interval-named-sing"
         ? /Play note/i
-        : practiceModeId === "chord-middle"
+        : practiceModeId === "chord-sing"
           ? /Play chord/i
           : practiceModeId === "scale-degree-sing"
             ? /Play tonic/i

@@ -6,4 +6,4 @@ if (!root) {
   throw new Error("#app element not found")
 }
 
-void mountPracticeModePage(root, "chord-middle")
+void mountPracticeModePage(root, "chord-sing")

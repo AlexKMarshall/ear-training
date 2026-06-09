@@ -1,5 +1,6 @@
 import type { AttemptRecord, PracticeModeId } from "../history/types.ts"
 import { getPracticeMode } from "../practice-modes/registry.ts"
+import { getChordLessonBannerLabel, isChordContentTierId } from "./chord-tiers.ts"
 import type { CurriculumLesson } from "./curriculum-lessons.ts"
 import {
   CURRICULUM_LESSONS,
@@ -49,7 +50,7 @@ const TIER_POOL_LABEL: Record<CurriculumLesson["contentTierId"], string | null> 
   "degree-major-intro": "major key · 4th, 5th, octave",
   "degree-major-diatonic": "major key · diatonic degrees within one octave",
   "degree-minor-diatonic": "natural minor key · diatonic degrees within one octave",
-  "chord-1a": "major vs minor · root position",
+  "chord-major-root": "any voice",
 }
 
 /** Optional per-step label overrides (full `practiceModeId:contentTierId` keys). */
@@ -67,7 +68,7 @@ function familyTitle(practiceModeId: PracticeModeId): string {
       return "Intervals"
     case "scale-degree-sing":
       return "Scale degrees"
-    case "chord-middle":
+    case "chord-sing":
       return "Chords"
   }
 }
@@ -101,9 +102,16 @@ function defaultPathNodeLabels(step: CurriculumLesson): PathNodeLabels {
     }
   }
 
+  if (step.practiceModeId === "chord-sing" && isChordContentTierId(step.contentTierId)) {
+    return {
+      title,
+      subtitle: `${getChordLessonBannerLabel(step.contentTierId)} · ${pool ?? "any voice"}`,
+    }
+  }
+
   return {
     title,
-    subtitle: pool ?? "Sing the middle note of a chord",
+    subtitle: pool ?? "Sing a chord voice",
   }
 }
 

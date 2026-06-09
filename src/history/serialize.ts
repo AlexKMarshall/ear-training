@@ -1,5 +1,3 @@
-import { getActiveInversions } from "../chord-inversion-preference.ts"
-import { getSelectedChordTypeIds } from "../chord-type-preference.ts"
 import type { LessonExercise } from "../lesson-exercise.ts"
 import { getSelectedScaleDegreeIds } from "../scale-degree-preference.ts"
 import { getVoiceType } from "../voice-ranges.ts"
@@ -10,7 +8,6 @@ export interface AttemptContext {
   lessonId: string
   exerciseIndex: number
   showVoicePicker: boolean
-  showChordFilters: boolean
   showIntervalFilters: boolean
   showDegreeFilters: boolean
 }
@@ -40,11 +37,8 @@ export function buildAttemptRecord(
     chordNotes,
     chordTypeId: exercise.chordTypeId,
     inversionId: exercise.inversionId,
+    voicingPositionId: exercise.voicingPositionId,
     voiceType: context.showVoicePicker ? getVoiceType() : undefined,
-    activeChordTypeIds: context.showChordFilters ? getSelectedChordTypeIds() : undefined,
-    activeInversionIds: context.showChordFilters
-      ? getActiveInversions().map((inv) => inv.id)
-      : undefined,
     intervalId: exercise.intervalId,
     intervalSemitones: exercise.interval?.semitones,
     presentation: exercise.interval?.presentation,

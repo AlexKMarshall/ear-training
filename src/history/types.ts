@@ -1,9 +1,10 @@
 import type { InversionId } from "../chord-inversions.ts"
 import type { ContentTierId } from "../curriculum/curriculum-lessons.ts"
+import type { VoicingPositionId } from "../voicing-position.ts"
 
 export type PracticeModeId =
   | "single-note"
-  | "chord-middle"
+  | "chord-sing"
   | "interval-melodic-sing"
   | "interval-named-sing"
   | "interval-harmonic-sing"
@@ -13,7 +14,7 @@ export type PracticeModeId =
 
 export const PRACTICE_MODE_LABELS: Record<PracticeModeId, string> = {
   "single-note": "Sing a single note",
-  "chord-middle": "Sing the middle note of a chord",
+  "chord-sing": "Sing chord voices",
   "interval-melodic-sing": "Sing melodic intervals",
   "interval-named-sing": "Sing named intervals",
   "interval-harmonic-sing": "Sing harmonic intervals",
@@ -38,10 +39,8 @@ export interface AttemptRecord {
   chordNotes?: readonly { midi: number; name: string }[]
   chordTypeId?: string
   inversionId?: InversionId
+  voicingPositionId?: VoicingPositionId
   voiceType?: string
-  /** User filter settings at attempt time (chord-middle). */
-  activeChordTypeIds?: string[]
-  activeInversionIds?: string[]
   intervalId?: string
   intervalSemitones?: number
   presentation?: "melodic" | "harmonic"

@@ -1,6 +1,7 @@
 import { percentOf } from "../lesson.ts"
 import { getPracticeMode, PRACTICE_MODES } from "../practice-modes/registry.ts"
 import { medianSorted } from "../util/array.ts"
+import { excludeLegacyRecords } from "./legacy-records.ts"
 import {
   computeTagBreakdownForExercise,
   singAttemptsMedianAbsCents,
@@ -139,20 +140,21 @@ export function computePracticeModeProgress(
 }
 
 export function computeDashboardStats(records: readonly AttemptRecord[]): DashboardStats {
-  const lessonExerciseStats = computeLessonExerciseStats(records)
+  const activeRecords = excludeLegacyRecords(records)
+  const lessonExerciseStats = computeLessonExerciseStats(activeRecords)
   const practiceModeIds = PRACTICE_MODES.map((e) => e.id)
 
   return {
-    totalAttempts: records.length,
+    totalAttempts: activeRecords.length,
     totalLessonExercises: lessonExerciseStats.lessonExerciseCount,
     lessonExercisePassRatePercent: lessonExerciseStats.lessonExercisePassRatePercent,
     firstTryRatePercent: lessonExerciseStats.firstTryRatePercent,
-    attemptPassRatePercent: computeAttemptPassRate(records),
-    medianAbsCents: singAttemptsMedianAbsCents(records),
+    attemptPassRatePercent: computeAttemptPassRate(activeRecords),
+    medianAbsCents: singAttemptsMedianAbsCents(activeRecords),
     byPracticeMode: practiceModeIds.map((id) =>
       statsForExercise(
         id,
-        records.filter((r) => r.practiceModeId === id),
+        activeRecords.filter((r) => r.practiceModeId === id),
       ),
     ),
   }

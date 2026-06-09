@@ -40,26 +40,26 @@ test("interval melodic sing: exhausts attempts and advances", async () => {
   await expect.element(page.getByText(/exercise 2 of 10/i)).toBeVisible()
 })
 
-test("chord middle: fail shows retry and records failed attempt", async () => {
-  const { history } = mountPracticeModeInBrowser("chord-middle", {
+test("chord sing: fail shows retry and records failed attempt", async () => {
+  const { history } = mountPracticeModeInBrowser("chord-sing", {
     samplesHz: FAIL_SAMPLES,
   })
 
-  await expect.element(page.getByRole("heading", { name: /Sing the middle note/i })).toBeVisible()
+  await expect.element(page.getByText(/Sing the middle note/i)).toBeVisible()
 
   await singPlayRecordFail(/Play chord/i)
 
   const records = await history.getAllAttempts()
   expect(records).toHaveLength(1)
   expect(records[0]).toMatchObject({
-    practiceModeId: "chord-middle",
+    practiceModeId: "chord-sing",
     passed: false,
     attemptNumber: 1,
   })
 })
 
 test("chord middle: exhausts attempts and advances", async () => {
-  mountPracticeModeInBrowser("chord-middle", {
+  mountPracticeModeInBrowser("chord-sing", {
     samplesHz: FAIL_SAMPLES,
   })
 

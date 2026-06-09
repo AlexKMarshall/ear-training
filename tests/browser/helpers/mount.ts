@@ -1,10 +1,9 @@
 import { createTestAudioPort } from "../../../src/audio/port.ts"
 import { createTestRecordingPort } from "../../../src/audio/recording-port.ts"
-import { MAJOR_TRIAD_SING_MIDDLE } from "../../../src/chord-config.ts"
-import { resetInversionPreference } from "../../../src/chord-inversion-preference.ts"
-import { resetChordTypePreference } from "../../../src/chord-type-preference.ts"
+import { MAJOR_TRIAD } from "../../../src/chord-config.ts"
 import { buildChordExercise } from "../../../src/chord-types.ts"
 import { chordTarget } from "../../../src/chords.ts"
+import { getChordLessonBannerLabel } from "../../../src/curriculum/chord-tiers.ts"
 import { getScaleDegreeKeyQualityLabel } from "../../../src/curriculum/scale-degree-tiers.ts"
 import { createMemoryHistoryPort, type HistoryPort } from "../../../src/history/port.ts"
 import {
@@ -43,7 +42,7 @@ import {
   type SingTestConfig,
 } from "../../../src/ui/sing-test.ts"
 import { mountStats } from "../../../src/ui/stats.ts"
-import { chordMiddleTestConfig, singleNoteTestConfig } from "../../../src/ui/tests.ts"
+import { chordSingTestConfig, singleNoteTestConfig } from "../../../src/ui/tests.ts"
 import { resetVoiceTypePreference } from "../../../src/voice-ranges.ts"
 import { defined } from "../../helpers/defined.ts"
 import "../../../src/ui/styles.css"
@@ -132,7 +131,7 @@ const fixedSingleNoteTarget = {
   hz: 261.63,
 } as const
 
-const fixedChordExercise = buildChordExercise(MAJOR_TRIAD_SING_MIDDLE, "root", 52)
+const fixedChordExercise = buildChordExercise(MAJOR_TRIAD, "root", 1, 52)
 
 const scaleDegreeFifth = defined(getScaleDegreeById("fifth"), "fifth")
 
@@ -143,9 +142,7 @@ export interface MountExerciseResult {
 function resetPreferencesFor(practiceModeId: PracticeModeId): void {
   resetVoiceTypePreference()
   switch (practiceModeId) {
-    case "chord-middle":
-      resetChordTypePreference()
-      resetInversionPreference()
+    case "chord-sing":
       break
     case "interval-melodic-sing":
     case "interval-named-sing":
@@ -173,20 +170,18 @@ function createSingTestConfigFor(
         playReference: async () => {},
         ...overrides,
       }
-    case "chord-middle":
+    case "chord-sing":
       return {
-        ...chordMiddleTestConfig,
+        ...chordSingTestConfig,
+        lessonBanner: getChordLessonBannerLabel("chord-major-root"),
         prepareExercise: () => ({
           target: chordTarget(fixedChordExercise),
           chord: fixedChordExercise,
-          chordTypeId: MAJOR_TRIAD_SING_MIDDLE.id,
+          chordTypeId: MAJOR_TRIAD.id,
           inversionId: "root",
-          contentTierId: "chord-1a",
-          eligibleTagIds: [
-            "major-triad-sing-middle",
-            "minor-triad-sing-middle",
-            "diminished-triad-sing-middle",
-          ],
+          voicingPositionId: "middle",
+          contentTierId: "chord-major-root",
+          eligibleTagIds: ["bottom", "middle", "top"],
         }),
         playReference: async () => {},
         ...overrides,
@@ -264,7 +259,7 @@ export function defaultPassSamplesHzFor(practiceModeId: PracticeModeId): number[
   switch (practiceModeId) {
     case "single-note":
       return Array(20).fill(fixedSingleNoteTarget.hz)
-    case "chord-middle":
+    case "chord-sing":
       return Array(20).fill(midiToHz(chordTarget(fixedChordExercise).midi))
     case "interval-melodic-sing":
     case "interval-named-sing":

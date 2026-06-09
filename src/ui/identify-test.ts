@@ -141,7 +141,6 @@ export function mountIdentifyTest(
           lessonId: lesson.lessonId,
           exerciseIndex: lesson.exerciseIndex,
           showVoicePicker: config.showVoicePicker,
-          showChordFilters: false,
           showIntervalFilters: false,
           showDegreeFilters: false,
         },

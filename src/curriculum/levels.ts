@@ -30,8 +30,8 @@ export const CURRICULUM_LEVELS: readonly CurriculumLevel[] = [
   },
   {
     level: 4,
-    label: "Chord middle",
-    practiceModeIds: ["chord-middle"],
+    label: "Chords",
+    practiceModeIds: ["chord-sing"],
   },
 ] as const
 

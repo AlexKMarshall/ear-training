@@ -74,7 +74,7 @@ describe("computeDashboardStats", () => {
         centsOff: 0,
       }),
       attempt({
-        practiceModeId: "chord-middle",
+        practiceModeId: "chord-sing",
         passed: false,
         attemptNumber: 1,
         centsOff: 40,
@@ -185,17 +185,40 @@ describe("tag breakdown", () => {
     expect(stats.byTag).toBeUndefined()
   })
 
-  it("groups chord-middle by chord type", () => {
-    const stats = computePracticeModeStats("chord-middle", [
+  it("groups chord-sing by voicing position", () => {
+    const stats = computePracticeModeStats("chord-sing", [
       attempt({
-        practiceModeId: "chord-middle",
+        practiceModeId: "chord-sing",
         passed: true,
         attemptNumber: 1,
         centsOff: 0,
-        chordTypeId: "major-triad-sing-middle",
+        voicingPositionId: "middle",
       }),
     ])
-    expect(stats.byTag?.[0]?.label).toBe("Major triad")
+    expect(stats.byTag?.[0]?.label).toBe("Middle")
+  })
+
+  it("excludes legacy chord-middle attempts from dashboard stats", () => {
+    const stats = computeDashboardStats([
+      attempt({
+        practiceModeId: "chord-middle" as never,
+        contentTierId: "chord-1a" as never,
+        passed: true,
+        attemptNumber: 1,
+        centsOff: 0,
+      }),
+      attempt({
+        practiceModeId: "chord-sing",
+        contentTierId: "chord-major-root",
+        passed: true,
+        attemptNumber: 1,
+        centsOff: 0,
+        voicingPositionId: "top",
+      }),
+    ])
+    expect(stats.totalAttempts).toBe(1)
+    const chordStats = stats.byPracticeMode.find((s) => s.practiceModeId === "chord-sing")
+    expect(chordStats?.attemptCount).toBe(1)
   })
 
   it("groups scale-degree-sing by degree", () => {
@@ -255,7 +278,7 @@ describe("computePracticeModeStats", () => {
         centsOff: 0,
       }),
       attempt({
-        practiceModeId: "chord-middle",
+        practiceModeId: "chord-sing",
         passed: false,
         attemptNumber: 1,
         centsOff: 40,
@@ -335,7 +358,7 @@ describe("computePracticeModeProgress", () => {
         exerciseIndex: 0,
       }),
       attempt({
-        practiceModeId: "chord-middle",
+        practiceModeId: "chord-sing",
         passed: false,
         attemptNumber: 1,
         centsOff: 40,

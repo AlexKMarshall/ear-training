@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import {
-  CHORD_MIDDLE_CURRICULUM_LESSON,
+  CHORD_SING_MAJOR_ROOT_LESSON,
   getGuidedCurriculumLessonForPracticeMode,
   getSessionCurriculumLessonForPracticeMode,
   resolveSessionCurriculumLesson,
@@ -10,10 +10,10 @@ import {
   passingLevel2History,
   passingMajorDiatonicScaleDegreeHistory,
   passingMelodicSing2bHistory,
-  passingMinorDiatonicScaleDegreeHistory,
   passingSingleNoteHistory,
   passingStepHistory,
   passingThroughHarmonic2bHistory,
+  passingThroughHarmonicSing2aHistory,
   passingThroughMelodic2bHistory,
 } from "./fixtures/attempts.ts"
 
@@ -122,13 +122,13 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
     })
   })
 
-  it("returns chord-1a for chord-middle when that step is unlocked", () => {
+  it("returns chord-major-root for chord-sing when that step is unlocked", () => {
     expect(
       getSessionCurriculumLessonForPracticeMode(
-        "chord-middle",
-        passingMinorDiatonicScaleDegreeHistory(),
+        "chord-sing",
+        passingThroughHarmonicSing2aHistory(),
       ),
-    ).toEqual(CHORD_MIDDLE_CURRICULUM_LESSON)
+    ).toEqual(CHORD_SING_MAJOR_ROOT_LESSON)
   })
 
   it("uses guided default (first incomplete tier) instead of highest unlocked", () => {

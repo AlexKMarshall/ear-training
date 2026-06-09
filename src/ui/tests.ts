@@ -1,8 +1,10 @@
 import { playChord, playTargetNote } from "../audio/playback.ts"
 import { chordMidis } from "../chords.ts"
+import { getChordLessonBannerLabel, isChordContentTierId } from "../curriculum/chord-tiers.ts"
 import type { MountDeps } from "../history/port.ts"
 import { randomNoteInRange } from "../notes.ts"
 import { getActiveNoteRange } from "../voice-ranges.ts"
+import { exercisePromptForVoicingPosition } from "../voicing-position.ts"
 import {
   type ChordSessionDeps,
   prepareChordExercise,
@@ -32,16 +34,23 @@ export const singleNoteTestConfig: SingTestConfig = {
   playReference: (exercise) => playTargetNote(exercise.target.midi),
 }
 
-const chordMiddleBase = {
-  practiceModeId: "chord-middle" as const,
-  title: "Sing the middle note",
-  subtitle: "Hear a chord and sing the middle note",
+const chordSingBase = {
+  practiceModeId: "chord-sing" as const,
+  title: "Sing chord voices",
+  subtitle: "Hear a triad and sing the prompted voice",
   playButtonLabel: "Play chord",
   showVoicePicker: true,
+  exercisePromptFromDraw: true,
+  exercisePrompt: (exercise: Parameters<NonNullable<SingTestConfig["exercisePrompt"]>>[0]) => {
+    if (!exercise.voicingPositionId) {
+      throw new Error("Missing voicing position for chord exercise")
+    }
+    return exercisePromptForVoicingPosition(exercise.voicingPositionId)
+  },
   status: {
     idle: "Press Play to hear the chord.",
     playing: "Listen to the chord…",
-    ready: "Sing the middle note of the chord, then tap Start singing when ready.",
+    ready: "Sing the prompted voice, then tap Start singing when ready.",
     recording:
       "Singing… tap Done when finished, or pause ~1s after your note to finish automatically.",
     pass: "Correct — tap Next exercise when you are ready.",
@@ -56,8 +65,8 @@ const chordMiddleBase = {
   },
 }
 
-export const chordMiddleTestConfig: SingTestConfig = {
-  ...chordMiddleBase,
+export const chordSingTestConfig: SingTestConfig = {
+  ...chordSingBase,
   prepareExercise: () => prepareChordExercise([]),
 }
 
@@ -65,15 +74,19 @@ export function mountSingleNoteTest(root: HTMLElement, _deps?: MountDeps & SingM
   mountSingTest(root, singleNoteTestConfig)
 }
 
-export function mountChordMiddleTest(
+export function mountChordSingTest(
   root: HTMLElement,
   deps?: ChordSessionDeps & SingMountDeps,
 ): void {
   const { sessionHistory, planner, rng } = resolveChordSession(deps ?? {})
+  const tierId = deps?.sessionCurriculumLesson?.contentTierId ?? "chord-major-root"
+  const lessonBanner = isChordContentTierId(tierId) ? getChordLessonBannerLabel(tierId) : undefined
+
   mountSingTest(
     root,
     {
-      ...chordMiddleBase,
+      ...chordSingBase,
+      lessonBanner,
       prepareExercise: () =>
         prepareChordExercise(
           sessionHistory.getRecords(),

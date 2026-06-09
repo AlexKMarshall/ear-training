@@ -12,11 +12,11 @@ import {
 } from "../src/ui/interval-tests.ts"
 import { scaleDegreeSingConfig } from "../src/ui/scale-degree-tests.ts"
 import type { SingTestConfig } from "../src/ui/sing-test.ts"
-import { chordMiddleTestConfig, singleNoteTestConfig } from "../src/ui/tests.ts"
+import { chordSingTestConfig, singleNoteTestConfig } from "../src/ui/tests.ts"
 
 const SING_CONFIGS: Record<PracticeModeId, SingTestConfig | undefined> = {
   "single-note": singleNoteTestConfig,
-  "chord-middle": chordMiddleTestConfig,
+  "chord-sing": chordSingTestConfig,
   "interval-melodic-sing": intervalMelodicSingConfig,
   "interval-named-sing": intervalNamedSingConfig,
   "interval-harmonic-sing": intervalHarmonicSingConfig,
@@ -27,7 +27,7 @@ const SING_CONFIGS: Record<PracticeModeId, SingTestConfig | undefined> = {
 
 const IDENTIFY_CONFIGS: Record<PracticeModeId, IdentifyTestConfig | undefined> = {
   "single-note": undefined,
-  "chord-middle": undefined,
+  "chord-sing": undefined,
   "interval-melodic-sing": undefined,
   "interval-named-sing": undefined,
   "interval-harmonic-sing": undefined,
