@@ -247,8 +247,8 @@ export function passingChordMinorSecondHistory(): AttemptRecord[] {
   ]
 }
 
-/** Chord quality second complete; guided path complete. */
-function passingThroughChordQualitySecondHistory(): AttemptRecord[] {
+/** Chord quality second complete; minor triad inversion identification unlockable. */
+export function passingThroughChordQualitySecondHistory(): AttemptRecord[] {
   return [
     ...passingChordMinorSecondHistory(),
     ...passingStepHistory({
@@ -258,7 +258,18 @@ function passingThroughChordQualitySecondHistory(): AttemptRecord[] {
   ]
 }
 
+/** Minor triad inversion identification complete; guided path complete. */
+function passingThroughChordInversionMinorHistory(): AttemptRecord[] {
+  return [
+    ...passingThroughChordQualitySecondHistory(),
+    ...passingStepHistory({
+      practiceModeId: "chord-inversion-id",
+      contentTierId: "chord-inversion-minor",
+    }),
+  ]
+}
+
 /** Every shipped curriculum step meets unlock thresholds. */
 export function passingFullGuidedPathHistory(): AttemptRecord[] {
-  return passingThroughChordQualitySecondHistory()
+  return passingThroughChordInversionMinorHistory()
 }

@@ -67,6 +67,7 @@ const TIER_POOL_LABEL: Record<CurriculumLesson["contentTierId"], string | null> 
   "chord-quality-first": null,
   "chord-quality-second": null,
   "chord-inversion-major": null,
+  "chord-inversion-minor": null,
 }
 
 /** Optional per-step label overrides (full `practiceModeId:contentTierId` keys). */

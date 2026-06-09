@@ -59,6 +59,7 @@ describe("curriculum steps", () => {
       "scale-degree-sing@degree-minor-diatonic",
       "chord-sing@chord-minor-second",
       "chord-quality-id@chord-quality-second",
+      "chord-inversion-id@chord-inversion-minor",
     ])
   })
 
@@ -214,8 +215,13 @@ describe("curriculum steps", () => {
       practiceModeId: "chord-quality-id",
       contentTierId: "chord-quality-second",
     })
+    const chordInversionMinor = getCurriculumLessonIndex({
+      practiceModeId: "chord-inversion-id",
+      contentTierId: "chord-inversion-minor",
+    })
     expect(chordMinorSecond).toBe(22)
     expect(chordQualitySecond).toBe(23)
+    expect(chordInversionMinor).toBe(24)
     expect(melodicSing2b).toBeGreaterThan(introDegrees)
     expect(chordMajorFirst).toBeGreaterThan(melodicSing2b)
     expect(namedSing2b).toBeGreaterThan(chordMajorFirst)
@@ -230,6 +236,7 @@ describe("curriculum steps", () => {
     expect(minorDiatonicDegrees).toBeGreaterThan(chordInversionMajor)
     expect(chordMinorSecond).toBeGreaterThan(minorDiatonicDegrees)
     expect(chordQualitySecond).toBeGreaterThan(chordMinorSecond)
+    expect(chordInversionMinor).toBeGreaterThan(chordQualitySecond)
   })
 
   it("returns ordered steps per exercise for tier progression", () => {
@@ -258,7 +265,7 @@ describe("curriculum steps", () => {
     ).toEqual(["chord-quality-root", "chord-quality-first", "chord-quality-second"])
     expect(
       curriculumLessonsForPracticeMode("chord-inversion-id").map((s) => s.contentTierId),
-    ).toEqual(["chord-inversion-major"])
+    ).toEqual(["chord-inversion-major", "chord-inversion-minor"])
   })
 
   it("presets degree-major-intro tags from the intro pool", () => {
@@ -366,13 +373,23 @@ describe("curriculum steps", () => {
     expect(getChordInversionIdTierConfig("chord-inversion-major")).toEqual({
       triadQualityId: "major-triad",
     })
+    expect(getChordInversionIdTierConfig("chord-inversion-minor")).toEqual({
+      triadQualityId: "minor-triad",
+    })
     expect(getChordInversionIdLessonBannerLabel("chord-inversion-major")).toBe("Major triad")
+    expect(getChordInversionIdLessonBannerLabel("chord-inversion-minor")).toBe("Minor triad")
     const inversionMajor = findCurriculumLesson(
       (s) =>
         s.practiceModeId === "chord-inversion-id" && s.contentTierId === "chord-inversion-major",
       "chord-inversion-major",
     )
+    const inversionMinor = findCurriculumLesson(
+      (s) =>
+        s.practiceModeId === "chord-inversion-id" && s.contentTierId === "chord-inversion-minor",
+      "chord-inversion-minor",
+    )
     expect(getEligibleTagIds(inversionMajor)).toEqual(getEligibleInversionIds())
+    expect(getEligibleTagIds(inversionMinor)).toEqual(getEligibleInversionIds())
   })
 
   it("labels chord lesson banners with quality and inversion", () => {

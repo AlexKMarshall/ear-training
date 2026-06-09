@@ -14,6 +14,7 @@ import {
   passingStepHistory,
   passingThroughChordInversionMajorHistory,
   passingThroughChordQualityRootHistory,
+  passingThroughChordQualitySecondHistory,
   passingThroughHarmonic2bHistory,
   passingThroughHarmonicId2aHistory,
   passingThroughHarmonicSing2aHistory,
@@ -181,6 +182,18 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
     expect(getSessionCurriculumLessonForPracticeMode("chord-quality-id", records)).toEqual({
       practiceModeId: "chord-quality-id",
       contentTierId: "chord-quality-second",
+    })
+  })
+
+  it("returns chord-inversion-minor after chord quality second passes", () => {
+    expect(
+      getSessionCurriculumLessonForPracticeMode(
+        "chord-inversion-id",
+        passingThroughChordQualitySecondHistory(),
+      ),
+    ).toEqual({
+      practiceModeId: "chord-inversion-id",
+      contentTierId: "chord-inversion-minor",
     })
   })
 
