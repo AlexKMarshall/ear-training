@@ -89,7 +89,9 @@ export function getChordInversionIdTierConfig(tierId: ChordInversionIdContentTie
   return config
 }
 
-export function getChordInversionIdLessonBannerLabel(tierId: ChordInversionIdContentTierId): string {
+export function getChordInversionIdLessonBannerLabel(
+  tierId: ChordInversionIdContentTierId,
+): string {
   switch (tierId) {
     case "chord-inversion-major":
       return "Major triad"

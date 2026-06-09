@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest"
-import { getEligibleInversionIds, getEligibleTriadQualityIds } from "../src/curriculum/chord-tiers.ts"
+import {
+  getEligibleInversionIds,
+  getEligibleTriadQualityIds,
+} from "../src/curriculum/chord-tiers.ts"
 import type { SessionPlanner } from "../src/session/planner.ts"
 import {
   prepareChordInversionIdExercise,
   prepareChordQualityIdExercise,
 } from "../src/ui/chord-identify-session.ts"
-import { passingChordMajorSecondHistory } from "./fixtures/attempts.ts"
-import { passingLevel2History } from "./fixtures/attempts.ts"
+import { passingChordMajorSecondHistory, passingLevel2History } from "./fixtures/attempts.ts"
 
 describe("prepareChordQualityIdExercise", () => {
   it("draws triad quality from planner and anchors range on bottom pitch", () => {

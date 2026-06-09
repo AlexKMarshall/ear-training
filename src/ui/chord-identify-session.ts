@@ -66,7 +66,10 @@ export function prepareChordInversionIdExercise(
     urlCurriculumLesson: sessionCurriculumLesson,
   })
   const eligibleTagIds = getEligibleTagIds(step)
-  const inversionId = planner.planNextExerciseTag(step, records) as ChordLessonExercise["inversionId"]
+  const inversionId = planner.planNextExerciseTag(
+    step,
+    records,
+  ) as ChordLessonExercise["inversionId"]
   if (!isChordInversionIdContentTierId(step.contentTierId)) {
     throw new Error(`Not a chord inversion identify tier: ${step.contentTierId}`)
   }

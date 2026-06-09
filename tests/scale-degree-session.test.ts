@@ -5,8 +5,8 @@ import type { SessionPlanner } from "../src/session/planner.ts"
 import { prepareScaleDegreeExercise } from "../src/ui/scale-degree-session.ts"
 import {
   attempt,
-  passingThroughChordInversionMajorHistory,
   passingIntroScaleDegreeHistory,
+  passingThroughChordInversionMajorHistory,
   passingThroughHarmonic2bHistory,
 } from "./fixtures/attempts.ts"
 import { defined } from "./helpers/defined.ts"

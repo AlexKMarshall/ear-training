@@ -7,12 +7,12 @@ import {
 } from "../src/curriculum/session-step.ts"
 import {
   passingChordMajorSecondHistory,
-  passingThroughChordInversionMajorHistory,
   passingIntroScaleDegreeHistory,
   passingMajorDiatonicScaleDegreeHistory,
   passingMelodicSing2bHistory,
   passingSingleNoteHistory,
   passingStepHistory,
+  passingThroughChordInversionMajorHistory,
   passingThroughChordQualityRootHistory,
   passingThroughHarmonic2bHistory,
   passingThroughHarmonicId2aHistory,

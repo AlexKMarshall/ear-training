@@ -40,6 +40,7 @@ All seven shipped `practiceModeId`s have a one-question pass smoke in `registry-
 ## Quick commands
 
 ```bash
+npm run lint          # Biome lint + format check; warnings fail CI
 npm test              # Vitest Node — domain unit tests
 npm run test:browser  # Vitest browser — UI orchestration (Playwright)
 npm run build         # production build; run when routes or static assets change
@@ -51,7 +52,7 @@ After `npm ci`, `postinstall` runs `playwright install chromium` into the projec
 PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install chromium
 ```
 
-CI runs `npm run typecheck`, `npm test`, `npm run test:browser`, and `npm run build` on every PR and `main`.
+CI runs `npm run lint`, `npm run typecheck`, `npm run knip:production`, `npm run knip`, `npm test`, `npm run test:browser`, and `npm run build` on every PR and `main`.
 
 ## Manual QA
 

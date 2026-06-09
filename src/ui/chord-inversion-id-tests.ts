@@ -1,11 +1,11 @@
 import { playChord } from "../audio/playback.ts"
 import { buildInversionChoices } from "../chord-identify-choices.ts"
+import type { InversionId } from "../chord-inversions.ts"
 import { chordMidis } from "../chords.ts"
 import {
   getChordInversionIdLessonBannerLabel,
   isChordInversionIdContentTierId,
 } from "../curriculum/chord-tiers.ts"
-import type { InversionId } from "../chord-inversions.ts"
 import type { LessonExercise } from "../lesson-exercise.ts"
 import {
   type ChordIdentifySessionDeps,

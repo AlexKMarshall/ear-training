@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest"
 import { page } from "vitest/browser"
 import {
   passingChordMajorSecondHistory,
-  passingThroughChordInversionMajorHistory,
   passingFullGuidedPathHistory,
   passingIntroScaleDegreeHistory,
   passingLevel2History,
@@ -10,6 +9,7 @@ import {
   passingMelodicSing2bHistory,
   passingSingleNoteHistory,
   passingStepHistory,
+  passingThroughChordInversionMajorHistory,
   passingThroughHarmonic2bHistory,
   passingThroughHarmonicId2aHistory,
   passingThroughHarmonicSing2aHistory,

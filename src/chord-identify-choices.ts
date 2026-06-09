@@ -1,5 +1,5 @@
-import type { InversionId } from "./chord-inversions.ts"
 import { getChordTypeById } from "./chord-config.ts"
+import type { InversionId } from "./chord-inversions.ts"
 
 export interface ExerciseChoice {
   id: string

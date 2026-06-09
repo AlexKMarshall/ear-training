@@ -463,9 +463,9 @@ describe("getUnlockRequirement", () => {
       practiceModeId: "chord-inversion-id" as const,
       contentTierId: "chord-inversion-major" as const,
     }
-    expect(isCurriculumLessonUnlocked(inversionMajor, passingMajorDiatonicScaleDegreeHistory())).toBe(
-      false,
-    )
+    expect(
+      isCurriculumLessonUnlocked(inversionMajor, passingMajorDiatonicScaleDegreeHistory()),
+    ).toBe(false)
     expect(isCurriculumLessonUnlocked(inversionMajor, passingChordMajorSecondHistory())).toBe(true)
   })
 
