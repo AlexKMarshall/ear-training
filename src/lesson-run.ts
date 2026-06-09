@@ -73,7 +73,7 @@ export class LessonRun {
     this.lastPassed = false
   }
 
-  recordScore(passed: boolean): void {
+  recordScore(passed: boolean): AttemptScoredContext {
     if (this.currentExerciseIndex === null) {
       throw new Error("Cannot record score before ensureCurrentExercise")
     }
@@ -88,6 +88,7 @@ export class LessonRun {
       lastPassed: this.lastPassed,
     }
     this.onAttemptScored?.(context)
+    return context
   }
 
   /** Replay the same exercise slot; lesson attempt counters are unchanged. */
