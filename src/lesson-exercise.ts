@@ -6,15 +6,13 @@ import type { TargetNote } from "./notes.ts"
 import type { ScaleDegreeExercise } from "./scale-degree-exercises.ts"
 import type { VoicingPositionId } from "./voicing-position.ts"
 
-export type LessonExerciseFamily = "single-note" | "interval" | "scale-degree" | "chord"
-
 interface LessonExerciseBase {
   target: TargetNote
   contentTierId?: ContentTierId
   eligibleTagIds?: readonly string[]
 }
 
-export interface SingleNoteLessonExercise extends LessonExerciseBase {
+interface SingleNoteLessonExercise extends LessonExerciseBase {
   type: "single-note"
 }
 
