@@ -42,14 +42,20 @@ export function createDefaultSessionPlanner(): SessionPlanner {
   return createSessionPlanner()
 }
 
-function isWeakTag(lessonExerciseCount: number, lessonExercisePassRatePercent: number): boolean {
+export function isWeakTag(
+  lessonExerciseCount: number,
+  lessonExercisePassRatePercent: number,
+): boolean {
   return (
     lessonExerciseCount < MIN_EXERCISES_FOR_UNLOCK ||
     lessonExercisePassRatePercent < MIN_EXERCISE_PASS_RATE
   )
 }
 
-function weakTagWeight(lessonExerciseCount: number, lessonExercisePassRatePercent: number): number {
+export function weakTagWeight(
+  lessonExerciseCount: number,
+  lessonExercisePassRatePercent: number,
+): number {
   if (lessonExerciseCount === 0) {
     return 100
   }

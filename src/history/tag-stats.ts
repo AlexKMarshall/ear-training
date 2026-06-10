@@ -84,6 +84,14 @@ export function getTagBreakdownConfig(
   return TAG_CONFIG[practiceModeId]
 }
 
+export function getPlannerTagLabel(practiceModeId: PracticeModeId, tagId: string): string {
+  const config = getTagBreakdownConfig(practiceModeId)
+  if (!config) {
+    return tagId
+  }
+  return resolveTagLabel(config.kind, tagId)
+}
+
 export function tagBreakdownHeading(kind: TagBreakdownKind): string {
   switch (kind) {
     case "interval":
