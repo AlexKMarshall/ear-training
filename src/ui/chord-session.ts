@@ -1,7 +1,13 @@
 import { getChordTypeById } from "../chord-config.ts"
+import type { InversionId } from "../chord-inversions.ts"
 import { randomChordExercise } from "../chord-types.ts"
 import { chordTarget } from "../chords.ts"
-import { getChordTierConfig, isChordContentTierId } from "../curriculum/chord-tiers.ts"
+import {
+  getChordPooledInversionTierConfig,
+  getChordTierConfig,
+  isChordPerInversionContentTierId,
+  isChordPooledInversionContentTierId,
+} from "../curriculum/chord-tiers.ts"
 import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts"
 import { getEligibleTagIds } from "../curriculum/curriculum-lessons.ts"
 import { resolveSessionCurriculumLesson } from "../curriculum/session-step.ts"
@@ -9,7 +15,11 @@ import type { MountDeps } from "../history/port.ts"
 import type { SessionHistoryCache } from "../history/session-cache.ts"
 import type { AttemptRecord } from "../history/types.ts"
 import type { ChordLessonExercise } from "../lesson-exercise.ts"
-import { createDefaultSessionPlanner, type SessionPlanner } from "../session/planner.ts"
+import {
+  createDefaultSessionPlanner,
+  planChordCapstoneExerciseTag,
+  type SessionPlanner,
+} from "../session/planner.ts"
 import { getActiveNoteRange } from "../voice-ranges.ts"
 import { type VoicingPositionId, voicingPositionIndex } from "../voicing-position.ts"
 
@@ -30,10 +40,43 @@ export function prepareChordExercise(
     urlCurriculumLesson: sessionCurriculumLesson,
   })
   const eligibleTagIds = getEligibleTagIds(step)
-  const voicingPositionId = planner.planNextExerciseTag(step, records) as VoicingPositionId
-  if (!isChordContentTierId(step.contentTierId)) {
+
+  if (isChordPooledInversionContentTierId(step.contentTierId)) {
+    const tierConfig = getChordPooledInversionTierConfig(step.contentTierId)
+    const inversionId = planChordCapstoneExerciseTag(
+      step,
+      "inversion",
+      records,
+      _rng,
+    ) as InversionId
+    const voicingPositionId = planChordCapstoneExerciseTag(
+      step,
+      "voicing-position",
+      records,
+      _rng,
+    ) as VoicingPositionId
+    const type = getChordTypeById(tierConfig.triadQualityId)
+    if (!type) {
+      throw new Error(`Unknown chord type id: ${tierConfig.triadQualityId}`)
+    }
+    const targetIndex = voicingPositionIndex(voicingPositionId)
+    const chord = randomChordExercise(type, inversionId, targetIndex, range)
+    return {
+      type: "chord",
+      target: chordTarget(chord),
+      chord,
+      chordTypeId: type.id,
+      inversionId,
+      voicingPositionId,
+      contentTierId: step.contentTierId,
+      eligibleTagIds,
+    }
+  }
+
+  if (!isChordPerInversionContentTierId(step.contentTierId)) {
     throw new Error(`Not a chord content tier: ${step.contentTierId}`)
   }
+  const voicingPositionId = planner.planNextExerciseTag(step, records) as VoicingPositionId
   const tierConfig = getChordTierConfig(step.contentTierId)
   const type = getChordTypeById(tierConfig.triadQualityId)
   if (!type) {

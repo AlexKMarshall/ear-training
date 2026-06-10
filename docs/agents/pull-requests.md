@@ -9,8 +9,9 @@ For work split across several merge-gated PRs (status table, merge gates, final 
 1. **Sync `main`** — `git fetch origin main && git checkout main && git pull origin main`, then branch. If the issue has a **Suggested branch** section, use that name (`git checkout -b feat/…`); see [`issue-tracker.md`](issue-tracker.md#suggested-branch-names).
 2. **Scope** — One logical change per PR. Do not bundle unrelated refactors or sneak ahead on a multi-step plan unless the user asks to combine.
 3. **Verify** — Run `npm run lint`, `npm run typecheck`, `npm run knip:production`, `npm run knip`, and `npm test` (and `npm run build` if the change touches build, routes, or static assets). When browser tests exist, run `npm run test:browser` for PRs that touch `src/ui/` or mount/orchestration code — see [`docs/agents/testing.md`](testing.md). Confirm GitHub Actions **CI** is green on the PR. Do not claim checks pass without running them locally and without a green CI check.
-4. **Commits** — Only commit when the user asks. Use clear messages focused on *why* (1–2 sentences).
-5. **Roadmaps** — Update [`docs/roadmap.md`](../roadmap.md) when planned product work is added, removed, or reprioritized. Update [`docs/tech-debt.md`](../tech-debt.md) when the PR **adds or pays down** tech debt (see [Tech debt registry](#tech-debt-registry)). New features include their own tests in the feature PR (see [`testing.md`](testing.md)).
+4. **Re-verify after any fix** — A green verify run is only valid for the tree that was checked. If you change code *after* verify (including fixes prompted by lint/typecheck/test failures, manual follow-up edits, or output from `npm run lint:fix` / `npm run format`), **run the full verify set from step 3 again** before commit and **again immediately before push**. Do not push based on an earlier green run.
+5. **Commits** — Only commit when the user asks. Use clear messages focused on *why* (1–2 sentences).
+6. **Roadmaps** — Update [`docs/roadmap.md`](../roadmap.md) when planned product work is added, removed, or reprioritized. Update [`docs/tech-debt.md`](../tech-debt.md) when the PR **adds or pays down** tech debt (see [Tech debt registry](#tech-debt-registry)). New features include their own tests in the feature PR (see [`testing.md`](testing.md)).
 
 ## Roadmap updates
 
@@ -156,6 +157,8 @@ Closes #50
 If child issues stay open after merge, close them manually: `gh issue close 46 --comment "Delivered in #51."` (repeat per issue).
 
 ## Creating the PR
+
+**Push gate:** `git push` only after a fresh full verify (step 3) on the exact commits you are about to push — see **Re-verify after any fix** above.
 
 After push:
 

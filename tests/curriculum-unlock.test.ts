@@ -11,6 +11,7 @@ import {
   MIN_EXERCISES_FOR_UNLOCK,
 } from "../src/curriculum/unlock.ts"
 import {
+  passingChordMajorInversionsHistory,
   passingChordMajorSecondHistory,
   passingChordMinorSecondHistory,
   passingFullGuidedPathHistory,
@@ -331,9 +332,17 @@ describe("getContinueCurriculumLesson", () => {
     })
   })
 
-  it("advances to major triad inversion identification after chord major second completes", () => {
-    expect(getContinuePracticeMode(passingChordMajorSecondHistory())).toBe("chord-inversion-id")
+  it("advances to major pooled-inversion capstone after chord major second completes", () => {
+    expect(getContinuePracticeMode(passingChordMajorSecondHistory())).toBe("chord-sing")
     expect(getContinueCurriculumLesson(passingChordMajorSecondHistory())).toEqual({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-major-inversions",
+    })
+  })
+
+  it("advances to major triad inversion identification after major capstone completes", () => {
+    expect(getContinuePracticeMode(passingChordMajorInversionsHistory())).toBe("chord-inversion-id")
+    expect(getContinueCurriculumLesson(passingChordMajorInversionsHistory())).toEqual({
       practiceModeId: "chord-inversion-id",
       contentTierId: "chord-inversion-major",
     })
@@ -478,7 +487,7 @@ describe("getUnlockRequirement", () => {
     ).toBe(true)
   })
 
-  it("locks major triad inversion identification until chord major second passes", () => {
+  it("locks major triad inversion identification until major capstone passes", () => {
     const inversionMajor = {
       practiceModeId: "chord-inversion-id" as const,
       contentTierId: "chord-inversion-major" as const,
@@ -486,7 +495,10 @@ describe("getUnlockRequirement", () => {
     expect(
       isCurriculumLessonUnlocked(inversionMajor, passingMajorDiatonicScaleDegreeHistory()),
     ).toBe(false)
-    expect(isCurriculumLessonUnlocked(inversionMajor, passingChordMajorSecondHistory())).toBe(true)
+    expect(isCurriculumLessonUnlocked(inversionMajor, passingChordMajorSecondHistory())).toBe(false)
+    expect(isCurriculumLessonUnlocked(inversionMajor, passingChordMajorInversionsHistory())).toBe(
+      true,
+    )
   })
 
   it("requires minor diatonic scale degrees before chord minor second", () => {

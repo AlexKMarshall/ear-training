@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from "vitest"
 import { page } from "vitest/browser"
 import {
+  passingChordMajorInversionsHistory,
   passingChordMajorSecondHistory,
   passingFullGuidedPathHistory,
   passingIntroScaleDegreeHistory,
@@ -167,8 +168,19 @@ test("after major diatonic complete: chord major second is the current link", as
     .toBeVisible()
 })
 
-test("after chord major second complete: inversion identification is the current link", async () => {
+test("after chord major second complete: major capstone is the current link", async () => {
   await mountHomeWithHistory(passingChordMajorSecondHistory())
+  await expect
+    .element(
+      guidedPath().getByRole("link", {
+        name: /Chords.*Major triad.*all inversions/i,
+      }),
+    )
+    .toBeVisible()
+})
+
+test("after major capstone complete: inversion identification is the current link", async () => {
+  await mountHomeWithHistory(passingChordMajorInversionsHistory())
   await expect
     .element(
       guidedPath().getByRole("link", {

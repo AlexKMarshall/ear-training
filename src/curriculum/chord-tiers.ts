@@ -2,10 +2,19 @@ import type { InversionId } from "../chord-inversions.ts"
 import { VOICING_POSITION_IDS } from "../voicing-position.ts"
 import type { ContentTierId } from "./curriculum-lessons.ts"
 
-export type ChordContentTierId = Extract<
+export type ChordPerInversionContentTierId = Extract<
   ContentTierId,
-  `chord-major-${string}` | `chord-minor-${string}`
+  | "chord-major-root"
+  | "chord-minor-root"
+  | "chord-major-first"
+  | "chord-minor-first"
+  | "chord-major-second"
+  | "chord-minor-second"
 >
+
+export type ChordPooledInversionContentTierId = Extract<ContentTierId, "chord-major-inversions">
+
+export type ChordContentTierId = ChordPerInversionContentTierId | ChordPooledInversionContentTierId
 
 export type ChordQualityIdContentTierId = Extract<ContentTierId, `chord-quality-${string}`>
 
@@ -16,7 +25,7 @@ export interface ChordTierConfig {
   inversion: InversionId
 }
 
-const CHORD_TIER_CONFIG: Record<ChordContentTierId, ChordTierConfig> = {
+const CHORD_TIER_CONFIG: Record<ChordPerInversionContentTierId, ChordTierConfig> = {
   "chord-major-root": { triadQualityId: "major-triad", inversion: "root" },
   "chord-minor-root": { triadQualityId: "minor-triad", inversion: "root" },
   "chord-major-first": { triadQualityId: "major-triad", inversion: "first" },
@@ -25,8 +34,34 @@ const CHORD_TIER_CONFIG: Record<ChordContentTierId, ChordTierConfig> = {
   "chord-minor-second": { triadQualityId: "minor-triad", inversion: "second" },
 }
 
+const CHORD_POOLED_INVERSION_TIER_CONFIG: Record<
+  ChordPooledInversionContentTierId,
+  { triadQualityId: "major-triad" | "minor-triad" }
+> = {
+  "chord-major-inversions": { triadQualityId: "major-triad" },
+}
+
+const CHORD_CAPSTONE_FALLBACK_TIERS: Record<
+  ChordPooledInversionContentTierId,
+  readonly ChordPerInversionContentTierId[]
+> = {
+  "chord-major-inversions": ["chord-major-root", "chord-major-first", "chord-major-second"],
+}
+
+export function isChordPerInversionContentTierId(
+  tierId: ContentTierId,
+): tierId is ChordPerInversionContentTierId {
+  return tierId in CHORD_TIER_CONFIG
+}
+
+export function isChordPooledInversionContentTierId(
+  tierId: ContentTierId,
+): tierId is ChordPooledInversionContentTierId {
+  return tierId in CHORD_POOLED_INVERSION_TIER_CONFIG
+}
+
 export function isChordContentTierId(tierId: ContentTierId): tierId is ChordContentTierId {
-  return tierId.startsWith("chord-major-") || tierId.startsWith("chord-minor-")
+  return isChordPerInversionContentTierId(tierId) || isChordPooledInversionContentTierId(tierId)
 }
 
 export function isChordQualityIdContentTierId(
@@ -116,12 +151,28 @@ export function getEligibleInversionIds(): readonly InversionId[] {
   return ["root", "first", "second"]
 }
 
-export function getChordTierConfig(tierId: ChordContentTierId): ChordTierConfig {
+export function getChordTierConfig(tierId: ChordPerInversionContentTierId): ChordTierConfig {
   const config = CHORD_TIER_CONFIG[tierId]
   if (!config) {
     throw new Error(`Unknown chord content tier: ${tierId}`)
   }
   return config
+}
+
+export function getChordPooledInversionTierConfig(tierId: ChordPooledInversionContentTierId): {
+  triadQualityId: "major-triad" | "minor-triad"
+} {
+  const config = CHORD_POOLED_INVERSION_TIER_CONFIG[tierId]
+  if (!config) {
+    throw new Error(`Unknown chord pooled-inversion tier: ${tierId}`)
+  }
+  return config
+}
+
+export function getChordCapstoneFallbackTierIds(
+  tierId: ChordPooledInversionContentTierId,
+): readonly ChordPerInversionContentTierId[] {
+  return CHORD_CAPSTONE_FALLBACK_TIERS[tierId]
 }
 
 export function getChordLessonBannerLabel(tierId: ChordContentTierId): string {
@@ -138,6 +189,8 @@ export function getChordLessonBannerLabel(tierId: ChordContentTierId): string {
       return "Major triad · 2nd inversion"
     case "chord-minor-second":
       return "Minor triad · 2nd inversion"
+    case "chord-major-inversions":
+      return "Major triad · all inversions"
   }
 }
 

@@ -4,7 +4,11 @@ import { filterRecordsForCurriculumLesson } from "../src/curriculum/curriculum-l
 import { MIN_EXERCISES_FOR_UNLOCK } from "../src/curriculum/unlock.ts"
 import type { AttemptRecord } from "../src/history/types.ts"
 import { DIATONIC_MAJOR_INTERVAL_IDS } from "../src/interval-config.ts"
-import { planNextExerciseTag, WEAK_AREA_PROBABILITY } from "../src/session/planner.ts"
+import {
+  planChordCapstoneExerciseTag,
+  planNextExerciseTag,
+  WEAK_AREA_PROBABILITY,
+} from "../src/session/planner.ts"
 import { attempt } from "./fixtures/attempts.ts"
 
 function withTier(record: AttemptRecord, contentTierId: ContentTierId): AttemptRecord {
@@ -273,6 +277,59 @@ describe("planNextExerciseTag", () => {
         ["second", "third", "fourth", "fifth", "sixth", "seventh", "octave"].includes(id),
       ),
     ).toBe(true)
+  })
+
+  it("draws inversions for major capstone tier", () => {
+    const step = {
+      practiceModeId: "chord-sing" as const,
+      contentTierId: "chord-major-inversions" as const,
+    }
+    const counts = new Set<string>()
+    for (let i = 0; i < 30; i++) {
+      counts.add(planChordCapstoneExerciseTag(step, "inversion", []))
+    }
+    expect([...counts].every((id) => ["root", "first", "second"].includes(id))).toBe(true)
+  })
+
+  it("falls back to per-inversion history for capstone inversion weighting", () => {
+    const step = {
+      practiceModeId: "chord-sing" as const,
+      contentTierId: "chord-major-inversions" as const,
+    }
+    const passingChordSing = (contentTierId: "chord-major-root" | "chord-major-first") =>
+      Array.from({ length: MIN_EXERCISES_FOR_UNLOCK }, (_, i) =>
+        attempt({
+          practiceModeId: "chord-sing",
+          contentTierId,
+          inversionId: contentTierId === "chord-major-root" ? "root" : "first",
+          voicingPositionId: "bottom",
+          passed: true,
+          attemptNumber: 1,
+          centsOff: 0,
+          exerciseIndex: i,
+          lessonId: `${contentTierId}-${i}`,
+        }),
+      )
+    const weakSecond = Array.from({ length: MIN_EXERCISES_FOR_UNLOCK }, (_, i) =>
+      attempt({
+        practiceModeId: "chord-sing",
+        contentTierId: "chord-major-second",
+        inversionId: "second",
+        voicingPositionId: "bottom",
+        passed: i < 3,
+        attemptNumber: 1,
+        centsOff: 0,
+        exerciseIndex: i,
+        lessonId: `chord-major-second-${i}`,
+      }),
+    )
+    const records = [
+      ...passingChordSing("chord-major-root"),
+      ...passingChordSing("chord-major-first"),
+      ...weakSecond,
+    ]
+    const tag = planChordCapstoneExerciseTag(step, "inversion", records, () => 0)
+    expect(tag).toBe("second")
   })
 
   it.each([
