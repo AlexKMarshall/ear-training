@@ -6,6 +6,7 @@ import {
   resolveSessionCurriculumLesson,
 } from "../src/curriculum/session-step.ts"
 import {
+  passingChordMajorInversionsHistory,
   passingChordMajorSecondHistory,
   passingIntroScaleDegreeHistory,
   passingMajorDiatonicScaleDegreeHistory,
@@ -129,11 +130,20 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
     })
   })
 
-  it("returns chord-inversion-major when chord major second is complete", () => {
+  it("returns chord-major-inversions when chord major second is complete", () => {
+    expect(
+      getSessionCurriculumLessonForPracticeMode("chord-sing", passingChordMajorSecondHistory()),
+    ).toEqual({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-major-inversions",
+    })
+  })
+
+  it("returns chord-inversion-major when major capstone is complete", () => {
     expect(
       getSessionCurriculumLessonForPracticeMode(
         "chord-inversion-id",
-        passingChordMajorSecondHistory(),
+        passingChordMajorInversionsHistory(),
       ),
     ).toEqual({
       practiceModeId: "chord-inversion-id",

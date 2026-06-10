@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { getEligibleVoicingPositionIds } from "../src/curriculum/chord-tiers.ts"
-import type { SessionPlanner } from "../src/session/planner.ts"
+import {
+  getEligibleInversionIds,
+  getEligibleVoicingPositionIds,
+} from "../src/curriculum/chord-tiers.ts"
+import { createDefaultSessionPlanner, type SessionPlanner } from "../src/session/planner.ts"
 import { prepareChordExercise } from "../src/ui/chord-session.ts"
 import {
+  passingChordMajorInversionsHistory,
   passingChordMajorSecondHistory,
   passingMelodicSing2bHistory,
   passingThroughHarmonicSing2aHistory,
@@ -95,5 +99,42 @@ describe("prepareChordExercise", () => {
     expect(exercise.chordTypeId).toBe("major-triad")
     expect(exercise.contentTierId).toBe("chord-major-second")
     expect(exercise.inversionId).toBe("second")
+  })
+
+  it("draws major triad with varying inversion and voicing for capstone tier", () => {
+    const inversions = new Set<string>()
+    const voicings = new Set<string>()
+    for (let i = 0; i < 60; i++) {
+      const exercise = prepareChordExercise(
+        [],
+        createDefaultSessionPlanner(),
+        { lowMidi: 48, highMidi: 67 },
+        () => Math.random(),
+        { practiceModeId: "chord-sing", contentTierId: "chord-major-inversions" },
+      )
+      if (exercise.inversionId) inversions.add(exercise.inversionId)
+      if (exercise.voicingPositionId) voicings.add(exercise.voicingPositionId)
+    }
+    expect(inversions.size).toBeGreaterThan(1)
+    expect(voicings.size).toBeGreaterThan(1)
+    expect([...inversions].every((id) => getEligibleInversionIds().includes(id as never))).toBe(
+      true,
+    )
+    expect([...voicings].every((id) => getEligibleVoicingPositionIds().includes(id as never))).toBe(
+      true,
+    )
+  })
+
+  it("uses capstone lesson banner label", () => {
+    const exercise = prepareChordExercise(
+      passingChordMajorInversionsHistory(),
+      createDefaultSessionPlanner(),
+      { lowMidi: 48, highMidi: 67 },
+      () => 0,
+      { practiceModeId: "chord-sing", contentTierId: "chord-major-inversions" },
+    )
+
+    expect(exercise.chordTypeId).toBe("major-triad")
+    expect(exercise.contentTierId).toBe("chord-major-inversions")
   })
 })

@@ -136,6 +136,18 @@ describe("getPathNodeLabels", () => {
       subtitle: "Major triad · 2nd inversion · any voice",
     })
   })
+
+  it("labels major pooled-inversion capstone", () => {
+    expect(
+      getPathNodeLabels({
+        practiceModeId: "chord-sing",
+        contentTierId: "chord-major-inversions",
+      }),
+    ).toEqual({
+      title: "Chords",
+      subtitle: "Major triad · all inversions · any voice",
+    })
+  })
 })
 
 describe("getPathNodeState", () => {

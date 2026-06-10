@@ -1,9 +1,16 @@
+import {
+  getChordCapstoneFallbackTierIds,
+  getEligibleInversionIds,
+  getEligibleVoicingPositionIds,
+  isChordPooledInversionContentTierId,
+} from "../curriculum/chord-tiers.ts"
 import type { CurriculumLesson } from "../curriculum/curriculum-lessons.ts"
 import {
   filterRecordsForCurriculumLesson,
   getEligibleTagIds,
 } from "../curriculum/curriculum-lessons.ts"
 import { MIN_EXERCISE_PASS_RATE, MIN_EXERCISES_FOR_UNLOCK } from "../curriculum/unlock.ts"
+import { excludeLegacyRecords } from "../history/legacy-records.ts"
 import { computeLessonExerciseStats } from "../history/stats.ts"
 import { getTagBreakdownConfig } from "../history/tag-stats.ts"
 import type { AttemptRecord } from "../history/types.ts"
@@ -78,6 +85,93 @@ function pickWeighted<T>(items: readonly T[], weightFn: (item: T) => number, rng
     throw new Error("pickWeighted: empty items")
   }
   return last
+}
+
+export type ChordCapstonePlannerAxis = "inversion" | "voicing-position"
+
+function getTagIdForCapstoneAxis(
+  record: AttemptRecord,
+  axis: ChordCapstonePlannerAxis,
+): string | undefined {
+  return axis === "inversion" ? record.inversionId : record.voicingPositionId
+}
+
+function filterRecordsForCapstoneAxis(
+  step: CurriculumLesson,
+  records: readonly AttemptRecord[],
+): AttemptRecord[] {
+  if (!isChordPooledInversionContentTierId(step.contentTierId)) {
+    throw new Error(`Not a chord pooled-inversion tier: ${step.contentTierId}`)
+  }
+  const capstoneRecords = filterRecordsForCurriculumLesson(records, step)
+  if (capstoneRecords.length > 0) {
+    return capstoneRecords
+  }
+  const fallbackTierIds = getChordCapstoneFallbackTierIds(step.contentTierId)
+  return excludeLegacyRecords(records).filter(
+    (record) =>
+      record.practiceModeId === "chord-sing" &&
+      record.contentTierId !== undefined &&
+      (fallbackTierIds as readonly string[]).includes(record.contentTierId),
+  )
+}
+
+export function planChordCapstoneExerciseTag(
+  step: CurriculumLesson,
+  axis: ChordCapstonePlannerAxis,
+  records: readonly AttemptRecord[],
+  rng: () => number = Math.random,
+  weakAreaProbability: number = WEAK_AREA_PROBABILITY,
+): string {
+  const eligible: readonly string[] =
+    axis === "inversion" ? getEligibleInversionIds() : getEligibleVoicingPositionIds()
+  const axisRecords = filterRecordsForCapstoneAxis(step, records)
+  const byTag = new Map<string, AttemptRecord[]>()
+  for (const record of axisRecords) {
+    const tagId = getTagIdForCapstoneAxis(record, axis)
+    if (!tagId || !eligible.includes(tagId)) {
+      continue
+    }
+    const group = byTag.get(tagId) ?? []
+    group.push(record)
+    byTag.set(tagId, group)
+  }
+
+  const weak: string[] = []
+  const maintenance: string[] = []
+
+  for (const tagId of eligible) {
+    const tagRecords = byTag.get(tagId) ?? []
+    const { lessonExerciseCount, lessonExercisePassRatePercent } =
+      computeLessonExerciseStats(tagRecords)
+    if (isWeakTag(lessonExerciseCount, lessonExercisePassRatePercent)) {
+      weak.push(tagId)
+    } else {
+      maintenance.push(tagId)
+    }
+  }
+
+  const pickFromWeak = weak.length > 0 && (maintenance.length === 0 || rng() < weakAreaProbability)
+  const pool = pickFromWeak ? weak : maintenance
+
+  if (pool.length === 1) {
+    return pickRandom(pool, rng)
+  }
+
+  if (pickFromWeak) {
+    return pickWeighted(
+      pool,
+      (tagId) => {
+        const tagRecords = byTag.get(tagId) ?? []
+        const { lessonExerciseCount, lessonExercisePassRatePercent } =
+          computeLessonExerciseStats(tagRecords)
+        return weakTagWeight(lessonExerciseCount, lessonExercisePassRatePercent)
+      },
+      rng,
+    )
+  }
+
+  return pickRandom(pool, rng)
 }
 
 export function planNextExerciseTag(
