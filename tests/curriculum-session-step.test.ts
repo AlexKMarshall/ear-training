@@ -8,6 +8,7 @@ import {
 import {
   passingChordMajorInversionsHistory,
   passingChordMajorSecondHistory,
+  passingChordMinorInversionsHistory,
   passingIntroScaleDegreeHistory,
   passingMajorDiatonicScaleDegreeHistory,
   passingMelodicSing2bHistory,
@@ -195,11 +196,23 @@ describe("getSessionCurriculumLessonForPracticeMode", () => {
     })
   })
 
-  it("returns chord-inversion-minor after chord quality second passes", () => {
+  it("returns chord-minor-inversions when chord quality second is complete", () => {
+    expect(
+      getSessionCurriculumLessonForPracticeMode(
+        "chord-sing",
+        passingThroughChordQualitySecondHistory(),
+      ),
+    ).toEqual({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-minor-inversions",
+    })
+  })
+
+  it("returns chord-inversion-minor after minor capstone passes", () => {
     expect(
       getSessionCurriculumLessonForPracticeMode(
         "chord-inversion-id",
-        passingThroughChordQualitySecondHistory(),
+        passingChordMinorInversionsHistory(),
       ),
     ).toEqual({
       practiceModeId: "chord-inversion-id",

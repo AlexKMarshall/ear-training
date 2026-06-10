@@ -258,7 +258,7 @@ export function passingChordMinorSecondHistory(): AttemptRecord[] {
   ]
 }
 
-/** Chord quality second complete; minor triad inversion identification unlockable. */
+/** Chord quality second complete; minor pooled-inversion capstone unlockable. */
 export function passingThroughChordQualitySecondHistory(): AttemptRecord[] {
   return [
     ...passingChordMinorSecondHistory(),
@@ -269,10 +269,21 @@ export function passingThroughChordQualitySecondHistory(): AttemptRecord[] {
   ]
 }
 
+/** Minor pooled-inversion capstone complete; minor triad inversion identification unlockable. */
+export function passingChordMinorInversionsHistory(): AttemptRecord[] {
+  return [
+    ...passingThroughChordQualitySecondHistory(),
+    ...passingStepHistory({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-minor-inversions",
+    }),
+  ]
+}
+
 /** Minor triad inversion identification complete; guided path complete. */
 function passingThroughChordInversionMinorHistory(): AttemptRecord[] {
   return [
-    ...passingThroughChordQualitySecondHistory(),
+    ...passingChordMinorInversionsHistory(),
     ...passingStepHistory({
       practiceModeId: "chord-inversion-id",
       contentTierId: "chord-inversion-minor",

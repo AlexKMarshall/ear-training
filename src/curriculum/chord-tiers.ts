@@ -12,7 +12,10 @@ export type ChordPerInversionContentTierId = Extract<
   | "chord-minor-second"
 >
 
-export type ChordPooledInversionContentTierId = Extract<ContentTierId, "chord-major-inversions">
+export type ChordPooledInversionContentTierId = Extract<
+  ContentTierId,
+  "chord-major-inversions" | "chord-minor-inversions"
+>
 
 export type ChordContentTierId = ChordPerInversionContentTierId | ChordPooledInversionContentTierId
 
@@ -39,6 +42,7 @@ const CHORD_POOLED_INVERSION_TIER_CONFIG: Record<
   { triadQualityId: "major-triad" | "minor-triad" }
 > = {
   "chord-major-inversions": { triadQualityId: "major-triad" },
+  "chord-minor-inversions": { triadQualityId: "minor-triad" },
 }
 
 const CHORD_CAPSTONE_FALLBACK_TIERS: Record<
@@ -46,6 +50,7 @@ const CHORD_CAPSTONE_FALLBACK_TIERS: Record<
   readonly ChordPerInversionContentTierId[]
 > = {
   "chord-major-inversions": ["chord-major-root", "chord-major-first", "chord-major-second"],
+  "chord-minor-inversions": ["chord-minor-root", "chord-minor-first", "chord-minor-second"],
 }
 
 export function isChordPerInversionContentTierId(
@@ -191,6 +196,8 @@ export function getChordLessonBannerLabel(tierId: ChordContentTierId): string {
       return "Minor triad · 2nd inversion"
     case "chord-major-inversions":
       return "Major triad · all inversions"
+    case "chord-minor-inversions":
+      return "Minor triad · all inversions"
   }
 }
 
