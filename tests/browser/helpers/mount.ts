@@ -1,5 +1,5 @@
 import { createTestAudioPort } from "../../../src/audio/port.ts"
-import { createTestRecordingPort } from "../../../src/audio/recording-port.ts"
+import { createTestRecordingPort, type RecordingPort } from "../../../src/audio/recording-port.ts"
 import { MAJOR_TRIAD, MINOR_TRIAD } from "../../../src/chord-config.ts"
 import { buildChordExercise } from "../../../src/chord-types.ts"
 import { chordTarget } from "../../../src/chords.ts"
@@ -40,6 +40,7 @@ import {
 import { type ExerciseMountDeps, mountExercise } from "../../../src/ui/mount-exercise.ts"
 import { scaleDegreeSingExerciseDefinition } from "../../../src/ui/scale-degree-tests.ts"
 import { mountStats } from "../../../src/ui/stats.ts"
+import { mountTargetedPractice } from "../../../src/ui/targeted-practice-mount.tsx"
 import { chordSingExerciseDefinition, singleNoteExerciseDefinition } from "../../../src/ui/tests.ts"
 import { resetVoiceTypePreference } from "../../../src/voice-ranges.ts"
 import { defined } from "../../helpers/defined.ts"
@@ -100,6 +101,27 @@ function getLocationSearch(): string {
 export async function mountHomeWithHistory(records: AttemptRecord[]): Promise<void> {
   const root = createAppRoot()
   await mountHome(root, { history: createMemoryHistoryPort(records) })
+}
+
+export async function mountTargetedPracticeWithHistory(
+  records: AttemptRecord[],
+  options?: {
+    exercisesPerLesson?: number
+    history?: HistoryPort
+    recording?: RecordingPort
+  },
+): Promise<{ history: HistoryPort }> {
+  const root = createAppRoot()
+  const history = options?.history ?? createMemoryHistoryPort(records)
+  const sessionHistory = createSessionHistoryCache(history, { initialRecords: records })
+  await mountTargetedPractice(root, {
+    history,
+    sessionHistory,
+    exercisesPerLesson: options?.exercisesPerLesson,
+    audio: createTestAudioPort(),
+    recording: options?.recording ?? createTestRecordingPort({ samplesHz: Array(20).fill(262) }),
+  })
+  return { history }
 }
 
 export async function mountPracticeModePageWithHistory(

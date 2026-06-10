@@ -21,7 +21,7 @@ When a roadmap item ships, **remove it from this file** (or open a follow-up iss
 
 ## Session model (target behavior)
 
-Learners choose **where** to practice (current or passed **path node** on the guided path; **targeted practice** when built). The app chooses **which items** each lesson draws from the eligible **content tier** pool.
+Learners choose **where** to practice (current or passed **path node** on the guided path, or **targeted practice**). The app chooses **which items** each lesson draws from the eligible **content tier** pool.
 
 | Learner configures | App configures per question |
 |--------------------|-------------------------------|
@@ -76,8 +76,6 @@ Grouped by theme; order is indicative, not a commitment. Prefer tracer-bullet is
 | Interval tiers **2c+** | Chromatic within octave, compound, descending / sing-lower / both directions |
 | Per-tag tier gates | Advance tier when specific tags meet thresholds, not only step aggregates |
 | Scale degree tiers beyond **degree-minor-diatonic** | Chromatic degree labels, then altered/extended degree pools |
-| **Targeted practice** | Home area outside guided sequence — mixed-type lessons likely; see `CONTEXT.md` |
-| Mixed-type lessons | One lesson run drawing multiple exercise types |
 | Configurable unlock thresholds in UI | Constants in `unlock.ts` today |
 ### Interval & reproduction depth
 

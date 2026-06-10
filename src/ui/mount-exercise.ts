@@ -14,7 +14,9 @@ import type { ExerciseScreenResultView } from "../exercise-screen-state.ts"
 import { ExerciseScreenState } from "../exercise-screen-state.ts"
 import { createDefaultHistoryPort } from "../history/port.ts"
 import { buildAttemptRecord } from "../history/serialize.ts"
+import type { SessionHistoryCache } from "../history/session-cache.ts"
 import type { LessonExercise } from "../lesson-exercise.ts"
+import type { LessonRunInitialState, LessonRunSnapshot } from "../lesson-run.ts"
 import type { ScoreResult } from "../pitch/score.ts"
 import { getScaleDegreeById } from "../scale-degree-config.ts"
 import { getVoiceType, setVoiceType, type VoiceType } from "../voice-ranges.ts"
@@ -28,7 +30,11 @@ import { IdentifyTestView } from "./identify-test-view.tsx"
 import type { SingMountDeps, SingResultView, SingUiState } from "./sing-test-types.ts"
 import { SingTestView } from "./sing-test-view.tsx"
 
-export interface ExerciseMountDeps extends SingMountDeps, IdentifyMountDeps {}
+export interface ExerciseMountDeps extends SingMountDeps, IdentifyMountDeps {
+  sessionHistory?: SessionHistoryCache
+  initialLessonRunState?: LessonRunInitialState
+  onLessonRunSnapshot?: (snapshot: LessonRunSnapshot) => void
+}
 
 function toSingResult(
   result: ExerciseScreenResultView | null,
@@ -189,9 +195,13 @@ export function createSingExerciseOrchestrator(
         lesson.attemptNumber,
       )
       void history.saveAttempt(record)
+      if (screenRef.current) {
+        deps.onLessonRunSnapshot?.(screenRef.current.getSnapshot().lesson)
+      }
     },
     onLessonReset: definition.onLessonReset,
     prepareExerciseOnIdle: definition.exercisePromptFromDraw,
+    initialLessonRunState: deps.initialLessonRunState,
   })
 
   const exerciseScreen = screenRef.current
@@ -345,8 +355,12 @@ export function createSelectExerciseOrchestrator(
         selectedId,
       )
       void history.saveAttempt(record)
+      if (screenRef.current) {
+        deps.onLessonRunSnapshot?.(screenRef.current.getSnapshot().lesson)
+      }
     },
     onLessonReset: definition.onLessonReset,
+    initialLessonRunState: deps.initialLessonRunState,
   })
 
   const exerciseScreen = screenRef.current

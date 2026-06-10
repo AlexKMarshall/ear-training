@@ -1,5 +1,5 @@
 import { ensureAudioReady, unlockAudio } from "./context.ts"
-import { isPlaying } from "./playback.ts"
+import { isPlaying as isGlobalPlaybackBusy } from "./playback.ts"
 
 export interface AudioPort {
   unlock(): AudioContext
@@ -11,7 +11,7 @@ export function createDefaultAudioPort(): AudioPort {
   return {
     unlock: unlockAudio,
     ensureReady: ensureAudioReady,
-    isPlaying,
+    isPlaying: isGlobalPlaybackBusy,
   }
 }
 
@@ -21,6 +21,6 @@ export function createTestAudioPort(): AudioPort {
   return {
     unlock: () => ctx,
     ensureReady: async () => ctx,
-    isPlaying: () => false,
+    isPlaying: isGlobalPlaybackBusy,
   }
 }
