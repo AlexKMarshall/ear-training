@@ -10,8 +10,8 @@ import {
 } from "../src/ui/chord-identify-session.ts"
 import {
   passingChordMajorInversionsHistory,
+  passingChordMinorInversionsHistory,
   passingLevel2History,
-  passingThroughChordQualitySecondHistory,
 } from "./fixtures/attempts.ts"
 
 describe("prepareChordQualityIdExercise", () => {
@@ -131,7 +131,7 @@ describe("prepareChordInversionIdExercise", () => {
       planNextExerciseTag: () => "root",
     }
     const exercise = prepareChordInversionIdExercise(
-      passingThroughChordQualitySecondHistory(),
+      passingChordMinorInversionsHistory(),
       planner,
       { lowMidi: 48, highMidi: 55 },
       () => 0,

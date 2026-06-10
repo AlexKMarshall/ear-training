@@ -291,7 +291,7 @@ describe("planNextExerciseTag", () => {
     expect([...counts].every((id) => ["root", "first", "second"].includes(id))).toBe(true)
   })
 
-  it("falls back to per-inversion history for capstone inversion weighting", () => {
+  it("falls back to per-inversion history for major capstone inversion weighting", () => {
     const step = {
       practiceModeId: "chord-sing" as const,
       contentTierId: "chord-major-inversions" as const,
@@ -326,6 +326,59 @@ describe("planNextExerciseTag", () => {
     const records = [
       ...passingChordSing("chord-major-root"),
       ...passingChordSing("chord-major-first"),
+      ...weakSecond,
+    ]
+    const tag = planChordCapstoneExerciseTag(step, "inversion", records, () => 0)
+    expect(tag).toBe("second")
+  })
+
+  it("draws inversions for minor capstone tier", () => {
+    const step = {
+      practiceModeId: "chord-sing" as const,
+      contentTierId: "chord-minor-inversions" as const,
+    }
+    const counts = new Set<string>()
+    for (let i = 0; i < 30; i++) {
+      counts.add(planChordCapstoneExerciseTag(step, "inversion", []))
+    }
+    expect([...counts].every((id) => ["root", "first", "second"].includes(id))).toBe(true)
+  })
+
+  it("falls back to per-inversion history for minor capstone inversion weighting", () => {
+    const step = {
+      practiceModeId: "chord-sing" as const,
+      contentTierId: "chord-minor-inversions" as const,
+    }
+    const passingChordSing = (contentTierId: "chord-minor-root" | "chord-minor-first") =>
+      Array.from({ length: MIN_EXERCISES_FOR_UNLOCK }, (_, i) =>
+        attempt({
+          practiceModeId: "chord-sing",
+          contentTierId,
+          inversionId: contentTierId === "chord-minor-root" ? "root" : "first",
+          voicingPositionId: "bottom",
+          passed: true,
+          attemptNumber: 1,
+          centsOff: 0,
+          exerciseIndex: i,
+          lessonId: `${contentTierId}-${i}`,
+        }),
+      )
+    const weakSecond = Array.from({ length: MIN_EXERCISES_FOR_UNLOCK }, (_, i) =>
+      attempt({
+        practiceModeId: "chord-sing",
+        contentTierId: "chord-minor-second",
+        inversionId: "second",
+        voicingPositionId: "bottom",
+        passed: i < 3,
+        attemptNumber: 1,
+        centsOff: 0,
+        exerciseIndex: i,
+        lessonId: `chord-minor-second-${i}`,
+      }),
+    )
+    const records = [
+      ...passingChordSing("chord-minor-root"),
+      ...passingChordSing("chord-minor-first"),
       ...weakSecond,
     ]
     const tag = planChordCapstoneExerciseTag(step, "inversion", records, () => 0)

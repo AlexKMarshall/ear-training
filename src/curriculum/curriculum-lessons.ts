@@ -34,6 +34,7 @@ export type ContentTierId =
   | "chord-major-second"
   | "chord-major-inversions"
   | "chord-minor-second"
+  | "chord-minor-inversions"
   | "chord-quality-root"
   | "chord-quality-first"
   | "chord-quality-second"
@@ -71,6 +72,7 @@ export const CURRICULUM_LESSONS: readonly CurriculumLesson[] = [
   { practiceModeId: "scale-degree-sing", contentTierId: "degree-minor-diatonic" },
   { practiceModeId: "chord-sing", contentTierId: "chord-minor-second" },
   { practiceModeId: "chord-quality-id", contentTierId: "chord-quality-second" },
+  { practiceModeId: "chord-sing", contentTierId: "chord-minor-inversions" },
   { practiceModeId: "chord-inversion-id", contentTierId: "chord-inversion-minor" },
 ] as const
 
@@ -180,6 +182,7 @@ export function getEligibleTagIds(step: CurriculumLesson): readonly string[] {
     case "chord-major-second":
     case "chord-major-inversions":
     case "chord-minor-second":
+    case "chord-minor-inversions":
       return getEligibleVoicingPositionIds()
     case "chord-quality-root":
     case "chord-quality-first":

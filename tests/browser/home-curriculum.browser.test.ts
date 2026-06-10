@@ -3,6 +3,7 @@ import { page } from "vitest/browser"
 import {
   passingChordMajorInversionsHistory,
   passingChordMajorSecondHistory,
+  passingChordMinorInversionsHistory,
   passingFullGuidedPathHistory,
   passingIntroScaleDegreeHistory,
   passingLevel2History,
@@ -239,7 +240,7 @@ test("after chord minor second complete: chord quality second is the current lin
     .toBeVisible()
 })
 
-test("after chord quality second complete: minor triad inversion identification is the current link", async () => {
+test("after chord quality second complete: minor capstone is the current link", async () => {
   await mountHomeWithHistory([
     ...passingThroughChordInversionMajorHistory(),
     ...passingStepHistory({
@@ -255,6 +256,17 @@ test("after chord quality second complete: minor triad inversion identification 
       contentTierId: "chord-quality-second",
     }),
   ])
+  await expect
+    .element(
+      guidedPath().getByRole("link", {
+        name: /Chords.*Minor triad.*all inversions/i,
+      }),
+    )
+    .toBeVisible()
+})
+
+test("after minor capstone complete: inversion identification is the current link", async () => {
+  await mountHomeWithHistory(passingChordMinorInversionsHistory())
   await expect
     .element(
       guidedPath().getByRole("link", {

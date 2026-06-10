@@ -137,4 +137,29 @@ describe("prepareChordExercise", () => {
     expect(exercise.chordTypeId).toBe("major-triad")
     expect(exercise.contentTierId).toBe("chord-major-inversions")
   })
+
+  it("draws minor triad with varying inversion and voicing for capstone tier", () => {
+    const inversions = new Set<string>()
+    const voicings = new Set<string>()
+    for (let i = 0; i < 60; i++) {
+      const exercise = prepareChordExercise(
+        [],
+        createDefaultSessionPlanner(),
+        { lowMidi: 48, highMidi: 67 },
+        () => Math.random(),
+        { practiceModeId: "chord-sing", contentTierId: "chord-minor-inversions" },
+      )
+      expect(exercise.chordTypeId).toBe("minor-triad")
+      if (exercise.inversionId) inversions.add(exercise.inversionId)
+      if (exercise.voicingPositionId) voicings.add(exercise.voicingPositionId)
+    }
+    expect(inversions.size).toBeGreaterThan(1)
+    expect(voicings.size).toBeGreaterThan(1)
+    expect([...inversions].every((id) => getEligibleInversionIds().includes(id as never))).toBe(
+      true,
+    )
+    expect([...voicings].every((id) => getEligibleVoicingPositionIds().includes(id as never))).toBe(
+      true,
+    )
+  })
 })

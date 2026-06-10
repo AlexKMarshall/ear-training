@@ -63,6 +63,7 @@ describe("curriculum steps", () => {
       "scale-degree-sing@degree-minor-diatonic",
       "chord-sing@chord-minor-second",
       "chord-quality-id@chord-quality-second",
+      "chord-sing@chord-minor-inversions",
       "chord-inversion-id@chord-inversion-minor",
     ])
   })
@@ -224,13 +225,18 @@ describe("curriculum steps", () => {
       practiceModeId: "chord-quality-id",
       contentTierId: "chord-quality-second",
     })
+    const chordMinorInversions = getCurriculumLessonIndex({
+      practiceModeId: "chord-sing",
+      contentTierId: "chord-minor-inversions",
+    })
     const chordInversionMinor = getCurriculumLessonIndex({
       practiceModeId: "chord-inversion-id",
       contentTierId: "chord-inversion-minor",
     })
     expect(chordMinorSecond).toBe(23)
     expect(chordQualitySecond).toBe(24)
-    expect(chordInversionMinor).toBe(25)
+    expect(chordMinorInversions).toBe(25)
+    expect(chordInversionMinor).toBe(26)
     expect(melodicSing2b).toBeGreaterThan(introDegrees)
     expect(chordMajorFirst).toBeGreaterThan(melodicSing2b)
     expect(namedSing2b).toBeGreaterThan(chordMajorFirst)
@@ -246,7 +252,8 @@ describe("curriculum steps", () => {
     expect(minorDiatonicDegrees).toBeGreaterThan(chordInversionMajor)
     expect(chordMinorSecond).toBeGreaterThan(minorDiatonicDegrees)
     expect(chordQualitySecond).toBeGreaterThan(chordMinorSecond)
-    expect(chordInversionMinor).toBeGreaterThan(chordQualitySecond)
+    expect(chordMinorInversions).toBeGreaterThan(chordQualitySecond)
+    expect(chordInversionMinor).toBeGreaterThan(chordMinorInversions)
   })
 
   it("returns ordered steps per exercise for tier progression", () => {
@@ -270,6 +277,7 @@ describe("curriculum steps", () => {
       "chord-major-second",
       "chord-major-inversions",
       "chord-minor-second",
+      "chord-minor-inversions",
     ])
     expect(
       curriculumLessonsForPracticeMode("chord-quality-id").map((s) => s.contentTierId),
@@ -417,16 +425,26 @@ describe("curriculum steps", () => {
     expect(getChordLessonBannerLabel("chord-major-second")).toBe("Major triad · 2nd inversion")
     expect(getChordLessonBannerLabel("chord-major-inversions")).toBe("Major triad · all inversions")
     expect(getChordLessonBannerLabel("chord-minor-second")).toBe("Minor triad · 2nd inversion")
+    expect(getChordLessonBannerLabel("chord-minor-inversions")).toBe("Minor triad · all inversions")
   })
 
-  it("fixes triad quality on major pooled-inversion capstone and exposes voicing tags", () => {
-    const capstone = findCurriculumLesson(
+  it("fixes triad quality on pooled-inversion capstones and exposes voicing tags", () => {
+    const majorCapstone = findCurriculumLesson(
       (s) => s.contentTierId === "chord-major-inversions",
       "chord-major-inversions",
     )
     expect(getChordPooledInversionTierConfig("chord-major-inversions")).toEqual({
       triadQualityId: "major-triad",
     })
-    expect(getEligibleTagIds(capstone)).toEqual(getEligibleVoicingPositionIds())
+    expect(getEligibleTagIds(majorCapstone)).toEqual(getEligibleVoicingPositionIds())
+
+    const minorCapstone = findCurriculumLesson(
+      (s) => s.contentTierId === "chord-minor-inversions",
+      "chord-minor-inversions",
+    )
+    expect(getChordPooledInversionTierConfig("chord-minor-inversions")).toEqual({
+      triadQualityId: "minor-triad",
+    })
+    expect(getEligibleTagIds(minorCapstone)).toEqual(getEligibleVoicingPositionIds())
   })
 })
