@@ -75,7 +75,7 @@ const TIER_POOL_LABEL: Record<CurriculumLesson["contentTierId"], string | null> 
 /** Optional per-step label overrides (full `practiceModeId:contentTierId` keys). */
 const STEP_LABEL_OVERRIDES: Partial<Record<string, PathNodeLabels>> = {}
 
-function familyTitle(practiceModeId: PracticeModeId): string {
+export function getPathNodeFamilyTitle(practiceModeId: PracticeModeId): string {
   switch (practiceModeId) {
     case "single-note":
       return "Single note"
@@ -95,7 +95,7 @@ function familyTitle(practiceModeId: PracticeModeId): string {
 }
 
 function defaultPathNodeLabels(step: CurriculumLesson): PathNodeLabels {
-  const title = familyTitle(step.practiceModeId)
+  const title = getPathNodeFamilyTitle(step.practiceModeId)
   const pool = TIER_POOL_LABEL[step.contentTierId]
 
   if (step.practiceModeId === "single-note") {
