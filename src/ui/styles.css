@@ -223,8 +223,54 @@ a.path-node:hover {
 .path-node-current {
   border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
   background: color-mix(in srgb, var(--accent) 12%, var(--surface));
-  /* scrollIntoView() respects this — keeps the current node off the viewport edge */
   scroll-margin-block: 1.25rem 4rem;
+}
+
+.targeted-practice-entry {
+  margin-bottom: 1.25rem;
+}
+
+.targeted-practice-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.targeted-practice-card:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+}
+
+.targeted-practice-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.targeted-practice-card-subtitle {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.targeted-practice-card-status {
+  margin-top: 0.1rem;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.targeted-practice-card-cta {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
 }
 
 .path-node-current .path-node-status {
