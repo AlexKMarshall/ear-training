@@ -62,10 +62,6 @@ function getPassedCurriculumLessons(records: readonly AttemptRecord[]): Curricul
   return CURRICULUM_LESSONS.filter((step) => getPathNodeState(step, records) === "passed")
 }
 
-function isSameFamily(a: PracticeModeId, b: PracticeModeId): boolean {
-  return getPathNodeFamilyTitle(a) === getPathNodeFamilyTitle(b)
-}
-
 function scoreTagPairsForLesson(
   step: CurriculumLesson,
   records: readonly AttemptRecord[],
