@@ -8,8 +8,32 @@ For work split across several merge-gated PRs (status table, merge gates, final 
 
 1. **Sync `main`** — `git fetch origin main && git checkout main && git pull origin main`, then branch. If the issue has a **Suggested branch** section, use that name (`git checkout -b feat/…`); see [`issue-tracker.md`](issue-tracker.md#suggested-branch-names).
 2. **Scope** — One logical change per PR. Do not bundle unrelated refactors or sneak ahead on a multi-step plan unless the user asks to combine.
-3. **Verify** — Run `npm run lint`, `npm run typecheck`, `npm run knip:production`, `npm run knip`, and `npm test` (and `npm run build` if the change touches build, routes, or static assets). When browser tests exist, run `npm run test:browser` for PRs that touch `src/ui/` or mount/orchestration code — see [`docs/agents/testing.md`](testing.md). Confirm GitHub Actions **CI** is green on the PR. Do not claim checks pass without running them locally and without a green CI check.
-4. **Re-verify after any fix** — A green verify run is only valid for the tree that was checked. If you change code *after* verify (including fixes prompted by lint/typecheck/test failures, manual follow-up edits, or output from `npm run lint:fix` / `npm run format`), **run the full verify set from step 3 again** before commit and **again immediately before push**. Do not push based on an earlier green run.
+3. **Verify** — Run the full [verify chain](#verify-chain-ci-parity) on the exact tree you will commit. Confirm GitHub Actions **CI** is green on the PR before claiming checks pass.
+4. **Re-verify after any fix** — A green run is only valid for the tree that was checked. If you change code *after* verify (including `npm run lint:fix`, `npm run format`, or edits to fix a failed check), **run the full verify chain again** before commit and **again immediately before push**. Do not push based on an earlier green run.
+
+### Verify chain (CI parity)
+
+Run these **in order** locally; CI runs the same commands (see [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml)):
+
+```bash
+npm run lint
+npm run typecheck
+npm run knip:production
+npm run knip
+npm test
+```
+
+When applicable, also run `npm run test:browser` (changes to `src/ui/`, mount functions, or `tests/browser/` — see [`testing.md`](testing.md)) and `npm run build` (build, routes, or static assets).
+
+**`npm run lint` is not `npm run lint:fix`.** CI uses `biome ci --error-on-warnings`, which **fails on warnings** (unused variables, etc.) as well as errors. `lint:fix` (`biome check --write`) may exit 0 after applying fixes or printing “No fixes applied” — that does **not** prove lint will pass in CI.
+
+| Command | Role | PR-ready on its own? |
+|---------|------|----------------------|
+| `npm run lint` | CI parity (`biome ci --error-on-warnings`) | **Yes** — required |
+| `npm run lint:fix` | Apply safe fixes + organize imports | **No** — always re-run `npm run lint` after |
+| `npm run format` | Write formatting only | **No** — always re-run `npm run lint` after |
+
+Do not check the PR test-plan **lint** box or tell the user lint passes until `npm run lint` exits 0 on the commits you pushed. Do not claim the PR is green until **CI** is green on that PR.
 5. **Commits** — Only commit when the user asks. Use clear messages focused on *why* (1–2 sentences).
 6. **Roadmaps** — Update [`docs/roadmap.md`](../roadmap.md) when planned product work is added, removed, or reprioritized. Update [`docs/tech-debt.md`](../tech-debt.md) when the PR **adds or pays down** tech debt (see [Tech debt registry](#tech-debt-registry)). New features include their own tests in the feature PR (see [`testing.md`](testing.md)).
 
@@ -69,7 +93,7 @@ Use `gh pr create` with a HEREDOC body. Default structure:
 
 ### Automated
 
-- [ ] `npm run lint` — Biome lint + format; warnings fail CI
+- [ ] `npm run lint` — `biome ci --error-on-warnings` (not `lint:fix`); warnings fail CI
 - [ ] `npm run typecheck` — all pass
 - [ ] `npm test` — all pass
 - [ ] `npm run knip:production` and `npm run knip` — dead code and unused exports
@@ -158,7 +182,7 @@ If child issues stay open after merge, close them manually: `gh issue close 46 -
 
 ## Creating the PR
 
-**Push gate:** `git push` only after a fresh full verify (step 3) on the exact commits you are about to push — see **Re-verify after any fix** above.
+**Push gate:** `git push` only after a fresh full [verify chain](#verify-chain-ci-parity) on the exact commits you are about to push — including `npm run lint` after any `lint:fix` / `format` (see step 4).
 
 After push:
 

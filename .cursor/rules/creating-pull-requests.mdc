@@ -10,6 +10,7 @@ Read and follow [`docs/agents/pull-requests.md`](docs/agents/pull-requests.md) (
 Mechanical defaults when opening a PR:
 
 - Use `gh`; gather state with `git status`, `git diff`, branch tracking, and `git log` / `git diff [base]...HEAD`.
+- **Verify chain (CI parity)** — before push, run `npm run lint`, `typecheck`, `knip:production`, `knip`, `npm test` (and `test:browser` / `build` when applicable). **`npm run lint` is not `lint:fix`** — CI uses `biome ci --error-on-warnings` (warnings fail). After `lint:fix` or `format`, re-run the **full** chain; do not claim lint passes until `npm run lint` exits 0. See [`docs/agents/pull-requests.md` § Verify chain](docs/agents/pull-requests.md#verify-chain-ci-parity).
 - Push with `git push -u origin HEAD`; create with `gh pr create` and a HEREDOC body.
 - In the PR summary, list **`Closes #N`** for every issue this merge completes. Only closing keywords auto-close issues—not *implements* or *addresses*.
 - **Epic + slice issues** (`/to-issues`): each PR `Closes` its slice issue; the **final slice PR must also `Closes` the parent epic** (required). See [`docs/agents/pull-requests.md`](docs/agents/pull-requests.md#closing-github-issues-from-a-pr).
