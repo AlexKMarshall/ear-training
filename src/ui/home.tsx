@@ -10,6 +10,10 @@ import {
 } from "../curriculum/path-node.ts"
 import { createDefaultHistoryPort, type MountDeps } from "../history/port.ts"
 import type { AttemptRecord } from "../history/types.ts"
+import {
+  resolveTargetedPracticeHomeCard,
+  type TargetedPracticeHomeCardView,
+} from "../session/targeted-practice-home-card.ts"
 
 function pathNodeStateClass(state: ReturnType<typeof getPathNodeState>): string {
   return state === "passed"
@@ -56,6 +60,17 @@ function PathNodeContent(props: { step: CurriculumLesson; records: readonly Atte
   )
 }
 
+function TargetedPracticeCard(props: { card: TargetedPracticeHomeCardView }) {
+  return (
+    <a href="/targeted-practice/" class="targeted-practice-card">
+      <span class="targeted-practice-card-title">Targeted practice</span>
+      <span class="targeted-practice-card-subtitle">{props.card.subtitle}</span>
+      <span class="targeted-practice-card-status">{props.card.status}</span>
+      <span class="targeted-practice-card-cta">{props.card.ctaLabel}</span>
+    </a>
+  )
+}
+
 function GuidedPath(props: { records: readonly AttemptRecord[] }) {
   const pathComplete = isGuidedPathComplete(props.records)
 
@@ -76,12 +91,20 @@ function GuidedPath(props: { records: readonly AttemptRecord[] }) {
 }
 
 function Home(props: { records: readonly AttemptRecord[] }) {
+  const targetedPracticeCard = resolveTargetedPracticeHomeCard(props.records)
+
   return (
     <main class="app">
       <header class="header">
         <h1>Ear Training</h1>
         <p class="subtitle">Guided path from single notes to intervals</p>
       </header>
+
+      {targetedPracticeCard ? (
+        <section class="targeted-practice-entry" aria-label="Targeted practice">
+          <TargetedPracticeCard card={targetedPracticeCard} />
+        </section>
+      ) : null}
 
       <GuidedPath records={props.records} />
 
@@ -95,22 +118,9 @@ function Home(props: { records: readonly AttemptRecord[] }) {
   )
 }
 
-function scrollCurrentPathNodeIntoView(root: HTMLElement): void {
-  const current = root.querySelector('[data-path-node="current"]')
-  if (!(current instanceof HTMLElement)) {
-    return
-  }
-  const reducedMotion = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches
-  current.scrollIntoView({
-    block: "nearest",
-    behavior: reducedMotion ? "auto" : "smooth",
-  })
-}
-
 export async function mountHome(root: HTMLElement, deps: MountDeps = {}): Promise<void> {
   const history = deps.history ?? createDefaultHistoryPort()
   const records = await history.getAllAttempts()
 
   render(() => <Home records={records} />, root)
-  scrollCurrentPathNodeIntoView(root)
 }
