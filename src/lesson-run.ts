@@ -30,9 +30,18 @@ export interface AttemptScoredContext {
 
 export type AttemptScoredCallback = (context: AttemptScoredContext) => void
 
+export interface LessonRunInitialState {
+  lessonId: string
+  currentExerciseIndex: number | null
+  scoredAttemptsOnCurrent: number
+  lastPassed: boolean
+  results: readonly LessonExerciseResult[]
+}
+
 export interface LessonRunOptions {
   onAttemptScored?: AttemptScoredCallback
   createLessonId?: () => string
+  initialState?: LessonRunInitialState
   maxAttemptsPerExercise?: number
   exercisesPerLesson?: number
 }
@@ -53,7 +62,12 @@ export class LessonRun {
     this.createLessonId = options.createLessonId ?? (() => crypto.randomUUID())
     this.maxAttemptsPerExercise = options.maxAttemptsPerExercise ?? MAX_ATTEMPTS_PER_EXERCISE
     this.exercisesPerLesson = options.exercisesPerLesson ?? EXERCISES_PER_LESSON
-    this.lessonId = this.createLessonId()
+    const initial = options.initialState
+    this.lessonId = initial?.lessonId ?? this.createLessonId()
+    this.currentExerciseIndex = initial?.currentExerciseIndex ?? null
+    this.scoredAttemptsOnCurrent = initial?.scoredAttemptsOnCurrent ?? 0
+    this.lastPassed = initial?.lastPassed ?? false
+    this.results = initial ? [...initial.results] : []
   }
 
   reset(): void {

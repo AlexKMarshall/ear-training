@@ -27,6 +27,33 @@ function runThroughLesson(run: LessonRun, outcomes: boolean[], exercise = sample
 }
 
 describe("LessonRun", () => {
+  it("restores in-progress state from initialState", () => {
+    const run = new LessonRun({
+      createLessonId: () => "ignored",
+      initialState: {
+        lessonId: "lesson-resume",
+        currentExerciseIndex: 2,
+        scoredAttemptsOnCurrent: 1,
+        lastPassed: false,
+        results: [
+          { exerciseIndex: 0, outcome: "firstTry" },
+          { exerciseIndex: 1, outcome: "retry" },
+        ],
+      },
+    })
+    expect(run.getSnapshot()).toMatchObject({
+      lessonId: "lesson-resume",
+      currentExerciseIndex: 2,
+      exerciseNumber: 3,
+      scoredAttemptsOnCurrent: 1,
+      lastPassed: false,
+      results: [
+        { exerciseIndex: 0, outcome: "firstTry" },
+        { exerciseIndex: 1, outcome: "retry" },
+      ],
+    })
+  })
+
   it("exposes an empty snapshot before play", () => {
     const run = new LessonRun({ createLessonId: () => "lesson-a" })
     expect(run.getSnapshot()).toMatchObject({
