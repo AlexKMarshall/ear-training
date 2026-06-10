@@ -323,7 +323,11 @@ describe("planNextExerciseTag", () => {
         lessonId: `chord-major-second-${i}`,
       }),
     )
-    const records = [...passingChordSing("chord-major-root"), ...passingChordSing("chord-major-first"), ...weakSecond]
+    const records = [
+      ...passingChordSing("chord-major-root"),
+      ...passingChordSing("chord-major-first"),
+      ...weakSecond,
+    ]
     const tag = planChordCapstoneExerciseTag(step, "inversion", records, () => 0)
     expect(tag).toBe("second")
   })

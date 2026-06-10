@@ -44,6 +44,8 @@ Every push to `main` and every pull request runs [GitHub Actions](.github/workfl
 
 Do not claim tests pass on a PR without a green **CI** check on that PR.
 
+**Before push:** Re-run the full verify set (`lint`, `typecheck`, `knip:production`, `knip`, `npm test`, and `test:browser` when applicable) whenever you change code after an earlier green run — including fixes from failed checks or `lint:fix`. See [`docs/agents/pull-requests.md`](docs/agents/pull-requests.md#before-you-open-a-pr).
+
 ## Conventions
 
 - Prefer small, focused PRs; one logical change per PR unless the user asks to combine steps.
