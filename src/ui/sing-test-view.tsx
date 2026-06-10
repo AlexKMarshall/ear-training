@@ -96,9 +96,15 @@ export function SingTestView(props: {
   ui: SingUiState
   title: string
   subtitle: string
+  contextBanner?: string
   lessonBanner?: string
   playButtonLabel: string
   showVoicePicker: boolean
+  navBackHref?: string
+  navBackLabel?: string
+  onNavNavigate?: () => void
+  summaryBackHref?: string
+  summaryBackLabel?: string
   onPlay: () => void
   onRecord: () => void
   onRetry: () => void
@@ -108,10 +114,15 @@ export function SingTestView(props: {
 }) {
   return (
     <main class="app">
-      <ExerciseNav />
+      <ExerciseNav
+        backHref={props.navBackHref}
+        backLabel={props.navBackLabel}
+        onNavigate={props.onNavNavigate}
+      />
       <ExerciseHeader
         title={props.title}
         subtitle={props.subtitle}
+        contextBanner={props.contextBanner}
         lessonBanner={props.lessonBanner}
         lessonProgress={props.ui.chrome.lessonProgress}
       />
@@ -139,6 +150,8 @@ export function SingTestView(props: {
         onRetry={props.onRetry}
         onNext={props.onNext}
         onNextLesson={props.onNextLesson}
+        summaryBackHref={props.summaryBackHref}
+        summaryBackLabel={props.summaryBackLabel}
       />
       <ExerciseHint>
         Use headphones if you can. Allow microphone access when prompted. Works on HTTPS or

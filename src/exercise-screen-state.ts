@@ -1,7 +1,12 @@
 import { EXERCISES_PER_LESSON, MAX_ATTEMPTS_PER_EXERCISE } from "./config.ts"
 import { type LessonSummary, percentOf, summarizeLesson } from "./lesson.ts"
 import type { LessonExercise } from "./lesson-exercise.ts"
-import { type AttemptScoredContext, LessonRun, type LessonRunSnapshot } from "./lesson-run.ts"
+import {
+  type AttemptScoredContext,
+  LessonRun,
+  type LessonRunInitialState,
+  type LessonRunSnapshot,
+} from "./lesson-run.ts"
 
 export type ExerciseScreenPhase =
   | "idle"
@@ -125,6 +130,7 @@ interface ExerciseScreenStateOptionsBase {
   onAttemptScored: (context: AttemptScoredEnrichedContext) => void
   onLessonReset?: () => void
   createLessonId?: () => string
+  initialLessonRunState?: LessonRunInitialState
   /** Draw the question in idle before the first Play so prompts can show early (named-interval reproduction). */
   prepareExerciseOnIdle?: boolean
 }
@@ -228,6 +234,7 @@ export class ExerciseScreenState {
       exercisesPerLesson: this.exercisesPerLesson,
       maxAttemptsPerExercise: this.maxAttemptsPerExercise,
       createLessonId: options.createLessonId,
+      initialState: options.initialLessonRunState,
     })
 
     if (this.prepareExerciseOnIdle) {
@@ -327,8 +334,15 @@ export class ExerciseScreenState {
   }
 
   async play(): Promise<void> {
-    if (this.hooks.isPlaybackBusy?.()) return
     if (this.phase === "lessonSummary") return
+
+    const playbackWaitDeadline = Date.now() + 10_000
+    while (this.hooks.isPlaybackBusy?.() && Date.now() < playbackWaitDeadline) {
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 25)
+      })
+    }
+    if (this.hooks.isPlaybackBusy?.()) return
 
     try {
       await this.hooks.ensurePlayback()
@@ -479,13 +493,25 @@ export class ExerciseScreenState {
     await this.play()
   }
 
-  async advance(): Promise<void> {
+  /**
+   * Advance lesson bookkeeping without preparing or playing the next exercise.
+   * @returns true when the lesson is complete and the summary is shown.
+   */
+  advanceLessonOnly(): boolean {
     this.recordingSession?.stop()
     this.recordingSession = null
     this.lessonRun.advanceAfterResult(this.currentExercise ?? undefined)
 
     if (this.lessonRun.getSnapshot().isLessonComplete) {
       this.showLessonSummary()
+      return true
+    }
+
+    return false
+  }
+
+  async advance(): Promise<void> {
+    if (this.advanceLessonOnly()) {
       return
     }
 

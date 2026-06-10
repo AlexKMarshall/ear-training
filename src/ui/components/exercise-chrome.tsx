@@ -1,11 +1,25 @@
 import type { JSX } from "solid-js"
 import type { ActionBarState, LessonProgressState } from "../../exercise-screen-state.ts"
 
-export function ExerciseNav() {
+export function ExerciseNav(props?: {
+  backHref?: string
+  backLabel?: string
+  onNavigate?: () => void
+}) {
+  const href = props?.backHref ?? "/"
+  const label = props?.backLabel ?? "← Back to path"
   return (
     <nav class="nav">
-      <a href="/" class="nav-back">
-        ← Back to path
+      <a
+        href={href}
+        class="nav-back"
+        onClick={(event) => {
+          if (!props?.onNavigate) return
+          event.preventDefault()
+          props.onNavigate()
+        }}
+      >
+        {label}
       </a>
     </nav>
   )
@@ -14,6 +28,7 @@ export function ExerciseNav() {
 export function ExerciseHeader(props: {
   title: string
   subtitle: string
+  contextBanner?: string
   lessonBanner?: string
   lessonProgress: LessonProgressState
 }) {
@@ -21,6 +36,9 @@ export function ExerciseHeader(props: {
     <header class="header">
       <h1>{props.title}</h1>
       <p class="subtitle">{props.subtitle}</p>
+      {props.contextBanner ? (
+        <p class="lesson-banner targeted-practice-banner">{props.contextBanner}</p>
+      ) : null}
       {props.lessonBanner ? <p class="lesson-banner">{props.lessonBanner}</p> : null}
       {props.lessonProgress.visible ? (
         <p class="lesson-progress">{props.lessonProgress.text}</p>
@@ -63,6 +81,8 @@ export function ExerciseActionBar(props: {
   onRetry: () => void
   onNext: () => void
   onNextLesson: () => void
+  summaryBackHref?: string
+  summaryBackLabel?: string
 }) {
   return (
     <div class="actions">
@@ -86,8 +106,8 @@ export function ExerciseActionBar(props: {
       ) : null}
       {props.actionBar.mode === "lesson-summary" ? (
         <>
-          <a class="btn btn-primary" href="/">
-            Back to path
+          <a class="btn btn-primary" href={props.summaryBackHref ?? "/"}>
+            {props.summaryBackLabel ?? "Back to path"}
           </a>
           <button type="button" class="btn btn-secondary" onClick={props.onNextLesson}>
             Practice again

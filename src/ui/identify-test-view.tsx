@@ -99,9 +99,15 @@ export function IdentifyTestView(props: {
   ui: IdentifyUiState
   title: string
   subtitle: string
+  contextBanner?: string
   lessonBanner?: string
   playButtonLabel: string
   showVoicePicker: boolean
+  navBackHref?: string
+  navBackLabel?: string
+  onNavNavigate?: () => void
+  summaryBackHref?: string
+  summaryBackLabel?: string
   onPlay: () => void
   onRetry: () => void
   onNext: () => void
@@ -111,10 +117,15 @@ export function IdentifyTestView(props: {
 }) {
   return (
     <main class="app">
-      <ExerciseNav />
+      <ExerciseNav
+        backHref={props.navBackHref}
+        backLabel={props.navBackLabel}
+        onNavigate={props.onNavNavigate}
+      />
       <ExerciseHeader
         title={props.title}
         subtitle={props.subtitle}
+        contextBanner={props.contextBanner}
         lessonBanner={props.lessonBanner}
         lessonProgress={props.ui.chrome.lessonProgress}
       />
@@ -144,6 +155,8 @@ export function IdentifyTestView(props: {
         onRetry={props.onRetry}
         onNext={props.onNext}
         onNextLesson={props.onNextLesson}
+        summaryBackHref={props.summaryBackHref}
+        summaryBackLabel={props.summaryBackLabel}
       />
       <ExerciseHint>
         Use headphones if you can. Tap Play to hear the reference (no microphone needed).

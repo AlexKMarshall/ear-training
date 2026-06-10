@@ -20,6 +20,7 @@ export default defineConfig({
         intervalMelodicId: resolve(__dirname, "interval-melodic-id/index.html"),
         intervalHarmonicId: resolve(__dirname, "interval-harmonic-id/index.html"),
         scaleDegreeSing: resolve(__dirname, "scale-degree-sing/index.html"),
+        targetedPractice: resolve(__dirname, "targeted-practice/index.html"),
         stats: resolve(__dirname, "stats/index.html"),
       },
     },

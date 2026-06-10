@@ -14,6 +14,7 @@ import { createDefaultHistoryPort, type MountDeps } from "../history/port.ts"
 import { createSessionHistoryCache } from "../history/session-cache.ts"
 import type { PracticeModeId } from "../history/types.ts"
 import { getPracticeMode, mountPracticeMode } from "../practice-modes/registry.ts"
+import { clearTargetedPracticeSessionForGuidedPathLesson } from "../session/targeted-practice-session-store.ts"
 import { LockedCurriculumLessonView } from "./exercise-locked-view.tsx"
 
 function getSearchString(deps: MountDeps): string {
@@ -72,6 +73,8 @@ export async function mountPracticeModePage(
     mountLockedCurriculumLesson(root, accessStep, requirement)
     return
   }
+
+  clearTargetedPracticeSessionForGuidedPathLesson()
 
   await mountPracticeMode(root, practiceModeId, {
     ...deps,

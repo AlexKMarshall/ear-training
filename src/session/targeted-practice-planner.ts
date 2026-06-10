@@ -22,7 +22,7 @@ interface TargetedPracticeFocusArea {
   label: string
 }
 
-interface TargetedPracticeSlot {
+export interface TargetedPracticeSlot {
   curriculumLesson: CurriculumLesson
   tagId: string
   practiceModeId: PracticeModeId

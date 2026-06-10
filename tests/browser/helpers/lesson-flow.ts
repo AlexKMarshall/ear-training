@@ -120,7 +120,7 @@ async function identifyFailThenPass(): Promise<void> {
   await identifyChoose(wrongIntervalLabel)
   await expect.element(page.getByText("Not quite", { exact: true })).toBeVisible()
   await userEvent.click(page.getByRole("button", { name: /Try again/i }))
-  await expect.element(page.getByRole("button", { name: correctIntervalLabel })).toBeVisible()
+  await identifyWaitForReady()
   await userEvent.click(page.getByRole("button", { name: correctIntervalLabel }))
   await expect.element(page.getByText("Correct", { exact: true })).toBeVisible()
 }
