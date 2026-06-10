@@ -99,7 +99,7 @@ _Avoid_: Interval construction (without “named”), sing from reference (as pr
 ### Curriculum
 
 **Curriculum**:
-The ordered route through which difficulty increases — which lesson slots exist, in what sequence, and what unlocks the next slot. The home guided path is the visible curriculum; targeted practice (planned) sits outside this sequence.
+The ordered route through which difficulty increases — which lesson slots exist, in what sequence, and what unlocks the next slot. The home guided path is the visible curriculum; **targeted practice** sits outside unlock progression on this sequence.
 _Avoid_: Curriculum path, main track
 
 **Curriculum lesson**:
@@ -107,7 +107,7 @@ One slot on the curriculum — a fixed place in the sequence with its own exerci
 _Avoid_: Curriculum step (legacy), level step, exercise card
 
 **Guided path**:
-The ordered sequence of curriculum lessons from first practice through the current end of the shipped curriculum. On home, the guided path is the only practice navigation: a single flat list of path nodes — not grouped into level bands, with no separate free-practice area. Lessons not yet woven into the middle of the sequence (e.g. chord middle) sit as path nodes at the end until inserted elsewhere. Another exercise-type family may appear between tiers of the same family (e.g. scale degrees between interval tiers **2a** and **2b**; easy chord tiers may interleave similarly later).
+The ordered sequence of curriculum lessons from first practice through the current end of the shipped curriculum. On home, a **targeted practice** entry sits above a single flat list of path nodes — not grouped into level bands, with no separate free-practice area. Lessons not yet woven into the middle of the sequence (e.g. chord middle) sit as path nodes at the end until inserted elsewhere. Another exercise-type family may appear between tiers of the same family (e.g. scale degrees between interval tiers **2a** and **2b**; easy chord tiers may interleave similarly later).
 _Avoid_: Curriculum path, level grid, free practice section
 
 **Content tier**:
@@ -123,7 +123,7 @@ Numbered planning label grouping practice modes by exercise-type family (e.g. in
 _Avoid_: Level on home UI, path node title, level 2 (as shorthand for interval family)
 
 **Path node**:
-One curriculum lesson as it appears on the home guided path: passed (practicable again), current (first unlocked lesson not yet meeting the unlock requirement), or locked (future). The full guided path is visible; locked nodes are shown but not enterable (greyed out, no lesson run). Only the next locked node after the current one carries unlock copy naming its predecessor lesson. Home has no separate Continue section — the current node on the path is the entry point for resuming guided practice.
+One curriculum lesson as it appears on the home guided path: passed (practicable again), current (first unlocked lesson not yet meeting the unlock requirement), or locked (future). The full guided path is visible; locked nodes are shown but not enterable (greyed out, no lesson run). Only the next locked node after the current one carries unlock copy naming its predecessor lesson. Home has no separate Continue section — **targeted practice** (when visible) is the primary entry above the path; the **current node** is the entry for guided practice on the sequence.
 _Avoid_: Level card, exercise card, Continue card, hidden future lessons
 
 **Path node title**:
@@ -151,16 +151,36 @@ A path node is complete when its curriculum lesson meets the unlock requirement 
 _Avoid_: Re-locking on bad replay, per-node stats on every passed lesson
 
 **Path complete**:
-Every curriculum lesson on the shipped guided path meets the unlock requirement. Home shows a short completion line above the path; all nodes remain visible and enterable for guided replay. There is no current node until new curriculum lessons are added to the path.
-_Avoid_: Hiding the path after completion, auto-suggested next lesson
+Every curriculum lesson on the shipped guided path meets the unlock requirement. Home shows a short completion line above the path; all nodes remain visible and enterable for guided replay. **Targeted practice** remains available (all nodes passed). There is no current node until new curriculum lessons are added to the path.
+_Avoid_: Hiding the path after completion, hiding targeted practice after path complete
 
-**Current node focus**:
-On home load, the path scrolls the current node into view so the learner always sees where they are on a long path. CSS `scroll-margin` on the current node keeps it off the viewport edge; motion respects `prefers-reduced-motion`.
-_Avoid_: Manual scroll only, scroll on pass only, JS scroll offsets
+**Current node** (path):
+The first unlocked path node that has not yet met the **unlock requirement** — styled distinctly on home (`path-node-current`). Home does **not** auto-scroll to it on load; the learner scrolls the path manually. **Targeted practice** and the top of the path stay visible at first paint.
+_Avoid_: Current node focus (legacy — auto-scroll on load), scroll-margin jump on home load
 
-**Targeted practice** (planned):
-A separate home area for choosing what to work on outside the guided path sequence — likely mixed-type lessons — not the same as tapping a passed path node to repeat that curriculum lesson.
-_Avoid_: Free practice (when meaning path replay), practice picker
+**Targeted practice**:
+A single app-generated recommended lesson (ten exercises) shown as the first entry on home, above the guided path list. The app picks **focus areas** from attempt history; the learner starts the lesson with one tap — no topic picker. Opens on a dedicated **`/targeted-practice/`** route: one mount locks in ten exercise slots at Start and swaps **exercise definition** per slot while keeping one **lesson run**. Plan and in-progress position persist device-locally so refresh resumes mid-lesson; cleared on lesson summary or explicit abandon. While a run is in progress, the home entry is a **resume card** (family, progress e.g. 4/10) — not a recomputed focus preview — until that run finishes or is abandoned. Abandon via explicit leave on the exercise screen, or implicitly when starting any **guided path** lesson (current node or **guided replay**); only one in-flight lesson at a time. Ends with the standard **lesson summary** and a return-to-home CTA; stored plan cleared; home card shows a fresh preview from updated history. Draws only from **passed** path nodes — not the current or locked slots. May combine several **exercise types** within one **path node title** in one run. Uses light **spaced repetition**: recency boosts weak-area ranking, ~70% weak / ~30% maintenance draws (same spirit as the **session planner**), and **interleaved** exercise order so the same tag is not back-to-back. Attempts persist with each slot’s real **practice mode** and **content tier** (same history as guided practice). Does not advance **unlock requirement** on the current path node. Hidden until the learner has at least one passed path node. Not the same as **guided replay** on a passed path node.
+_Avoid_: Free practice (when meaning path replay), practice picker, targeted practice section (when meaning multiple links)
+
+**Targeted practice card**:
+The home entry for targeted practice. **Title:** *Targeted practice* (stable product label). **Subtitle:** focused **path node title** and tag label(s) (e.g. *Intervals · minor 2nd*). **Status:** exercise count or resume progress (e.g. *10 exercises*, *Resume · 4/10*). Before Start, subtitle is recomputed on each home visit from current history (may shift until Start locks the plan); during an in-progress run, resume copy replaces it. No pass-rate stats on the card.
+_Avoid_: Path-node title as card title, stats-forward weakness percentages on home
+
+**Targeted practice banner**:
+Fixed exercise-screen context for a targeted-practice run (e.g. *Targeted practice · Intervals · minor 2nd*) shown for the whole lesson alongside the normal per-slot **persistent lesson banner** for the active curriculum lesson. Lesson progress (e.g. 3/10) is the mixed-run indicator.
+_Avoid_: Replacing per-slot banners, targeted-practice-only banner with no lesson context
+
+**Focus area** (targeted practice):
+A **weak area** or **relative focus** chosen for a targeted-practice lesson — one planner tag within one passed **curriculum lesson**. The lesson’s **path node title** (exercise-type family) is whichever family contains the globally highest-priority weak pair (`weakTagWeight` × recency). One focus area by default, or two when a second pair in that family shares the same planner **tag id** on a different passed curriculum lesson (same item, different presentation mode or tier). Most exercises drill focus tags; ~30% are **maintenance** draws from other passed lessons in the same family — tags above the weak threshold only, recency-weighted like the **session planner** maintenance pool. Focus areas are not picked across families in one lesson (e.g. intervals and chords together).
+_Avoid_: Weak skill (without lesson scope), topic picker choice, cross-family focus, two unrelated weak tags in one lesson
+
+**Weak area**:
+A planner tag within one **curriculum lesson** classified as weak for planning — below minimum exercise count or pass-rate threshold (same as the **session planner**), or treated as a **relative focus** in targeted practice when no pair meets that bar (weakest tags in the chosen family by pass rate and recency). Stats and targeted practice use this granularity; tags are not pooled across curriculum lessons with the same label.
+_Avoid_: Weak skill (vague), whole path node weak, cross-lesson tag pool
+
+**Relative focus** (targeted practice):
+When every eligible tag in the focused family is above the weak threshold, targeted practice still picks focus area(s) from the relatively weakest *(curriculum lesson, tag)* pairs in that family — not a maintenance-only fallback. The ~70% / ~30% weak / maintenance split still applies using planner-style classification where possible.
+_Avoid_: Maintenance-only review lesson, hide card when all strong
 
 **Tier block**:
 The curriculum lessons on the guided path that share one content tier — all presentation modes at that tier must pass before the path advances to the next tier **within the same exercise-type family**. Tier blocks need not be contiguous on the path; another family (e.g. scale degrees) may sit between interval tiers.
